@@ -1,0 +1,16 @@
+# 构建产物
+build/
+.gradle/
+*.apk
+*.aab
+*.dex
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+.idea/
+.DS_Store
+*.log
+*.hprof
+.kotlin/

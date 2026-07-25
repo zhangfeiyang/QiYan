@@ -1,0 +1,259 @@
+package com.zhongguoxiangqi.game
+
+/**
+ * 棋盘局面 (Position).
+ *
+ * 维护:
+ * - 90 个格子上的棋子
+ * - 当前轮到哪方走
+ * - Zobrist 哈希(用于置换表和重复检测)
+ * - 上一步走法(用于撤销)
+ */
+class Position {
+
+    /** 90 格,每格存储棋子代码 (0..15) */
+    val squares: IntArray = IntArray(Square.COUNT)
+
+    /** 轮到哪方走 */
+    var sideToMove: Int = Color.RED
+
+    /** 当前局面 Zobrist 哈希值 */
+    var hash: Long = 0L
+
+    /** 走法栈(用于悔棋) */
+    private val moveStack: ArrayList<UndoInfo> = ArrayList()
+
+    /** 历史哈希栈(用于重复检测) */
+    val historyHashes: MutableList<Long> = mutableListOf()
+
+    init {
+        setupStartPosition()
+    }
+
+    /** 初始局面(标准中国象棋开局) */
+    fun setupStartPosition() {
+        squares.fill(0)
+        // 黑方 (上方, row 0..4)
+        squares[Square.make(0, 0)] = Piece.B_ROOK.code
+        squares[Square.make(0, 1)] = Piece.B_HORSE.code
+        squares[Square.make(0, 2)] = Piece.B_ELEPHANT.code
+        squares[Square.make(0, 3)] = Piece.B_ADVISOR.code
+        squares[Square.make(0, 4)] = Piece.B_KING.code
+        squares[Square.make(0, 5)] = Piece.B_ADVISOR.code
+        squares[Square.make(0, 6)] = Piece.B_ELEPHANT.code
+        squares[Square.make(0, 7)] = Piece.B_HORSE.code
+        squares[Square.make(0, 8)] = Piece.B_ROOK.code
+        squares[Square.make(2, 1)] = Piece.B_CANNON.code
+        squares[Square.make(2, 7)] = Piece.B_CANNON.code
+        squares[Square.make(3, 0)] = Piece.B_PAWN.code
+        squares[Square.make(3, 2)] = Piece.B_PAWN.code
+        squares[Square.make(3, 4)] = Piece.B_PAWN.code
+        squares[Square.make(3, 6)] = Piece.B_PAWN.code
+        squares[Square.make(3, 8)] = Piece.B_PAWN.code
+        // 红方 (下方, row 5..9)
+        squares[Square.make(9, 0)] = Piece.R_ROOK.code
+        squares[Square.make(9, 1)] = Piece.R_HORSE.code
+        squares[Square.make(9, 2)] = Piece.R_ELEPHANT.code
+        squares[Square.make(9, 3)] = Piece.R_ADVISOR.code
+        squares[Square.make(9, 4)] = Piece.R_KING.code
+        squares[Square.make(9, 5)] = Piece.R_ADVISOR.code
+        squares[Square.make(9, 6)] = Piece.R_ELEPHANT.code
+        squares[Square.make(9, 7)] = Piece.R_HORSE.code
+        squares[Square.make(9, 8)] = Piece.R_ROOK.code
+        squares[Square.make(7, 1)] = Piece.R_CANNON.code
+        squares[Square.make(7, 7)] = Piece.R_CANNON.code
+        squares[Square.make(6, 0)] = Piece.R_PAWN.code
+        squares[Square.make(6, 2)] = Piece.R_PAWN.code
+        squares[Square.make(6, 4)] = Piece.R_PAWN.code
+        squares[Square.make(6, 6)] = Piece.R_PAWN.code
+        squares[Square.make(6, 8)] = Piece.R_PAWN.code
+
+        sideToMove = Color.RED
+        hash = computeHash()
+        historyHashes.clear()
+        historyHashes.add(hash)
+        moveStack.clear()
+    }
+
+    /** 计算整个局面的 Zobrist 哈希 */
+    fun computeHash(): Long {
+        var h = 0L
+        for (sq in 0 until Square.COUNT) {
+            val p = squares[sq]
+            if (p != Piece.NONE.code) {
+                h = h xor Zobrist.pieceSquare[p][sq]
+            }
+        }
+        if (sideToMove == Color.BLACK) {
+            h = h xor Zobrist.side
+        }
+        return h
+    }
+
+    /** 读取某格棋子 */
+    fun pieceAt(sq: Int): Int = squares[sq]
+    fun pieceAt(row: Int, col: Int): Int = squares[Square.make(row, col)]
+
+    /** 设置某格棋子(不更新 hash,仅用于初始化) */
+    internal fun setPiece(row: Int, col: Int, piece: Int) {
+        squares[Square.make(row, col)] = piece
+    }
+
+    /** 计数某列同种同色棋子(用于着法记法的前缀判断) */
+    fun countPiecesInCol(col: Int, piece: Int, color: Int): Int {
+        var cnt = 0
+        for (r in 0 until Square.ROWS) {
+            val sq = Square.make(r, col)
+            if (squares[sq] == piece) cnt++
+        }
+        return cnt
+    }
+
+    /** 执行走法(返回 false 表示走法非法) */
+    fun doMove(move: Move): Boolean {
+        val from = move.from
+        val to = move.to
+        if (!Square.valid(from) || !Square.valid(to)) return false
+
+        val piece = squares[from]
+        if (piece == Piece.NONE.code) return false
+        if (Piece.fromCode(piece).color != sideToMove) return false
+
+        val captured = squares[to]
+
+        // 更新 hash: 移除起点、终点棋子,切换走子方
+        hash = hash xor Zobrist.pieceSquare[piece][from]
+        if (captured != Piece.NONE.code) {
+            hash = hash xor Zobrist.pieceSquare[captured][to]
+        }
+        hash = hash xor Zobrist.side
+
+        // 执行走法
+        squares[from] = Piece.NONE.code
+        squares[to] = piece
+
+        // 切换走子方
+        sideToMove = Color.opposite(sideToMove)
+
+        // 压栈
+        moveStack.add(UndoInfo(from, to, piece, captured))
+
+        historyHashes.add(hash)
+        return true
+    }
+
+    /** 撤销最后一步走法 */
+    fun undoMove(): UndoInfo? {
+        if (moveStack.isEmpty()) return null
+        val info = moveStack.removeAt(moveStack.size - 1)
+        historyHashes.removeAt(historyHashes.size - 1)
+
+        // 切换走子方
+        sideToMove = Color.opposite(sideToMove)
+
+        // 恢复
+        squares[info.to] = info.captured
+        squares[info.from] = info.moved
+
+        // 更新 hash
+        hash = hash xor Zobrist.side
+        hash = hash xor Zobrist.pieceSquare[info.moved][info.from]
+        if (info.captured != Piece.NONE.code) {
+            hash = hash xor Zobrist.pieceSquare[info.captured][info.to]
+        }
+        return info
+    }
+
+    /** 是否走法合法(基于规则的最终检查) */
+    fun isLegalMove(move: Move): Boolean {
+        val from = move.from
+        val to = move.to
+        if (!Square.valid(from) || !Square.valid(to)) return false
+        val piece = squares[from]
+        if (piece == Piece.NONE.code) return false
+        if (Piece.fromCode(piece).color != sideToMove) return false
+
+        val captured = squares[to]
+        if (captured != Piece.NONE.code && Piece.fromCode(captured).color == sideToMove) {
+            return false  // 不能吃己方
+        }
+
+        if (!Rules.isPseudoLegal(this, move)) return false
+
+        // 走完后不能送将 (走子方 = Color.opposite(走完后的 sideToMove))
+        val moverColor = sideToMove
+        doMove(move)
+        val legal = !Rules.isInCheck(this, moverColor)
+        undoMove()
+        return legal
+    }
+
+    /** 复制局面 */
+    fun copy(): Position {
+        val p = Position()
+        System.arraycopy(squares, 0, p.squares, 0, Square.COUNT)
+        p.sideToMove = sideToMove
+        p.hash = hash
+        p.moveStack.clear()
+        for (info in moveStack) p.moveStack.add(info)
+        p.historyHashes.clear()
+        p.historyHashes.addAll(historyHashes)
+        return p
+    }
+
+    /** 生成所有走法(供搜索或 UI 提示) */
+    fun generateMoves(moves: MutableList<Move>) {
+        MoveGenerator.generateAll(this, moves)
+    }
+
+    /** 检测循环(三次重复) */
+    fun isThreefoldRepetition(): Boolean {
+        if (historyHashes.size < 9) return false  // 至少 9 个局面(4 次重复)
+        val current = hash
+        var count = 0
+        for (i in historyHashes.indices) {
+            if (historyHashes[i] == current) count++
+        }
+        return count >= 3
+    }
+
+    /** 导出 FEN 字符串(XQ-FEN 格式) */
+    fun toFen(): String {
+        val sb = StringBuilder()
+        for (r in 0 until Square.ROWS) {
+            var emptyCount = 0
+            for (c in 0 until Square.COLS) {
+                val p = squares[Square.make(r, c)]
+                if (p == Piece.NONE.code) {
+                    emptyCount++
+                } else {
+                    if (emptyCount > 0) {
+                        sb.append(emptyCount)
+                        emptyCount = 0
+                    }
+                    sb.append(Piece.fromCode(p).chinese)
+                }
+            }
+            if (emptyCount > 0) sb.append(emptyCount)
+            if (r < Square.ROWS - 1) sb.append('/')
+        }
+        sb.append(if (sideToMove == Color.RED) " w" else " b")
+        return sb.toString()
+    }
+
+    /** 打印棋盘到字符串(调试用) */
+    fun prettyPrint(): String {
+        val sb = StringBuilder()
+        for (r in 0 until Square.ROWS) {
+            for (c in 0 until Square.COLS) {
+                val p = squares[Square.make(r, c)]
+                sb.append(if (p == Piece.NONE.code) ". " else "${Piece.fromCode(p).chinese} ")
+            }
+            sb.append("\n")
+        }
+        sb.append("Side: ${Color.name(sideToMove)}, Hash: $hash")
+        return sb.toString()
+    }
+
+    data class UndoInfo(val from: Int, val to: Int, val moved: Int, val captured: Int)
+}

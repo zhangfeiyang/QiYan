@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_main">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        app:title="对局回放"
+        app:titleTextColor="#FFFFFF"
+        app:navigationIcon="@android:drawable/ic_menu_revert"
+        app:navigationIconTint="#FFFFFF" />
+
+    <!-- 对局信息 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/bg_panel"
+        android:padding="@dimen/margin_small">
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_medium"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/player_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_small" />
+
+    </LinearLayout>
+
+    <!-- 棋盘 -->
+    <com.zhongguoxiangqi.ui.board.BoardView
+        android:id="@+id/board_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/margin_small" />
+
+    <!-- 走法信息 -->
+    <TextView
+        android:id="@+id/move_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/margin_small"
+        android:background="@color/bg_panel"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_medium"
+        android:textStyle="bold" />
+
+    <!-- 控制按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/bg_panel"
+        android:padding="@dimen/margin_small">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_first"
+            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/replay_first"
+            android:textSize="@dimen/text_small" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_prev"
+            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:text="@string/replay_prev"
+            android:textSize="@dimen/text_small" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_auto"
+            style="@style/Widget.ZhongguoXiangqi.Button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:text="@string/replay_play"
+            android:textSize="@dimen/text_small" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_next"
+            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:text="@string/replay_next"
+            android:textSize="@dimen/text_small" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_last"
+            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:text="@string/replay_last"
+            android:textSize="@dimen/text_small" />
+
+    </LinearLayout>
+
+</LinearLayout>

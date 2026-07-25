@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 中国风主题 -->
+    <color name="primary">#8B4513</color>
+    <color name="primary_dark">#5D2F0E</color>
+    <color name="primary_light">#D2A56C</color>
+    <color name="accent">#C9302C</color>
+
+    <color name="board_light">#F5DEB3</color>
+    <color name="board_dark">#DEB887</color>
+    <color name="board_wood">#8B5A2B</color>
+    <color name="board_line">#3B2412</color>
+    <color name="board_palace">#7B3F00</color>
+
+    <color name="piece_red">#C8102E</color>
+    <color name="piece_red_outline">#7B0A1A</color>
+    <color name="piece_black">#1A1A1A</color>
+    <color name="piece_black_outline">#000000</color>
+    <color name="piece_wood_bg">#F5E6C8</color>
+
+    <color name="bg_main">#FAEBD7</color>
+    <color name="bg_panel">#FFE8C8</color>
+    <color name="bg_card">#FFEFD5</color>
+
+    <color name="text_primary">#3B2412</color>
+    <color name="text_secondary">#6B4423</color>
+    <color name="text_hint">#9C7B5A</color>
+
+    <color name="highlight_select">#80FFD700</color>
+    <color name="highlight_move">#8032CD32</color>
+    <color name="highlight_capture">#80DC143C</color>
+    <color name="highlight_last_move">#80FF8C00</color>
+    <color name="highlight_hint">#804169E1</color>
+    <color name="highlight_check">#80FF0000</color>
+
+    <color name="winrate_red">#C8102E</color>
+    <color name="winrate_black">#2C2C2C</color>
+    <color name="winrate_draw">#808080</color>
+
+    <color name="divider">#8B5A2B</color>
+    <color name="status_red">#C8102E</color>
+    <color name="status_black">#2C2C2C</color>
+
+    <color name="rank_bronze">#CD7F32</color>
+    <color name="rank_silver">#C0C0C0</color>
+    <color name="rank_gold">#FFD700</color>
+    <color name="rank_platinum">#E5E4E2</color>
+    <color name="rank_diamond">#B9F2FF</color>
+    <color name="rank_master">#FF4500</color>
+    <color name="rank_grandmaster">#9400D3</color>
+    <color name="rank_king">#FFD700</color>
+
+    <!-- 暗色主题 -->
+    <color name="bg_main_dark">#2C1810</color>
+    <color name="bg_panel_dark">#3D2817</color>
+    <color name="bg_card_dark">#4A2F1F</color>
+    <color name="text_primary_dark">#F5E6C8</color>
+    <color name="text_secondary_dark">#D2A56C</color>
+</resources>

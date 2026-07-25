@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 圆形棋盘 -->
+    <path
+        android:fillColor="#F5DEB3"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0" />
+
+    <!-- 棋盘内框 -->
+    <path
+        android:strokeColor="#5D2F0E"
+        android:strokeWidth="2"
+        android:pathData="M54,54m-36,0a36,36 0,1 1,72 0a36,36 0,1 1,-72 0" />
+
+    <!-- 中心十字 -->
+    <path
+        android:fillColor="#5D2F0E"
+        android:pathData="M52,52h4v4h-4z" />
+
+    <!-- 帅字(红方) -->
+    <path
+        android:fillColor="#C8102E"
+        android:pathData="M44,46 L52,46 L52,50 L48,50 L48,52 L52,52 L52,56 L48,56 L48,58 L52,58 L52,62 L44,62 L44,58 L48,58 L48,56 L44,56 L44,52 L48,52 L48,50 L44,50 Z" />
+
+    <!-- 将字(黑方) -->
+    <path
+        android:fillColor="#1A1A1A"
+        android:pathData="M58,46 L66,46 L66,50 L62,50 L62,52 L66,52 L66,56 L62,56 L62,58 L66,58 L66,62 L58,62 L58,58 L62,58 L62,56 L58,56 L58,52 L62,52 L62,50 L58,50 Z" />
+
+</vector>

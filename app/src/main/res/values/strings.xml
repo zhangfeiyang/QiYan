@@ -1,0 +1,136 @@
+<resources>
+    <string name="app_name">中国象棋</string>
+
+    <!-- 主菜单 -->
+    <string name="title_game">对局</string>
+    <string name="title_replay">复盘</string>
+    <string name="title_settings">设置</string>
+    <string name="title_board_editor">编辑局面</string>
+    <string name="menu_play">开始对局</string>
+    <string name="menu_replay">对局复盘</string>
+    <string name="menu_settings">设置</string>
+    <string name="menu_about">关于</string>
+    <string name="menu_difficulty">选择难度</string>
+    <string name="menu_side">选择执子</string>
+
+    <!-- 难度等级 -->
+    <string name="difficulty_easy">入门</string>
+    <string name="difficulty_beginner">初级</string>
+    <string name="difficulty_intermediate">中级</string>
+    <string name="difficulty_advanced">高级</string>
+    <string name="difficulty_expert">大师</string>
+    <string name="difficulty_master">特级大师</string>
+    <string name="difficulty_champion">冠军</string>
+    <string name="difficulty_elite">精英</string>
+    <string name="difficulty_legend">传说</string>
+    <string name="difficulty_immortal">超凡入圣</string>
+
+    <!-- 棋力描述 -->
+    <string name="difficulty_desc_easy">适合新手练习</string>
+    <string name="difficulty_desc_legend">可轻松击败最顶级人类棋手</string>
+
+    <!-- 游戏控制 -->
+    <string name="action_hint">提示</string>
+    <string name="action_undo">悔棋</string>
+    <string name="action_new_game">新对局</string>
+    <string name="action_resign">认输</string>
+    <string name="action_draw">求和</string>
+    <string name="action_analysis">分析</string>
+    <string name="action_flip">翻转棋盘</string>
+    <string name="action_settings">设置</string>
+    <string name="action_back">返回</string>
+    <string name="action_save">保存</string>
+    <string name="action_export">导出棋谱</string>
+    <string name="action_play_red">执红先手</string>
+    <string name="action_play_black">执黑后手</string>
+    <string name="action_two_player">双人对战</string>
+
+    <!-- 状态信息 -->
+    <string name="status_thinking">引擎思考中…</string>
+    <string name="status_your_turn">请走子</string>
+    <string name="status_check">将军!</string>
+    <string name="status_checkmate">将死!</string>
+    <string name="status_draw">和棋</string>
+    <string name="status_resign">认输</string>
+    <string name="status_win">胜利</string>
+    <string name="status_loss">失败</string>
+    <string name="status_stalemate">困毙</string>
+    <string name="status_engine_error">引擎错误,使用内置引擎</string>
+
+    <!-- 胜率 -->
+    <string name="winrate_label">胜率</string>
+    <string name="winrate_red">红方胜率</string>
+    <string name="winrate_black">黑方胜率</string>
+    <string name="depth_label">深度</string>
+    <string name="nodes_label">节点数</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">用时</string>
+
+    <!-- 棋力评定 -->
+    <string name="rating_current">当前棋力</string>
+    <string name="rating_total_games">总对局</string>
+    <string name="rating_wins">胜</string>
+    <string name="rating_losses">负</string>
+    <string name="rating_draws">和</string>
+    <string name="rating_winrate">胜率</string>
+    <string name="rating_rank">等级</string>
+    <string name="rank_1">初学者</string>
+    <string name="rank_2">入门棋友</string>
+    <string name="rank_3">业余初段</string>
+    <string name="rank_4">业余三段</string>
+    <string name="rank_5">业余五段</string>
+    <string name="rank_6">业余七段</string>
+    <string name="rank_7">地方大师</string>
+    <string name="rank_8">国家大师</string>
+    <string name="rank_9">特级大师</string>
+    <string name="rank_10">棋王</string>
+
+    <!-- 提示对话框 -->
+    <string name="dialog_new_game_title">新对局</string>
+    <string name="dialog_new_game_message">确定开始新对局?</string>
+    <string name="dialog_resign_title">认输</string>
+    <string name="dialog_resign_message">确定认输?</string>
+    <string name="dialog_undo_title">悔棋</string>
+    <string name="dialog_undo_message">悔棋会扣除少量棋力分,确定悔棋?</string>
+    <string name="dialog_yes">确定</string>
+    <string name="dialog_no">取消</string>
+    <string name="dialog_ok">好的</string>
+    <string name="dialog_cancel">取消</string>
+
+    <!-- 复盘 -->
+    <string name="replay_empty">暂无对局记录</string>
+    <string name="replay_play">自动播放</string>
+    <string name="replay_prev">上一步</string>
+    <string name="replay_next">下一步</string>
+    <string name="replay_first">第一步</string>
+    <string name="replay_last">最后一步</string>
+    <string name="replay_move_number">第%1$d手</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine">引擎设置</string>
+    <string name="settings_threads">思考线程</string>
+    <string name="settings_hash">哈希表(MB)</string>
+    <string name="settings_sound">音效</string>
+    <string name="settings_vibrate">振动</string>
+    <string name="settings_board_flip">默认翻转棋盘</string>
+    <string name="settings_show_coords">显示坐标</string>
+    <string name="settings_show_winrate">显示胜率</string>
+    <string name="settings_animation">走子动画</string>
+    <string name="settings_theme">主题</string>
+    <string name="settings_piece_style">棋子样式</string>
+    <string name="settings_board_style">棋盘样式</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_engine_path">引擎路径</string>
+    <string name="settings_about_text">中国象棋 v1.0\n\n基于 Pikafish NNUE 引擎\n轻松击败最顶级人类棋手</string>
+
+    <!-- 关于 -->
+    <string name="about_engine_title">引擎信息</string>
+    <string name="about_engine_version">Pikafish NNUE</string>
+    <string name="about_engine_desc">最强开源中国象棋引擎</string>
+
+    <!-- 通用 -->
+    <string name="red">红方</string>
+    <string name="black">黑方</string>
+    <string name="move_count">%1$d手</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+</resources>
