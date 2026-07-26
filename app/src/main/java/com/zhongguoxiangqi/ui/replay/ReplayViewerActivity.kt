@@ -32,6 +32,8 @@ class ReplayViewerActivity : AppCompatActivity() {
     private var moves: List<String> = emptyList()
     private var currentMoveIndex = 0  // 已走的步数
     private var recordId: Long = 0
+    private var recordDifficulty = 5
+    private var recordEngineElo = 1700
     private var playerSide = Color.RED
 
     private val replayPosition = Position()
@@ -58,6 +60,19 @@ class ReplayViewerActivity : AppCompatActivity() {
         binding.btnNext.setOnClickListener { gotoStep(currentMoveIndex + 1) }
         binding.btnLast.setOnClickListener { gotoStep(moves.size) }
         binding.btnAuto.setOnClickListener { toggleAutoPlay() }
+        binding.btnAi.setOnClickListener { launchAdvisor() }
+    }
+
+    private fun launchAdvisor() {
+        com.zhongguoxiangqi.ui.advisor.AdvisorActivity.launchFromReplay(
+            this,
+            initialFen = initialFen,
+            currentPosition = replayPosition,
+            moveHistory = appliedMoves.toList(),
+            playerSide = playerSide,
+            difficulty = recordDifficulty,
+            engineElo = recordEngineElo,
+        )
     }
 
     private fun loadRecord() {
@@ -72,6 +87,8 @@ class ReplayViewerActivity : AppCompatActivity() {
             initialFen = record.initialFen
             moves = record.moves
             playerSide = record.playerSide
+            recordDifficulty = record.difficulty
+            recordEngineElo = record.engineElo
             val resultText = when (record.result) {
                 1 -> "胜"
                 -1 -> "负"

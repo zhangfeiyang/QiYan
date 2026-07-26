@@ -119,6 +119,19 @@ class GameActivity : AppCompatActivity() {
                 .setNegativeButton(R.string.dialog_no, null)
                 .show()
         }
+
+        binding.btnAi.setOnClickListener {
+            val s = viewModel.state.value
+            com.zhongguoxiangqi.ui.advisor.AdvisorActivity.launchFromGame(
+                this,
+                initialFen = viewModel.initialFenSnapshot,
+                currentPosition = viewModel.currentPosition,
+                moveHistory = viewModel.moveHistory.toList(),
+                playerSide = s.playerSide,
+                difficulty = s.difficulty,
+                engineElo = viewModel.engineManager.effectiveElo(),
+            )
+        }
     }
 
     private fun observeState() {

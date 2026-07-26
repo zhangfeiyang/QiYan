@@ -72,12 +72,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     val moveHistory = mutableListOf<Move>()
 
     private val userProfile: UserProfile = UserProfile(getApplication())
-    private val engineManager: EngineManager = EngineManager(getApplication())
+    private val _engineManager: EngineManager = EngineManager(getApplication())
+    /** 暴露给 Activity 用, 获取实际对手棋力 */
+    val engineManager: EngineManager get() = _engineManager
     private val gameDao: GameRecordDao = com.zhongguoxiangqi.data.AppDatabase.get(getApplication()).gameRecordDao()
 
     private var gameStartTime = 0L
     private var gameStartRating = 0
     private var initialFen = ""
+    /** 起始局面 FEN, 给 AI 分析 / 棋谱回放用 */
+    val initialFenSnapshot: String get() = initialFen
 
     /**
      * 当前搜索的用途.

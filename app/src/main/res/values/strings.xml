@@ -137,6 +137,18 @@
 
     <string name="menu_recognize">拍照识别棋局</string>
 
+    <!-- AI 分析功能 -->
+    <string name="advisor_title">AI 分析</string>
+    <string name="advisor_send">发送</string>
+    <string name="advisor_input_hint">问点什么...</string>
+    <string name="advisor_error_generic">分析暂时不可用, 稍后再试</string>
+    <string name="advisor_no_config">AI 功能未配置, 请联系开发者</string>
+    <string name="advisor_clear">清空对话</string>
+    <string name="advisor_context_replay">复盘第 %1$d 手</string>
+    <string name="advisor_context_game">对弈第 %1$d 手 · 轮到 %2$s</string>
+    <string name="advisor_thinking">AI 正在分析…</string>
+    <string name="advisor_button">AI 分析</string>
+
     <!-- 拍照识别棋局 -->
     <string name="title_recognize">拍照识别棋局</string>
     <string name="recognize_take_photo">拍照</string>

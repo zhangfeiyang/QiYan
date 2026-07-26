@@ -198,6 +198,16 @@
             android:text="@string/action_resign"
             android:textSize="@dimen/text_small" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ai"
+            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:text="@string/advisor_button"
+            android:textSize="@dimen/text_small" />
+
     </LinearLayout>
 
 </LinearLayout>

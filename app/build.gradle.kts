@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,6 +16,34 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
+
+        // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
+        // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上
+        // 运行时再告诉用户"未配置".
+        val localProps = Properties().apply {
+            val f = rootProject.file("local.properties")
+            if (f.exists()) f.inputStream().use { load(it) }
+        }
+        val advisorProxyBaseUrl = localProps.getProperty("qiyanAdvisorProxyBaseUrl")
+            ?: providers.gradleProperty("qiyanAdvisorProxyBaseUrl")
+                .orElse(providers.environmentVariable("QIYAN_ADVISOR_PROXY_BASE_URL"))
+                .getOrElse("")
+        val advisorProxyToken = localProps.getProperty("qiyanAdvisorProxyToken")
+            ?: providers.gradleProperty("qiyanAdvisorProxyToken")
+                .orElse(providers.environmentVariable("QIYAN_ADVISOR_PROXY_TOKEN"))
+                .getOrElse("")
+        if (advisorProxyBaseUrl.isBlank() || advisorProxyToken.isBlank()) {
+            logger.warn(
+                "\n⚠ AI 分析未配置：qiyanAdvisorProxyBaseUrl/Token 为空, 装到设备上会报\"未配置云端代理地址\".\n" +
+                    "  请在 local.properties 中加入:\n" +
+                    "    qiyanAdvisorProxyBaseUrl=https://<your-proxy-host>/anthropic\n" +
+                    "    qiyanAdvisorProxyToken=<PROXY_ACCESS_TOKEN>\n"
+            )
+        }
+
+        buildConfigField("String", "ADVISOR_PROXY_BASE_URL", "\"$advisorProxyBaseUrl\"")
+        buildConfigField("String", "ADVISOR_PROXY_TOKEN", "\"$advisorProxyToken\"")
+        buildConfigField("String", "ADVISOR_MODEL", "\"MiniMax-M3\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -128,6 +158,9 @@ dependencies {
 
     // ONNX Runtime —— 拍照识别棋局 (棋盘四角关键点 + 棋子分类)
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
+
+    // Anthropic SDK —— AI 分析功能, 走 AstroSimulator 的本地代理
+    implementation("com.anthropic:anthropic-java:2.52.0")
 
     // Test
     testImplementation("junit:junit:4.13.2")
