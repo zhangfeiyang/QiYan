@@ -49,6 +49,15 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     private var cameraUri: Uri? = null
     private var busy = false
 
+    /**
+     * 显示时是否上下翻转(红在上).
+     *
+     * 只影响显示 —— 局面数据始终是 row 0 = 黑方底线的规范形式, 否则引擎
+     * 那边兵的走向、九宫位置全都要跟着反。识别后按原照片的上下关系自动设置,
+     * 用户也可以手动改。
+     */
+    private var boardFlipped = false
+
     private val sideToMove: Int
         get() = if (binding.sideRed.isChecked) Color.RED else Color.BLACK
 
@@ -75,6 +84,10 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         binding.btnCamera.setOnClickListener { launchCamera() }
         binding.btnAdvise.setOnClickListener { requestAdvice() }
         binding.sideGroup.setOnCheckedChangeListener { _, _ -> refreshBoard() }
+        binding.btnFlip.setOnClickListener {
+            boardFlipped = !boardFlipped
+            refreshBoard()
+        }
 
         // 模型有 40MB, 加载要几百毫秒, 不能卡住界面
         lifecycleScope.launch {
@@ -149,7 +162,12 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             }
             layout = result.layout
             confidence = result.confidence
-            binding.preview.setImageBitmap(result.warped)
+            // 按原照片的上下关系显示: 拍的时候红方在上, 屏幕上也让红方在上,
+            // 用户才对得上自己拍的那张图
+            boardFlipped = result.redOnTop
+            binding.preview.setImageBitmap(
+                if (boardFlipped) rotate180(result.warped) else result.warped
+            )
             binding.preview.visibility = View.VISIBLE
 
             // 四角没框住时先说清楚, 否则用户会以为是模型不认识棋子
@@ -168,6 +186,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             // FEN 解析不了(比如一行超过 9 格), 至少把棋子摆上去让用户能改
             for (i in 0 until Square.COUNT) p.squares[i] = Piece.NONE.code
         }
+        binding.boardView.setFlipped(boardFlipped)
         binding.boardView.setPosition(pos)
 
         val issues = BoardLayout.validate(layout, sideToMove)
@@ -285,6 +304,12 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         super.onDestroy()
         engineManager?.shutdown()
         recognizer?.close()
+    }
+
+    /** 把校正后的正视图也转成与照片相同的朝向 */
+    private fun rotate180(src: Bitmap): Bitmap {
+        val m = android.graphics.Matrix().apply { postRotate(180f) }
+        return Bitmap.createBitmap(src, 0, 0, src.width, src.height, m, true)
     }
 
     companion object {

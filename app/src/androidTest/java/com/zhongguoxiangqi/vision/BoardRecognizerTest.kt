@@ -134,6 +134,36 @@ class BoardRecognizerTest {
         assertTrue("A0 应该在 A8 左侧", r.corners[0] < r.corners[2])
     }
 
+    /**
+     * 照片本来的上下关系要还原得出来.
+     *
+     * 分类模型自己会把局面摆正(整张图转 180° 识别结果完全一样), 所以数据永远是
+     * row 0 = 黑方底线; 但公园里对坐着下棋, 从红方那侧拍就是红在上, 显示时
+     * 得跟着照片走, 否则用户对不上自己拍的图.
+     */
+    @Test
+    fun detectsWhichSideWasOnTopInThePhoto() {
+        // demo005 是真实的公园实拍: 红方在上, 黑方在下
+        assertTrue("demo005 拍的时候红方在上", recognize("demo005.png").redOnTop)
+        // demo003 是常规朝向: 黑方在上
+        assertFalse("demo003 是黑方在上", recognize("demo003.png").redOnTop)
+    }
+
+    /** 不管照片正着拍还是倒着拍, 识别出来的局面数据必须一模一样 */
+    @Test
+    fun layoutIsOrientationInvariant() {
+        val ctx = InstrumentationRegistry.getInstrumentation().context
+        val src = ctx.assets.open("demo003.png").use { BitmapFactory.decodeStream(it) }
+        val m = android.graphics.Matrix().apply { postRotate(180f) }
+        val rotated = android.graphics.Bitmap.createBitmap(src, 0, 0, src.width, src.height, m, true)
+
+        val a = recognizer.recognize(src)
+        val b = recognizer.recognize(rotated)
+        assertEquals("转 180° 后局面数据不应改变", render(a.layout), render(b.layout))
+        // 但上下关系应该跟着翻过来
+        assertNotEquals("转 180° 后显示朝向应该相反", a.redOnTop, b.redOnTop)
+    }
+
     /** 识别耗时得在可接受范围内 */
     @Test
     fun runsInReasonableTime() {

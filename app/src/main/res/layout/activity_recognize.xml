@@ -102,6 +102,15 @@
                     android:text="@string/recognize_black_to_move" />
             </RadioGroup>
 
+            <!-- 自动按照片的上下关系摆放; 认错了可以手动翻回来 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_flip"
+                style="@style/Widget.ZhongguoXiangqi.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:text="@string/recognize_flip" />
+
             <TextView
                 android:id="@+id/advice"
                 android:layout_width="match_parent"

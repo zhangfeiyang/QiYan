@@ -155,6 +155,7 @@
     <string name="recognize_ready">识别完成. 黄圈是存疑的位置, 共 %1$d 处 —— 点格子可以改子. 确认无误后再求招.</string>
     <string name="recognize_pick_piece">%1$c%2$d 放什么子</string>
     <string name="recognize_empty">空</string>
+    <string name="recognize_flip">上下翻转</string>
     <string name="recognize_thinking">引擎思考中…</string>
     <string name="recognize_engine_failed">引擎启动失败</string>
     <string name="recognize_engine_error">引擎错误: %1$s</string>

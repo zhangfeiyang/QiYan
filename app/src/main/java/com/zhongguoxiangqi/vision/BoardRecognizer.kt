@@ -268,6 +268,27 @@ data class RecognizedBoard(
     /** 透视校正后的正视图, 供界面预览 */
     val warped: Bitmap
 ) {
+    /**
+     * 原照片里**红方是不是在上方**.
+     *
+     * 分类模型自己会把局面摆正 —— 把整张图旋转 180° 再识别, 出来的 10x9
+     * 完全一样, 永远是 row 0 = 黑方底线. 这对数据是好事(局面永远合法),
+     * 但照片本来的上下关系就丢了: 公园里对坐着下棋, 从红方那侧拍过去
+     * 就是红在上, 硬摆成黑在上会让人对不上自己拍的那张图.
+     *
+     * 好在四角坐标是**原图**坐标, 上下关系还能还原出来:
+     * A 行(row 0, 黑方底线)如果在图里比 J 行(row 9, 红方底线)更靠下,
+     * 说明拍的时候红方在上.
+     *
+     * 这只影响显示 —— 局面数据始终保持 row 0 = 黑方底线的规范形式.
+     */
+    val redOnTop: Boolean
+        get() {
+            val blackRankY = (corners[1] + corners[3]) / 2f   // A0.y, A8.y
+            val redRankY = (corners[5] + corners[7]) / 2f     // J0.y, J8.y
+            return blackRankY > redRankY
+        }
+
     /** 落在棋盘外的点位数量; >0 说明四角没对准 */
     val offBoardCount: Int
         get() = layout.sumOf { row -> row.count { it == BoardRecognizer.CHAR_OFF_BOARD } }
