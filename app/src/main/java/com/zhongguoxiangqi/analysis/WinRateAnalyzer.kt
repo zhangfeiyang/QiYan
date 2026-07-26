@@ -21,18 +21,36 @@ import kotlin.math.tanh
  */
 object WinRateAnalyzer {
 
-    private const val SCALING = 600.0  // 厘兵: 每 600 厘兵 = 100% 优势
+    // Pikafish 内部单位到厘兵的换算. 上游 PawnValueEg ≈ 200,
+    // 所以 1 兵 ≈ 200 内部单位 ≈ 100 厘兵 → 乘 0.5 换算到厘兵域.
+    private const val INTERNAL_TO_CP = 0.50
+
+    // 温度系数: 每 N 厘兵 = 一次 e 倍的胜率变化. 值越大曲线越平缓,
+    // 胜率波动越小. 400 表示 ±400 cp 优势对应约 10:1 的胜率差.
+    private const val SCALING = 400.0
 
     /**
-     * 将评估值(厘兵,从红方角度)转换为红方胜率.
-     * @param scoreCp 厘兵评估值,正值=红方优势
-     * @param scoreMate 杀棋步数(0=非杀棋,>0=红方N步杀,<0=黑方N步杀)
+     * 将引擎内部评估值转换为红方胜率.
+     *
+     * @param scorePikafish Pikafish 内部评估单位 (1 兵 ≈ 200 单位), 正值=红方优势
+     * @param scoreMate 杀棋步数 (0=非杀, >0=红方 N 步杀, <0=黑方 N 步杀)
      */
-    fun redWinRate(scoreCp: Int, scoreMate: Int = 0): Double {
+    fun redWinRate(scorePikafish: Int, scoreMate: Int = 0): Double {
         if (scoreMate != 0) {
             return if (scoreMate > 0) 99.9 else 0.1
         }
-        return 100.0 / (1.0 + Math.pow(10.0, -scoreCp / SCALING))
+        // 先把内部单位换算到厘兵域, 再用温度系数压平
+        val cp = scorePikafish * INTERNAL_TO_CP
+        return 100.0 / (1.0 + Math.pow(10.0, -cp / SCALING))
+    }
+
+    /** 对数平滑 —— 比直接值更适合 UI 显示 (变化更柔和) */
+    fun smoothWinRate(scorePikafish: Int, scoreMate: Int = 0): Double {
+        if (scoreMate != 0) {
+            return if (scoreMate > 0) 100.0 else 0.0
+        }
+        val cp = scorePikafish * INTERNAL_TO_CP
+        return tanh(cp / (SCALING * 1.8)) * 50.0 + 50.0
     }
 
     /**
@@ -72,11 +90,7 @@ object WinRateAnalyzer {
         return -400.0 * (ln(1.0 / p - 1.0) / ln(10.0))
     }
 
-    /** 用于UI: 平滑动画用的对数缩放 */
-    fun smoothWinRate(rawCp: Int): Double {
-        return tanh(rawCp / 400.0) * 50.0 + 50.0
     }
-}
 
 /**
  * 实时胜率快照 - 给 UI 显示用.

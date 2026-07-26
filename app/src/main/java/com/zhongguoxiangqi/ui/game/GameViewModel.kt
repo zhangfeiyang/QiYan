@@ -18,6 +18,7 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
+import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.rating.GameResult
 import com.zhongguoxiangqi.rating.UserProfile
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +86,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
      * 引擎就替玩家把棋走了.
      */
     @Volatile private var searchPurpose = SearchPurpose.NONE
+
+    /**
+     * 当前这轮搜索是**谁**在走棋.
+     *
+     * 引擎的分数永远是走棋方视角, 换算成红方视角必须用搜索启动那一刻的
+     * 走棋方. 搜索结果回调时棋盘可能已经翻面了, 那时再去读就会反号.
+     */
+    @Volatile private var searchSideToMove = Color.RED
 
     private enum class SearchPurpose { NONE, ENGINE_MOVE, HINT, ANALYSIS }
 
@@ -189,7 +198,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     override fun onInfo(info: EngineInfo) {
         val scoreCp = info.scoreCp
         val scoreMate = info.scoreMate
-        val redWR = WinRateAnalyzer.redWinRate(scoreCp, scoreMate)
+        // 引擎给的分数是**走棋方**视角的, 显示要换算成红方视角.
+        // 用搜索启动时记下的走棋方, 不能读 _state —— 回调在工作线程,
+        // 期间 _state 可能已经因为落子翻面, 一翻就把胜率整个照镜子.
+        val stm = searchSideToMove
+        val scoreRed = if (stm == Color.RED) scoreCp else -scoreCp
+        val mateRed  = if (stm == Color.RED) scoreMate else -scoreMate
+        // 用 tanh 平滑版本: 胜率不会在小分差下剧烈摆动.
+        val redWR = WinRateAnalyzer.smoothWinRate(scoreRed, mateRed)
         val snapshot = WinRateSnapshot(
             redWinRate = redWR,
             scoreCp = scoreCp,
@@ -322,6 +338,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         engineManager.setPosition(initialFen, moveHistory)
         val params = engineManager.requestHint()
+        searchSideToMove = position.sideToMove
         searchPurpose = SearchPurpose.HINT
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
@@ -332,6 +349,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     private fun startAnalysis() {
         if (_state.value.isGameOver) return
         engineManager.setPosition(initialFen, moveHistory)
+        searchSideToMove = position.sideToMove
         searchPurpose = SearchPurpose.ANALYSIS
         engineManager.startSearch(engineManager.requestAnalysis())
     }
@@ -359,6 +377,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             hashMb = estimateHash(_state.value.difficulty),
             multiPv = 3
         )
+        searchSideToMove = position.sideToMove
         searchPurpose = SearchPurpose.ENGINE_MOVE
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
@@ -501,28 +520,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         )
     }
 
-    private fun uciToMove(uci: String): Move? {
-        if (uci.length < 4) return null
-        return try {
-            val fromCol = uci[0] - 'a'
-            val fromRow = uci[1].digitToInt()
-            val toCol = uci[2] - 'a'
-            val toRow = uci[3].digitToInt()
-            val from = com.zhongguoxiangqi.game.Square.make(9 - fromRow, fromCol)
-            val to = com.zhongguoxiangqi.game.Square.make(9 - toRow, toCol)
-            Move.make(from, to)
-        } catch (_: Exception) {
-            null
-        }
-    }
+    private fun uciToMove(uci: String): Move? = UciCoords.parse(uci)
 
-    private fun moveToUci(move: Move): String {
-        val fc = com.zhongguoxiangqi.game.Square.col(move.from)
-        val fr = 9 - com.zhongguoxiangqi.game.Square.row(move.from)
-        val tc = com.zhongguoxiangqi.game.Square.col(move.to)
-        val tr = 9 - com.zhongguoxiangqi.game.Square.row(move.to)
-        return "${(fc + 'a'.code).toChar()}$fr${(tc + 'a'.code).toChar()}$tr"
-    }
+    private fun moveToUci(move: Move): String = UciCoords.toUci(move)
 
     /** 提示搜索结束: 用最终 bestmove 作为推荐着法 */
     private fun onHintBestMove(bestMove: String) {

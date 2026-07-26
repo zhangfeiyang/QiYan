@@ -28,6 +28,7 @@
 #include "engine.h"
 #include "misc.h"
 #include "position.h"
+#include "score.h"
 #include "search.h"
 #include "ucioption.h"
 
@@ -41,6 +42,31 @@ static std::unique_ptr<Engine> g_engine;
 static std::string             g_bestmove;
 static std::string             g_pondermove;
 static std::atomic<int>        g_searching{0};
+
+// Last search info — populated by on_update_full callback, read by
+// getLastInfo JNI function. Protected by g_mutex (same lock as all
+// other engine API calls).
+struct LastInfo {
+    int      depth     = 0;
+    int      scoreCp   = 0;  // centipawns, >0 = red advantage
+    int      scoreMate = 0;  // mate in N plies, 0 = not mate
+    jlong    nodes     = 0;
+    jlong    nps       = 0;
+    jlong    timeMs    = 0;
+};
+static LastInfo g_lastInfo;
+
+// Parse a Pikafish Score (std::variant<Mate, InternalUnits>) into
+// centipawns and mate-in-N plies.
+static void parseScore(const Score& s, int& outCp, int& outMate) {
+    outCp   = 0;
+    outMate = 0;
+    if (s.is<Score::Mate>()) {
+        outMate = s.get<Score::Mate>().plies;
+    } else if (s.is<Score::InternalUnits>()) {
+        outCp = s.get<Score::InternalUnits>().value;
+    }
+}
 
 // ── helpers ───────────────────────────────────────────────────────────────
 
@@ -125,16 +151,25 @@ Java_com_zhongguoxiangqi_engine_PikafishNative_initGlobal(
     g_engine->set_on_update_no_moves(
         [](const Engine::InfoShort& info) {
             __android_log_print(ANDROID_LOG_VERBOSE, TAG,
-                "info: depth=%d score=%d",
-                info.depth, static_cast<int>(info.score));
+                "info: depth=%d", info.depth);
         });
 
     g_engine->set_on_update_full(
         [](const Engine::InfoFull& info) {
+            // With MultiPV>1 this fires once per PV line, best line first.
+            // Only line 1 is the engine's actual evaluation of the position;
+            // recording lines 2..N would leave g_lastInfo holding the score
+            // of the Nth-*best* move, i.e. a systematically pessimistic eval.
+            if (info.multiPV != 1) return;
+            parseScore(info.score, g_lastInfo.scoreCp, g_lastInfo.scoreMate);
+            g_lastInfo.depth  = info.depth;
+            g_lastInfo.nodes  = static_cast<jlong>(info.nodes);
+            g_lastInfo.nps    = static_cast<jlong>(info.nps);
+            g_lastInfo.timeMs = static_cast<jlong>(info.timeMs);
             __android_log_print(ANDROID_LOG_VERBOSE, TAG,
-                "info-full: depth=%d score=%d nodes=%zu pv=%.*s",
-                info.depth, static_cast<int>(info.score), info.nodes,
-                (int) info.pv.size(), info.pv.data());
+                "info-full: depth=%d cp=%d mate=%d nodes=%zu",
+                info.depth,
+                g_lastInfo.scoreCp, g_lastInfo.scoreMate, info.nodes);
         });
 
     g_engine->set_on_iter(
@@ -228,6 +263,13 @@ Java_com_zhongguoxiangqi_engine_PikafishNative_go(
 
     g_bestmove.clear();
     g_pondermove.clear();
+    // Drop the previous search's info. Without this, the first getLastInfo()
+    // poll of a new search returns the *old* search's depth/score — which
+    // belongs to the other side's position, so the win rate shows up
+    // inverted, and because that stale depth is higher than anything the new
+    // search has reached yet, the caller's "only report deeper" filter then
+    // freezes the display for the whole search.
+    g_lastInfo = LastInfo{};
     g_searching = 1;
     g_engine->go(limits);
 }
@@ -293,6 +335,24 @@ Java_com_zhongguoxiangqi_engine_PikafishNative_isSearching(
     JNIEnv* /*env*/, jclass /*cls*/)
 {
     return g_searching.load();
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_PikafishNative_getLastInfo(
+    JNIEnv* env, jclass /*cls*/, jintArray out)
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    // out[0]=depth,  out[1]=scoreCp, out[2]=scoreMate,
+    // out[3]=timeMs (low 32), out[4]=nodes (low 32), out[5]=nps (low 32)
+    jint data[6] = {
+        static_cast<jint>(g_lastInfo.depth),
+        static_cast<jint>(g_lastInfo.scoreCp),
+        static_cast<jint>(g_lastInfo.scoreMate),
+        static_cast<jint>(g_lastInfo.timeMs),
+        static_cast<jint>(g_lastInfo.nodes),
+        static_cast<jint>(g_lastInfo.nps)
+    };
+    env->SetIntArrayRegion(out, 0, 6, data);
 }
 
 JNIEXPORT void JNICALL

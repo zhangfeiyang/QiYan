@@ -42,6 +42,13 @@ object PikafishNative {
     /** 当前是否在搜索中 (1 = 是). */
     @JvmStatic external fun isSearching(): Int
 
+    /**
+     * 读取搜索过程中最新的评估信息.
+     * out[0]=depth, out[1]=scoreCp (厘兵), out[2]=scoreMate (杀棋步数),
+     * out[3]=timeMs, out[4]=nodes, out[5]=nps.
+     */
+    @JvmStatic external fun getLastInfo(out: IntArray)
+
     /** 释放引擎. App 退出前调用. */
     @JvmStatic external fun shutdown()
 }

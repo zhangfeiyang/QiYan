@@ -13,7 +13,7 @@ import com.zhongguoxiangqi.databinding.ActivityReplayViewerBinding
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Position
-import com.zhongguoxiangqi.game.Square
+import com.zhongguoxiangqi.game.UciCoords
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -124,17 +124,7 @@ class ReplayViewerActivity : AppCompatActivity() {
         updateMoveInfo()
     }
 
-    private fun parseMove(uci: String): Move? {
-        if (uci.length < 4) return null
-        return try {
-            val fromCol = uci[0] - 'a'
-            val fromRow = uci[1].digitToInt()
-            val toCol = uci[2] - 'a'
-            val toRow = uci[3].digitToInt()
-            if (fromCol !in 0 until Square.COLS || toCol !in 0 until Square.COLS) return null
-            Move.make(Square.make(9 - fromRow, fromCol), Square.make(9 - toRow, toCol))
-        } catch (_: Exception) { null }
-    }
+    private fun parseMove(uci: String): Move? = UciCoords.parse(uci)
 
     private fun updateBoard(animate: Boolean = false) {
         binding.boardView.setPosition(

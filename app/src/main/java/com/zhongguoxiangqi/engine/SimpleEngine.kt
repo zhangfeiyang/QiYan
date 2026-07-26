@@ -6,6 +6,7 @@ import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.game.Square
+import com.zhongguoxiangqi.game.UciCoords
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
@@ -511,33 +512,10 @@ class SimpleEngine : ChessEngine {
         if (pos.isLegalMove(move)) pos.doMove(move)
     }
 
-    /**
-     * 解析 UCI 坐标, 如 "b2e2".
-     * UCI: 列 a-i = 0-8, 行 0-9 且 0 = 红方底线;
-     * 内部表示: row 0 = 黑方底线, row 9 = 红方底线, 故 row = 9 - rank.
-     */
-    private fun parseUci(uci: String): Move? {
-        if (uci.length < 4) return null
-        return try {
-            val fromCol = uci[0] - 'a'
-            val fromRow = 9 - uci[1].digitToInt()
-            val toCol = uci[2] - 'a'
-            val toRow = 9 - uci[3].digitToInt()
-            if (!Square.valid(fromRow, fromCol) || !Square.valid(toRow, toCol)) return null
-            Move.make(Square.make(fromRow, fromCol), Square.make(toRow, toCol))
-        } catch (_: Exception) {
-            null
-        }
-    }
+    /** 解析 UCI 坐标, 如 "b2e2". 行方向的换算见 [UciCoords]. */
+    private fun parseUci(uci: String): Move? = UciCoords.parse(uci)
 
-    private fun moveToUci(move: Move): String {
-        if (move.from == move.to) return "0000"
-        val fc = Square.col(move.from)
-        val fr = 9 - Square.row(move.from)
-        val tc = Square.col(move.to)
-        val tr = 9 - Square.row(move.to)
-        return "${(fc + 'a'.code).toChar()}$fr${(tc + 'a'.code).toChar()}$tr"
-    }
+    private fun moveToUci(move: Move): String = UciCoords.toUci(move)
 
     // ====== 置换表 ======
 

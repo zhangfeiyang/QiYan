@@ -2,7 +2,7 @@ package com.zhongguoxiangqi.engine
 
 import android.content.Context
 import com.zhongguoxiangqi.game.Move
-import com.zhongguoxiangqi.game.Square
+import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.ui.settings.AppSettings
 
 /**
@@ -190,12 +190,5 @@ class EngineManager(private val context: Context) {
         }
     }
 
-    private fun moveToUci(move: Move): String {
-        if (move.from == move.to) return "0000"
-        val fc = Square.col(move.from)
-        val fr = 9 - Square.row(move.from)
-        val tc = Square.col(move.to)
-        val tr = 9 - Square.row(move.to)
-        return "${(fc + 'a'.code).toChar()}$fr${(tc + 'a'.code).toChar()}$tr"
-    }
+    private fun moveToUci(move: Move): String = UciCoords.toUci(move)
 }
