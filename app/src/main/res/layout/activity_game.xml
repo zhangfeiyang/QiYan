@@ -81,33 +81,6 @@
         android:layout_weight="1"
         android:layout_margin="@dimen/margin_small" />
 
-    <!-- 走法提示信息 -->
-    <LinearLayout
-        android:id="@+id/hint_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/bg_card"
-        android:padding="@dimen/margin_small"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/hint_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/hint_score"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
-
-    </LinearLayout>
-
     <!-- 玩家信息行 -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -154,60 +127,94 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:background="@color/bg_panel"
         android:padding="@dimen/margin_small">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_hint"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <!-- 第一行：提示 / 悔棋 / 翻转 / 认输 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_tiny"
-            android:text="@string/action_hint"
-            android:textSize="@dimen/text_small" />
+            android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_undo"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_tiny"
-            android:text="@string/action_undo"
-            android:textSize="@dimen/text_small" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_hint"
+                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_tiny"
+                android:text="@string/action_hint"
+                android:textSize="@dimen/text_small" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_flip"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_tiny"
-            android:text="@string/action_flip"
-            android:textSize="@dimen/text_small" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_undo"
+                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/margin_tiny"
+                android:text="@string/action_undo"
+                android:textSize="@dimen/text_small" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_resign"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
-            android:text="@string/action_resign"
-            android:textSize="@dimen/text_small" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_flip"
+                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/margin_tiny"
+                android:text="@string/action_flip"
+                android:textSize="@dimen/text_small" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_resign"
+                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_tiny"
+                android:text="@string/action_resign"
+                android:textSize="@dimen/text_small" />
+
+        </LinearLayout>
+
+        <!-- AI 分析按钮：始终可见，在控制按钮下方 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ai"
             style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
+            android:layout_marginTop="@dimen/margin_tiny"
             android:text="@string/advisor_button"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_medium" />
 
     </LinearLayout>
 
+    <!-- 提示走法提示信息 -->
+    <LinearLayout
+        android:id="@+id/hint_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/bg_card"
+        android:padding="@dimen/margin_small"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/hint_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_medium"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/hint_score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_small" />
+
+    </LinearLayout>
 </LinearLayout>
