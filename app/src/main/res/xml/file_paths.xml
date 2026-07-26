@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 拍照时相机把图写到这里, 再由 FileProvider 授权给相机应用 -->
+    <cache-path name="camera" path="camera/" />
+</paths>

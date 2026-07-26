@@ -42,6 +42,9 @@ class MainMenuActivity : AppCompatActivity() {
         binding.btnReplay.setOnClickListener {
             startActivity(Intent(this, ReplayActivity::class.java))
         }
+        binding.btnRecognize.setOnClickListener {
+            startActivity(Intent(this, com.zhongguoxiangqi.ui.recognize.RecognizeActivity::class.java))
+        }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }

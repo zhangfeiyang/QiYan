@@ -17,6 +17,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+
+        // Pikafish 只编了 arm64-v8a, 其它 ABI 上引擎本来就跑不起来.
+        // 而 ONNX Runtime 默认带 4 个 ABI, 白白多占 ~53MB, 全部裁掉.
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     signingConfigs {
@@ -69,6 +75,12 @@ android {
         }
     }
 
+    // ONNX 模型已是压缩过的浮点权重, 再压一遍只是让安装变慢,
+    // 而且不压缩才能直接 mmap 读取, 省掉一次解压到 filesDir.
+    androidResources {
+        noCompress += listOf("onnx", "nnue")
+    }
+
     lint {
         abortOnError = false
         checkReleaseBuilds = false
@@ -113,6 +125,9 @@ dependencies {
 
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // ONNX Runtime —— 拍照识别棋局 (棋盘四角关键点 + 棋子分类)
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
 
     // Test
     testImplementation("junit:junit:4.13.2")

@@ -1,6 +1,10 @@
-# 中国象棋 (Zhongguo Xiangqi) Android App
+# 棋眼 QiYan · 中国象棋 Android App
 
 > 一个完整的中国象棋 Android 应用, 集成 **Pikafish NNUE** 引擎 (JNI 进程内加载), 最高棋力 ≥3300 Elo, 可轻松击败最顶级人类棋手。
+>
+> **拍一张棋盘照片, 它就能看懂局面并告诉你这一手该怎么走。**
+
+<sub>「棋眼」既指一个局面的要害点 —— 正是支招要找的东西; 也指这个 App 用摄像头把棋盘看懂的能力。</sub>
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Min SDK](https://img.shields.io/badge/min%20SDK-26-blue)
@@ -15,6 +19,7 @@
 - [项目结构](#-项目结构)
 - [技术栈与架构](#-技术栈与架构)
 - [AI 引擎实现](#-ai-引擎实现)
+- [拍照识别棋局](#-拍照识别棋局)
 - [实时胜率分析](#-实时胜率分析)
 - [提示功能实现](#-提示功能实现)
 - [棋力评定系统](#-棋力评定系统)
@@ -69,6 +74,10 @@
 - 楚河汉界文字 + 九宫对角线
 - 走子动画 (60fps)
 - 翻转棋盘 (执黑视角)
+
+### 📷 拍照识别棋局
+拍一张棋盘照片(或从相册选图), 自动识别出局面, 确认后让 Pikafish 支招。
+支持斜角拍摄 —— 先检测棋盘四角做透视校正, 再识别棋子。
 
 ### 📜 其他特性
 - 自动保存所有对局 (Room SQLite)
@@ -237,6 +246,73 @@ Kotlin (UI 线程)              JNI Wrapper (C++)             Pikafish Engine (C
 | 8    | Pikafish JNI | 2 | 128 | 4s |
 | 9    | Pikafish JNI | 4 | 256 | 6s |
 | 10   | Pikafish JNI | 4 | 512 | 8s |
+
+---
+
+## 📷 拍照识别棋局
+
+从一张照片还原局面, 再交给引擎支招。模型来自
+[TheOne1006/chinese-chess-recognition](https://github.com/TheOne1006/chinese-chess-recognition) (MIT),
+预训练 ONNX 取自 [HuggingFace Space](https://huggingface.co/spaces/yolo12138/Chinese_Chess_Recognition)。
+
+### 两阶段流水线
+
+`vision/BoardRecognizer.kt` —— 纯 Kotlin + ONNX Runtime, **不依赖 OpenCV**
+(透视变换用 `android.graphics.Matrix.setPolyToPoly`, 4 个点对即完整透视)。
+
+| 阶段 | 模型 | 输入 | 输出 |
+|---|---|---|---|
+| 1. 棋盘四角关键点 | RTMPose (10.7 MB) | 256×256 | SimCC x/y 各 512 bin → A0/A8/J0/J8 |
+| 2. 棋子分类 | SwinV2-tiny (31 MB) | 280×315 | `(1, 90, 16)`, 已 softmax |
+
+先按四角做**透视校正**拉成正视图再分类, 这是能识别"斜着拍"的关键 ——
+分类模型只需要面对正视图。两个模型共用 ImageNet 归一化。
+
+16 个类别为 `".xKABNRCPkabnrcp"`, 与本项目的 `Piece.fen` 完全对应;
+`x` 表示"不在棋盘上", 出现说明四角没框准。
+
+### 坐标约定
+
+模型输出的 10×9、App 的 `Square`、标准 FEN **三者行序完全一致**
+(row 0 = 黑方底线), 因此不需要任何翻转 —— 注意这与 UCI 相反 (UCI 的
+rank 0 是红方底线, 见 `game/UciCoords.kt`)。
+`BoardLayoutTest` 用"起始排布转出的 FEN == `Position().toFen()`" 锁死了方向。
+
+### 为什么必须人工确认
+
+作者验证集: 整盘全对 **83%**, 错 ≤1 格 90%, 错 ≤3 格 96%。
+也就是**每 6 张图就有 1 张至少错一个子, 而错一个子引擎的建议就完全错误**。
+
+所以 `RecognizeActivity` 的流程是"识别 → 人工确认 → 才允许求招":
+
+- 置信度低于 0.75 的格子画**黄圈**, 点一下即可改子
+- `BoardLayout.validate` 校验将帅数量/九宫/相象过河/子力超限, 以及
+  "该走方的对手正在被将"(这种局面立不住); 有阻断级问题时求招按钮直接禁用
+- 四角没框准(出现 `x` 格或关键点得分过低)会提示重拍
+
+已知弱点: 黑车(車)/黑卒易混; 非俯视角度掉点。
+
+### 与参考实现对拍
+
+`app/src/androidTest/.../BoardRecognizerTest.kt` 在真机上跑三张参考图,
+与 Python 参考实现的输出**逐格比对**:
+
+```
+demo003.png        与参考实现差 0 格, 最低置信度 0.81
+demo004.png        与参考实现差 0 格, 最低置信度 0.75
+video010-0004.jpg  与参考实现差 0 格, 最低置信度 0.81   ← 真实斜角照片
+单张识别耗时 278ms
+```
+
+容差卡死 0 格 —— 仿射/SimCC 解码/透视映射一旦改坏立刻会红。
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
+> 参考实现 `chessboard_detector.py` 里 `width, height = image_bgr.shape[:2]`
+> 把宽高写反了(shape 是 `(h, w)`), 非方形图片的仿射中心会偏。本项目用的是
+> 正确写法(实测平均角点得分 0.267 → 0.271, 差异在噪声范围内)。
 
 ---
 

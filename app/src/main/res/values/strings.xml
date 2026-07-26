@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">中国象棋</string>
+    <string name="app_name">棋眼</string>
 
     <!-- 主菜单 -->
     <string name="title_game">对局</string>
@@ -122,7 +122,7 @@
     <string name="settings_board_style">棋盘样式</string>
     <string name="settings_about">关于</string>
     <string name="settings_engine_path">引擎路径</string>
-    <string name="settings_about_text">中国象棋 v1.0\n\n基于 Pikafish NNUE 引擎\n轻松击败最顶级人类棋手</string>
+    <string name="settings_about_text">棋眼 v1.0\n\n基于 Pikafish NNUE 引擎\n轻松击败最顶级人类棋手\n支持拍照识别棋局</string>
 
     <!-- 关于 -->
     <string name="about_engine_title">引擎信息</string>
@@ -134,4 +134,30 @@
     <string name="black">黑方</string>
     <string name="move_count">%1$d手</string>
     <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">拍照识别棋局</string>
+
+    <!-- 拍照识别棋局 -->
+    <string name="title_recognize">拍照识别棋局</string>
+    <string name="recognize_take_photo">拍照</string>
+    <string name="recognize_pick_image">从相册选</string>
+    <string name="recognize_preview_desc">校正后的棋盘</string>
+    <string name="recognize_red_to_move">轮红方走</string>
+    <string name="recognize_black_to_move">轮黑方走</string>
+    <string name="recognize_advise">让引擎支招</string>
+    <string name="recognize_hint_start">拍一张棋盘照片, 或从相册选一张. 尽量正对棋盘、拍全四个角.</string>
+    <string name="recognize_working">识别中…</string>
+    <string name="recognize_failed">识别失败, 换一张试试</string>
+    <string name="recognize_model_failed">识别模型加载失败</string>
+    <string name="recognize_no_camera">没有可用的相机</string>
+    <string name="recognize_corner_warning">棋盘四角没框准, 识别可能不对. 建议正对棋盘重拍一张.</string>
+    <string name="recognize_must_fix">下面的问题必须先改正:</string>
+    <string name="recognize_ready">识别完成. 黄圈是存疑的位置, 共 %1$d 处 —— 点格子可以改子. 确认无误后再求招.</string>
+    <string name="recognize_pick_piece">%1$c%2$d 放什么子</string>
+    <string name="recognize_empty">空</string>
+    <string name="recognize_thinking">引擎思考中…</string>
+    <string name="recognize_engine_failed">引擎启动失败</string>
+    <string name="recognize_engine_error">引擎错误: %1$s</string>
+    <string name="recognize_no_move">引擎没有给出着法</string>
+    <string name="recognize_advice">建议: %1$s %2$s → %3$s</string>
 </resources>

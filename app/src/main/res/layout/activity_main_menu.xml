@@ -216,6 +216,19 @@
         app:layout_constraintTop_toBottomOf="@id/btn_play" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_recognize"
+        style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:text="@string/menu_recognize"
+        android:textSize="@dimen/text_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_replay" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_settings"
         style="@style/Widget.ZhongguoXiangqi.Button.Outline"
         android:layout_width="0dp"
@@ -226,7 +239,7 @@
         android:textSize="@dimen/text_large"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_replay" />
+        app:layout_constraintTop_toBottomOf="@id/btn_recognize" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_about"

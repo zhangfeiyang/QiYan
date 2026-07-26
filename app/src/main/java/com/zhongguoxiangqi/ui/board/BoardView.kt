@@ -67,6 +67,20 @@ class BoardView @JvmOverloads constructor(
     var onSelectedListener: ((Int, List<Move>) -> Unit)? = null
     var onLongPressListener: ((Int) -> Unit)? = null
 
+    /**
+     * 编辑模式: 点击只上报格子, 不做选子/走子那一套.
+     *
+     * 拍照识别出来的局面往往还没法合法走子(可能缺将、可能多子), 用走子逻辑
+     * 去处理点击只会什么都选不中.
+     */
+    var editMode = false
+
+    /** 编辑模式下的点击回调 */
+    var onCellTapListener: ((Int) -> Unit)? = null
+
+    /** 需要用户重点核对的格子(识别置信度低 / 校验有问题) */
+    private var suspectSquares: Set<Int> = emptySet()
+
     // ====== 绘制资源 ======
     private val pieceRedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceBlackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -114,6 +128,13 @@ class BoardView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }
+    /** 识别置信度低 / 校验不通过的格子 */
+    private val suspectPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 6f
+        color = AndroidColor.parseColor("#FFB300")
+    }
+
     private val checkMarkerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = AndroidColor.parseColor("#FFFF0000")
         style = Paint.Style.STROKE
@@ -366,7 +387,17 @@ class BoardView @JvmOverloads constructor(
         animationAnimator = null
     }
 
+    /** 标出可疑格子, 传空集合即清除 */
+    fun setSuspectSquares(squares: Collection<Int>) {
+        suspectSquares = squares.toSet()
+        invalidate()
+    }
+
     private fun handleTap(sq: Int) {
+        if (editMode) {
+            if (sq != -1) onCellTapListener?.invoke(sq)
+            return
+        }
         if (sq == -1) {
             // 点击空白处
             clearSelection()
@@ -659,6 +690,11 @@ class BoardView @JvmOverloads constructor(
         // 将军高亮
         if (checkedKingSq != -1) {
             drawSquareHighlight(canvas, checkedKingSq, checkMarkerPaint, true)
+        }
+
+        // 识别存疑的格子 —— 画在最上层, 让视线直接落到最可能错的地方
+        for (sq in suspectSquares) {
+            drawSquareHighlight(canvas, sq, suspectPaint, true)
         }
     }
 
