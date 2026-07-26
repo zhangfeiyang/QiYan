@@ -14,6 +14,7 @@ import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.data.AppDatabase
 import com.zhongguoxiangqi.data.GameRecord
 import com.zhongguoxiangqi.databinding.ActivityReplayListBinding
+import com.zhongguoxiangqi.game.Color
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,7 +37,7 @@ class ReplayActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         adapter = GameRecordAdapter { record ->
             val intent = Intent(this, ReplayViewerActivity::class.java).apply {
@@ -113,7 +114,7 @@ class GameRecordAdapter(
                 }
             )
         )
-        holder.side.text = if (r.playerSide == 0) "执红" else "执黑"
+        holder.side.text = if (r.playerSide == Color.RED) "执红" else "执黑"
         holder.difficulty.text = "Lv.${r.difficulty}"
         holder.date.text = dateFormat.format(Date(r.startTime))
         holder.moves.text = "${r.moves.size}手  ${r.endReason}"

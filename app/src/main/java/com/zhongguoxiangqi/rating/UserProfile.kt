@@ -57,7 +57,7 @@ class UserProfile(context: Context) {
     /** 是否首次启动 */
     var firstLaunch: Boolean
         get() = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
-        set(value) { prefs.edit().putBoolean(KEY_FIRST_LAUNCH, !value).apply() }
+        set(value) { prefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply() }
 
     /** 已选默认难度 */
     var defaultDifficulty: Int

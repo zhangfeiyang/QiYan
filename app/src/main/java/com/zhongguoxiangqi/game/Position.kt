@@ -20,6 +20,14 @@ class Position {
     /** 当前局面 Zobrist 哈希值 */
     var hash: Long = 0L
 
+    /** 距上次吃子的半回合数(自然限着判定) */
+    var halfmoveClock: Int = 0
+        private set
+
+    /** 回合数(红黑各走一步算一个回合) */
+    var fullmoveNumber: Int = 1
+        private set
+
     /** 走法栈(用于悔棋) */
     private val moveStack: ArrayList<UndoInfo> = ArrayList()
 
@@ -69,6 +77,8 @@ class Position {
         squares[Square.make(6, 8)] = Piece.R_PAWN.code
 
         sideToMove = Color.RED
+        halfmoveClock = 0
+        fullmoveNumber = 1
         hash = computeHash()
         historyHashes.clear()
         historyHashes.add(hash)
@@ -99,12 +109,11 @@ class Position {
         squares[Square.make(row, col)] = piece
     }
 
-    /** 计数某列同种同色棋子(用于着法记法的前缀判断) */
-    fun countPiecesInCol(col: Int, piece: Int, color: Int): Int {
+    /** 计数某列同种同色棋子(用于着法记法的前缀判断). piece 编码已含颜色. */
+    fun countPiecesInCol(col: Int, piece: Int): Int {
         var cnt = 0
         for (r in 0 until Square.ROWS) {
-            val sq = Square.make(r, col)
-            if (squares[sq] == piece) cnt++
+            if (squares[Square.make(r, col)] == piece) cnt++
         }
         return cnt
     }
@@ -121,8 +130,9 @@ class Position {
 
         val captured = squares[to]
 
-        // 更新 hash: 移除起点、终点棋子,切换走子方
+        // 更新 hash: 棋子离开起点、落到终点,移除被吃子,切换走子方
         hash = hash xor Zobrist.pieceSquare[piece][from]
+        hash = hash xor Zobrist.pieceSquare[piece][to]
         if (captured != Piece.NONE.code) {
             hash = hash xor Zobrist.pieceSquare[captured][to]
         }
@@ -132,11 +142,13 @@ class Position {
         squares[from] = Piece.NONE.code
         squares[to] = piece
 
-        // 切换走子方
-        sideToMove = Color.opposite(sideToMove)
+        // 压栈(先记录旧的限着计数,便于 undo 恢复)
+        moveStack.add(UndoInfo(from, to, piece, captured, halfmoveClock))
 
-        // 压栈
-        moveStack.add(UndoInfo(from, to, piece, captured))
+        // 切换走子方
+        if (sideToMove == Color.BLACK) fullmoveNumber++
+        sideToMove = Color.opposite(sideToMove)
+        halfmoveClock = if (captured != Piece.NONE.code) 0 else halfmoveClock + 1
 
         historyHashes.add(hash)
         return true
@@ -150,42 +162,41 @@ class Position {
 
         // 切换走子方
         sideToMove = Color.opposite(sideToMove)
+        if (sideToMove == Color.BLACK) fullmoveNumber--
+        halfmoveClock = info.prevHalfmoveClock
 
         // 恢复
         squares[info.to] = info.captured
         squares[info.from] = info.moved
 
-        // 更新 hash
+        // 更新 hash(与 doMove 严格对称)
         hash = hash xor Zobrist.side
         hash = hash xor Zobrist.pieceSquare[info.moved][info.from]
+        hash = hash xor Zobrist.pieceSquare[info.moved][info.to]
         if (info.captured != Piece.NONE.code) {
             hash = hash xor Zobrist.pieceSquare[info.captured][info.to]
         }
         return info
     }
 
-    /** 是否走法合法(基于规则的最终检查) */
+    /** 是否走法合法(行棋规则 + 不送将) */
     fun isLegalMove(move: Move): Boolean {
-        val from = move.from
-        val to = move.to
-        if (!Square.valid(from) || !Square.valid(to)) return false
-        val piece = squares[from]
-        if (piece == Piece.NONE.code) return false
-        if (Piece.fromCode(piece).color != sideToMove) return false
-
-        val captured = squares[to]
-        if (captured != Piece.NONE.code && Piece.fromCode(captured).color == sideToMove) {
-            return false  // 不能吃己方
-        }
-
         if (!Rules.isPseudoLegal(this, move)) return false
+        return leavesKingSafe(move)
+    }
 
-        // 走完后不能送将 (走子方 = Color.opposite(走完后的 sideToMove))
+    /**
+     * 走完这一步后本方是否不被将军.
+     *
+     * 前提: [move] 已经是伪合法走法. 走法生成器内部用这条快路径,
+     * 避免对每个候选着法重复做规则校验.
+     */
+    fun leavesKingSafe(move: Move): Boolean {
         val moverColor = sideToMove
-        doMove(move)
-        val legal = !Rules.isInCheck(this, moverColor)
+        if (!doMove(move)) return false
+        val safe = !Rules.isInCheck(this, moverColor)
         undoMove()
-        return legal
+        return safe
     }
 
     /** 复制局面 */
@@ -194,8 +205,10 @@ class Position {
         System.arraycopy(squares, 0, p.squares, 0, Square.COUNT)
         p.sideToMove = sideToMove
         p.hash = hash
+        p.halfmoveClock = halfmoveClock
+        p.fullmoveNumber = fullmoveNumber
         p.moveStack.clear()
-        for (info in moveStack) p.moveStack.add(info)
+        p.moveStack.addAll(moveStack)
         p.historyHashes.clear()
         p.historyHashes.addAll(historyHashes)
         return p
@@ -217,7 +230,17 @@ class Position {
         return count >= 3
     }
 
-    /** 导出 FEN 字符串(XQ-FEN 格式) */
+    /** 自然限着: 连续 120 个半回合(60 回合)无吃子判和 */
+    fun isFiftyMoveDraw(): Boolean = halfmoveClock >= 120
+
+    /**
+     * 导出标准象棋 FEN.
+     *
+     * 例如初始局面:
+     * `rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1`
+     *
+     * 必须是标准字母格式 —— Pikafish 等 UCI 引擎按这个格式解析 `position fen`.
+     */
     fun toFen(): String {
         val sb = StringBuilder()
         for (r in 0 until Square.ROWS) {
@@ -231,14 +254,52 @@ class Position {
                         sb.append(emptyCount)
                         emptyCount = 0
                     }
-                    sb.append(Piece.fromCode(p).chinese)
+                    sb.append(Piece.fromCode(p).fen)
                 }
             }
             if (emptyCount > 0) sb.append(emptyCount)
             if (r < Square.ROWS - 1) sb.append('/')
         }
         sb.append(if (sideToMove == Color.RED) " w" else " b")
+        sb.append(" - - ").append(halfmoveClock).append(' ').append(fullmoveNumber)
         return sb.toString()
+    }
+
+    /**
+     * 从标准 FEN 载入局面. 解析失败时保持原局面并返回 false.
+     */
+    fun setFromFen(fen: String): Boolean {
+        val parts = fen.trim().split(" ")
+        if (parts.isEmpty()) return false
+        val rows = parts[0].split("/")
+        if (rows.size != Square.ROWS) return false
+
+        val parsed = IntArray(Square.COUNT)
+        for (r in 0 until Square.ROWS) {
+            var c = 0
+            for (ch in rows[r]) {
+                if (ch.isDigit()) {
+                    c += ch - '0'
+                } else {
+                    val piece = Piece.fromFen(ch)
+                    if (piece == Piece.NONE) return false
+                    if (c >= Square.COLS) return false
+                    parsed[Square.make(r, c)] = piece.code
+                    c++
+                }
+            }
+            if (c != Square.COLS) return false
+        }
+
+        System.arraycopy(parsed, 0, squares, 0, Square.COUNT)
+        sideToMove = if (parts.getOrNull(1) == "b") Color.BLACK else Color.RED
+        halfmoveClock = parts.getOrNull(4)?.toIntOrNull() ?: 0
+        fullmoveNumber = parts.getOrNull(5)?.toIntOrNull() ?: 1
+        hash = computeHash()
+        historyHashes.clear()
+        historyHashes.add(hash)
+        moveStack.clear()
+        return true
     }
 
     /** 打印棋盘到字符串(调试用) */
@@ -255,5 +316,11 @@ class Position {
         return sb.toString()
     }
 
-    data class UndoInfo(val from: Int, val to: Int, val moved: Int, val captured: Int)
+    data class UndoInfo(
+        val from: Int,
+        val to: Int,
+        val moved: Int,
+        val captured: Int,
+        val prevHalfmoveClock: Int = 0
+    )
 }

@@ -1,5 +1,6 @@
 package com.zhongguoxiangqi.ui.board
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -48,19 +49,53 @@ class WinRateBarView @JvmOverloads constructor(
         typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
     }
 
+    private var animator: ValueAnimator? = null
+
     fun update(snapshot: WinRateSnapshot, animate: Boolean = true) {
-        if (snapshot == this.snapshot) return
-        previousSnapshot = this.snapshot
+        if (snapshot.redWinRate == this.snapshot.redWinRate) {
+            // 数值没变,只更新附带信息,不重启动画
+            this.snapshot = snapshot
+            return
+        }
+        // 从当前显示到的位置接着动,避免连续更新时来回跳
+        previousSnapshot = this.snapshot.copy(redWinRate = displayedRedWinRate())
         this.snapshot = snapshot
-        animationProgress = if (animate) 0f else 1f
-        invalidate()
+
+        animator?.cancel()
+        if (!animate) {
+            animationProgress = 1f
+            invalidate()
+            return
+        }
+        animationProgress = 0f
+        animator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 300L
+            addUpdateListener {
+                animationProgress = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
     }
 
+    /** 当前实际画在屏幕上的红方胜率 */
+    private fun displayedRedWinRate(): Double =
+        previousSnapshot.redWinRate +
+            (snapshot.redWinRate - previousSnapshot.redWinRate) * animationProgress
+
     fun reset() {
+        animator?.cancel()
+        animator = null
         snapshot = WinRateSnapshot(redWinRate = 50.0)
         previousSnapshot = snapshot
         animationProgress = 1f
         invalidate()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animator?.cancel()
+        animator = null
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -118,10 +153,11 @@ class WinRateBarView @JvmOverloads constructor(
         // 中线
         canvas.drawLine(redWidth, 0f, redWidth, h, dividerPaint)
 
-        // 文本
+        // 文本. 用四舍五入并让两边互补, 否则会出现 "51% / 48%" 这种加不到 100 的显示
         textPaint.textSize = h * 0.4f
-        val redText = "${redPercent.toInt()}%"
-        val blackText = "${(100f - redPercent).toInt()}%"
+        val redRounded = Math.round(redPercent).coerceIn(0, 100)
+        val redText = "$redRounded%"
+        val blackText = "${100 - redRounded}%"
         canvas.drawText("红", h * 0.5f, h * 0.6f, textPaint.also {
             it.color = Color.WHITE; it.textSize = h * 0.45f
         })

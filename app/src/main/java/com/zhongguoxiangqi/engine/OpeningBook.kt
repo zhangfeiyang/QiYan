@@ -1,75 +1,70 @@
 package com.zhongguoxiangqi.engine
 
 import android.content.Context
-import com.zhongguoxiangqi.game.Color
-import com.zhongguoxiangqi.game.Move
-import com.zhongguoxiangqi.game.Position
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import kotlin.random.Random
 
 /**
- * 开局库(开局字典).
+ * 开局库.
  *
- * 数据格式: fen -> { name, moves: List<String> }
- * 实际生产环境建议使用专业开局库,如 Pikafish 提供的开局文件.
+ * 数据格式: 起始局面 FEN 的棋盘部分 -> 若干条变例, 每条是一串 UCI 着法.
+ *
+ * 查询规则: 只有当**实际走过的着法**恰好是某条变例的前缀时, 才给出该变例的
+ * 下一步. 否则一旦对手离谱, 继续照着谱走会走出昏招甚至非法着法.
  */
 class OpeningBook(private val context: Context) {
 
-    private val book: Map<String, BookEntry> by lazy { loadBook() }
+    private val book: Map<String, List<Line>> by lazy { loadBook() }
 
-    fun lookup(position: Position, movesPlayed: Int): Move? {
-        if (movesPlayed > 12) return null  // 超过 12 手不用开局库
-        val fen = position.toFen()
-        // 取走子方归一化
-        val entry = book.entries.firstOrNull {
-            it.key.startsWith(fen.substringBefore(' '))
-        } ?: return null
+    data class Line(val name: String, val moves: List<String>)
 
-        val moveList = entry.value.moves
-        if (movesPlayed >= moveList.size) return null
+    /**
+     * 查开局库.
+     *
+     * @param startFen 对局起始局面的 FEN
+     * @param movesPlayed 已经走过的着法(UCI)
+     * @return 下一步的 UCI 着法; 不在库中或已出谱时返回 null
+     */
+    fun lookup(startFen: String, movesPlayed: List<String>): String? {
+        if (movesPlayed.size >= MAX_BOOK_PLIES) return null
+        val lines = book[startFen.substringBefore(' ')] ?: return null
 
-        val uci = moveList[movesPlayed]
-        return uciToMove(uci)
-    }
-
-    private fun uciToMove(uci: String): Move? {
-        if (uci.length < 4) return null
-        return try {
-            val fromCol = uci[0] - 'a'
-            val fromRow = uci[1].digitToInt()
-            val toCol = uci[2] - 'a'
-            val toRow = uci[3].digitToInt()
-            val from = com.zhongguoxiangqi.game.Square.make(9 - fromRow, fromCol)
-            val to = com.zhongguoxiangqi.game.Square.make(9 - toRow, toCol)
-            Move.make(from, to)
-        } catch (_: Exception) { null }
-    }
-
-    private fun loadBook(): Map<String, BookEntry> {
-        return try {
-            val json = context.assets.open("book/opening_book.json").use { input ->
-                BufferedReader(InputStreamReader(input)).readText()
-            }
-            val obj = JSONObject(json)
-            val map = mutableMapOf<String, BookEntry>()
-            obj.keys().forEach { key ->
-                val entry = obj.getJSONObject(key)
-                val movesArr = entry.getJSONArray("moves")
-                val moves = (0 until movesArr.length()).map { movesArr.getString(it) }
-                map[key] = BookEntry(
-                    name = entry.optString("name", ""),
-                    moves = moves
-                )
-            }
-            map
-        } catch (e: Exception) {
-            emptyMap()
+        // 仍然吻合的变例: 已走着法是它的前缀, 且它还有后续着法
+        val candidates = lines.filter { line ->
+            line.moves.size > movesPlayed.size &&
+                movesPlayed.indices.all { i -> line.moves[i].equals(movesPlayed[i], ignoreCase = true) }
         }
+        if (candidates.isEmpty()) return null
+
+        // 多条可选时随机挑一条, 开局才不会每盘都一模一样
+        return candidates[Random.nextInt(candidates.size)].moves[movesPlayed.size]
     }
 
-    data class BookEntry(
-        val name: String,
-        val moves: List<String>
-    )
+    private fun loadBook(): Map<String, List<Line>> = try {
+        val json = context.assets.open(BOOK_ASSET).use { it.readBytes().toString(Charsets.UTF_8) }
+        val root = JSONObject(json)
+        buildMap {
+            for (key in root.keys()) {
+                // 跳过 _comment 这类非对象字段
+                val entry = root.optJSONObject(key) ?: continue
+                val linesArr = entry.optJSONArray("lines") ?: continue
+                val lines = (0 until linesArr.length()).mapNotNull { i ->
+                    val obj = linesArr.optJSONObject(i) ?: return@mapNotNull null
+                    val movesArr = obj.optJSONArray("moves") ?: return@mapNotNull null
+                    val moves = (0 until movesArr.length()).map { movesArr.getString(it) }
+                    if (moves.isEmpty()) null else Line(obj.optString("name", ""), moves)
+                }
+                if (lines.isNotEmpty()) put(key, lines)
+            }
+        }
+    } catch (e: Exception) {
+        android.util.Log.w("OpeningBook", "开局库加载失败,将完全依赖搜索: ${e.message}")
+        emptyMap()
+    }
+
+    private companion object {
+        const val BOOK_ASSET = "book/opening_book.json"
+        /** 超过这个手数就不再用开局库 */
+        const val MAX_BOOK_PLIES = 12
+    }
 }

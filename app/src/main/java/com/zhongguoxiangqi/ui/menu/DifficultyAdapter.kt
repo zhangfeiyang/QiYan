@@ -42,7 +42,7 @@ class DifficultyAdapter(
         holder.itemView.isSelected = (position == selectedPosition)
         holder.itemView.setOnClickListener {
             val oldPos = selectedPosition
-            selectedPosition = holder.adapterPosition
+            selectedPosition = holder.bindingAdapterPosition
             notifyItemChanged(oldPos)
             notifyItemChanged(selectedPosition)
             onClick(level)

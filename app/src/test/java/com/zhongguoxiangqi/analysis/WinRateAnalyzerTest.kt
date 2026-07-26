@@ -1,5 +1,6 @@
 package com.zhongguoxiangqi.analysis
 
+import com.zhongguoxiangqi.game.Color
 import org.junit.Assert.*
 import org.junit.Test
 

@@ -34,12 +34,11 @@ object MoveGenerator {
     fun generateAll(pos: Position, moves: MutableList<Move>) {
         val savedSize = moves.size
         generatePseudo(pos, moves)
-        // 剔除送将走法
+        // 剔除送将走法(已是伪合法,只需检查是否自曝将)
         val it = moves.listIterator(savedSize)
         while (it.hasNext()) {
             val m = it.next()
-            val ok = pos.isLegalMove(m)
-            if (!ok) it.remove()
+            if (!pos.leavesKingSafe(m)) it.remove()
         }
     }
 
@@ -48,17 +47,30 @@ object MoveGenerator {
         for (sq in 0 until Square.COUNT) {
             val p = pos.squares[sq]
             if (p == Piece.NONE.code) continue
-            val color = Piece.fromCode(p).color
-            if (color != pos.sideToMove) continue
-            when (Piece.fromCode(p).type) {
-                1 -> genKing(pos, sq, color, moves)
-                2 -> genAdvisor(pos, sq, color, moves)
-                3 -> genElephant(pos, sq, color, moves)
-                4 -> genHorse(pos, sq, color, moves)
-                5 -> genRook(pos, sq, color, moves)
-                6 -> genCannon(pos, sq, color, moves)
-                7 -> genPawn(pos, sq, color, moves)
-            }
+            if (Piece.fromCode(p).color != pos.sideToMove) continue
+            generateForSquare(pos, sq, moves)
+        }
+    }
+
+    /**
+     * 生成某一格棋子的全部伪合法走法.
+     *
+     * 这是走子规则的唯一来源: [Rules.isPseudoLegal] 也走这条路径,
+     * 保证"能生成的"与"判为合法的"永远一致.
+     */
+    fun generateForSquare(pos: Position, sq: Int, moves: MutableList<Move>) {
+        val p = pos.squares[sq]
+        if (p == Piece.NONE.code) return
+        val piece = Piece.fromCode(p)
+        val color = piece.color
+        when (piece.type) {
+            1 -> genKing(pos, sq, color, moves)
+            2 -> genAdvisor(pos, sq, color, moves)
+            3 -> genElephant(pos, sq, color, moves)
+            4 -> genHorse(pos, sq, color, moves)
+            5 -> genRook(pos, sq, color, moves)
+            6 -> genCannon(pos, sq, color, moves)
+            7 -> genPawn(pos, sq, color, moves)
         }
     }
 

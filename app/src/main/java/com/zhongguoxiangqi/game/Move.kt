@@ -44,48 +44,67 @@ data class Move(
         fun make(from: Int, to: Int, type: Int = MoveType.NORMAL): Move =
             Move(((type and 0x3) shl 14) or ((to and 0x7F) shl 7) or (from and 0x7F))
 
-        /** 中文着法(红方视角) */
-        fun toChineseString(move: Move, side: Int, board: Position): String {
-            if (move.data == 0) return ""
-            val p = board.pieceAt(move.from)
-            val pieceName = when (Piece.fromCode(p).type) {
-                1 -> if (side == Color.RED) "帅" else "将"
-                2 -> if (side == Color.RED) "仕" else "士"
-                3 -> if (side == Color.RED) "相" else "象"
-                4 -> "马"; 5 -> "车"; 6 -> "炮"
-                7 -> if (side == Color.RED) "兵" else "卒"
-                else -> "?"
-            }
+        /** 汉字数字, 索引即数值 */
+        private val CHINESE_DIGITS = arrayOf("〇", "一", "二", "三", "四", "五", "六", "七", "八", "九")
 
-            // 同列有两个同种棋子时需加前缀
+        /**
+         * 中文着法记谱, 如 "炮二平五"、"马8进7"、"前兵进一".
+         *
+         * 记谱约定:
+         * - 红方用汉字数字, 列号自红方右侧(col 8)起数; 黑方用阿拉伯数字, 列号自黑方右侧(col 0)起数.
+         * - 进 = 朝对方前进(红方 row 减小, 黑方 row 增大), 退 = 后撤, 平 = 横移.
+         * - 车/炮/兵/将 进退记步数; 马/相/仕 走斜线, 进退记目标列.
+         * - 同一列有多个同种棋子时改用 前/中/后 前缀替代起始列.
+         */
+        fun toChineseString(move: Move, board: Position): String {
+            val code = board.pieceAt(move.from)
+            if (code == Piece.NONE.code) return ""
+            val piece = Piece.fromCode(code)
+            val isRed = piece.isRed
+            val name = if (isRed) piece.redChar else piece.blackChar
+
             val fr = Square.row(move.from)
-            val tr = Square.row(move.to)
             val fc = Square.col(move.from)
+            val tr = Square.row(move.to)
             val tc = Square.col(move.to)
-            val sameColCount = board.countPiecesInCol(fc, p, side)
-            val prefix = if (sameColCount >= 2) {
-                // 用前后区分: 两个同列同种,前用"前",后用"后"; 三个以上用"中"
-                val minRow = if (side == Color.RED) fr else 9 - fr
-                when {
-                    sameColCount == 2 -> if (minRow <= 4) "后" else "前"
-                    else -> "中"  // 简化处理
-                }
-            } else ""
 
-            // 移动方向: 进退平
+            // 同列同种棋子, 按"从前到后"排序
+            val sameFile = (0 until Square.ROWS)
+                .filter { board.pieceAt(Square.make(it, fc)) == code }
+                .let { if (isRed) it.sorted() else it.sortedDescending() }
+            val index = sameFile.indexOf(fr)
+            val prefix = when {
+                sameFile.size < 2 || index < 0 -> ""
+                index == 0 -> "前"
+                index == sameFile.size - 1 -> "后"
+                sameFile.size == 3 -> "中"
+                else -> numeral(index + 1, isRed)
+            }
+
             val action = when {
-                fc == tc -> if (tr > fr) "进" else "退"  // 同列直走
-                else -> "平"  // 移列
+                tr == fr -> "平"
+                (tr < fr) == isRed -> "进"
+                else -> "退"
             }
 
-            // 终点记法: 进退时用行差(数字),平时用列号
-            val toText = if (action == "平") {
-                "${tc + 1}"
+            // 马/相/仕 走斜线, 进退也要记目标列; 其余记纵向步数
+            val diagonalMover = piece.type == 2 || piece.type == 3 || piece.type == 4
+            val target = if (action == "平" || diagonalMover) {
+                fileNumber(tc, isRed)
             } else {
-                if (side == Color.RED) "${tr + 1}" else "${9 - tr}"
+                numeral(kotlin.math.abs(tr - fr), isRed)
             }
-            return "$prefix$pieceName$action$toText"
+
+            val origin = if (prefix.isEmpty()) fileNumber(fc, isRed) else ""
+            return "$prefix$name$origin$action$target"
         }
+
+        /** 列号: 红方自右向左数(col 8 = 一), 黑方自右向左数(col 0 = 1) */
+        private fun fileNumber(col: Int, isRed: Boolean): String =
+            if (isRed) numeral(Square.COLS - col, true) else numeral(col + 1, false)
+
+        private fun numeral(n: Int, isRed: Boolean): String =
+            if (isRed && n in CHINESE_DIGITS.indices) CHINESE_DIGITS[n] else n.toString()
 
         // 各棋子大致价值(用于排序)
         private fun pieceValue(piece: Int): Int = when (Piece.fromCode(piece).type) {

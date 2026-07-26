@@ -21,6 +21,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
@@ -91,6 +92,10 @@ class BoardView @JvmOverloads constructor(
     private val highlightMovePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = AndroidColor.parseColor("#8032CD32")
     }
+    /** 可走点的外圈光晕: 单独一支笔, 避免改到 highlightMovePaint 的 alpha */
+    private val highlightMoveHaloPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#5032CD32")
+    }
     private val highlightCapturePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = AndroidColor.parseColor("#80DC143C")
     }
@@ -151,24 +156,61 @@ class BoardView @JvmOverloads constructor(
     private var downX = 0f
     private var downY = 0f
 
+    // 棋子绘制用的常驻画笔(onDraw 中不再分配对象)
+    private val pieceInnerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pieceWoodLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#30A0826D")
+        strokeWidth = 0.8f
+        style = Paint.Style.STROKE
+    }
+    private val boardWoodPaint = Paint().apply {
+        color = AndroidColor.parseColor("#80A0826D")
+        strokeWidth = 1f
+        style = Paint.Style.STROKE
+    }
+    private val boardBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#5D2F0E")
+        style = Paint.Style.STROKE
+        strokeWidth = 6f
+    }
+    private val boardRect = RectF()
+
+    private val redPieceColor = AndroidColor.parseColor("#C8102E")
+    private val blackPieceColor = AndroidColor.parseColor("#1A1A1A")
+
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
+        pieceShadowPaint.color = AndroidColor.parseColor("#40000000")
+        pieceBorderPaint.style = Paint.Style.FILL
+        // 棋子文字必须居中对齐,否则字会整体偏到棋子右侧
+        pieceRedPaint.textAlign = Paint.Align.CENTER
+        pieceBlackPaint.textAlign = Paint.Align.CENTER
         // 尝试加载内嵌字体
-        try {
-            val tf = Typeface.createFromAsset(context.assets, "fonts/chinese_piece.ttf")
-            pieceRedPaint.typeface = tf
-            pieceBlackPaint.typeface = tf
+        val tf = try {
+            Typeface.createFromAsset(context.assets, "fonts/chinese_piece.ttf")
         } catch (_: Exception) {
             // 字体加载失败,使用系统字体
-            val tf = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-            pieceRedPaint.typeface = tf
-            pieceBlackPaint.typeface = tf
+            Typeface.create(Typeface.SERIF, Typeface.BOLD)
         }
+        pieceRedPaint.typeface = tf
+        pieceBlackPaint.typeface = tf
     }
 
     // ====== 公共 API ======
 
-    fun setPosition(position: Position) {
+    /**
+     * 同步棋盘.
+     *
+     * @param position **走子之后**的局面
+     * @param animateMove 若非 null,把这一步画成从起点滑到终点的动画.
+     *        只在确实只走了一步时传(悔棋/开新局/跳步都应传 null).
+     */
+    fun setPosition(position: Position, animateMove: Move? = null) {
+        // 局面没变就什么都不做. 状态流一步棋会发射多次(比如紧接着的
+        // isThinking=true), 每次都重刷会打断正在播的走子动画, 也会把玩家
+        // 刚选中的棋子清掉.
+        if (animateMove == null && position.hash == this.position.hash) return
+
         this.position = position.copy()
         this.lastMove = null
         this.hintMove = null
@@ -176,31 +218,35 @@ class BoardView @JvmOverloads constructor(
         this.selectedSquare = -1
         this.legalMovesFromSelected = emptyList()
         this.checkedKingSq = -1
+
+        if (animateMove != null && animationEnabled && cellWidth > 0f) {
+            startMoveAnimation(animateMove)
+        } else {
+            cancelMoveAnimation()
+        }
         invalidate()
     }
 
-    /** 应用走法(带动画) */
-    fun applyMoveWithAnimation(move: Move, captured: Int = -1) {
-        if (!animationEnabled) {
-            // 不使用动画时,直接更新
-            position.doMove(move)
-            this.lastMove = move
-            invalidate()
+    /**
+     * 让走子的棋子从起点滑到终点.
+     * 传进来的 [position] 已是走完之后的状态,所以动画棋子取自终点格.
+     */
+    private fun startMoveAnimation(move: Move) {
+        val piece = position.pieceAt(move.to)
+        if (piece == Piece.NONE.code) {
+            cancelMoveAnimation()
             return
         }
-
         animationAnimator?.cancel()
         animatingMove = move
-        animatingPiece = position.pieceAt(move.from)
+        animatingPiece = piece
         animatingFromCenter = squareToCenter(move.from)
         animatingToCenter = squareToCenter(move.to)
-
-        // 暂时把原位置的棋子移走
-        position.doMove(move)
-        this.lastMove = move
+        animationProgress = 0f
 
         animationAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 220L
+            duration = MOVE_ANIMATION_MS
+            interpolator = DecelerateInterpolator()
             addUpdateListener {
                 animationProgress = it.animatedValue as Float
                 invalidate()
@@ -212,6 +258,13 @@ class BoardView @JvmOverloads constructor(
             }
             start()
         }
+    }
+
+    private fun cancelMoveAnimation() {
+        animationAnimator?.cancel()
+        animationAnimator = null
+        animatingMove = null
+        animationProgress = 0f
     }
 
     fun setLastMove(move: Move?) {
@@ -267,37 +320,50 @@ class BoardView @JvmOverloads constructor(
     // ====== 触摸事件 ======
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 downX = event.x
                 downY = event.y
                 val sq = pixelToSquare(event.x, event.y)
                 if (sq != -1) {
-                    longPressRunnable = Runnable {
-                        onLongPressListener?.invoke(sq)
-                    }
-                    handler.postDelayed(longPressRunnable!!, 600L)
+                    val runnable = Runnable { onLongPressListener?.invoke(sq) }
+                    longPressRunnable = runnable
+                    handler.postDelayed(runnable, LONG_PRESS_MS)
                 }
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
                 val dx = event.x - downX
                 val dy = event.y - downY
-                if (dx * dx + dy * dy > 100) {
-                    handler.removeCallbacks(longPressRunnable!!)
-                }
+                if (dx * dx + dy * dy > LONG_PRESS_SLOP_SQ) cancelPendingLongPress()
             }
             MotionEvent.ACTION_UP -> {
-                handler.removeCallbacks(longPressRunnable!!)
-                val sq = pixelToSquare(event.x, event.y)
-                handleTap(sq)
+                cancelPendingLongPress()
+                performClick()
+                handleTap(pixelToSquare(event.x, event.y))
                 return true
             }
-            MotionEvent.ACTION_CANCEL -> {
-                if (longPressRunnable != null) handler.removeCallbacks(longPressRunnable!!)
-            }
+            MotionEvent.ACTION_CANCEL -> cancelPendingLongPress()
         }
         return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
+    /** 取消待触发的长按. 按下点若在棋盘外, runnable 为 null —— 不能无条件解引用 */
+    private fun cancelPendingLongPress() {
+        longPressRunnable?.let { handler.removeCallbacks(it) }
+        longPressRunnable = null
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        cancelPendingLongPress()
+        animationAnimator?.cancel()
+        animationAnimator = null
     }
 
     private fun handleTap(sq: Int) {
@@ -348,26 +414,26 @@ class BoardView @JvmOverloads constructor(
 
     // ====== 坐标转换 ======
 
-    /** 像素坐标 -> 棋盘格(-1 表示无效) */
+    /**
+     * 像素坐标 -> 棋盘格(-1 表示无效).
+     *
+     * 棋子画在网格交点上, 所以要取"最近的交点"(四舍五入); 用取整会让
+     * 命中区整体偏移半格. 允许半格以内的误差, 超出则视为点在棋盘外.
+     */
     private fun pixelToSquare(x: Float, y: Float): Int {
-        val (boardX, boardY) = pixelToBoard(x, y)
-        val col = ((boardX - boardLeft) / cellWidth).toInt()
-        val row = ((boardY - boardTop) / cellHeight).toInt()
+        if (cellWidth <= 0f || cellHeight <= 0f) return -1
+        val fc = (x - boardLeft) / cellWidth
+        val fr = (y - boardTop) / cellHeight
+        val col = Math.round(fc)
+        val row = Math.round(fr)
         if (col !in 0 until Square.COLS || row !in 0 until Square.ROWS) return -1
-        // 翻转时,行列需要翻转
+        // 命中容差: 距交点超过 0.5 格判为无效点击
+        if (kotlin.math.abs(fc - col) > 0.5f || kotlin.math.abs(fr - row) > 0.5f) return -1
+        // 翻转仅在这里做一次 —— 像素坐标不再另行翻转, 否则两次翻转相互抵消
         return if (flipped) {
             Square.make(Square.ROWS - 1 - row, Square.COLS - 1 - col)
         } else {
             Square.make(row, col)
-        }
-    }
-
-    private fun pixelToBoard(x: Float, y: Float): Pair<Float, Float> {
-        // 翻转后,像素坐标系也需要翻转
-        return if (flipped) {
-            Pair(width - x, height - y)
-        } else {
-            Pair(x, y)
         }
     }
 
@@ -397,35 +463,68 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun calculateDimensions() {
-        val padding = 32f
-        val availableW = width - padding * 2
-        val availableH = height - padding * 2
-        // 棋盘比例 9:10
-        val boardRatio = Square.COLS.toFloat() / Square.ROWS  // 0.9
-        val viewRatio = availableW / availableH
-        val (bw, bh) = if (viewRatio > boardRatio) {
-            val bh2 = availableH
-            val bw2 = bh2 * boardRatio
-            Pair(bw2, bh2)
-        } else {
-            val bw2 = availableW
-            val bh2 = bw2 / boardRatio
-            Pair(bw2, bh2)
-        }
-        val left = (width - bw) / 2
-        val top = (height - bh) / 2 - 20
-        boardLeft = left
-        boardTop = top
-        boardRight = left + bw
-        boardBottom = top + bh
-        cellWidth = bw / (Square.COLS - 1)
-        cellHeight = bh / (Square.ROWS - 1)
-        pieceRadius = min(cellWidth, cellHeight) * 0.42f
+        if (width <= 0 || height <= 0) return
+
+        // 网格是 8 格宽 × 9 格高(交点 9×10). 棋子画在最外圈交点上,
+        // 会向外凸出一个半径,所以四周必须额外留出 MARGIN_CELLS 格,
+        // 否则边线上的车/兵会被裁掉.
+        val cell = min(
+            width / (Square.COLS - 1 + MARGIN_CELLS),
+            height / (Square.ROWS - 1 + MARGIN_CELLS)
+        )
+        // 正方形格子,棋盘看起来才正
+        cellWidth = cell
+        cellHeight = cell
+
+        val bw = cell * (Square.COLS - 1)
+        val bh = cell * (Square.ROWS - 1)
+        boardLeft = (width - bw) / 2f
+        boardTop = (height - bh) / 2f
+        boardRight = boardLeft + bw
+        boardBottom = boardTop + bh
+        pieceRadius = cell * 0.42f
 
         coordinatePaint.textSize = pieceRadius * 0.55f
         riverTextPaint.textSize = pieceRadius * 1.4f
         pieceRedPaint.textSize = pieceRadius * 1.3f
         pieceBlackPaint.textSize = pieceRadius * 1.3f
+
+        rebuildShaders()
+    }
+
+    /**
+     * 渐变只依赖尺寸,在尺寸变化时构建一次即可.
+     * 棋子渐变以棋子中心为原点,绘制时靠 canvas 平移定位.
+     */
+    private fun rebuildShaders() {
+        if (pieceRadius <= 0f) return
+
+        boardRect.set(
+            boardLeft - pieceRadius * 1.2f, boardTop - pieceRadius * 1.2f,
+            boardRight + pieceRadius * 1.2f, boardBottom + pieceRadius * 1.2f
+        )
+        boardBgPaint.shader = LinearGradient(
+            boardRect.left, boardRect.top, boardRect.right, boardRect.bottom,
+            intArrayOf(
+                AndroidColor.parseColor("#DEB887"),
+                AndroidColor.parseColor("#D2A56C"),
+                AndroidColor.parseColor("#C8A06A"),
+                AndroidColor.parseColor("#B88A52")
+            ),
+            floatArrayOf(0f, 0.4f, 0.7f, 1f),
+            Shader.TileMode.CLAMP
+        )
+
+        pieceInnerPaint.shader = RadialGradient(
+            -pieceRadius * 0.3f, -pieceRadius * 0.3f, pieceRadius * 0.7f,
+            intArrayOf(
+                AndroidColor.parseColor("#FFF8DC"),
+                AndroidColor.parseColor("#F5DEB3"),
+                AndroidColor.parseColor("#DEB887")
+            ),
+            floatArrayOf(0f, 0.5f, 1f),
+            Shader.TileMode.CLAMP
+        )
     }
 
     // ====== 绘制 ======
@@ -444,42 +543,17 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawBoard(canvas: Canvas) {
         // 木纹背景
-        val rect = RectF(boardLeft - pieceRadius * 1.2f, boardTop - pieceRadius * 1.2f,
-            boardRight + pieceRadius * 1.2f, boardBottom + pieceRadius * 1.2f)
-
-        val gradient = LinearGradient(
-            rect.left, rect.top, rect.right, rect.bottom,
-            intArrayOf(
-                AndroidColor.parseColor("#DEB887"),
-                AndroidColor.parseColor("#D2A56C"),
-                AndroidColor.parseColor("#C8A06A"),
-                AndroidColor.parseColor("#B88A52")
-            ),
-            floatArrayOf(0f, 0.4f, 0.7f, 1f),
-            Shader.TileMode.CLAMP
-        )
-        boardBgPaint.shader = gradient
-        canvas.drawRoundRect(rect, 12f, 12f, boardBgPaint)
+        canvas.drawRoundRect(boardRect, 12f, 12f, boardBgPaint)
 
         // 木纹细节 (细线)
-        val woodPaint = Paint().apply {
-            color = AndroidColor.parseColor("#80A0826D")
-            strokeWidth = 1f
-            style = Paint.Style.STROKE
-        }
         for (i in 0..30) {
-            val y = rect.top + (rect.height() / 30f) * i
+            val y = boardRect.top + (boardRect.height() / 30f) * i
             val wave = kotlin.math.sin(i * 0.7f) * 4f
-            canvas.drawLine(rect.left + wave, y, rect.right - wave, y, woodPaint)
+            canvas.drawLine(boardRect.left + wave, y, boardRect.right - wave, y, boardWoodPaint)
         }
 
         // 边框
-        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = AndroidColor.parseColor("#5D2F0E")
-            style = Paint.Style.STROKE
-            strokeWidth = 6f
-        }
-        canvas.drawRoundRect(rect, 12f, 12f, borderPaint)
+        canvas.drawRoundRect(boardRect, 12f, 12f, boardBorderPaint)
     }
 
     private fun drawGrid(canvas: Canvas) {
@@ -596,10 +670,8 @@ class BoardView @JvmOverloads constructor(
     private fun drawMoveMarker(canvas: Canvas, sq: Int) {
         val center = squareToCenter(sq)
         val radius = pieceRadius * 0.18f
+        canvas.drawCircle(center.x, center.y, radius * 1.8f, highlightMoveHaloPaint)
         canvas.drawCircle(center.x, center.y, radius, highlightMovePaint)
-        canvas.drawCircle(center.x, center.y, radius * 1.8f, highlightMovePaint.also {
-            it.alpha = 80
-        })
     }
 
     private fun drawCaptureMarker(canvas: Canvas, sq: Int) {
@@ -616,19 +688,18 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun drawPieces(canvas: Canvas) {
+        // 动画中的棋子由 drawAnimatingPiece 画在途中,终点格先空着
+        val skipSquare = animatingMove?.to ?: -1
         for (sq in 0 until Square.COUNT) {
+            if (sq == skipSquare) continue
             val pieceCode = position.pieceAt(sq)
             if (pieceCode == Piece.NONE.code) continue
-            // 跳过正在动画中的棋子(避免重复绘制)
-            if (animatingMove != null && (sq == animatingMove!!.from || (sq == animatingMove!!.to && animationProgress < 1f))) continue
-
-            val piece = Piece.fromCode(pieceCode)
             drawPiece(canvas, sq, pieceCode)
         }
     }
 
     private fun drawAnimatingPiece(canvas: Canvas) {
-        val am = animatingMove ?: return
+        if (animatingMove == null) return
         val cx = animatingFromCenter.x + (animatingToCenter.x - animatingFromCenter.x) * animationProgress
         val cy = animatingFromCenter.y + (animatingToCenter.y - animatingFromCenter.y) * animationProgress
         drawPieceAt(canvas, cx, cy, animatingPiece)
@@ -641,57 +712,51 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawPieceAt(canvas: Canvas, cx: Float, cy: Float, pieceCode: Int) {
         val piece = Piece.fromCode(pieceCode)
+        if (piece == Piece.NONE) return
         val isRed = piece.isRed
         val radius = pieceRadius
 
+        // 以棋子中心为原点绘制,渐变着色器得以复用
+        val save = canvas.save()
+        canvas.translate(cx, cy)
+
         // 阴影
-        val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        shadowPaint.color = AndroidColor.parseColor("#40000000")
-        canvas.drawCircle(cx + 3, cy + 4, radius * 1.05f, shadowPaint)
+        canvas.drawCircle(3f, 4f, radius * 1.05f, pieceShadowPaint)
 
         // 棋子外圈
-        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isRed) AndroidColor.parseColor("#7B0A1A") else AndroidColor.parseColor("#1A1A1A")
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy, radius, borderPaint)
+        pieceBorderPaint.color = if (isRed) AndroidColor.parseColor("#7B0A1A") else blackPieceColor
+        canvas.drawCircle(0f, 0f, radius, pieceBorderPaint)
 
         // 棋子内圈(木纹底色)
-        val innerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            shader = RadialGradient(
-                cx - radius * 0.3f, cy - radius * 0.3f, radius * 0.7f,
-                intArrayOf(
-                    AndroidColor.parseColor("#FFF8DC"),
-                    AndroidColor.parseColor("#F5DEB3"),
-                    AndroidColor.parseColor("#DEB887")
-                ),
-                floatArrayOf(0f, 0.5f, 1f),
-                Shader.TileMode.CLAMP
-            )
-        }
-        canvas.drawCircle(cx, cy, radius * 0.92f, innerPaint)
+        canvas.drawCircle(0f, 0f, radius * 0.92f, pieceInnerPaint)
 
         // 木纹细节
-        val woodLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = AndroidColor.parseColor("#30A0826D")
-            strokeWidth = 0.8f
-            style = Paint.Style.STROKE
-        }
         for (i in -2..2) {
-            val y = cy + i * radius * 0.25f
-            canvas.drawLine(cx - radius, y, cx + radius, y, woodLinePaint)
+            val y = i * radius * 0.25f
+            canvas.drawLine(-radius, y, radius, y, pieceWoodLinePaint)
         }
 
         // 字符
         val charPaint = if (isRed) pieceRedPaint else pieceBlackPaint
-        charPaint.color = if (isRed) AndroidColor.parseColor("#C8102E") else AndroidColor.parseColor("#1A1A1A")
+        charPaint.color = if (isRed) redPieceColor else blackPieceColor
         val text = if (isRed) piece.redChar else piece.blackChar
         val fm = charPaint.fontMetrics
-        val textY = cy - (fm.ascent + fm.descent) / 2
-        canvas.drawText(text, cx, textY, charPaint)
+        canvas.drawText(text, 0f, -(fm.ascent + fm.descent) / 2, charPaint)
+
+        canvas.restoreToCount(save)
     }
 
     // ====== 工具 ======
+
+    companion object {
+        /** 棋盘四周为棋子半径和坐标文字预留的空间, 单位是"格" */
+        private const val MARGIN_CELLS = 1.35f
+        /** 走子动画时长 */
+        private const val MOVE_ANIMATION_MS = 220L
+        private const val LONG_PRESS_MS = 600L
+        /** 超过这个位移(像素平方)就认为是拖动,取消长按 */
+        private const val LONG_PRESS_SLOP_SQ = 100f
+    }
 
     private fun ValueAnimator.doOnEnd(action: () -> Unit) {
         addListener(object : android.animation.AnimatorListenerAdapter() {

@@ -130,7 +130,7 @@
                 android:background="@color/bg_card"
                 android:padding="@dimen/margin_medium">
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_sound"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_medium" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_vibrate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_medium" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_show_coords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_medium" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_show_winrate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -162,7 +162,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_medium" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_animation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -170,7 +170,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="@dimen/text_medium" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_flipped"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

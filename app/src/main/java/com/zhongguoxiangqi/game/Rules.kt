@@ -39,53 +39,43 @@ object Rules {
         )
         for (dir in lineDirs) {
             var step = 1
-            var jumped = false
+            var screened = false  // 是否已越过炮架
             while (true) {
                 val toR = kr + dir[0] * step
                 val toC = kc + dir[1] * step
                 if (toR !in 0 until Square.ROWS || toC !in 0 until Square.COLS) break
-                val sq = Square.make(toR, toC)
-                val p = pos.squares[sq]
-                if (p == Piece.NONE.code) {
-                    step++
-                    continue
-                }
-                val pt = Piece.fromCode(p)
-                if (pt.color == color) {
-                    // 我方棋子,挡住
-                    break
-                }
-                // 对方棋子
-                if (!jumped) {
-                    if (pt.type == 5) return true  // 车
-                    if (pt.type == 6) {
-                        jumped = true  // 炮架,继续
-                    } else {
-                        break  // 其他棋子,挡住
-                    }
-                } else {
-                    // 已跨过炮架
-                    if (pt.type == 6) return true  // 炮
-                    break
-                }
                 step++
+                val p = pos.squares[Square.make(toR, toC)]
+                if (p == Piece.NONE.code) continue
+                val pt = Piece.fromCode(p)
+                if (!screened) {
+                    // 第一个挡路的子: 只有对方的车能直接吃将
+                    if (pt.color == oppColor && pt.type == 5) return true
+                    // 炮架不分敌我 —— 自己的子同样能被对方的炮借用
+                    screened = true
+                } else {
+                    // 炮架之后的第一个子: 只有对方的炮能隔子打将
+                    if (pt.color == oppColor && pt.type == 6) return true
+                    break
+                }
             }
         }
 
         // 3. 检测对方马
-        // 8 个方向: (目标行列偏移, 马腿行列偏移)
+        // 马腿紧挨着**马**而不是将: 从将往回看, 挡住的永远是那个对角格.
+        // 例如马在 (kr-2, kc-1), 它要走的是 (kr-1, kc-1), 而不是将正前方的 (kr-1, kc).
         val horseDirs = arrayOf(
-            intArrayOf(-2, -1, -1, 0), intArrayOf(-2, 1, -1, 0),
-            intArrayOf(2, -1, 1, 0), intArrayOf(2, 1, 1, 0),
-            intArrayOf(-1, -2, 0, -1), intArrayOf(1, -2, 0, -1),
-            intArrayOf(-1, 2, 0, 1), intArrayOf(1, 2, 0, 1)
+            intArrayOf(-2, -1), intArrayOf(-2, 1),
+            intArrayOf(2, -1), intArrayOf(2, 1),
+            intArrayOf(-1, -2), intArrayOf(1, -2),
+            intArrayOf(-1, 2), intArrayOf(1, 2)
         )
         for (d in horseDirs) {
             val toR = kr + d[0]
             val toC = kc + d[1]
-            val legR = kr + d[2]
-            val legC = kc + d[3]
             if (toR !in 0 until Square.ROWS || toC !in 0 until Square.COLS) continue
+            val legR = kr + if (d[0] > 0) 1 else -1
+            val legC = kc + if (d[1] > 0) 1 else -1
             if (pos.squares[Square.make(legR, legC)] != Piece.NONE.code) continue  // 蹩马腿
             val p = pos.squares[Square.make(toR, toC)]
             if (p != Piece.NONE.code && Piece.fromCode(p).color == oppColor && Piece.fromCode(p).type == 4) {
@@ -143,19 +133,24 @@ object Rules {
         return false
     }
 
-    /** 检查走法是否伪合法(规则正确但可能送将) */
+    /**
+     * 检查走法是否伪合法(符合该棋子的行棋规则,但可能送将).
+     *
+     * 通过走法生成器验证,确保与 [MoveGenerator] 的规则完全一致 ——
+     * 否则 UI/引擎可以走出"车走马步"这类非法着法.
+     */
     fun isPseudoLegal(pos: Position, move: Move): Boolean {
         val from = move.from
         val to = move.to
+        if (from == to) return false
+        if (!Square.valid(from) || !Square.valid(to)) return false
         val piece = pos.squares[from]
         if (piece == Piece.NONE.code) return false
-        val p = Piece.fromCode(piece)
-        if (p.color != pos.sideToMove) return false
-        val captured = pos.squares[to]
-        if (captured != Piece.NONE.code && Piece.fromCode(captured).color == pos.sideToMove) {
-            return false
-        }
-        return true
+        if (Piece.fromCode(piece).color != pos.sideToMove) return false
+
+        val candidates = mutableListOf<Move>()
+        MoveGenerator.generateForSquare(pos, from, candidates)
+        return candidates.any { it.to == to }
     }
 
     /** 是否将死 */
@@ -176,13 +171,7 @@ object Rules {
 
     /** 生成所有合法走法 */
     fun generateAllLegal(pos: Position, moves: MutableList<Move>) {
-        val saved = moves.size
-        MoveGenerator.generatePseudo(pos, moves)
-        val it = moves.listIterator(saved)
-        while (it.hasNext()) {
-            val m = it.next()
-            if (!pos.isLegalMove(m)) it.remove()
-        }
+        MoveGenerator.generateAll(pos, moves)
     }
 
     /** 游戏结束原因 */
@@ -203,6 +192,7 @@ object Rules {
             }
         }
         if (pos.isThreefoldRepetition()) return GameOver.REPETITION
+        if (pos.isFiftyMoveDraw()) return GameOver.FIFTY_MOVES
         return GameOver.NONE
     }
 }

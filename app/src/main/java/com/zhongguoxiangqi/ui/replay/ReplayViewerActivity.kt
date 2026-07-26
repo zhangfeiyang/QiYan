@@ -15,6 +15,9 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Square
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * 对局回放界面.
@@ -32,9 +35,12 @@ class ReplayViewerActivity : AppCompatActivity() {
     private var playerSide = Color.RED
 
     private val replayPosition = Position()
+    /** 已实际落到棋盘上的着法,与 currentMoveIndex 保持一致 */
+    private val appliedMoves = mutableListOf<Move>()
     private val handler = Handler(Looper.getMainLooper())
     private var autoPlayRunnable: Runnable? = null
     private var isAutoPlaying = false
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.CHINA)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +48,7 @@ class ReplayViewerActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         recordId = intent.getLongExtra(EXTRA_GAME_ID, 0L)
         loadRecord()
@@ -66,53 +72,76 @@ class ReplayViewerActivity : AppCompatActivity() {
             initialFen = record.initialFen
             moves = record.moves
             playerSide = record.playerSide
-            binding.titleText.text = "${record.startTime}  ${if (record.result == 1) "胜" else if (record.result == -1) "负" else "和"}"
+            val resultText = when (record.result) {
+                1 -> "胜"
+                -1 -> "负"
+                else -> "和"
+            }
+            binding.titleText.text = "${dateFormat.format(Date(record.startTime))}  $resultText"
             binding.playerInfo.text = "Lv.${record.difficulty}  Elo ${record.playerRating}  ${record.moves.size}手"
 
-            replayPosition.setupStartPosition()
-            currentMoveIndex = 0
+            resetToStart()
             updateBoard()
             updateMoveInfo()
         }
     }
 
+    /** 回到起始局面(优先用记录中的 FEN,缺失或损坏时退回标准开局) */
+    private fun resetToStart() {
+        if (initialFen.isBlank() || !replayPosition.setFromFen(initialFen)) {
+            replayPosition.setupStartPosition()
+        }
+        currentMoveIndex = 0
+        appliedMoves.clear()
+    }
+
     private fun gotoStep(step: Int) {
         val target = step.coerceIn(0, moves.size)
         if (target == currentMoveIndex) return
+        val before = currentMoveIndex
 
-        // 撤销到目标
+        // 撤销到目标: 只回退真正走过的着法,索引才不会和棋盘脱节
         while (currentMoveIndex > target) {
             replayPosition.undoMove()
+            appliedMoves.removeAt(appliedMoves.size - 1)
             currentMoveIndex--
         }
         // 应用到目标
         while (currentMoveIndex < target) {
-            val move = parseMove(replayPosition, moves[currentMoveIndex])
-            if (move != null && replayPosition.isLegalMove(move)) {
-                replayPosition.doMove(move)
+            val move = parseMove(moves[currentMoveIndex])
+            if (move == null || !replayPosition.isLegalMove(move)) {
+                // 棋谱损坏: 停在能走到的最后一步,而不是继续错位地走下去
+                Toast.makeText(this, "棋谱第${currentMoveIndex + 1}手无法还原", Toast.LENGTH_SHORT).show()
+                stopAutoPlay()
+                break
             }
+            replayPosition.doMove(move)
+            appliedMoves.add(move)
             currentMoveIndex++
         }
-        updateBoard()
+        // 单步前进才播动画; 跳到首/末或后退直接刷新
+        updateBoard(animate = target == before + 1)
         updateMoveInfo()
     }
 
-    private fun parseMove(pos: Position, uci: String): Move? {
+    private fun parseMove(uci: String): Move? {
         if (uci.length < 4) return null
         return try {
             val fromCol = uci[0] - 'a'
             val fromRow = uci[1].digitToInt()
             val toCol = uci[2] - 'a'
             val toRow = uci[3].digitToInt()
+            if (fromCol !in 0 until Square.COLS || toCol !in 0 until Square.COLS) return null
             Move.make(Square.make(9 - fromRow, fromCol), Square.make(9 - toRow, toCol))
         } catch (_: Exception) { null }
     }
 
-    private fun updateBoard() {
-        binding.boardView.setPosition(replayPosition.copy())
-        binding.boardView.setLastMove(if (currentMoveIndex > 0) parseMove(replayPosition.copy().apply {
-            repeat(currentMoveIndex - 1) { undoMove() }
-        }, moves[currentMoveIndex - 1]) else null)
+    private fun updateBoard(animate: Boolean = false) {
+        binding.boardView.setPosition(
+            replayPosition,
+            if (animate) appliedMoves.lastOrNull() else null
+        )
+        binding.boardView.setLastMove(appliedMoves.lastOrNull())
     }
 
     private fun updateMoveInfo() {
@@ -125,34 +154,47 @@ class ReplayViewerActivity : AppCompatActivity() {
 
     private fun toggleAutoPlay() {
         if (isAutoPlaying) {
-            autoPlayRunnable?.let { handler.removeCallbacks(it) }
-            autoPlayRunnable = null
-            isAutoPlaying = false
-            binding.btnAuto.text = getString(R.string.replay_play)
-        } else {
-            isAutoPlaying = true
-            binding.btnAuto.text = "暂停"
-            autoPlayRunnable = object : Runnable {
-                override fun run() {
-                    if (!isAutoPlaying) return
-                    if (currentMoveIndex >= moves.size) {
-                        toggleAutoPlay()
-                        return
-                    }
-                    gotoStep(currentMoveIndex + 1)
-                    handler.postDelayed(this, 1000L)
-                }
-            }
-            handler.post(autoPlayRunnable!!)
+            stopAutoPlay()
+            return
         }
+        if (currentMoveIndex >= moves.size) return  // 已到末尾,无需播放
+        isAutoPlaying = true
+        binding.btnAuto.text = getString(R.string.replay_pause)
+        val runnable = object : Runnable {
+            override fun run() {
+                if (!isAutoPlaying) return
+                if (currentMoveIndex >= moves.size) {
+                    stopAutoPlay()
+                    return
+                }
+                gotoStep(currentMoveIndex + 1)
+                if (isAutoPlaying) handler.postDelayed(this, AUTO_PLAY_INTERVAL_MS)
+            }
+        }
+        autoPlayRunnable = runnable
+        handler.post(runnable)
+    }
+
+    private fun stopAutoPlay() {
+        autoPlayRunnable?.let { handler.removeCallbacks(it) }
+        autoPlayRunnable = null
+        isAutoPlaying = false
+        binding.btnAuto.text = getString(R.string.replay_play)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // 界面不可见时继续自动播放没有意义,还会持有 handler 回调
+        stopAutoPlay()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        autoPlayRunnable?.let { handler.removeCallbacks(it) }
+        handler.removeCallbacksAndMessages(null)
     }
 
     companion object {
         const val EXTRA_GAME_ID = "game_id"
+        private const val AUTO_PLAY_INTERVAL_MS = 1000L
     }
 }

@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.game
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.zhongguoxiangqi.analysis.WinRateAnalyzer
@@ -20,12 +21,10 @@ import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.rating.GameResult
 import com.zhongguoxiangqi.rating.UserProfile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * 游戏 ViewModel.
@@ -57,7 +56,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     val hintState: StateFlow<HintState?> = _hintState.asStateFlow()
 
     private val _events = MutableLiveData<GameEvent?>()
-    val events: MutableLiveData<GameEvent?> = _events
+    /** 一次性事件(Toast/对话框). 只读暴露给 UI, 消费后调用 [consumeEvent] */
+    val events: LiveData<GameEvent?> = _events
+
+    /** UI 处理完事件后清空,避免旋转屏幕等重建时重复弹出 */
+    fun consumeEvent() {
+        _events.value = null
+    }
 
     // ====== 数据 ======
     private val position = Position()
@@ -71,10 +76,17 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     private var gameStartTime = 0L
     private var gameStartRating = 0
     private var initialFen = ""
-    private var thinkingJob: Job? = null
 
-    /** 当前是否为提示搜索(影响 onBestMove 处理) */
-    @Volatile private var isHintSearchActive = false
+    /**
+     * 当前搜索的用途.
+     *
+     * 引擎只有一个实例, 对局搜索/提示/后台分析共用它. 必须区分用途, 否则
+     * 后台分析结束时吐出的 bestmove 会被当成引擎着法直接落子 —— 玩家还没走,
+     * 引擎就替玩家把棋走了.
+     */
+    @Volatile private var searchPurpose = SearchPurpose.NONE
+
+    private enum class SearchPurpose { NONE, ENGINE_MOVE, HINT, ANALYSIS }
 
     // 提示状态
     data class HintState(
@@ -94,15 +106,22 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val isCheck: Boolean = false,
         val isGameOver: Boolean = false,
         val gameOverReason: String = "",
-        val gameOverWinner: Int = 0,
+        val gameOverWinner: Int = Color.NONE,
         val moveCount: Int = 0,
+        /** 最近一步是否吃子(用于落子音效/震动强度) */
+        val lastMoveCaptured: Boolean = false,
         val playerRating: Int = 1500,
+        /** 本局结束后的评分变化, 对局中为 0 */
+        val ratingDelta: Int = 0,
         val playerRank: String = "初学者",
-        val engineName: String = ""
+        val engineName: String = "",
+        /** 对手实际棋力(降级时低于难度标称值) */
+        val engineElo: Int = 1500,
+        /** 是否因引擎缺失而降级 */
+        val engineDowngraded: Boolean = false
     )
 
     sealed class GameEvent {
-        object ShowHint { /* has data in hintState */ }
         data class ShowToast(val msg: String) : GameEvent()
         data class ShowDialog(val title: String, val message: String) : GameEvent()
         object GameOver : GameEvent()
@@ -129,8 +148,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         // 启动引擎
         engineManager.difficultyLevel = difficulty
-        engineManager.setListener(this)
-        val started = engineManager.start(this)
+        if (!engineManager.start(this)) {
+            _events.value = GameEvent.ShowToast("引擎启动失败")
+        }
 
         val rank = userProfile.rank()
         _state.value = GameState(
@@ -141,12 +161,20 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isCheck = false,
             isGameOver = false,
             gameOverReason = "",
-            gameOverWinner = 0,
+            gameOverWinner = Color.NONE,
             moveCount = 0,
             playerRating = userProfile.displayedRating,
             playerRank = rank.chineseTitle,
-            engineName = engineManager.currentEngine?.name() ?: "未知"
+            engineName = engineManager.currentEngine?.name() ?: "未知",
+            engineElo = engineManager.effectiveElo(),
+            engineDowngraded = engineManager.isDowngraded
         )
+
+        if (engineManager.isDowngraded) {
+            _events.value = GameEvent.ShowToast(
+                "未找到 Pikafish 引擎文件,已降级为内置引擎(约 ${engineManager.effectiveElo()} 分)"
+            )
+        }
 
         // 如果玩家执黑,引擎先走
         if (playerSide == Color.BLACK) {
@@ -176,34 +204,41 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _winRateSnapshot.value = snapshot
 
         // 如果是提示搜索,累积 PV 信息
-        if (isHintSearchActive && info.pv.isNotEmpty()) {
+        if (searchPurpose == SearchPurpose.HINT && info.pv.isNotEmpty()) {
             processHintInfo(info)
         }
     }
 
     /** 引擎返回最佳走法 */
     override fun onBestMove(bestMove: String, ponderMove: String?) {
+        val purpose = searchPurpose
+        if (purpose == SearchPurpose.NONE || purpose == SearchPurpose.ANALYSIS) return
         if (bestMove == "0000" || bestMove.length < 4) return
 
-        // 如果是提示搜索,转给提示状态
-        if (isHintSearchActive) {
-            isHintSearchActive = false
-            onHintBestMove(bestMove)
-            return
-        }
-
-        val move = uciToMove(bestMove) ?: return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            // 应用引擎走法到 position
-            if (position.isLegalMove(move)) {
-                withContext(Dispatchers.Main) {
-                    position.doMove(move)
-                    moveHistory.add(move)
-                    // 更新状态
-                    updateAfterMove(move)
-                }
+        // 引擎回调在工作线程, position 只能在主线程上改
+        viewModelScope.launch {
+            if (purpose == SearchPurpose.HINT) {
+                searchPurpose = SearchPurpose.NONE
+                onHintBestMove(bestMove)
+                return@launch
             }
+
+            if (_state.value.isGameOver) return@launch
+            // 只有轮到引擎时才落子, 防止把玩家的棋替玩家走了
+            if (position.sideToMove == _state.value.playerSide) return@launch
+
+            val move = uciToMove(bestMove)
+            if (move == null || !position.isLegalMove(move)) {
+                _events.value = GameEvent.ShowToast("引擎给出非法着法: $bestMove")
+                _state.value = _state.value.copy(isThinking = false)
+                return@launch
+            }
+
+            searchPurpose = SearchPurpose.NONE
+            val captured = position.pieceAt(move.to) != Piece.NONE.code
+            position.doMove(move)
+            moveHistory.add(move)
+            updateAfterMove(captured)
         }
     }
 
@@ -222,9 +257,10 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         if (!position.isLegalMove(move)) return false
 
         stopEngine()
+        val captured = position.pieceAt(move.to) != Piece.NONE.code
         position.doMove(move)
         moveHistory.add(move)
-        updateAfterMove(move)
+        updateAfterMove(captured)
 
         // 如果游戏未结束,让引擎走
         if (!_state.value.isGameOver) {
@@ -240,14 +276,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         stopEngine()
 
-        // 撤销最后两步(玩家 + 引擎) 或 玩家走子前的一步
-        val toUndo = if (moveHistory.size >= 2 &&
-            position.sideToMove != _state.value.playerSide) 2 else 1
-        repeat(toUndo) {
+        // 目标: 退回到轮玩家走的局面.
+        // 轮到玩家 => 引擎刚走完, 要退引擎那步和玩家上一步(2 步);
+        // 轮到引擎 => 玩家刚走完, 只退玩家这一步(1 步).
+        val playerToMove = position.sideToMove == _state.value.playerSide
+        val toUndo = if (playerToMove && moveHistory.size >= 2) 2 else 1
+        repeat(toUndo.coerceAtMost(moveHistory.size)) {
             position.undoMove()
-            if (moveHistory.isNotEmpty()) {
-                moveHistory.removeAt(moveHistory.size - 1)
-            }
+            moveHistory.removeAt(moveHistory.size - 1)
         }
 
         _state.value = _state.value.copy(
@@ -255,7 +291,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isCheck = Rules.isInCheck(position, position.sideToMove),
             isGameOver = false,
             gameOverReason = "",
-            gameOverWinner = 0,
+            gameOverWinner = Color.NONE,
             moveCount = moveHistory.size
         )
         _winRateSnapshot.value = WinRateSnapshot(redWinRate = 50.0)
@@ -263,13 +299,11 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         return true
     }
 
-    /** 认输 */
+    /** 认输 —— 认输方永远是玩家自己,与执红执黑无关 */
     fun resign(): GameResult {
         stopEngine()
-        val playerColor = _state.value.playerSide
-        val result = if (playerColor == Color.RED) GameResult.LOSS else GameResult.WIN
-        endGame(result, "认输")
-        return result
+        endGame(GameResult.LOSS, "认输")
+        return GameResult.LOSS
     }
 
     /** 求和 */
@@ -282,27 +316,24 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     /** 请求提示 */
     fun requestHint() {
-        if (_state.value.isThinking) return
+        if (_state.value.isGameOver) return
+        if (position.sideToMove != _state.value.playerSide) return
         stopEngine()
 
-        engineManager.setPosition(position, moveHistory)
-        val params = engineManager.requestHint(moveHistory)
-        isHintSearchActive = true
+        engineManager.setPosition(initialFen, moveHistory)
+        val params = engineManager.requestHint()
+        searchPurpose = SearchPurpose.HINT
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
         _hintState.value = null
     }
 
-    /** 切换实时分析开关 */
-    fun toggleAnalysis(enabled: Boolean) {
-        if (enabled) {
-            engineManager.setPosition(position, moveHistory)
-            val params = engineManager.requestAnalysis()
-            engineManager.startSearch(params)
-        } else {
-            engineManager.stopSearch()
-            // 不显示 isThinking
-        }
+    /** 后台实时分析(只更新胜率条,不落子) */
+    private fun startAnalysis() {
+        if (_state.value.isGameOver) return
+        engineManager.setPosition(initialFen, moveHistory)
+        searchPurpose = SearchPurpose.ANALYSIS
+        engineManager.startSearch(engineManager.requestAnalysis())
     }
 
     /** 设置玩家执子 */
@@ -319,14 +350,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     private fun makeEngineMove() {
         if (_state.value.isGameOver) return
+        stopEngine()
         // 设置局面,启动引擎
-        engineManager.setPosition(position, moveHistory)
+        engineManager.setPosition(initialFen, moveHistory)
         val params = SearchParams(
             movetime = estimateThinkTime(_state.value.difficulty),
             threads = estimateThreads(_state.value.difficulty),
             hashMb = estimateHash(_state.value.difficulty),
             multiPv = 3
         )
+        searchPurpose = SearchPurpose.ENGINE_MOVE
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
     }
@@ -334,8 +367,10 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     private fun estimateThinkTime(difficulty: Int): Long = when (difficulty) {
         in 1..3 -> 500L
         in 4..5 -> 1500L
-        in 6..7 -> 3000L
-        in 8..9 -> 5000L
+        6 -> 2000L
+        7 -> 3000L
+        8 -> 4000L
+        9 -> 6000L
         10 -> 8000L
         else -> 3000L
     }
@@ -356,12 +391,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     }
 
     private fun stopEngine() {
-        thinkingJob?.cancel()
+        // 先清用途, 再停搜索: stop 会让引擎立刻吐一个 bestmove, 那个结果必须丢弃
+        searchPurpose = SearchPurpose.NONE
         engineManager.stopSearch()
         _state.value = _state.value.copy(isThinking = false)
     }
 
-    private fun updateAfterMove(move: Move) {
+    private fun updateAfterMove(captured: Boolean) {
         // 检测将军 / 终局
         val inCheck = Rules.isInCheck(position, position.sideToMove)
         val gameOver = Rules.gameOver(position)
@@ -378,7 +414,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val winner = when (gameOver) {
             Rules.GameOver.CHECKMATE_RED -> Color.BLACK
             Rules.GameOver.CHECKMATE_BLACK -> Color.RED
-            else -> 0
+            else -> Color.NONE
         }
 
         _state.value = _state.value.copy(
@@ -388,26 +424,29 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameOverReason = gameOverReason,
             gameOverWinner = winner,
             moveCount = moveHistory.size,
+            lastMoveCaptured = captured,
             isThinking = false
         )
 
         if (isOver) {
             // 确定玩家结果
-            val playerResult = if (winner == _state.value.playerSide) GameResult.WIN
-                else if (winner == 0) GameResult.DRAW else GameResult.LOSS
-            endGame(playerResult, gameOverReason)
-        } else {
-            // 启动后台分析(实时胜率)
-            if (moveHistory.size > 5) {
-                toggleAnalysis(true)
+            val playerResult = when (winner) {
+                Color.NONE -> GameResult.DRAW
+                _state.value.playerSide -> GameResult.WIN
+                else -> GameResult.LOSS
             }
+            endGame(playerResult, gameOverReason)
+        } else if (position.sideToMove == _state.value.playerSide) {
+            // 轮到玩家思考时才后台分析, 避免和引擎的对局搜索抢同一个引擎实例
+            if (moveHistory.size > 5) startAnalysis()
         }
     }
 
     private fun endGame(result: GameResult, reason: String) {
         stopEngine()
         val difficulty = _state.value.difficulty
-        val engineElo = engineEloFor(difficulty)
+        // 用实际对手棋力算分,而不是难度标称值(降级时两者不同)
+        val engineElo = engineManager.effectiveElo()
         userProfile.recordResult(result, engineElo)
         val rank = userProfile.rank()
 
@@ -416,6 +455,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameOverReason = reason,
             isThinking = false,
             playerRating = userProfile.displayedRating,
+            ratingDelta = userProfile.displayedRating - gameStartRating,
             playerRank = rank.chineseTitle
         )
 
@@ -442,13 +482,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         }
 
         _events.value = GameEvent.GameOver
-    }
-
-    private fun engineEloFor(difficulty: Int): Int = when (difficulty) {
-        1 -> 600; 2 -> 900; 3 -> 1200; 4 -> 1500
-        5 -> 1700; 6 -> 1900; 7 -> 2200; 8 -> 2500
-        9 -> 2900; 10 -> 3300
-        else -> 1500
     }
 
     /** 处理提示搜索结果(从 onInfo 累积) */
@@ -491,16 +524,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         return "${(fc + 'a'.code).toChar()}$fr${(tc + 'a'.code).toChar()}$tr"
     }
 
-    /** 设置提示回调监听(由 UI 调用) */
-    fun overrideHintProcessing() {
-        // 由 GameActivity 接管 hint 流程
-    }
-
-    /** Activity 直接调用以更新提示状态 */
-    fun onHintInfo(info: EngineInfo) = processHintInfo(info)
-
-    /** Activity 直接处理最佳走法(用于提示) */
-    fun onHintBestMove(bestMove: String) {
+    /** 提示搜索结束: 用最终 bestmove 作为推荐着法 */
+    private fun onHintBestMove(bestMove: String) {
         val move = uciToMove(bestMove)
         if (move != null) {
             _hintState.value = HintState(

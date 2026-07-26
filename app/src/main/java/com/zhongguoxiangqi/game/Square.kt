@@ -60,7 +60,7 @@ object Square {
     }
 
     /** 文件(A-I) -> 列(0-8) */
-    fun fileToCol(file: Char): Int = when (file.toLowerCase()) {
+    fun fileToCol(file: Char): Int = when (file.lowercaseChar()) {
         'a' -> 0; 'b' -> 1; 'c' -> 2; 'd' -> 3; 'e' -> 4
         'f' -> 5; 'g' -> 6; 'h' -> 7; 'i' -> 8
         else -> -1

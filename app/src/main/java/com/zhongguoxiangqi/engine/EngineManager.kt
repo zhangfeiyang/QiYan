@@ -2,15 +2,15 @@ package com.zhongguoxiangqi.engine
 
 import android.content.Context
 import com.zhongguoxiangqi.game.Move
-import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Square
+import com.zhongguoxiangqi.ui.settings.AppSettings
 
 /**
  * 引擎管理器.
  *
  * 根据难度等级选择合适的引擎:
- * - 1-5: SimpleEngine (Java/Kotlin 实现)
- * - 6-10: PikafishEngine (NNUE, 顶级)
+ * - 1-5: SimpleEngine (Kotlin 实现)
+ * - 6-10: PikafishNativeEngine (JNI + NNUE, 顶级棋力)
  *
  * 同时负责:
  * - 引擎生命周期
@@ -30,21 +30,38 @@ class EngineManager(private val context: Context) {
     var currentEngine: ChessEngine? = null
         private set
 
-    /** 是否使用 Pikafish */
+    /** 是否使用 Pikafish (JNI 路线) */
     val usingPikafish: Boolean
-        get() = currentEngine is PikafishEngine
+        get() = currentEngine is PikafishNativeEngine
+
+    /** 是否因为 Pikafish 不可用而降级到了内置引擎 */
+    val isDowngraded: Boolean
+        get() = difficultyLevel >= PIKAFISH_MIN_LEVEL && !usingPikafish
+
+    /**
+     * 当前**实际**对手棋力.
+     *
+     * 难度 6-10 标称的是 Pikafish 的水平; 一旦降级到内置引擎, 真实棋力
+     * 就到不了那个档次. 显示和积分都必须用这个值 —— 否则赢一盘"降级的
+     * 10 级"会按战胜 3300 分引擎计算,等级分会被凭空吹高.
+     */
+    fun effectiveElo(): Int {
+        val nominal = nominalElo(difficultyLevel)
+        return if (isDowngraded) minOf(nominal, SIMPLE_ENGINE_MAX_ELO) else nominal
+    }
 
     private var simpleEngine: SimpleEngine? = null
-    private var pikafishEngine: PikafishEngine? = null
+    private var pikafishEngine: PikafishNativeEngine? = null
+    private val settings = AppSettings(context)
+    private val openingBook = OpeningBook(context)
 
     fun start(listener: EngineListener?): Boolean {
         // 优先尝试 Pikafish (高难度)
-        if (difficultyLevel >= 6) {
-            val pair = PikafishEngine.ensureInstalled(context)
-            if (pair != null) {
-                val engine = PikafishEngine(pair.first, pair.second)
+        if (difficultyLevel >= PIKAFISH_MIN_LEVEL) {
+            val nnue = PikafishNativeInstaller.ensureNnueInstalled(context)
+            if (nnue != null) {
+                val engine = PikafishNativeEngine(nnue, listener)
                 if (engine.start()) {
-                    engine.setListener(listener)
                     currentEngine = engine
                     pikafishEngine = engine
                     applyDifficulty()
@@ -55,7 +72,10 @@ class EngineManager(private val context: Context) {
         }
 
         // 简易引擎(低难度 或 Pikafish 失败)
-        val engine = SimpleEngine().also { it.configure(difficultyLevel) }
+        val engine = SimpleEngine().also {
+            it.configure(difficultyLevel)
+            it.openingBook = openingBook
+        }
         simpleEngine = engine
         if (engine.start()) {
             engine.setListener(listener)
@@ -76,16 +96,30 @@ class EngineManager(private val context: Context) {
         currentEngine?.setListener(listener)
     }
 
-    fun setPosition(position: Position, moves: List<Move>) {
+    /**
+     * 把局面同步给引擎.
+     *
+     * @param initialFen 对局**起始**局面的 FEN
+     * @param moves 从起始局面走到当前局面的完整着法序列
+     *
+     * 注意必须传起始 FEN: `position fen <X> moves ...` 的语义是"从 X 开始依次走这些着法".
+     * 传当前局面的 FEN 再附上全部着法,等于让引擎在当前盘面上把整局重走一遍.
+     */
+    fun setPosition(initialFen: String, moves: List<Move>) {
         val engine = currentEngine ?: return
-        val fen = position.toFen()
-        val uciMoves = moves.map { moveToUci(it) }
-        engine.setPosition(fen, uciMoves)
+        engine.setPosition(initialFen, moves.map { moveToUci(it) })
     }
 
     fun startSearch(params: SearchParams) {
-        currentEngine?.startSearch(adaptParams(params))
+        // 用户上限必须最后套用: adaptParams 里用的是 coerceAtLeast, 先限制会被它顶回去
+        currentEngine?.startSearch(applyUserLimits(adaptParams(params)))
     }
+
+    /** 用设置界面里的线程/哈希上限收敛搜索参数 */
+    private fun applyUserLimits(params: SearchParams): SearchParams = params.copy(
+        threads = params.threads.coerceAtMost(settings.threads),
+        hashMb = params.hashMb.coerceAtMost(settings.hashMb)
+    )
 
     fun stopSearch() {
         currentEngine?.stopSearch()
@@ -96,12 +130,12 @@ class EngineManager(private val context: Context) {
         val strength = difficultyLevel.coerceIn(1, 10)
         return when {
             // Pikafish: 高级别使用更多线程和哈希
-            currentEngine is PikafishEngine -> when (strength) {
+            currentEngine is PikafishNativeEngine -> when (strength) {
                 6 -> base.copy(threads = base.threads.coerceAtLeast(1), hashMb = base.hashMb.coerceAtLeast(32), movetime = base.movetime.coerceAtLeast(2000))
                 7 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(64), movetime = base.movetime.coerceAtLeast(3000))
-                8 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(128), movetime = base.movetime.coerceAtLeast(5000))
-                9 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(256), movetime = base.movetime.coerceAtLeast(10000))
-                10 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(512), movetime = base.movetime.coerceAtLeast(15000))
+                8 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(128), movetime = base.movetime.coerceAtLeast(4000))
+                9 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(256), movetime = base.movetime.coerceAtLeast(6000))
+                10 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(512), movetime = base.movetime.coerceAtLeast(8000))
                 else -> base
             }
             // 简易引擎
@@ -118,26 +152,41 @@ class EngineManager(private val context: Context) {
 
     private fun applyDifficulty() {
         simpleEngine?.configure(difficultyLevel)
-        // Pikafish 不需要单独设置难度,直接使用全部计算力
     }
 
-    /** 提示用快速搜索(2秒以内,返回最佳着法) */
-    fun requestHint(moves: List<Move>): SearchParams {
+    /** 提示用快速搜索 */
+    fun requestHint(): SearchParams {
         return when {
-            currentEngine is PikafishEngine ->
+            currentEngine is PikafishNativeEngine ->
                 SearchParams(movetime = 2500, threads = 2, hashMb = 64, multiPv = 3)
             else ->
                 SearchParams(movetime = 800, threads = 1, hashMb = 16, multiPv = 1)
         }
     }
 
-    /** 实时分析用(后台无限搜索) */
+    /** 实时分析用 */
     fun requestAnalysis(): SearchParams {
         return when {
-            currentEngine is PikafishEngine ->
+            currentEngine is PikafishNativeEngine ->
                 SearchParams(infinite = true, threads = 2, hashMb = 128, multiPv = 3)
             else ->
                 SearchParams(depth = 6, threads = 1, hashMb = 16, multiPv = 1)
+        }
+    }
+
+    companion object {
+        /** 从这一难度起才尝试 Pikafish */
+        const val PIKAFISH_MIN_LEVEL = 6
+
+        /** 内置引擎的棋力上限(经验值), 降级时用它封顶 */
+        const val SIMPLE_ENGINE_MAX_ELO = 1700
+
+        /** 各难度标称棋力 */
+        fun nominalElo(difficulty: Int): Int = when (difficulty) {
+            1 -> 600; 2 -> 900; 3 -> 1200; 4 -> 1500
+            5 -> 1700; 6 -> 1900; 7 -> 2200; 8 -> 2500
+            9 -> 2900; 10 -> 3300
+            else -> 1500
         }
     }
 

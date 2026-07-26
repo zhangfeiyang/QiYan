@@ -75,61 +75,67 @@ object Glicko2 {
         val mu = (player.rating - 1500.0) / SCALE
         val phi = player.rd / SCALE
 
-        // 2. 计算 v 和 delta
-        var v = 0.0
-        var delta = 0.0
+        // 2. 计算 v 和 Δ
+        //    sumG = Σ g(φj)(sj − E), v = [Σ g(φj)² E (1−E)]⁻¹, Δ = v · sumG
+        var vInv = 0.0
+        var sumG = 0.0
         for (m in matches) {
             val muJ = (m.opponentRating - 1500.0) / SCALE
             val phiJ = m.opponentRd / SCALE
             val gPhiJ = g(phiJ)
             val eVal = E(mu, muJ, phiJ)
-            v += gPhiJ * gPhiJ * eVal * (1 - eVal)
-            delta += gPhiJ * (m.score - eVal)
+            vInv += gPhiJ * gPhiJ * eVal * (1 - eVal)
+            sumG += gPhiJ * (m.score - eVal)
         }
-        v = 1.0 / v
+        if (vInv <= 0.0) return  // 所有对局期望胜率为 0 或 1,无信息量
+        val v = 1.0 / vInv
+        val delta = v * sumG
+        val deltaSq = delta * delta
 
-        // 3. 新波动率(迭代计算)
+        // 3. 新波动率: 解 f(x)=0, f 中的常数项是 a = ln(σ²) 而非 ln(τ²)
         val a = ln(player.sigma * player.sigma)
-        val fA = f(a, delta * delta, v, phi, systemConstant)
+        val phiSq = phi * phi
 
-        // 二分搜索
-        var aLow: Double
+        // 按 Glicko-2 论文括定初始区间
+        var aLow = a
         var aHigh: Double
-        if (delta * delta > phi * phi + v) {
-            aLow = a
-            aHigh = a + systemConstant
+        if (deltaSq > phiSq + v) {
+            aHigh = ln(deltaSq - phiSq - v)
         } else {
-            val k = (a - systemConstant).let { x ->
-                var count = 0
-                var xx = x
-                while (f(xx, delta * delta, v, phi, systemConstant) < 0 && count < 100) {
-                    xx -= systemConstant
-                    count++
-                }
-                xx
+            var k = 1
+            while (f(a - k * systemConstant, deltaSq, v, phi, systemConstant, a) < 0 && k < 100) {
+                k++
             }
-            aLow = k
             aHigh = a
+            aLow = a - k * systemConstant
+        }
+        // 保证 aLow < aHigh 且区间两端异号
+        if (aLow > aHigh) {
+            val t = aLow; aLow = aHigh; aHigh = t
         }
 
-        // 迭代
-        var aNew = a
+        var fLow = f(aLow, deltaSq, v, phi, systemConstant, a)
+        var aNew = (aLow + aHigh) / 2
         var iter = 0
-        while (iter < 100) {
+        while (iter < 100 && abs(aHigh - aLow) > 1e-6) {
             aNew = (aLow + aHigh) / 2
-            val fNew = f(aNew, delta * delta, v, phi, systemConstant)
-            if (fNew < 0) aHigh = aNew else aLow = aNew
-            if (abs(aHigh - aLow) < 1e-6) break
+            val fNew = f(aNew, deltaSq, v, phi, systemConstant, a)
+            if (fNew * fLow <= 0) {
+                aHigh = aNew
+            } else {
+                aLow = aNew
+                fLow = fNew
+            }
             iter++
         }
         val newSigma = exp(aNew / 2)
 
         // 4. 新 phi*
-        val phiStar = sqrt(phi * phi + newSigma * newSigma)
+        val phiStar = sqrt(phiSq + newSigma * newSigma)
 
-        // 5. 新 phi 和 mu
+        // 5. 新 phi 和 mu (μ' = μ + φ'² · sumG)
         val newPhi = 1.0 / sqrt(1.0 / (phiStar * phiStar) + 1.0 / v)
-        val newMu = mu + newPhi * newPhi * delta / v
+        val newMu = mu + newPhi * newPhi * sumG
 
         // 6. 转换回常规尺度
         player.rating = newMu * SCALE + 1500.0
@@ -149,10 +155,17 @@ object Glicko2 {
     private fun E(mu: Double, muJ: Double, phiJ: Double): Double =
         1.0 / (1.0 + exp(-g(phiJ) * (mu - muJ)))
 
-    private fun f(x: Double, deltaSq: Double, v: Double, phi: Double, tau: Double): Double {
+    /**
+     * Glicko-2 波动率方程:
+     * f(x) = eˣ(Δ² − φ² − v − eˣ) / (2(φ² + v + eˣ)²) − (x − a) / τ²
+     *
+     * 其中 a = ln(σ²) —— 是玩家当前波动率的对数,不是 ln(τ²).
+     */
+    private fun f(x: Double, deltaSq: Double, v: Double, phi: Double, tau: Double, a: Double): Double {
         val ex = exp(x)
-        val term1 = ex * (deltaSq - phi * phi - v - ex) / (2.0 * (phi * phi + v + ex).pow(2))
-        val term2 = (x - ln(tau * tau)) / tau / tau
+        val phiSqPlusVPlusEx = phi * phi + v + ex
+        val term1 = ex * (deltaSq - phi * phi - v - ex) / (2.0 * phiSqPlusVPlusEx.pow(2))
+        val term2 = (x - a) / (tau * tau)
         return term1 - term2
     }
 

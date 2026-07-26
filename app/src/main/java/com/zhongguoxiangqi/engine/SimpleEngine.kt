@@ -39,6 +39,10 @@ class SimpleEngine : ChessEngine {
     private var maxDepth = 8
     private var randomness = 0  // 随机性(0=最优,越大越"弱")
 
+    // 搜索时限
+    @Volatile private var deadline = Long.MAX_VALUE
+    @Volatile private var timeUp = false
+
     // 置换表
     private val tt = HashMap<Long, TTEntry>(8192)
 
@@ -59,44 +63,74 @@ class SimpleEngine : ChessEngine {
         ready = false
     }
 
+    /** 开局库(可选). 由 EngineManager 注入,因为它需要 Context 读 assets. */
+    var openingBook: OpeningBook? = null
+
+    private var startFen: String = ""
+    private var movesPlayed: List<String> = emptyList()
+
     override fun setPosition(fen: String, moves: List<String>) {
-        currentPosition = Position()
-        currentPosition.setupStartPosition()
-        // 简化的 FEN 解析:只处理初始局面和 move 应用
-        if (fen != "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w" &&
-            fen != "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b") {
-            // 自定义 FEN: 简单重置为起始
+        val pos = Position()
+        if (fen.isBlank() || !pos.setFromFen(fen)) {
+            pos.setupStartPosition()
         }
         // 应用 moves (UCI 格式)
         for (mv in moves) {
-            applyUciMove(currentPosition, mv)
+            applyUciMove(pos, mv)
         }
+        currentPosition = pos
+        startFen = if (fen.isBlank()) pos.toFen() else fen
+        movesPlayed = moves
+    }
+
+    /**
+     * 开局库着法. 库数据可能有误,这里必须验证合法性 ——
+     * 宁可回退到搜索,也不能走出非法着法.
+     */
+    private fun bookMove(): Move? {
+        val uci = openingBook?.lookup(startFen, movesPlayed) ?: return null
+        val move = parseUci(uci) ?: return null
+        return if (currentPosition.isLegalMove(move)) move else null
     }
 
     override fun startSearch(params: SearchParams) {
+        // 必须等上一次搜索真正结束再放开 stopRequested,
+        // 否则旧线程会看到复位后的标志继续跑完并吐出一个过期的 bestmove.
         stopSearch()
         stopRequested = false
+        searching = true
         val listenerSnap = listener
-        searchThread = Thread({
+        val thread = Thread({
             try {
                 val bestMove = search(params)
                 if (!stopRequested) {
-                    listenerSnap?.onBestMove(
-                        moveToUci(bestMove),
-                        null
-                    )
+                    listenerSnap?.onBestMove(moveToUci(bestMove), null)
                 }
             } catch (e: Exception) {
-                listenerSnap?.onError(e.message ?: "engine error")
+                if (!stopRequested) listenerSnap?.onError(e.message ?: "engine error")
+            } finally {
+                searching = false
             }
         }, "SimpleEngine-search")
-        searchThread?.isDaemon = true
-        searchThread?.start()
+        thread.isDaemon = true
+        searchThread = thread
+        thread.start()
     }
 
     override fun stopSearch() {
         stopRequested = true
-        searchThread?.interrupt()
+        val thread = searchThread
+        searchThread = null
+        if (thread != null && thread.isAlive) {
+            // 搜索循环会主动检查 stopRequested,这里等它退出即可(不 interrupt,
+            // 免得把中断状态留给后续代码)
+            try {
+                thread.join(STOP_JOIN_TIMEOUT_MS)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
+        searching = false
     }
 
     override fun setListener(listener: EngineListener?) {
@@ -119,57 +153,119 @@ class SimpleEngine : ChessEngine {
 
     // ====== 搜索 ======
 
+    /**
+     * 迭代加深搜索.
+     *
+     * 根节点自己跑着法循环并记录最佳着法 —— 不再另外调用一次全深度搜索来
+     * "找回"最佳着法(那等于每层把整棵树搜两遍).
+     */
     private fun search(params: SearchParams): Move {
-        val deadline = if (params.movetime > 0) System.currentTimeMillis() + params.movetime else Long.MAX_VALUE
-        val maxDepthTarget = if (params.depth > 0) params.depth else maxDepth
-
-        var bestMove = Move.empty()
-        var bestScore = Int.MIN_VALUE
-        val nodes = longArrayOf(0)
-        val startTime = System.currentTimeMillis()
-
-        // 迭代加深
-        for (depth in 1..maxDepthTarget) {
-            if (stopRequested) break
-            val score = alphaBeta(currentPosition, depth, Int.MIN_VALUE + 1, Int.MAX_VALUE - 1, nodes, 0)
-            if (stopRequested) break
-
-            // 找到当前 depth 最佳走法
-            val curBest = findBestMoveAtRoot(currentPosition, depth)
-            if (curBest.from != curBest.to) {
-                bestMove = curBest
-                bestScore = score
-            }
-
-            listener?.onInfo(EngineInfo(
-                depth = depth,
-                timeMs = System.currentTimeMillis() - startTime,
-                nodes = nodes[0],
-                nps = if (System.currentTimeMillis() > startTime) nodes[0] * 1000 / (System.currentTimeMillis() - startTime) else 0,
-                scoreCp = if (bestScore >= 30000) 0 else if (bestScore <= -30000) 0 else bestScore,
-                scoreMate = if (bestScore >= 30000) 1 else if (bestScore <= -30000) -1 else 0,
-                pv = mutableListOf<String>().apply {
-                    var p = currentPosition
-                    val tmpMoves = mutableListOf<Move>()
-                    Rules.generateAllLegal(p, tmpMoves)
-                    if (bestMove.data != 0) {
-                        add(moveToUci(bestMove))
-                    }
-                }
-            ))
-
-            if (System.currentTimeMillis() >= deadline) break
+        // 开局阶段直接用棋谱, 省搜索时间, 也让低难度开局像样一些
+        bookMove()?.let { move ->
+            // 查库是瞬时的. 直接返回会让对手"零秒落子", 既不自然, 也会把
+            // 玩家那一步的走子动画立刻打断, 所以补一段最短思考时间.
+            waitBriefly(minOf(BOOK_MIN_THINK_MS, params.movetime.takeIf { it > 0 } ?: BOOK_MIN_THINK_MS))
+            return move
         }
 
-        return bestMove
+        deadline = when {
+            params.movetime > 0 -> System.currentTimeMillis() + params.movetime
+            params.infinite -> Long.MAX_VALUE
+            else -> System.currentTimeMillis() + DEFAULT_MOVETIME_MS
+        }
+        timeUp = false
+        // 置换表按局面复用没有意义(每次搜索局面都变了),清空避免无限增长
+        tt.clear()
+
+        val rootMoves = mutableListOf<Move>()
+        Rules.generateAllLegal(currentPosition, rootMoves)
+        if (rootMoves.isEmpty()) return Move.empty()
+
+        val maxDepthTarget = if (params.depth > 0) params.depth else maxDepth
+        val nodes = longArrayOf(0)
+        val startTime = System.currentTimeMillis()
+        val rootScores = HashMap<Int, Int>(rootMoves.size * 2)
+
+        var bestMove = rootMoves[0]
+        var bestScore = 0
+
+        for (depth in 1..maxDepthTarget) {
+            // 剩余时间不够搜完下一层就别开了 —— 下一层通常要花上一层数倍的时间,
+            // 硬开只会大幅超时,而且中途放弃的结果也用不上
+            if (depth > 1 && System.currentTimeMillis() + (System.currentTimeMillis() - startTime) *
+                NEXT_ITERATION_COST_RATIO > deadline
+            ) break
+
+            var iterBest = Move.empty()
+            var iterBestScore = Int.MIN_VALUE
+            var alpha = MIN_SCORE
+            val iterScores = HashMap<Int, Int>(rootMoves.size * 2)
+
+            for (m in rootMoves) {
+                currentPosition.doMove(m)
+                val score = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
+                currentPosition.undoMove()
+                if (aborted(nodes[0])) break
+
+                iterScores[m.data] = score
+                if (score > iterBestScore) {
+                    iterBestScore = score
+                    iterBest = m
+                }
+                if (score > alpha) alpha = score
+            }
+
+            // 本层至少完整评估了一个着法就采用它的结果
+            if (iterBestScore > Int.MIN_VALUE) {
+                bestMove = iterBest
+                bestScore = iterBestScore
+                rootScores.clear()
+                rootScores.putAll(iterScores)
+                // 最佳着法提到最前,下一层优先搜索,剪枝更有效
+                rootMoves.remove(iterBest)
+                rootMoves.add(0, iterBest)
+            }
+
+            val elapsed = (System.currentTimeMillis() - startTime).coerceAtLeast(1)
+            listener?.onInfo(
+                EngineInfo(
+                    depth = depth,
+                    timeMs = elapsed,
+                    nodes = nodes[0],
+                    nps = nodes[0] * 1000 / elapsed,
+                    scoreCp = if (isMateScore(bestScore)) 0 else bestScore,
+                    scoreMate = mateDistance(bestScore),
+                    pv = listOf(moveToUci(bestMove))
+                )
+            )
+
+            if (aborted(nodes[0]) || isMateScore(bestScore)) break
+        }
+
+        return pickWithRandomness(rootMoves, rootScores, bestMove, bestScore)
+    }
+
+    /**
+     * 低难度时故意不总选最优着法, 让 1-4 级真的"下得弱"而不只是"想得浅".
+     */
+    private fun pickWithRandomness(
+        rootMoves: List<Move>,
+        scores: Map<Int, Int>,
+        bestMove: Move,
+        bestScore: Int
+    ): Move {
+        if (randomness <= 0 || scores.isEmpty()) return bestMove
+        val tolerance = randomness * RANDOMNESS_CP_PER_LEVEL
+        val candidates = rootMoves.filter { (scores[it.data] ?: Int.MIN_VALUE) >= bestScore - tolerance }
+        return if (candidates.isEmpty()) bestMove else candidates[Random.nextInt(candidates.size)]
     }
 
     private fun alphaBeta(pos: Position, depth: Int, alpha: Int, beta: Int, nodes: LongArray, ply: Int): Int {
         nodes[0]++
-        if (stopRequested) return 0
+        if (aborted(nodes[0])) return 0
 
-        // 叶节点评估
-        if (depth <= 0) return evaluate(pos)
+        // 叶节点: 先做静态搜索消化吃子连锁, 否则会出现"地平线效应"(白送子)
+        if (depth <= 0) return quiescence(pos, alpha, beta, nodes, ply)
 
         // 置换表查询
         val key = pos.hash
@@ -186,17 +282,11 @@ class SimpleEngine : ChessEngine {
         Rules.generateAllLegal(pos, moves)
 
         if (moves.isEmpty()) {
-            // 输/和
-            return if (Rules.isInCheck(pos, pos.sideToMove)) -30000 + ply else 0
+            // 将死 / 困毙. 减去 ply 让"更快的杀"分数更高
+            return if (Rules.isInCheck(pos, pos.sideToMove)) -MATE_SCORE + ply else 0
         }
 
-        // 排序: 吃子优先(MVV-LVA), 然后将, 然后其他
-        moves.forEach { m ->
-            val victim = pos.pieceAt(m.to)
-            val attacker = pos.pieceAt(m.from)
-            m.score = m.mvvLva(victim, attacker)
-        }
-        moves.sortByDescending { it.score }
+        sortByMvvLva(pos, moves)
 
         var bestScore = Int.MIN_VALUE
         var bestFlag = TT_UPPER
@@ -207,7 +297,7 @@ class SimpleEngine : ChessEngine {
             val score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
             pos.undoMove()
 
-            if (stopRequested) return 0
+            if (aborted(nodes[0])) return 0
             if (score > bestScore) bestScore = score
             if (score > alphaLocal) {
                 alphaLocal = score
@@ -219,25 +309,80 @@ class SimpleEngine : ChessEngine {
             }
         }
 
-        tt[key] = TTEntry(depth, bestScore, bestFlag)
+        if (tt.size < TT_MAX_ENTRIES) {
+            tt[key] = TTEntry(depth, bestScore, bestFlag)
+        }
         return bestScore
     }
 
-    private fun findBestMoveAtRoot(pos: Position, depth: Int): Move {
+    /** 静态搜索: 只继续搜吃子着法,直到局面"安静"下来 */
+    private fun quiescence(pos: Position, alpha: Int, beta: Int, nodes: LongArray, ply: Int): Int {
+        nodes[0]++
+        if (aborted(nodes[0])) return 0
+
+        val standPat = evaluate(pos)
+        if (standPat >= beta) return standPat
+        if (ply >= MAX_QUIESCENCE_PLY) return standPat
+
+        var alphaLocal = if (standPat > alpha) standPat else alpha
+
         val moves = mutableListOf<Move>()
         Rules.generateAllLegal(pos, moves)
-        var best = Move.empty()
-        var bestScore = Int.MIN_VALUE
-        for (m in moves) {
+        val captures = moves.filter { pos.pieceAt(it.to) != Piece.NONE.code }
+        if (captures.isEmpty()) return standPat
+        val ordered = captures.toMutableList()
+        sortByMvvLva(pos, ordered)
+
+        var best = standPat
+        for (m in ordered) {
             pos.doMove(m)
-            val score = -alphaBeta(pos, depth - 1, Int.MIN_VALUE + 1, Int.MAX_VALUE - 1, longArrayOf(0), 1)
+            val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1)
             pos.undoMove()
-            if (score > bestScore) {
-                bestScore = score
-                best = m
-            }
+            if (aborted(nodes[0])) return 0
+            if (score > best) best = score
+            if (score > alphaLocal) alphaLocal = score
+            if (alphaLocal >= beta) break
         }
         return best
+    }
+
+    /** 吃子优先排序 (MVV-LVA) */
+    private fun sortByMvvLva(pos: Position, moves: MutableList<Move>) {
+        for (m in moves) {
+            m.score = m.mvvLva(pos.pieceAt(m.to), pos.pieceAt(m.from))
+        }
+        moves.sortByDescending { it.score }
+    }
+
+    /** 分段等待, 期间随时响应 stop */
+    private fun waitBriefly(totalMs: Long) {
+        val until = System.currentTimeMillis() + totalMs
+        while (!stopRequested && System.currentTimeMillis() < until) {
+            try {
+                Thread.sleep(20)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return
+            }
+        }
+    }
+
+    /** 是否该中止搜索(收到 stop 或超时). 每 1024 个节点才查一次时钟. */
+    private fun aborted(nodeCount: Long): Boolean {
+        if (stopRequested || timeUp) return true
+        if (nodeCount and TIME_CHECK_MASK == 0L && System.currentTimeMillis() >= deadline) {
+            timeUp = true
+            return true
+        }
+        return false
+    }
+
+    private fun isMateScore(score: Int): Boolean = kotlin.math.abs(score) >= MATE_SCORE - MAX_MATE_PLY
+
+    private fun mateDistance(score: Int): Int = when {
+        score >= MATE_SCORE - MAX_MATE_PLY -> (MATE_SCORE - score + 1) / 2
+        score <= -MATE_SCORE + MAX_MATE_PLY -> -((MATE_SCORE + score + 1) / 2)
+        else -> 0
     }
 
     // ====== 评估 ======
@@ -270,24 +415,29 @@ class SimpleEngine : ChessEngine {
         return if (pos.sideToMove == Color.RED) score else -score
     }
 
-    /** 棋子位置分 (Piece-Square Table) - 简化的 PST */
+    /**
+     * 棋子位置分 (Piece-Square Table).
+     *
+     * 所有表都按**红方视角**定义(row 9 = 己方底线, row 0 = 对方底线);
+     * 黑方沿横轴镜像取值,不需要各自维护一份表.
+     */
     private fun pstValue(type: Int, sq: Int, color: Int): Int {
-        val r = Square.row(sq)
+        val row = Square.row(sq)
+        val r = if (color == Color.RED) row else Square.ROWS - 1 - row
         val c = Square.col(sq)
         return when (type) {
-            1 -> if (color == Color.RED) kingPstRed[r].get(c) else kingPstBlack[r].get(c)
-            2 -> 0  // 仕位置固定, 无额外奖励
-            3 -> 0  // 相位置固定
-            4 -> horsePst[r].get(c) * (if (color == Color.RED) 1 else -1).let { 1 }  // 马对称
-            5 -> rookPst[r].get(c)
-            6 -> cannonPst[r].get(c)
-            7 -> pawnPst[r].get(c) * (if (color == Color.RED) 1 else -1).let { 1 }  // 兵需要翻转
+            1 -> kingPst[r][c]
+            2, 3 -> 0  // 仕/相 位置基本固定, 不额外加分
+            4 -> horsePst[r][c]
+            5 -> rookPst[r][c]
+            6 -> cannonPst[r][c]
+            7 -> pawnPst[r][c]
             else -> 0
         }
     }
 
-    // 简化的位置表(可后续通过学习优化)
-    private val kingPstRed = arrayOf(
+    // 简化的位置表(红方视角, 可后续通过学习优化)
+    private val kingPst = arrayOf(
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -299,10 +449,6 @@ class SimpleEngine : ChessEngine {
         intArrayOf(0, 0, 0, 0, 5, 0, 0, 0, 0),
         intArrayOf(0, 0, 0, 0, 5, 0, 0, 0, 0)
     )
-    private val kingPstBlack: Array<IntArray> = Array(10) { i ->
-        val redRow = kingPstRed[9 - i]
-        IntArray(9) { j -> redRow[j] }
-    }
 
     private val horsePst = arrayOf(
         intArrayOf(-5, 0, 0, 0, 0, 0, 0, 0, -5),
@@ -343,38 +489,45 @@ class SimpleEngine : ChessEngine {
         intArrayOf(6, 4, 0, -5, -10, -5, 0, 4, 6)
     )
 
+    // 兵: 红方向 row 变小的方向前进, 所以越靠近 row 0 分越高.
+    // (row 0 是对方底线, 兵到底线只能横move, 价值反而回落)
     private val pawnPst = arrayOf(
+        intArrayOf(0, 0, 0, 10, 15, 10, 0, 0, 0),
+        intArrayOf(10, 15, 25, 40, 50, 40, 25, 15, 10),
+        intArrayOf(15, 25, 40, 55, 60, 55, 40, 25, 15),
+        intArrayOf(10, 20, 30, 40, 45, 40, 30, 20, 10),
+        intArrayOf(5, 10, 15, 20, 25, 20, 15, 10, 5),
+        intArrayOf(0, 0, 5, 8, 10, 8, 5, 0, 0),
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
         intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-        intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-        intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-        intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-        intArrayOf(10, 10, 10, 15, 20, 15, 10, 10, 10),
-        intArrayOf(20, 25, 30, 35, 40, 35, 30, 25, 20),
-        intArrayOf(20, 30, 40, 50, 60, 50, 40, 30, 20),
-        intArrayOf(20, 30, 40, 50, 60, 50, 40, 30, 20)
+        intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0)
     )
 
     // ====== 辅助: UCI 转换 ======
 
     private fun applyUciMove(pos: Position, uci: String) {
-        // 形如 "b2e2" 或含前缀 "h0e1" 等
-        if (uci.length < 4) return
-        try {
+        val move = parseUci(uci) ?: return
+        if (pos.isLegalMove(move)) pos.doMove(move)
+    }
+
+    /**
+     * 解析 UCI 坐标, 如 "b2e2".
+     * UCI: 列 a-i = 0-8, 行 0-9 且 0 = 红方底线;
+     * 内部表示: row 0 = 黑方底线, row 9 = 红方底线, 故 row = 9 - rank.
+     */
+    private fun parseUci(uci: String): Move? {
+        if (uci.length < 4) return null
+        return try {
             val fromCol = uci[0] - 'a'
-            val fromRow = uci[1].digitToInt()
+            val fromRow = 9 - uci[1].digitToInt()
             val toCol = uci[2] - 'a'
-            val toRow = uci[3].digitToInt()
-            // UCI 坐标: 列 0-8 -> a-i, 行 0-9 (0 = 红方底线)
-            // 我们的表示: row 0 = 黑方底线, row 9 = 红方底线
-            val fromSq = Square.make(9 - fromRow, fromCol)
-            val toSq = Square.make(9 - toRow, toCol)
-            val move = Move.make(fromSq, toSq)
-            if (pos.isLegalMove(move)) {
-                pos.doMove(move)
-            }
-        } catch (_: Exception) { }
+            val toRow = 9 - uci[3].digitToInt()
+            if (!Square.valid(fromRow, fromCol) || !Square.valid(toRow, toCol)) return null
+            Move.make(Square.make(fromRow, fromCol), Square.make(toRow, toCol))
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun moveToUci(move: Move): String {
@@ -394,5 +547,28 @@ class SimpleEngine : ChessEngine {
         private const val TT_EXACT = 0
         private const val TT_LOWER = 1
         private const val TT_UPPER = 2
+
+        /** 将死分值. 实际分数是 MATE_SCORE - ply, 越快的杀分越高 */
+        private const val MATE_SCORE = 30000
+        private const val MAX_MATE_PLY = 200
+        private const val MAX_SCORE = Int.MAX_VALUE - 1
+        private const val MIN_SCORE = Int.MIN_VALUE + 1
+
+        /** 静态搜索最大深度,防止连吃链把栈搜爆 */
+        private const val MAX_QUIESCENCE_PLY = 32
+        /** 未指定时限时的默认思考时间 */
+        private const val DEFAULT_MOVETIME_MS = 3000L
+        /** 停止搜索时等待工作线程退出的上限 */
+        private const val STOP_JOIN_TIMEOUT_MS = 2000L
+        /** 置换表条目上限,防止长时间搜索吃光内存 */
+        private const val TT_MAX_ENTRIES = 400_000
+        /** 每级随机性容忍的分差(厘兵) */
+        private const val RANDOMNESS_CP_PER_LEVEL = 60
+        /** 走开局库时的最短"思考"时间,避免零秒落子 */
+        private const val BOOK_MIN_THINK_MS = 450L
+        /** 预估下一层迭代相对已用时间的倍数, 用于判断还要不要再加深 */
+        private const val NEXT_ITERATION_COST_RATIO = 0.6
+        /** 检查时钟的节点间隔掩码 */
+        private const val TIME_CHECK_MASK = 0x1FFL
     }
 }

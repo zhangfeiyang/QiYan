@@ -25,7 +25,7 @@ class BoardEditorActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         // 简化版: 显示一个静态棋盘,实际编辑器需要更复杂的 UI
         binding.boardView.setPosition(position)

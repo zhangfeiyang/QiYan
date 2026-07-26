@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.game
 
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -13,6 +14,7 @@ import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.rating.UserProfile
+import com.zhongguoxiangqi.ui.settings.AppSettings
 import kotlinx.coroutines.launch
 
 /**
@@ -34,15 +36,23 @@ class GameActivity : AppCompatActivity() {
 
     private var lastPlayerSide = Color.RED
     private var lastDifficulty = 5
+    private var gameOverDialog: AlertDialog? = null
+
+    /** 棋盘上已经渲染到第几步,用来判断是"又走了一步"还是悔棋/重开 */
+    private var renderedMoveCount = 0
+    private lateinit var feedback: GameFeedback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        // 引擎思考和玩家看棋期间不要熄屏(无需任何权限)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         userProfile = UserProfile(this)
+        feedback = GameFeedback(this)
         lastDifficulty = intent.getIntExtra(EXTRA_DIFFICULTY, 5)
         lastPlayerSide = intent.getIntExtra(EXTRA_PLAYER_SIDE, Color.RED)
 
@@ -62,6 +72,18 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "非法走子", Toast.LENGTH_SHORT).show()
             }
         }
+        applyDisplaySettings()
+    }
+
+    /** 把设置界面里的显示选项真正落到棋盘上 */
+    private fun applyDisplaySettings() {
+        val settings = AppSettings(this)
+        binding.boardView.setShowCoordinates(settings.showCoordinates)
+        binding.boardView.setAnimationEnabled(settings.animationEnabled)
+        // 执黑时默认翻转到黑方视角,设置里的翻转开关在此基础上再取反
+        val defaultFlip = lastPlayerSide == Color.BLACK
+        binding.boardView.setFlipped(defaultFlip != settings.boardFlipped)
+        binding.winrateBar.visibility = if (settings.showWinRate) View.VISIBLE else View.GONE
     }
 
     private fun setupControls() {
@@ -100,12 +122,34 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun observeState() {
+        // 引擎错误等一次性事件, 否则这些提示会被静默丢掉
+        viewModel.events.observe(this) { event ->
+            when (event) {
+                is GameViewModel.GameEvent.ShowToast -> {
+                    Toast.makeText(this, event.msg, Toast.LENGTH_SHORT).show()
+                    viewModel.consumeEvent()
+                }
+                is GameViewModel.GameEvent.ShowDialog -> {
+                    AlertDialog.Builder(this)
+                        .setTitle(event.title)
+                        .setMessage(event.message)
+                        .setPositiveButton(R.string.dialog_ok, null)
+                        .show()
+                    viewModel.consumeEvent()
+                }
+                // 终局对话框由 state.isGameOver 驱动
+                else -> Unit
+            }
+        }
+
         lifecycleScope.launch {
             viewModel.state.collect { state ->
                 // 引擎名/对手评分
                 binding.opponentName.text = if (state.playerSide == Color.RED) "引擎 (执黑)" else "引擎 (执红)"
-                val elo = engineEloFor(state.difficulty)
-                binding.opponentRating.text = "Elo $elo"
+                // 显示真实棋力; 降级时标出来,避免"Elo 3300"名不副实
+                binding.opponentRating.text =
+                    if (state.engineDowngraded) "Elo ${state.engineElo} (已降级)"
+                    else "Elo ${state.engineElo}"
                 binding.engineName.text = state.engineName
                 binding.playerName.text = if (state.playerSide == Color.RED) "我 (执红)" else "我 (执黑)"
                 binding.playerRating.text = "Elo ${state.playerRating} ${state.playerRank}"
@@ -119,11 +163,14 @@ class GameActivity : AppCompatActivity() {
                 binding.npsLabel.text = if (wr.nps > 1000) "${wr.nps / 1000}k NPS" else "${wr.nps} NPS"
 
                 // 棋盘更新
-                updateBoard()
+                updateBoard(state)
 
-                // 游戏结束
+                // 游戏结束(状态会多次发射,对话框只弹一次)
                 if (state.isGameOver) {
                     showGameOverDialog(state.gameOverReason)
+                } else {
+                    gameOverDialog?.dismiss()
+                    gameOverDialog = null
                 }
             }
         }
@@ -158,26 +205,29 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateBoard() {
+    private fun updateBoard(state: GameViewModel.GameState) {
         val position = viewModel.currentPosition
-        binding.boardView.setPosition(position)
+        val history = viewModel.moveHistory
+
+        // 只有"恰好新增一步"才播动画; 悔棋、开新局、跳步都直接刷新
+        val advancedByOne = history.size == renderedMoveCount + 1
+        val animateMove = if (advancedByOne) history.lastOrNull() else null
+        binding.boardView.setPosition(position, animateMove)
 
         // 检测将军
-        val kingSq = if (position.sideToMove == Color.RED) {
-            findKing(position, Color.RED)
-        } else {
-            findKing(position, Color.BLACK)
-        }
-        if (kingSq != -1 && Rules.isInCheck(position, position.sideToMove)) {
-            binding.boardView.setCheckedKing(kingSq)
-        } else {
-            binding.boardView.setCheckedKing(-1)
-        }
+        val inCheck = Rules.isInCheck(position, position.sideToMove)
+        binding.boardView.setCheckedKing(
+            if (inCheck) findKing(position, position.sideToMove) else -1
+        )
 
         // 上一步走法
-        if (viewModel.moveHistory.isNotEmpty()) {
-            binding.boardView.setLastMove(viewModel.moveHistory.last())
+        binding.boardView.setLastMove(history.lastOrNull())
+
+        // 落子反馈. 只在真正新增一步时触发,避免状态重复发射时反复响
+        if (advancedByOne) {
+            if (inCheck) feedback.onCheck() else feedback.onMove(state.lastMoveCaptured)
         }
+        renderedMoveCount = history.size
     }
 
     private fun findKing(position: com.zhongguoxiangqi.game.Position, color: Int): Int {
@@ -189,46 +239,45 @@ class GameActivity : AppCompatActivity() {
         return -1
     }
 
-    private fun moveToChinese(move: Move): String {
-        val pos = viewModel.currentPosition
-        return Move.toChineseString(move, pos.sideToMove, pos)
-    }
+    private fun moveToChinese(move: Move): String =
+        Move.toChineseString(move, viewModel.currentPosition)
 
     private fun showGameOverDialog(reason: String) {
+        if (gameOverDialog?.isShowing == true) return
+        if (isFinishing || isDestroyed) return
         val state = viewModel.state.value
         val message = buildString {
             append("对局结束\n")
             append("原因: $reason\n")
-            val ratingDelta = state.playerRating - intent.getIntExtra(EXTRA_INITIAL_RATING, state.playerRating)
-            append("评分变化: ${if (ratingDelta >= 0) "+" else ""}$ratingDelta\n")
+            append("评分变化: ${if (state.ratingDelta >= 0) "+" else ""}${state.ratingDelta}\n")
             append("当前评分: ${state.playerRating}  ${state.playerRank}")
         }
-        AlertDialog.Builder(this)
+        gameOverDialog = AlertDialog.Builder(this)
             .setTitle("对局结束")
             .setMessage(message)
             .setCancelable(false)
             .setPositiveButton(R.string.action_new_game) { _, _ ->
+                gameOverDialog = null
                 viewModel.startNewGame(lastDifficulty, lastPlayerSide)
             }
-            .setNegativeButton(R.string.action_back) { _, _ -> finish() }
+            .setNegativeButton(R.string.action_back) { _, _ ->
+                gameOverDialog = null
+                finish()
+            }
             .show()
     }
 
     override fun onDestroy() {
+        // 界面销毁时必须关掉对话框,否则会泄漏 Activity
+        gameOverDialog?.dismiss()
+        gameOverDialog = null
+        feedback.release()
         super.onDestroy()
         // 引擎在 VM.onCleared 中关闭
-    }
-
-    private fun engineEloFor(difficulty: Int): Int = when (difficulty) {
-        1 -> 600; 2 -> 900; 3 -> 1200; 4 -> 1500
-        5 -> 1700; 6 -> 1900; 7 -> 2200; 8 -> 2500
-        9 -> 2900; 10 -> 3300
-        else -> 1500
     }
 
     companion object {
         const val EXTRA_DIFFICULTY = "difficulty"
         const val EXTRA_PLAYER_SIDE = "player_side"
-        const val EXTRA_INITIAL_RATING = "initial_rating"
     }
 }

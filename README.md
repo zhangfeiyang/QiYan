@@ -1,6 +1,6 @@
 # 中国象棋 (Zhongguo Xiangqi) Android App
 
-> 一个完整的、可编译的中国象棋 Android 应用,基于 **Pikafish NNUE** 神经网络引擎,最高难度可轻松击败最顶级人类棋手。
+> 一个完整的中国象棋 Android 应用, 集成 **Pikafish NNUE** 引擎 (JNI 进程内加载), 最高棋力 ≥3300 Elo, 可轻松击败最顶级人类棋手。
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Min SDK](https://img.shields.io/badge/min%20SDK-26-blue)
@@ -37,13 +37,13 @@
 | 3 | 中级 | 内置 Java 引擎 | 1200 | 业余初段 |
 | 4 | 高级 | 内置 Java 引擎 | 1500 | 业余三段 |
 | 5 | 大师 | 内置 Java 引擎 | 1700 | 业余五段 |
-| 6 | 特级大师 | Pikafish NNUE | 1900 | 业余七段 |
-| 7 | 冠军 | Pikafish NNUE | 2200 | 地方大师 |
-| 8 | 精英 | Pikafish NNUE | 2500 | 国家大师 |
-| 9 | 传说 | Pikafish NNUE | 2900 | 特级大师 |
-| 10 | **超凡入圣** | Pikafish NNUE | 3300+ | **可轻松击败最顶级人类棋手** |
+| 6 | 特级大师 | Pikafish NNUE (JNI) | 1900 | 业余七段 |
+| 7 | 冠军 | Pikafish NNUE (JNI) | 2200 | 地方大师 |
+| 8 | 精英 | Pikafish NNUE (JNI) | 2500 | 国家大师 |
+| 9 | 传说 | Pikafish NNUE (JNI) | 2900 | 特级大师 |
+| 10 | **超凡入圣** | Pikafish NNUE (JNI) | 3300+ | **可轻松击败最顶级人类棋手** |
 
-> 第 6 级起自动启用 Pikafish NNUE 引擎。如未放置 Pikafish 二进制,自动降级到内置引擎。
+> 第 6 级起自动启用 Pikafish JNI 引擎。引擎通过 `System.loadLibrary("pikafish")` 在进程内加载, 不依赖子进程。如因任何原因启动失败, 自动降级到内置引擎。
 
 ### 📊 实时胜率分析
 - 棋盘顶部动态显示双方胜率百分比
@@ -96,9 +96,10 @@ zhongguoxiangqi/
 │   │   │   │   ├── Zobrist.kt           # 哈希键 (置换表/检测重复)
 │   │   │   │   ├── MoveGenerator.kt     # 所有棋子走法生成
 │   │   │   │   └── Rules.kt             # 将军/将死/困毙/飞行将军判定
-│   │   │   ├── engine/                  # AI 引擎集成 (5 文件)
+│   │   │   ├── engine/                  # AI 引擎集成 (6 文件)
 │   │   │   │   ├── ChessEngine.kt       # 引擎接口抽象
-│   │   │   │   ├── PikafishEngine.kt    # Pikafish UCI 协议包装
+│   │   │   │   ├── PikafishNative.kt    # JNI 桥 (11 个 external fun)
+│   │   │   │   ├── PikafishNativeEngine.kt  # ChessEngine 实现 (JNI 包装)
 │   │   │   │   ├── SimpleEngine.kt      # 内置 Alpha-Beta 引擎
 │   │   │   │   ├── EngineManager.kt     # 难度映射与故障降级
 │   │   │   │   └── OpeningBook.kt       # 开局库查询
@@ -127,20 +128,23 @@ zhongguoxiangqi/
 │   │   │   ├── mipmap-*/                # 启动图标
 │   │   │   └── xml/                     # 备份规则
 │   │   ├── assets/
-│   │   │   ├── engine/                  # Pikafish 二进制 (待部署)
+│   │   │   ├── engine/pikafish.nnue    # NNUE 网络 (52 MB)
 │   │   │   └── book/                    # 开局库
-│   │   ├── cpp/                         # 未来 NDK 集成占位
+│   │   ├── jniLibs/arm64-v8a/
+│   │   │   │   └── libpikafish.so          # Pikafish JNI 共享库 (2.3 MB)
 │   │   └── AndroidManifest.xml
 │   ├── src/test/                        # 单元测试
 │   └── build.gradle.kts
 ├── gradle/                              # Gradle Wrapper
-├── ndk-build/NDK_BUILD.md               # 引擎编译指南
+├── ndk-build/
+│   ├── NDK_BUILD.md                     # 引擎编译指南
+│   └── pikafish_jni.cpp                 # JNI Wrapper 源码 (~250 行 C++)
 ├── build.gradle.kts
 ├── settings.gradle.kts
 └── README.md
 ```
 
-**代码量**: ~5,400 行 Kotlin, 36 个 XML 资源, 71 个文件。
+**代码量**: ~6,700 行 Kotlin, 36 个 XML 资源, ~80 个文件。
 
 ---
 
@@ -158,8 +162,8 @@ zhongguoxiangqi/
 
 ### 架构模式
 - **MVVM**: ViewModel + StateFlow + LiveData
-- **单 Activity 多 Fragment**: 主菜单为 Activity,各功能页为 Activity
-- **进程内引擎**: 通过 `ProcessBuilder` 启动 Pikafish 子进程
+- **JNI 进程内引擎**: Pikafish 通过 `System.loadLibrary` 加载, C++ JNI wrapper 直调 Stockfish API
+- **降级容错**: Pikafish 启动失败 → 自动降级到 SimpleEngine
 
 ---
 
@@ -171,79 +175,68 @@ zhongguoxiangqi/
 
 ```kotlin
 class EngineManager(context: Context) {
-    var currentEngine: ChessEngine? = null
-
     fun start(listener: EngineListener?): Boolean {
-        // 难度 6+ → PikafishEngine (NNUE)
-        // 难度 1-5 或 Pikafish 失败 → SimpleEngine
+        if (difficultyLevel >= 6) {
+            // 尝试 Pikafish JNI — 引擎在进程内, 不依赖子进程
+            val nnue = PikafishNativeInstaller.ensureNnueInstalled(context)
+            if (nnue != null) {
+                val engine = PikafishNativeEngine(nnue, listener)
+                if (engine.start()) { currentEngine = engine; return true }
+            }
+        }
+        // 降级到 SimpleEngine
         ...
     }
 }
 ```
 
-### 1. Pikafish NNUE 集成
+### 1. Pikafish JNI 集成 (难度 6-10)
 
-**Pikafish** 是基于 Stockfish 的中国象棋引擎分支,使用 NNUE (Neural Network Unified Evaluation) 神经网络评估。
+**Pikafish** 是基于 Stockfish 的中国象棋引擎分支, 使用 NNUE 神经网络评估, 棋力 ≥3300 Elo。
 
-**集成方式**: UCI 协议 via `ProcessBuilder` + 标准输入输出流。
+**集成方式**: JNI 进程内加载。`libpikafish.so` 是真正的共享库 (`ET_DYN`), 由 `System.loadLibrary("pikafish")` 加载到 App 进程, ~250 行的 C++ JNI wrapper 将 Kotlin 调用直接映射到 Stockfish C++ API。
 
 ```
-App 进程                           Pikafish 子进程
-   │                                    │
-   │── stdin: "uci\n" ──────────────────>│  握手
-   │<── stdout: "uciok\n" ───────────────│
-   │── "position fen <FEN> moves ..." ───>│
-   │── "go movetime 3000\n" ────────────>│
-   │<── "info depth 20 score cp 25 ..." ─│  实时信息
-   │<── "bestmove e7e7\n" ───────────────│  最佳走法
-   │── "quit\n" ────────────────────────>│
+Kotlin (UI 线程)              JNI Wrapper (C++)             Pikafish Engine (C++)
+     │                              │                              │
+     ├─ initGlobal(nnuePath) ──────>├─ Engine(path) ──────────────>│  构造引擎 + 加载 NNUE
+     │                              │  set_option(EvalFile, ...)    │
+     │                              │  set_on_bestmove(cb)          │
+     │<─ return 0 ──────────────────┤                              │
+     │                              │                              │
+     ├─ setposition(fen, moves) ───>├─ Engine::set_position(...) ─>│  设置局面
+     │                              │                              │
+     ├─ go(movetime, depth, ...) ──>├─ Engine::go(limits) ────────>│  异步启动搜索
+     │                              │  (搜索在线程池中运行)           │
+     ├─ waitForSearch() ───────────>├─ Engine::wait... ───────────>│  阻塞等待
+     │                              │  (bestmove 回调触发)          │
+     ├─ getBestmove(buf) ──────────>├─ copy g_bestmove ───────────>│
+     │<─ "b2e2" ────────────────────┤                              │
 ```
 
-**关键代码**: `app/src/main/java/com/zhongguoxiangqi/engine/PikafishEngine.kt`
+**为什么不用子进程**: Android 10+ SELinux 禁止从 `app_data_file` 上下文 exec。曾试图走 `nativeLibraryDir` exec 路线, 但上游 Pikafish Makefile 对 `COMP=ndk` 产出的是 `ET_EXEC` (不可被 nativeloader 接受)。JNI 进程内加载绕开了整个 SELinux exec 限制。
 
-特性:
-- 自动从 `assets/engine/` 复制二进制到内部存储并 chmod 755
-- 多线程 (1-8) 可配置
-- 哈希表 (16-1024 MB) 可配置
-- 支持 UCI `info`/`bestmove` 流式回调
-- 自动检测二进制缺失并降级
+**关键文件**: `engine/PikafishNative.kt` (11 个 `external fun`), `engine/PikafishNativeEngine.kt` (ChessEngine 实现), `ndk-build/pikafish_jni.cpp` (~250 行 C++ JNI wrapper).
 
-### 2. 内置 SimpleEngine
+**构建方式**: 将 `pikafish_jni.cpp` 放入 Pikafish 源码目录, `EXTRACXXFLAGS=-fPIC make build ARCH=armv8 COMP=ndk`, 产出的 `libpikafish.so` 放入 `app/src/main/jniLibs/arm64-v8a/`. 详见 `ndk-build/NDK_BUILD.md`.
+│   │   │   │   └── libpikafish.so          # Pikafish JNI 共享库 (2.3 MB)
 
-**位置**: `app/src/main/java/com/zhongguoxiangqi/engine/SimpleEngine.kt`
+### 2. 内置 SimpleEngine (难度 1-5)
 
-**算法**:
-- **搜索**: Alpha-Beta + 迭代加深
-- **评估**: 子力价值 + 位置分 (Piece-Square Tables)
-- **走法排序**: MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
-- **置换表**: Zobrist 键 + 深度优先
+**位置**: `engine/SimpleEngine.kt`
 
-```kotlin
-fun alphaBeta(pos, depth, alpha, beta, nodes, ply): Int {
-    if (depth <= 0) return evaluate(pos)
-    // 置换表查询
-    val moves = generateLegalMoves(pos)
-    moves.sortByDescending { m.score }  // MVV-LVA 排序
-    for (m in moves) {
-        pos.doMove(m)
-        val score = -alphaBeta(pos, depth-1, -beta, -alpha, nodes, ply+1)
-        pos.undoMove()
-        ...
-    }
-}
-```
-
-**强度上限**: 业余 5-7 段水平 (Elo ~1700),适合低难度和引擎降级场景。
+**算法**: Alpha-Beta + 迭代加深, 子力价值 + 位置分评估, MVV-LVA 走法排序, Zobrist 键置换表. 强度上限 ~1700 Elo (业余 5-7 段).
 
 ### 3. 引擎参数映射
 
 | 难度 | 引擎 | 线程数 | 哈希(MB) | 思考时间 |
 |------|------|--------|----------|----------|
-| 1-5  | SimpleEngine | 1 | 16 | 100-2000ms |
-| 6-7  | Pikafish | 2 | 64 | 2000-3000ms |
-| 8    | Pikafish | 2 | 128 | 5000ms |
-| 9    | Pikafish | 4 | 256 | 10000ms |
-| 10   | Pikafish | 4 | 512 | 15000ms |
+| 1-5  | SimpleEngine | 1 | 16 | 0.5-2s |
+| 6    | Pikafish JNI | 1-2 | 32-64 | 2s |
+| 7    | Pikafish JNI | 2 | 64 | 3s |
+| 8    | Pikafish JNI | 2 | 128 | 4s |
+| 9    | Pikafish JNI | 4 | 256 | 6s |
+| 10   | Pikafish JNI | 4 | 512 | 8s |
 
 ---
 
@@ -472,7 +465,7 @@ BUILD SUCCESSFUL in 1m 7s
 38 actionable tasks: 11 executed, 27 up-to-date
 ```
 
-**APK 大小**: ~6.8 MB (未包含 Pikafish 二进制)
+**APK 大小**: ~62 MB (包含 52 MB NNUE 网络 + 2.3 MB Pikafish .so)
 
 ### 安装
 
@@ -488,63 +481,31 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ## 🚀 引擎部署
 
-> ⚠️ **未放置 Pikafish 二进制时,App 仍可运行**,会自动降级到内置引擎 (最大业余 5-7 段)。
+> ⚠️ **当前版本已内置 Pikafish 引擎** — 无需额外部署。`libpikafish.so` (2.3 MB) 和 `pikafish.nnue` (52 MB) 已直接打包在 APK 中。
 
-### 步骤
+### 当前引擎状态
 
-#### 1. 下载 Pikafish
+| 组件 | 路径 | 大小 |
+|------|------|------|
+| Pikafish 共享库 | `app/src/main/jniLibs/arm64-v8a/libpikafish.so` | ~2.3 MB |
+│   │   │   │   └── libpikafish.so          # Pikafish JNI 共享库 (2.3 MB)
+| NNUE 网络文件 | `app/src/main/assets/engine/pikafish.nnue` | ~52 MB |
+| JNI Wrapper 源码 | `ndk-build/pikafish_jni.cpp` | ~250 行 C++ |
 
-从官方仓库获取:
-- 源码: <https://github.com/official-pikafish/Pikafish>
-- NNUE 网络: <https://github.com/official-pikafish/Pikafish/tree/main/src>
-- 或使用预编译版本
+### 更新/重建 Pikafish
 
-#### 2. 编译 Pikafish (可选)
+如果上游 Pikafish 有重大更新, 需要重建引擎:
 
-详见 `ndk-build/NDK_BUILD.md`,核心步骤:
+1. 克隆最新 Pikafish 源码并放入 JNI wrapper
+2. `make net` 拉取匹配的 NNUE 网络
+3. 交叉编译 `libpikafish.so`
+4. 替换 `jniLibs/` 和 `assets/engine/` 中的文件
 
-```bash
-git clone https://github.com/official-pikafish/Pikafish.git
-cd Pikafish/src
+详细步骤见 `ndk-build/NDK_BUILD.md`.
 
-# 编译 Android arm64-v8a
-make -j4 build ARCH=armv8 COMP=gcc
-# 或使用 NDK 工具链 (推荐)
-```
+### 降级容错
 
-#### 3. 部署到项目
-
-将以下文件放入 `app/src/main/assets/engine/`:
-
-```
-app/src/main/assets/engine/
-├── pikafish-arm64-v8a        # ARM64 设备 (主流)
-├── pikafish-armeabi-v7a      # ARMv7 设备
-├── pikafish-x86_64           # 模拟器
-└── pikafish.nnue             # NNUE 网络 (~40MB)
-```
-
-#### 4. 首次启动
-
-App 启动时自动:
-1. 从 assets 复制二进制到 `files/engine/`
-2. 设置可执行权限 (`chmod 755`)
-3. 启动 Pikafish 子进程
-4. UCI 握手 (`uci` → `uciok`)
-
-### 故障排除
-
-| 问题 | 解决方案 |
-|------|----------|
-| `Permission denied` | 检查二进制权限,确保有 `chmod 755` |
-| `Engine failed to start` | 验证 NNUE 文件完整 (~40MB) |
-| 引擎过慢 | 设置中增加线程数(Threads=4) 和 哈希(Hash=512) |
-| ABI 不匹配 | 确认 `arm64-v8a` 文件与设备 ABI 一致 |
-
-查看 logcat:
-```bash
-adb logcat | grep -i pikafish
-```
+APK 仍然包含 SimpleEngine 作为后备。如果 `System.loadLibrary("pikafish")` 或 `initGlobal()` 失败, App 会自动降级到内置引擎 (上限 ~1700 Elo), 不会崩溃。
 
 ---
 
@@ -567,18 +528,18 @@ adb logcat | grep -i pikafish
 ./gradlew test
 ```
 
-所有测试已验证通过 (18+ 用例)。
+所有测试已验证通过 (54 个用例), 包括新增的将军检测回归测试 (炮架/马腿/白脸将)。
 
 ---
 
 ## 📝 已知限制
 
-1. **NNUE 网络文件未默认包含**: 需用户自行下载 (~40MB),因体积过大未放入版本控制
-2. **内置简易引擎强度有限**: 业余 5-7 段水平,适合低难度或降级场景
-3. **复盘界面**: 走法列表以数字格式显示,未做完整中文棋谱格式化
-4. **多语言**: 当前仅简体中文
-5. **残局库**: 未集成 Syzygy 残局表
-6. **暗子提示**: 未实现 (类似国际象棋的箭头功能)
+1. **x86_64 模拟器不支持**: Pikafish `.so` 仅编译了 `arm64-v8a`, 模拟器上自动降级到 SimpleEngine
+2. **APK 体积较大**: 包含 ~52 MB NNUE 网络文件, 完整 APK 约 60+ MB
+3. **内置简易引擎强度有限**: 业余 5-7 段水平 (~1700 Elo), 适合低难度或 Pikafish 降级场景
+4. **复盘界面**: 走法列表以数字格式显示, 未做完整中文棋谱格式化
+5. **多语言**: 当前仅简体中文
+6. **残局库**: 未集成 Syzygy 残局表
 
 ---
 

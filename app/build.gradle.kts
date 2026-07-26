@@ -49,6 +49,7 @@ android {
         freeCompilerArgs += listOf("-Xjvm-default=all")
     }
 
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -72,6 +73,12 @@ android {
         abortOnError = false
         checkReleaseBuilds = false
     }
+}
+
+// 固定用 JDK 17 编译: 与上面声明的 source/target 一致,
+// 也不受运行 Gradle 的 JVM 版本影响(JDK 21 的 headless 包缺 jlink,会让 AGP 失败).
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -110,6 +117,8 @@ dependencies {
     // Test
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    // android.jar 里的 org.json 只是空壳,单元测试需要真实现来校验开局库数据
+    testImplementation("org.json:json:20231013")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

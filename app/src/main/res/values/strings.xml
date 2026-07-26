@@ -100,6 +100,7 @@
     <!-- 复盘 -->
     <string name="replay_empty">暂无对局记录</string>
     <string name="replay_play">自动播放</string>
+    <string name="replay_pause">暂停</string>
     <string name="replay_prev">上一步</string>
     <string name="replay_next">下一步</string>
     <string name="replay_first">第一步</string>

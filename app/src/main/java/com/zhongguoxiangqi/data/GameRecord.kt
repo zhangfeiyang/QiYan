@@ -24,7 +24,7 @@ data class GameRecord(
     @ColumnInfo(name = "start_time") val startTime: Long,
     /** 结束时间 */
     @ColumnInfo(name = "end_time") val endTime: Long,
-    /** 玩家执子 0=红 1=黑 */
+    /** 玩家执子, 取值为 Color.RED(1) / Color.BLACK(0) */
     @ColumnInfo(name = "player_side") val playerSide: Int,
     /** 难度 1-10 */
     @ColumnInfo(name = "difficulty") val difficulty: Int,

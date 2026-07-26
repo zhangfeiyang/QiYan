@@ -72,17 +72,18 @@ class MainMenuActivity : AppCompatActivity() {
         val rv = dialogView.findViewById<RecyclerView>(R.id.difficulty_list)
         rv.layoutManager = LinearLayoutManager(this)
 
-        val adapter = DifficultyAdapter(DifficultyLevel.entries.toList()) { level ->
-            // 选完难度,选执子
-            showSideSelectionDialog(level)
-        }
-        rv.adapter = adapter
-
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.menu_difficulty)
             .setView(dialogView)
             .setNegativeButton(R.string.dialog_cancel, null)
-            .show()
+            .create()
+
+        rv.adapter = DifficultyAdapter(DifficultyLevel.entries.toList()) { level ->
+            // 选完难度先关掉本对话框,否则它会一直压在后面
+            dialog.dismiss()
+            showSideSelectionDialog(level)
+        }
+        dialog.show()
     }
 
     private fun showSideSelectionDialog(level: DifficultyLevel) {

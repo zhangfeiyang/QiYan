@@ -10,22 +10,29 @@ package com.zhongguoxiangqi.game
  * 这样设计保证: piece >> 1 表示棋子类型 (1..7)
  * piece & 1 表示颜色 (1=红, 0=黑),与位运算一致
  */
-enum class Piece(val code: Int, val chinese: String, val redChar: String, val blackChar: String) {
-    NONE(0, "空", "", ""),
-    R_KING(1, "帅", "帅", "将"),
-    R_ADVISOR(2, "仕", "仕", "士"),
-    R_ELEPHANT(3, "相", "相", "象"),
-    R_HORSE(4, "马", "马", "马"),
-    R_ROOK(5, "车", "车", "车"),
-    R_CANNON(6, "炮", "炮", "炮"),
-    R_PAWN(7, "兵", "兵", "卒"),
-    B_KING(9, "将", "帅", "将"),
-    B_ADVISOR(10, "士", "仕", "士"),
-    B_ELEPHANT(11, "象", "相", "象"),
-    B_HORSE(12, "马", "马", "马"),
-    B_ROOK(13, "车", "车", "车"),
-    B_CANNON(14, "炮", "炮", "炮"),
-    B_PAWN(15, "卒", "兵", "卒");
+enum class Piece(
+    val code: Int,
+    val chinese: String,
+    val redChar: String,
+    val blackChar: String,
+    /** 标准象棋 FEN 字母: 大写=红, 小写=黑 (K/A/B/N/R/C/P) */
+    val fen: Char
+) {
+    NONE(0, "空", "", "", ' '),
+    R_KING(1, "帅", "帅", "将", 'K'),
+    R_ADVISOR(2, "仕", "仕", "士", 'A'),
+    R_ELEPHANT(3, "相", "相", "象", 'B'),
+    R_HORSE(4, "马", "马", "马", 'N'),
+    R_ROOK(5, "车", "车", "车", 'R'),
+    R_CANNON(6, "炮", "炮", "炮", 'C'),
+    R_PAWN(7, "兵", "兵", "卒", 'P'),
+    B_KING(9, "将", "帅", "将", 'k'),
+    B_ADVISOR(10, "士", "仕", "士", 'a'),
+    B_ELEPHANT(11, "象", "相", "象", 'b'),
+    B_HORSE(12, "马", "马", "马", 'n'),
+    B_ROOK(13, "车", "车", "车", 'r'),
+    B_CANNON(14, "炮", "炮", "炮", 'c'),
+    B_PAWN(15, "卒", "兵", "卒", 'p');
 
     val isRed: Boolean get() = code in 1..7
     val isBlack: Boolean get() = code in 9..15
@@ -35,7 +42,14 @@ enum class Piece(val code: Int, val chinese: String, val redChar: String, val bl
     val type: Int get() = if (code == 0) 0 else (code and 0x07)
 
     companion object {
-        fun fromCode(code: Int): Piece = values().firstOrNull { it.code == code } ?: NONE
+        /** code -> Piece 的直查表, 避免每次线性扫描 values() */
+        private val BY_CODE: Array<Piece> = Array(16) { c -> values().firstOrNull { it.code == c } ?: NONE }
+        private val BY_FEN: Map<Char, Piece> = values().filter { it != NONE }.associateBy { it.fen }
+
+        fun fromCode(code: Int): Piece = if (code in 0..15) BY_CODE[code] else NONE
+
+        /** FEN 字母 -> 棋子, 无法识别返回 NONE */
+        fun fromFen(c: Char): Piece = BY_FEN[c] ?: NONE
 
         /** 棋子字符(红方显示红字,黑方显示黑字) */
         fun displayChar(pieceCode: Int, isRed: Boolean): String {
@@ -46,7 +60,8 @@ enum class Piece(val code: Int, val chinese: String, val redChar: String, val bl
 }
 
 object Color {
-    const val NONE = 0
+    /** 无主(空格 / 无胜方). 必须与 BLACK 区分 —— BLACK 是 0. */
+    const val NONE = -1
     const val RED = 1
     const val BLACK = 0
 
