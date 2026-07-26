@@ -36,7 +36,7 @@
     <string name="action_resign">认输</string>
     <string name="action_draw">求和</string>
     <string name="action_analysis">分析</string>
-    <string name="action_flip">翻转棋盘</string>
+    <string name="action_flip">翻转</string>
     <string name="action_settings">设置</string>
     <string name="action_back">返回</string>
     <string name="action_save">保存</string>
@@ -113,7 +113,7 @@
     <string name="settings_hash">哈希表(MB)</string>
     <string name="settings_sound">音效</string>
     <string name="settings_vibrate">振动</string>
-    <string name="settings_board_flip">默认翻转棋盘</string>
+    <string name="settings_board_flip">默认翻转</string>
     <string name="settings_show_coords">显示坐标</string>
     <string name="settings_show_winrate">显示胜率</string>
     <string name="settings_animation">走子动画</string>

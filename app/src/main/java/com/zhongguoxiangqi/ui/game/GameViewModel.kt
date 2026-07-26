@@ -293,14 +293,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val captured = capturedPiece != null
         position.doMove(move)
         moveHistory.add(move)
-        val stillInCheck = Rules.isInCheck(position, position.sideToMove)
+        // 检查"我走完这一手, 是不是还吃着将军": 我(玩家)走子之后, 仍是我(玩家)
+        // 处于被将状态 —— 用我方颜色作为参数. (position.sideToMove 已是引擎, 查它
+        // 反而是问"我是否把将送给了引擎", 完全反了.)
+        val stillInCheck = Rules.isInCheck(position, _state.value.playerSide)
         if (wasInCheck && stillInCheck) {
-            // 不应招 —— 回退, 弹 Toast
+            // 不应招 —— 回退, 只发 Toast. 之前我连发两条事件, 后一条会覆盖前一条,
+            // 结果 Toast 都不显示.
             position.undoMove()
             moveHistory.removeAt(moveHistory.size - 1)
             _events.value = GameEvent.ShowToast("被将军, 必须应招或消除威胁")
-            // 提示声: 与被将军同款
-            _events.value = GameEvent.PlayerInCheck
             return false
         }
         updateAfterMove(captured, capturedPiece)
@@ -509,13 +511,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     /** 走子后发出音效/震动事件, 由 Activity 转发给 GameFeedback */
     private fun emitFeedback(inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver, capturedPiece: Piece?) {
-        when {
-            isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) -> {
-                _events.value = GameEvent.Checkmate
-            }
-            inCheck -> _events.value = GameEvent.PlayerInCheck
-            capturedPiece != null -> _events.value = GameEvent.CapturedPiece(capturedPiece)
-            else -> _events.value = GameEvent.NormalMove
+        _events.value = when {
+            isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) ->
+                GameEvent.Checkmate
+            inCheck -> GameEvent.PlayerInCheck
+            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece)
+            else -> GameEvent.NormalMove
         }
     }
 
