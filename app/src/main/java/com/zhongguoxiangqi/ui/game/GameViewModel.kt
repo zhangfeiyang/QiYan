@@ -18,6 +18,7 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
+import com.zhongguoxiangqi.game.Threats
 import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.rating.GameResult
 import com.zhongguoxiangqi.rating.UserProfile
@@ -134,6 +135,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         data class ShowToast(val msg: String) : GameEvent()
         data class ShowDialog(val title: String, val message: String) : GameEvent()
         object GameOver : GameEvent()
+        /** 推送威胁光晕给 BoardView: 红方子被瞄的格子 / 黑方子被瞄的格子 */
+        data class ThreatsUpdate(val redSquares: List<Int>, val blackSquares: List<Int>) : GameEvent()
+        object PlayerInCheck : GameEvent()
+        object Checkmate : GameEvent()
+        object NormalMove : GameEvent()
+        data class CapturedPiece(val piece: Piece) : GameEvent()
     }
 
     // ====== 初始化 ======
@@ -251,10 +258,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             }
 
             searchPurpose = SearchPurpose.NONE
-            val captured = position.pieceAt(move.to) != Piece.NONE.code
+            val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
+                Piece.fromCode(position.pieceAt(move.to)) else null
+            val captured = capturedPiece != null
             position.doMove(move)
             moveHistory.add(move)
-            updateAfterMove(captured)
+            updateAfterMove(captured, capturedPiece)
         }
     }
 
@@ -273,10 +282,28 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         if (!position.isLegalMove(move)) return false
 
         stopEngine()
-        val captured = position.pieceAt(move.to) != Piece.NONE.code
+
+        // 截胡: 玩家在被将军时必须应招(消将/挡将/避将). 走非应招的子
+        // 看似合法(它本来就是合法着法), 但下一步仍会被将军, 引擎必吃.
+        // 这种情况**拦截** —— 弹 Toast, 不真落子. 物理上不撤销"已被合法接受
+        // 的点击"也没问题, 玩家立刻再选一个子就继续.
+        val wasInCheck = Rules.isInCheck(position, _state.value.playerSide)
+        val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
+            Piece.fromCode(position.pieceAt(move.to)) else null
+        val captured = capturedPiece != null
         position.doMove(move)
         moveHistory.add(move)
-        updateAfterMove(captured)
+        val stillInCheck = Rules.isInCheck(position, position.sideToMove)
+        if (wasInCheck && stillInCheck) {
+            // 不应招 —— 回退, 弹 Toast
+            position.undoMove()
+            moveHistory.removeAt(moveHistory.size - 1)
+            _events.value = GameEvent.ShowToast("被将军, 必须应招或消除威胁")
+            // 提示声: 与被将军同款
+            _events.value = GameEvent.PlayerInCheck
+            return false
+        }
+        updateAfterMove(captured, capturedPiece)
 
         // 如果游戏未结束,让引擎走
         if (!_state.value.isGameOver) {
@@ -416,7 +443,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = _state.value.copy(isThinking = false)
     }
 
-    private fun updateAfterMove(captured: Boolean) {
+    private fun updateAfterMove(captured: Boolean, capturedPiece: Piece? = null) {
         // 检测将军 / 终局
         val inCheck = Rules.isInCheck(position, position.sideToMove)
         val gameOver = Rules.gameOver(position)
@@ -447,6 +474,10 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isThinking = false
         )
 
+        // 重新算威胁光晕 + 触发音效
+        emitThreats()
+        emitFeedback(inCheck, isOver, gameOver, capturedPiece)
+
         if (isOver) {
             // 确定玩家结果
             val playerResult = when (winner) {
@@ -458,6 +489,33 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         } else if (position.sideToMove == _state.value.playerSide) {
             // 轮到玩家思考时才后台分析, 避免和引擎的对局搜索抢同一个引擎实例
             if (moveHistory.size > 5) startAnalysis()
+        }
+    }
+
+    /**
+     * 把"对方下回合可能吃我方子"这件事发给界面层.
+     * 颜色: 受害子的颜色, 不是当前走子方.
+     */
+    private fun emitThreats() {
+        val threats = Threats.findThreats(position)
+        val redSquares = threats.filter {
+            Piece.fromCode(position.pieceAt(it.target)).isRed
+        }.map { it.target }
+        val blackSquares = threats.filter {
+            !Piece.fromCode(position.pieceAt(it.target)).isRed
+        }.map { it.target }
+        _events.value = GameEvent.ThreatsUpdate(redSquares, blackSquares)
+    }
+
+    /** 走子后发出音效/震动事件, 由 Activity 转发给 GameFeedback */
+    private fun emitFeedback(inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver, capturedPiece: Piece?) {
+        when {
+            isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) -> {
+                _events.value = GameEvent.Checkmate
+            }
+            inCheck -> _events.value = GameEvent.PlayerInCheck
+            capturedPiece != null -> _events.value = GameEvent.CapturedPiece(capturedPiece)
+            else -> _events.value = GameEvent.NormalMove
         }
     }
 

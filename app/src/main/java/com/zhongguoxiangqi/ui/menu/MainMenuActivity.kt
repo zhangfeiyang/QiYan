@@ -77,6 +77,8 @@ class MainMenuActivity : AppCompatActivity() {
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.menu_difficulty)
+            // 标题在 dialog 顶部, RecyclerView 自己负责把难度列表居中显示,
+            // 不再额外加一道内部标题 —— 否则会出现两道「选择难度」
             .setView(dialogView)
             .setNegativeButton(R.string.dialog_cancel, null)
             .create()

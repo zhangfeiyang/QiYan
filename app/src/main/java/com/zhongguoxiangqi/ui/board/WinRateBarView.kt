@@ -153,23 +153,17 @@ class WinRateBarView @JvmOverloads constructor(
         // 中线
         canvas.drawLine(redWidth, 0f, redWidth, h, dividerPaint)
 
-        // 文本. 用四舍五入并让两边互补, 否则会出现 "51% / 48%" 这种加不到 100 的显示
-        textPaint.textSize = h * 0.4f
-        val redRounded = Math.round(redPercent).coerceIn(0, 100)
-        val redText = "$redRounded%"
-        val blackText = "${100 - redRounded}%"
-        canvas.drawText("红", h * 0.5f, h * 0.6f, textPaint.also {
-            it.color = Color.WHITE; it.textSize = h * 0.45f
-        })
-        canvas.drawText(redText, redWidth * 0.5f + 20, h * 0.7f, textPaint.also {
-            it.color = Color.WHITE; it.textSize = h * 0.4f
-        })
-        canvas.drawText("黑", w - h * 0.5f, h * 0.6f, textPaint.also {
-            it.color = Color.WHITE; it.textSize = h * 0.45f
-        })
-        canvas.drawText(blackText, redWidth + (w - redWidth) * 0.5f - 20, h * 0.7f, textPaint.also {
-            it.color = Color.WHITE; it.textSize = h * 0.4f
-        })
+        // 文本. 小数点后 1 位, 两边按 0.1 互补 (63.4 ↔ 36.6, 100.0 ↔ 0.0).
+        // 颜色已经区分了红黑, 不再需要「红」「黑」汉字标注.
+        textPaint.textSize = h * 0.55f
+        textPaint.color = Color.WHITE
+        textPaint.textAlign = Paint.Align.CENTER
+        val redText = String.format(java.util.Locale.US, "%.1f%%", redPercent.coerceIn(0f, 100f))
+        val blackText = String.format(java.util.Locale.US, "%.1f%%",
+            (100f - redPercent).coerceIn(0f, 100f))
+        canvas.drawText(redText, redWidth * 0.5f, h * 0.65f, textPaint)
+        canvas.drawText(blackText, redWidth + (w - redWidth) * 0.5f, h * 0.65f, textPaint)
+        textPaint.textAlign = Paint.Align.LEFT
     }
 
     private fun blendColors(color1: Int, color2: Int, ratio: Float): Int {

@@ -81,6 +81,23 @@ class BoardView @JvmOverloads constructor(
     /** 需要用户重点核对的格子(识别置信度低 / 校验有问题) */
     private var suspectSquares: Set<Int> = emptySet()
 
+    /**
+     * 提示走法的目标格 —— 在那一格要画"棋子落在那里"的虚影.
+     * 落子完成 / 玩家自行走出新一步时, 都要清掉.
+     */
+    private var hintGhostSquare: Int = -1
+
+    /** 提示走法要预览的棋子代码(从 from 格取, 提前记下来) */
+    private var hintGhostPiece: Int = Piece.NONE.code
+
+    /**
+     * 威胁光晕: 哪个格子上的子被对方下一步瞄上了.
+     * 命名按"我在看谁的子"来, 不按"谁走子" —— 红方子被威胁就标红, 黑方子被威胁就标绿,
+     * 颜色来自棋子本身, 跟当前走子方无关.
+     */
+    private var redUnderThreat: Set<Int> = emptySet()
+    private var blackUnderThreat: Set<Int> = emptySet()
+
     // ====== 绘制资源 ======
     private val pieceRedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceBlackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -133,6 +150,32 @@ class BoardView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 6f
         color = AndroidColor.parseColor("#FFB300")
+    }
+
+    /** 红方子被威胁: 我方子被瞄, 红色光晕警示 */
+    private val dangerRedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#80DC143C")
+    }
+    /** 黑方子被威胁: 对方子被瞄, 绿色光晕(可吃) */
+    private val dangerGreenPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#8032CD32")
+    }
+
+    /** 提示走法的箭头: 深绿, 粗笔 */
+    private val hintArrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#FF2E7D32")
+        strokeWidth = 8f
+        strokeCap = Paint.Cap.ROUND
+        style = Paint.Style.STROKE
+    }
+    /** 提示走法箭头头部的小三角 */
+    private val hintArrowHeadPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.parseColor("#FF2E7D32")
+        style = Paint.Style.FILL
+    }
+    /** 提示走法虚影: 棋子位图叠一层 alpha */
+    private val hintGhostPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        alpha = 90
     }
 
     private val checkMarkerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -294,6 +337,15 @@ class BoardView @JvmOverloads constructor(
     }
 
     fun setHint(primaryMove: Move?, secondary: List<Move> = emptyList()) {
+        // 提前记下 from 格上的棋子代码, 用来在目标格渲染"这枚子走到这里"的虚影.
+        // 走子方走完后 from 格已经空了, 那时再读就拿不到.
+        if (primaryMove != null) {
+            hintGhostPiece = position.pieceAt(primaryMove.from)
+            hintGhostSquare = primaryMove.to
+        } else {
+            hintGhostSquare = -1
+            hintGhostPiece = Piece.NONE.code
+        }
         this.hintMove = primaryMove
         this.hintMoveSecondary = secondary
         invalidate()
@@ -302,6 +354,8 @@ class BoardView @JvmOverloads constructor(
     fun clearHint() {
         this.hintMove = null
         this.hintMoveSecondary = emptyList()
+        hintGhostSquare = -1
+        hintGhostPiece = Piece.NONE.code
         invalidate()
     }
 
@@ -390,6 +444,19 @@ class BoardView @JvmOverloads constructor(
     /** 标出可疑格子, 传空集合即清除 */
     fun setSuspectSquares(squares: Collection<Int>) {
         suspectSquares = squares.toSet()
+        invalidate()
+    }
+
+    /**
+     * 视觉通告: 哪些格子上的子正在被对方下一步瞄上.
+     *
+     * 这里两个集合都按"格子上**子**的颜色"分类, 不按"我方/敌方"分类:
+     * 颜色 = 警示颜色, 红方子被瞄上 -> 红光, 黑方子被瞄上 -> 绿光.
+     * 这样翻转棋盘时颜色和棋子本身仍对得上.
+     */
+    fun setThreats(redSquares: Collection<Int>, blackSquares: Collection<Int>) {
+        redUnderThreat = redSquares.toSet()
+        blackUnderThreat = blackSquares.toSet()
         invalidate()
     }
 
@@ -567,9 +634,11 @@ class BoardView @JvmOverloads constructor(
         drawPalace(canvas)
         drawRiver(canvas)
         if (showCoordinates) drawCoordinates(canvas)
+        drawThreats(canvas)            // 威胁光晕: 画在棋子下, 看起来像棋子在"发光"
         drawHighlights(canvas)
         drawPieces(canvas)
         if (animatingMove != null) drawAnimatingPiece(canvas)
+        drawHintOverlay(canvas)        // 虚影 + 箭头: 画在棋子之上, 永远可见
     }
 
     private fun drawBoard(canvas: Canvas) {
@@ -655,6 +724,76 @@ class BoardView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * 威胁光晕: 在被对方瞄上的棋子下画半透明光晕.
+     * - 红方子被瞄 -> 红色光晕(我方子受威胁, 警示)
+     * - 黑方子被瞄 -> 绿色光晕(对方子被瞄, 提示可吃)
+     * 画在棋子之下, 看起来像棋子在发光, 不会盖住棋子上的字.
+     */
+    private fun drawThreats(canvas: Canvas) {
+        for (sq in redUnderThreat) {
+            drawThreatGlow(canvas, sq, dangerRedPaint)
+        }
+        for (sq in blackUnderThreat) {
+            drawThreatGlow(canvas, sq, dangerGreenPaint)
+        }
+    }
+
+    private fun drawThreatGlow(canvas: Canvas, sq: Int, paint: Paint) {
+        val center = squareToCenter(sq)
+        canvas.drawCircle(center.x, center.y, pieceRadius * 1.05f, paint)
+    }
+
+    /**
+     * 提示走法预览: 起点已经在原位, 终点画"这枚子落到这里"的虚影,
+     * 起点到终点画一段绿色箭头.
+     * 必须在 drawPieces 之后调用, 箭头与虚影都要压过真实棋子.
+     */
+    private fun drawHintOverlay(canvas: Canvas) {
+        val mv = hintMove ?: return
+        // 虚影: 目标格上的棋子(从 setHint 时记下)
+        if (hintGhostSquare >= 0 && hintGhostPiece != Piece.NONE.code) {
+            val center = squareToCenter(hintGhostSquare)
+            val save = canvas.saveLayerAlpha(null, hintGhostPaint.alpha)
+            drawPieceAt(canvas, center.x, center.y, hintGhostPiece)
+            canvas.restoreToCount(save)
+        }
+        // 箭头: 从起点指向终点
+        val fromCenter = squareToCenter(mv.from)
+        val toCenter = squareToCenter(mv.to)
+        drawArrow(canvas, fromCenter, toCenter, pieceRadius)
+    }
+
+    /** 画一段带三角形头部的箭头, 起点/终点坐标来自 UI 空间 */
+    private fun drawArrow(canvas: Canvas, from: PointF, to: PointF, pieceRadius: Float) {
+        val dx = to.x - from.x
+        val dy = to.y - from.y
+        val len = kotlin.math.sqrt(dx * dx + dy * dy)
+        if (len < 1f) return
+        // 箭头在两端各留出一段, 不要画到棋子内部, 也不要画过终点
+        val headLen = pieceRadius * 0.55f
+        val tailGap = pieceRadius * 0.4f
+        val ux = dx / len
+        val uy = dy / len
+        val startX = from.x + ux * tailGap
+        val startY = from.y + uy * tailGap
+        val endX = to.x - ux * headLen
+        val endY = to.y - uy * headLen
+        if (endX < startX && kotlin.math.abs(dx) < 0.001f) return
+        canvas.drawLine(startX, startY, endX, endY, hintArrowPaint)
+        // 三角头部, 顶点朝 to
+        val angle = kotlin.math.atan2(dy, dx)
+        val headAngle = Math.toRadians(28.0).toFloat()
+        val p1x = to.x - headLen * kotlin.math.cos(angle - headAngle)
+        val p1y = to.y - headLen * kotlin.math.sin(angle - headAngle)
+        val p2x = to.x - headLen * kotlin.math.cos(angle + headAngle)
+        val p2y = to.y - headLen * kotlin.math.sin(angle + headAngle)
+        val path = android.graphics.Path().apply {
+            moveTo(to.x, to.y); lineTo(p1x, p1y); lineTo(p2x, p2y); close()
+        }
+        canvas.drawPath(path, hintArrowHeadPaint)
+    }
+
     private fun drawHighlights(canvas: Canvas) {
         // 最后走法高亮
         lastMove?.let { m ->
@@ -677,11 +816,8 @@ class BoardView @JvmOverloads constructor(
             }
         }
 
-        // 提示高亮
-        hintMove?.let { m ->
-            drawSquareHighlight(canvas, m.from, highlightHintPaint, true)
-            drawSquareHighlight(canvas, m.to, highlightHintPaint, true)
-        }
+        // 提示高亮: 起点上已经有真实棋子, 终点上会有虚影棋子, 所以两边都不画环
+        // (环会被棋子/虚影盖住, 还不如不画). 真正的提示效果由 hintOverlay 负责.
         for (m in hintMoveSecondary) {
             drawSquareHighlight(canvas, m.from, highlightHintSecondaryPaint, true)
             drawSquareHighlight(canvas, m.to, highlightHintSecondaryPaint, true)

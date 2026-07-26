@@ -155,7 +155,17 @@
     <string name="recognize_ready">识别完成. 黄圈是存疑的位置, 共 %1$d 处 —— 点格子可以改子. 确认无误后再求招.</string>
     <string name="recognize_pick_piece">%1$c%2$d 放什么子</string>
     <string name="recognize_empty">空</string>
-    <string name="recognize_flip">上下翻转</string>
+    <string name="recognize_flip">翻转</string>
+
+    <!-- 吃子提示 (车/马/炮/兵/士/象/将) -->
+    <string name="captured_piece_format">吃 %1$s</string>
+    <string name="piece_king">将帅</string>
+    <string name="piece_advisor">士</string>
+    <string name="piece_elephant">象</string>
+    <string name="piece_horse">马</string>
+    <string name="piece_rook">车</string>
+    <string name="piece_cannon">炮</string>
+    <string name="piece_pawn">卒</string>
     <string name="recognize_thinking">引擎思考中…</string>
     <string name="recognize_engine_failed">引擎启动失败</string>
     <string name="recognize_engine_error">引擎错误: %1$s</string>

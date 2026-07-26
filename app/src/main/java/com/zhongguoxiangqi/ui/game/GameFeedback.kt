@@ -64,6 +64,31 @@ class GameFeedback(context: Context) {
         }
     }
 
+    /**
+     * 绝杀 (将死对方): 与被将军相比, 振动更重更久 —— 一次**长**的.
+     * 用 capture 音, 一声即终局感.
+     */
+    fun onCheckmate() {
+        if (settings.soundEnabled) playClick(captureTrack)
+        if (!settings.vibrateEnabled) return
+        val v = vibrator ?: return
+        runCatching {
+            // 长-短-长 三段, 表达 "完了"
+            val pattern = longArrayOf(0, 80, 60, 40, 100, 40, 200)
+            v.vibrate(VibrationEffect.createWaveform(pattern, -1))
+        }
+    }
+
+    /**
+     * 吃子(可按棋子类型不同给音效, 本轮先用与普通吃子相同的捕获音).
+     * @param piece 被吃的棋子(类型 + 颜色, 用于将来给车/炮加专属音)
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun onCapturePiece(piece: com.zhongguoxiangqi.game.Piece) {
+        if (settings.soundEnabled) playClick(captureTrack)
+        if (settings.vibrateEnabled) vibrate(CAPTURE_VIBRATION_MS)
+    }
+
     fun release() {
         runCatching { moveTrack?.release() }
         runCatching { captureTrack?.release() }

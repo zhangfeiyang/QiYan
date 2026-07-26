@@ -137,6 +137,31 @@ class GameActivity : AppCompatActivity() {
                         .show()
                     viewModel.consumeEvent()
                 }
+                is GameViewModel.GameEvent.ThreatsUpdate -> {
+                    binding.boardView.setThreats(event.redSquares, event.blackSquares)
+                    viewModel.consumeEvent()
+                }
+                is GameViewModel.GameEvent.PlayerInCheck -> {
+                    feedback.onCheck()
+                    viewModel.consumeEvent()
+                }
+                is GameViewModel.GameEvent.Checkmate -> {
+                    feedback.onCheckmate()
+                    viewModel.consumeEvent()
+                }
+                is GameViewModel.GameEvent.NormalMove -> {
+                    feedback.onMove(captured = false)
+                    viewModel.consumeEvent()
+                }
+                is GameViewModel.GameEvent.CapturedPiece -> {
+                    // 走子音效+振动 + 弹 "吃X" 的提示. 这是用户对局中**唯一**会看
+                    // 到的吃子提示位置, 必须有可识别的文字, 不然车被吃也不知道.
+                    val msg = getString(R.string.captured_piece_format,
+                        getString(pieceNameRes(event.piece)))
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    feedback.onCapturePiece(event.piece)
+                    viewModel.consumeEvent()
+                }
                 // 终局对话框由 state.isGameOver 驱动
                 else -> Unit
             }
@@ -150,17 +175,11 @@ class GameActivity : AppCompatActivity() {
                 binding.opponentRating.text =
                     if (state.engineDowngraded) "Elo ${state.engineElo} (已降级)"
                     else "Elo ${state.engineElo}"
-                binding.engineName.text = state.engineName
                 binding.playerName.text = if (state.playerSide == Color.RED) "我 (执红)" else "我 (执黑)"
                 binding.playerRating.text = "Elo ${state.playerRating} ${state.playerRank}"
                 binding.moveCount.text = "第${state.moveCount / 2 + 1}手"
 
                 binding.thinkIndicator.visibility = if (state.isThinking) View.VISIBLE else View.GONE
-
-                // 引擎信息
-                val wr = viewModel.winRateSnapshot.value
-                binding.depthLabel.text = "D${wr.depth}"
-                binding.npsLabel.text = if (wr.nps > 1000) "${wr.nps / 1000}k NPS" else "${wr.nps} NPS"
 
                 // 棋盘更新
                 updateBoard(state)
@@ -178,8 +197,6 @@ class GameActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.winRateSnapshot.collect { snapshot ->
                 binding.winrateBar.update(snapshot)
-                binding.depthLabel.text = "D${snapshot.depth}"
-                binding.npsLabel.text = if (snapshot.nps > 1000) "${snapshot.nps / 1000}k NPS" else "${snapshot.nps} NPS"
             }
         }
 
@@ -205,6 +222,18 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    /** 把被吃的棋子映射到 R.string.* 名, 用于 "吃X" 的 Toast */
+    private fun pieceNameRes(piece: com.zhongguoxiangqi.game.Piece): Int = when (piece) {
+        com.zhongguoxiangqi.game.Piece.R_KING, com.zhongguoxiangqi.game.Piece.B_KING -> R.string.piece_king
+        com.zhongguoxiangqi.game.Piece.R_ADVISOR, com.zhongguoxiangqi.game.Piece.B_ADVISOR -> R.string.piece_advisor
+        com.zhongguoxiangqi.game.Piece.R_ELEPHANT, com.zhongguoxiangqi.game.Piece.B_ELEPHANT -> R.string.piece_elephant
+        com.zhongguoxiangqi.game.Piece.R_HORSE, com.zhongguoxiangqi.game.Piece.B_HORSE -> R.string.piece_horse
+        com.zhongguoxiangqi.game.Piece.R_ROOK, com.zhongguoxiangqi.game.Piece.B_ROOK -> R.string.piece_rook
+        com.zhongguoxiangqi.game.Piece.R_CANNON, com.zhongguoxiangqi.game.Piece.B_CANNON -> R.string.piece_cannon
+        com.zhongguoxiangqi.game.Piece.R_PAWN, com.zhongguoxiangqi.game.Piece.B_PAWN -> R.string.piece_pawn
+        else -> R.string.piece_pawn
+    }
+
     private fun updateBoard(state: GameViewModel.GameState) {
         val position = viewModel.currentPosition
         val history = viewModel.moveHistory
@@ -223,10 +252,7 @@ class GameActivity : AppCompatActivity() {
         // 上一步走法
         binding.boardView.setLastMove(history.lastOrNull())
 
-        // 落子反馈. 只在真正新增一步时触发,避免状态重复发射时反复响
-        if (advancedByOne) {
-            if (inCheck) feedback.onCheck() else feedback.onMove(state.lastMoveCaptured)
-        }
+        // 走子音效/震动由 viewModel 走 GameEvent 路径触发, 不在这里重复.
         renderedMoveCount = history.size
     }
 
