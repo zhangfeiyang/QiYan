@@ -24,6 +24,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NnueNativeTest {
 
+    private companion object {
+        // 用 Log 而不是 println: 部分机型上 println 既不进 logcat 也不进
+        // instrumentation 的 stream, 数字打了等于没打
+        const val TAG = "NnueBench"
+    }
+
     private val assets get() = InstrumentationRegistry.getInstrumentation().context.assets
 
     private fun loadNet() = assets.open("nnue/test.nnue").use { NnueNetwork.load(it) }
@@ -86,7 +92,7 @@ class NnueNativeTest {
                 )
                 checked++
             }
-            println("[native] 与黄金向量比对 $checked 条, 全部相同")
+            android.util.Log.i(TAG, "与黄金向量比对 $checked 条, 全部相同")
         } finally {
             ev.close()
         }
@@ -135,24 +141,41 @@ class NnueNativeTest {
                     n++
                 }
             }
-            repeat(20_000) { ev.evaluatePieces(pieces, n, false) }
 
+            // 预热要给足。ART 是解释器起步, 热到一定次数才编译; 预热不够量到的
+            // 是解释执行的速度 —— 第一版这里 Kotlin 只跑了 5000 次, 量出 568
+            // 次/秒, 比桌面 JVM 还慢 50 倍, 那不是手机慢, 是根本没编译。
+            // 分阶段打日志: 上一次整个测试卡了 15 分钟, 而结果只在最后一行
+            // 打印, 完全看不出卡在哪一段。
+            var sink = 0
+            android.util.Log.i(TAG, "预热 native...")
+            repeat(60_000) { sink += ev.evaluatePieces(pieces, n, false) }
             val iters = 200_000
             val t0 = System.nanoTime()
-            var sink = 0
             repeat(iters) { sink += ev.evaluatePieces(pieces, n, false) }
             val nativePerSec = iters / ((System.nanoTime() - t0) / 1e9)
 
-            repeat(5_000) { ev.evaluateKotlin(pieces, n, false) }
-            val t1 = System.nanoTime()
+            android.util.Log.i(TAG, "native ${nativePerSec.toLong()} 次/秒, 预热 Kotlin...")
             repeat(20_000) { sink += ev.evaluateKotlin(pieces, n, false) }
-            val kotlinPerSec = 20_000 / ((System.nanoTime() - t1) / 1e9)
+            val kIters = 20_000
+            val t1 = System.nanoTime()
+            repeat(kIters) { sink += ev.evaluateKotlin(pieces, n, false) }
+            val kotlinPerSec = kIters / ((System.nanoTime() - t1) / 1e9)
 
-            println("[native] native ${nativePerSec.toLong()} 次/秒, " +
-                "Kotlin ${kotlinPerSec.toLong()} 次/秒, " +
-                "快 ${"%.1f".format(nativePerSec / kotlinPerSec)} 倍 (sink=$sink)")
-            println("[native] 注意: 在 x86 模拟器上 arm64 是翻译执行的, " +
-                "速度数字没有意义, 只有真机上的才作数")
+            android.util.Log.i(TAG, "Kotlin 完成, 量手写评估...")
+            // 真正要比的是它要取代的那个东西: 手写评估。
+            val eng = com.zhongguoxiangqi.engine.SimpleEngine()
+            val pos = com.zhongguoxiangqi.game.Position()
+                .also { it.setupStartPosition() }
+            val hcPerSec = 200_000 / (eng.benchmarkEval(pos, 200_000) / 1e9)
+
+            android.util.Log.i(TAG, "手写评估 ${hcPerSec.toLong()} 次/秒")
+            android.util.Log.i(TAG, "NNUE native ${nativePerSec.toLong()} 次/秒 " +
+                "(慢 ${"%.1f".format(hcPerSec / nativePerSec)} 倍, 折合少搜 " +
+                "${"%.1f".format(kotlin.math.ln(hcPerSec / nativePerSec) / kotlin.math.ln(3.0))} 层)")
+            android.util.Log.i(TAG, "NNUE Kotlin ${kotlinPerSec.toLong()} 次/秒 " +
+                "(native 比它快 ${"%.1f".format(nativePerSec / kotlinPerSec)} 倍)")
+            android.util.Log.i(TAG, "sink=$sink")
         } finally {
             ev.close()
         }

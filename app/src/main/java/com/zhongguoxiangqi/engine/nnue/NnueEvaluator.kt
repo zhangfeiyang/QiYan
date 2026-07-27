@@ -112,25 +112,37 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
 
     /** 纯 Kotlin 实现. 既是 native 不可用时的退路, 也是它的正确性基准. */
     fun evaluateKotlin(pieces: IntArray, n: Int, blackToMove: Boolean): Int {
+        // 权重数组一律先取到局部变量再进循环.
+        //
+        // net.ftWeight 是 by lazy 的 (为了让走 native 的设备不去分配这几百 KB),
+        // 而 lazy 的每次读取都要过一遍委托的同步/volatile 检查. 写成
+        // net.ftWeight[i] 放在最内层循环里, 一次求值就是一万六千多次委托访问 ——
+        // 实测真机上 Kotlin 路径因此慢了约 50 倍. 取到局部变量之后就只剩一次.
+        val fc1W = net.fc1Weight
+        val fc1B = net.fc1Bias
+        val fc2W = net.fc2Weight
+        val fc2B = net.fc2Bias
+        val outW = net.outWeight
+
         refresh(pieces, n, blackToMove)
 
         // fc1: (L2 × L1*2) @ acc
         val inDim = net.l1 * 2
         for (o in 0 until net.l2) {
-            var sum = net.fc1Bias[o]
+            var sum = fc1B[o]
             val row = o * inDim
             for (i in 0 until inDim) {
-                sum += net.fc1Weight[row + i].toInt() * acc[i]
+                sum += fc1W[row + i].toInt() * acc[i]
             }
             h1[o] = clipped(sum / NnueNetwork.QW)
         }
 
         // fc2: (L3 × L2) @ h1
         for (o in 0 until net.l3) {
-            var sum = net.fc2Bias[o]
+            var sum = fc2B[o]
             val row = o * net.l2
             for (i in 0 until net.l2) {
-                sum += net.fc2Weight[row + i].toInt() * h1[i]
+                sum += fc2W[row + i].toInt() * h1[i]
             }
             h2[o] = clipped(sum / NnueNetwork.QW)
         }
@@ -138,7 +150,7 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
         // 输出层: h2 带着 QA 的尺度, 权重带着 QW 的尺度, 所以除 QA*QW
         var out = net.outBias
         for (i in 0 until net.l3) {
-            out += net.outWeight[i].toInt() * h2[i]
+            out += outW[i].toInt() * h2[i]
         }
         return out / (NnueNetwork.QA * NnueNetwork.QW)
     }
@@ -152,8 +164,10 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
      */
     private fun refresh(pieces: IntArray, n: Int, blackToMove: Boolean) {
         val l1 = net.l1
+        val ftW = net.ftWeight      // 同上: lazy 属性绝不能出现在内层循环里
+        val ftB = net.ftBias
         for (i in 0 until l1) {
-            val b = net.ftBias[i].toInt()
+            val b = ftB[i].toInt()
             acc[i] = b
             acc[l1 + i] = b
         }
@@ -169,8 +183,8 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
             val oppRow = (if (blackToMove) raw else flipped) * l1
 
             for (i in 0 until l1) {
-                acc[i] += net.ftWeight[ownRow + i].toInt()
-                acc[l1 + i] += net.ftWeight[oppRow + i].toInt()
+                acc[i] += ftW[ownRow + i].toInt()
+                acc[l1 + i] += ftW[oppRow + i].toInt()
             }
         }
 
