@@ -47,6 +47,20 @@ class SimpleEngine : ChessEngine {
     // 置换表
     private val tt = HashMap<Long, TTEntry>(8192)
 
+    /**
+     * 杀手着法: 每一层记两个"曾经造成 beta 截断的安静着法".
+     *
+     * 同一层的不同分支往往能被同一步棋反驳(比如对方老是那一炮打过来), 记下来
+     * 优先试, 截断能来得更早.
+     */
+    private val killers = Array(MAX_PLY) { IntArray(2) }
+
+    /**
+     * 历史启发: 按 (起点, 终点) 累计"这一步造成过多少次截断", 深度越深权重越大.
+     * 和杀手表互补 —— 杀手只管本层, 历史是跨层的全局倾向.
+     */
+    private val history = Array(Square.COUNT) { IntArray(Square.COUNT) }
+
     override fun isReady() = ready
 
     override fun name() = "内置引擎"
@@ -177,6 +191,9 @@ class SimpleEngine : ChessEngine {
         timeUp = false
         // 置换表按局面复用没有意义(每次搜索局面都变了),清空避免无限增长
         tt.clear()
+        // 启发表也要清: 上一盘的统计对这一盘没有参考价值, 留着反而误导排序
+        for (k in killers) { k[0] = 0; k[1] = 0 }
+        for (row in history) row.fill(0)
 
         val rootMoves = mutableListOf<Move>()
         Rules.generateAllLegal(currentPosition, rootMoves)
@@ -287,33 +304,115 @@ class SimpleEngine : ChessEngine {
             return if (Rules.isInCheck(pos, pos.sideToMove)) -MATE_SCORE + ply else 0
         }
 
-        sortByMvvLva(pos, moves)
+        orderMoves(pos, moves, ttEntry?.move ?: 0, ply)
 
         var bestScore = Int.MIN_VALUE
         var bestFlag = TT_UPPER
+        var bestMoveData = 0
         var alphaLocal = alpha
+        var searched = 0
 
         for (m in moves) {
+            val capture = pos.pieceAt(m.to) != Piece.NONE.code
             pos.doMove(m)
-            val score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
+            // PVS: 第一手用完整窗口, 后面的先用零窗口试探.
+            // 排序做得好时绝大多数着法都会在零窗口下被直接否掉, 省下大量节点;
+            // 万一试探失败再用完整窗口重搜一次, 那点重复成本远小于收益.
+            var score: Int
+            if (searched == 0) {
+                score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
+            } else {
+                // LMR: 排在后面的安静着法多半是坏棋, 先按减一层的深度草草看一眼,
+                // 真有价值再补搜. 吃子和将军不减 —— 那些正是战术发生的地方.
+                val reduction = if (depth >= LMR_MIN_DEPTH && searched >= LMR_MIN_MOVES &&
+                    !capture && !Rules.isInCheck(pos, pos.sideToMove)
+                ) 1 else 0
+                score = -alphaBeta(pos, depth - 1 - reduction, -alphaLocal - 1, -alphaLocal, nodes, ply + 1)
+                if (score > alphaLocal && (reduction > 0 || score < beta)) {
+                    score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
+                }
+            }
             pos.undoMove()
+            searched++
 
             if (aborted(nodes[0])) return 0
-            if (score > bestScore) bestScore = score
+            if (score > bestScore) {
+                bestScore = score
+                bestMoveData = m.data
+            }
             if (score > alphaLocal) {
                 alphaLocal = score
                 bestFlag = TT_EXACT
             }
             if (alphaLocal >= beta) {
                 bestFlag = TT_LOWER
+                // 造成截断的安静着法记进杀手/历史表, 下次在同层优先试
+                if (!capture) recordCutoff(m, depth, ply)
                 break
             }
         }
 
-        if (tt.size < TT_MAX_ENTRIES) {
-            tt[key] = TTEntry(depth, bestScore, bestFlag)
-        }
+        storeTT(key, depth, bestScore, bestFlag, bestMoveData)
         return bestScore
+    }
+
+    /** 记录造成截断的安静着法 */
+    private fun recordCutoff(m: Move, depth: Int, ply: Int) {
+        if (ply < MAX_PLY) {
+            val k = killers[ply]
+            if (k[0] != m.data) { k[1] = k[0]; k[0] = m.data }
+        }
+        // depth 平方: 深处的截断比浅处更有说服力
+        history[m.from][m.to] += depth * depth
+    }
+
+    /**
+     * 着法排序. 顺序决定剪枝效率, 是搜索里性价比最高的一环.
+     *
+     *   1. 置换表着法  —— 上一轮迭代加深算出的最佳步, 命中率最高
+     *   2. 吃子        —— 按 MVV-LVA (吃大子优先, 用小子吃优先)
+     *   3. 杀手着法    —— 本层曾造成截断的安静着法
+     *   4. 历史分      —— 全局统计上更容易造成截断的安静着法
+     */
+    private fun orderMoves(pos: Position, moves: MutableList<Move>, ttMove: Int, ply: Int) {
+        val k0 = if (ply < MAX_PLY) killers[ply][0] else 0
+        val k1 = if (ply < MAX_PLY) killers[ply][1] else 0
+        moves.sortByDescending { m ->
+            when {
+                m.data == ttMove -> ORDER_TT
+                else -> {
+                    val victim = pos.pieceAt(m.to)
+                    if (victim != Piece.NONE.code) {
+                        // 复用已有的 MVV-LVA 打分, 不另造一套子力估值
+                        ORDER_CAPTURE + m.mvvLva(victim, pos.pieceAt(m.from))
+                    } else when (m.data) {
+                        k0 -> ORDER_KILLER_1
+                        k1 -> ORDER_KILLER_2
+                        else -> history[m.from][m.to].coerceAtMost(ORDER_HISTORY_CAP)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 写置换表, 深度优先替换.
+     *
+     * 原来是 `if (tt.size < TT_MAX_ENTRIES) tt[key] = ...` —— 一旦写满 40 万条
+     * 就**彻底停止接受任何写入**, 连"同一局面已搜到更深结果"的覆盖也被挡掉.
+     * 于是长搜索里置换表冻结成早期浅层结果的快照, 不但失效, 深度浅的旧条目
+     * 还会一直被当成有效命中返回, 反过来误导搜索.
+     */
+    private fun storeTT(key: Long, depth: Int, score: Int, flag: Int, moveData: Int) {
+        val old = tt[key]
+        // 已有条目更深就别覆盖: 深的结果更可信
+        if (old != null && old.depth > depth) return
+        if (old == null && tt.size >= TT_MAX_ENTRIES) {
+            // 满了就整表清空重来. 比逐条淘汰简单, 而且一次搜索里通常只会发生
+            // 一两次; 真正要避免的是"满了之后永远不写".
+            tt.clear()
+        }
+        tt[key] = TTEntry(depth, score, flag, moveData)
     }
 
     /** 静态搜索: 只继续搜吃子着法,直到局面"安静"下来 */
@@ -353,6 +452,76 @@ class SimpleEngine : ChessEngine {
             m.score = m.mvvLva(pos.pieceAt(m.to), pos.pieceAt(m.from))
         }
         moves.sortByDescending { it.score }
+    }
+
+    /**
+     * 固定深度搜一次, 返回访问的节点数. 只给基准测试用.
+     *
+     * 衡量搜索优化只能看"同深度下的节点数" —— 排序变好, 剪枝更早发生, 节点数
+     * 就下降. 这比"感觉变强了"实在得多.
+     */
+    internal fun benchmark(depth: Int): Long {
+        deadline = Long.MAX_VALUE
+        timeUp = false
+        stopRequested = false
+        tt.clear()
+        for (k in killers) { k[0] = 0; k[1] = 0 }
+        for (row in history) row.fill(0)
+
+        val nodes = longArrayOf(0)
+        val moves = mutableListOf<Move>()
+        Rules.generateAllLegal(currentPosition, moves)
+        var alpha = MIN_SCORE
+        for (m in moves) {
+            currentPosition.doMove(m)
+            val sc = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
+            currentPosition.undoMove()
+            if (sc > alpha) alpha = sc
+        }
+        return nodes[0]
+    }
+
+    /** 固定深度搜出最佳着法, 只给测试用 */
+    internal fun searchBestMoveForTest(depth: Int): Move {
+        deadline = Long.MAX_VALUE
+        timeUp = false
+        stopRequested = false
+        return search(SearchParams(depth = depth, movetime = 0))
+    }
+
+    /** 直接设定局面, 跳过 FEN 往返. 数据生成时每步都要调, 省掉字符串开销 */
+    internal fun setPositionDirect(pos: Position) {
+        currentPosition = pos.copy()
+    }
+
+    /**
+     * 固定深度搜出 (最佳着法, 分数). 分数是**走子方视角**的厘兵分.
+     *
+     * 自对弈数据生成用: 走这一步本来就要搜, 顺手把分数带出来当标签, 不必
+     * 再单独深搜一遍 —— 这一下把数据生成的成本砍掉一半.
+     */
+    internal fun searchWithScore(depth: Int): Pair<Move, Int> {
+        deadline = Long.MAX_VALUE
+        timeUp = false
+        stopRequested = false
+        tt.clear()
+        for (k in killers) { k[0] = 0; k[1] = 0 }
+        for (row in history) row.fill(0)
+
+        val moves = mutableListOf<Move>()
+        Rules.generateAllLegal(currentPosition, moves)
+        if (moves.isEmpty()) return Move.empty() to 0
+
+        val nodes = longArrayOf(0)
+        var best = moves[0]
+        var alpha = MIN_SCORE
+        for (m in moves) {
+            currentPosition.doMove(m)
+            val sc = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
+            currentPosition.undoMove()
+            if (sc > alpha) { alpha = sc; best = m }
+        }
+        return best to alpha
     }
 
     /** 分段等待, 期间随时响应 stop */
@@ -519,7 +688,14 @@ class SimpleEngine : ChessEngine {
 
     // ====== 置换表 ======
 
-    private data class TTEntry(val depth: Int, val score: Int, val flag: Int)
+    /**
+     * [move] 是这个局面上次搜出来的最佳着法.
+     *
+     * 存它是为了下一轮迭代加深时**优先试这一步** —— 这是所有着法排序技术里
+     * 收益最大的一项: 上一层已经算出的好棋, 这一层大概率还是好棋, 先试它能
+     * 立刻把 beta 截断推到最前面.
+     */
+    private data class TTEntry(val depth: Int, val score: Int, val flag: Int, val move: Int)
 
     companion object {
         private const val TT_EXACT = 0
@@ -540,6 +716,20 @@ class SimpleEngine : ChessEngine {
         private const val STOP_JOIN_TIMEOUT_MS = 2000L
         /** 置换表条目上限,防止长时间搜索吃光内存 */
         private const val TT_MAX_ENTRIES = 400_000
+
+        /** 杀手表按层存, 这是层数上限 */
+        private const val MAX_PLY = 64
+
+        // 排序分档. 拉开足够大的间距, 保证高优先级永远排在低优先级前面
+        private const val ORDER_TT = 1_000_000
+        private const val ORDER_CAPTURE = 100_000
+        private const val ORDER_KILLER_1 = 90_000
+        private const val ORDER_KILLER_2 = 80_000
+        private const val ORDER_HISTORY_CAP = 70_000
+
+        /** LMR: 到这个深度以上、且已经试过这么多手之后才开始减层 */
+        private const val LMR_MIN_DEPTH = 3
+        private const val LMR_MIN_MOVES = 4
         /** 每级随机性容忍的分差(厘兵) */
         private const val RANDOMNESS_CP_PER_LEVEL = 60
         /** 走开局库时的最短"思考"时间,避免零秒落子 */

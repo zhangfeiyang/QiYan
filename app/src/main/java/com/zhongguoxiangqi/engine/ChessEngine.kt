@@ -67,7 +67,16 @@ data class SearchParams(
     /** 哈希表大小 (MB) */
     val hashMb: Int = 16,
     /** 多 PV 行数 (分析时常用, 主对局一般 1) */
-    val multiPv: Int = 1
+    val multiPv: Int = 1,
+    /**
+     * [movetime] 是**硬上限**, 不允许按难度往上抬.
+     *
+     * 默认 false 是给对局用的: 那边"难度高"就该"想得久", EngineManager
+     * 会按等级把 movetime 抬到 2~8 秒. 但实时支招正相反 —— 延迟才是硬
+     * 约束, 宁可要 0.6 秒算出的好棋, 也不要 4 秒后的最佳棋. 这个标志就是
+     * 让调用方把这件事说清楚.
+     */
+    val strictMovetime: Boolean = false
 ) {
     companion object {
         val DEFAULT_GAME = SearchParams(depth = 0, movetime = 3000, threads = 2, hashMb = 64, multiPv = 1)

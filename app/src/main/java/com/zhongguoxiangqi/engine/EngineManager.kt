@@ -126,29 +126,8 @@ class EngineManager(private val context: Context) {
     }
 
     /** 根据难度调整搜索参数 */
-    private fun adaptParams(base: SearchParams): SearchParams {
-        val strength = difficultyLevel.coerceIn(1, 10)
-        return when {
-            // Pikafish: 高级别使用更多线程和哈希
-            currentEngine is PikafishNativeEngine -> when (strength) {
-                6 -> base.copy(threads = base.threads.coerceAtLeast(1), hashMb = base.hashMb.coerceAtLeast(32), movetime = base.movetime.coerceAtLeast(2000))
-                7 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(64), movetime = base.movetime.coerceAtLeast(3000))
-                8 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(128), movetime = base.movetime.coerceAtLeast(4000))
-                9 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(256), movetime = base.movetime.coerceAtLeast(6000))
-                10 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(512), movetime = base.movetime.coerceAtLeast(8000))
-                else -> base
-            }
-            // 简易引擎
-            else -> when (strength) {
-                1 -> base.copy(movetime = base.movetime.coerceAtLeast(100))
-                2 -> base.copy(movetime = base.movetime.coerceAtLeast(300))
-                3 -> base.copy(movetime = base.movetime.coerceAtLeast(800))
-                4 -> base.copy(movetime = base.movetime.coerceAtLeast(1500))
-                5 -> base.copy(movetime = base.movetime.coerceAtLeast(2000))
-                else -> base
-            }
-        }
-    }
+    private fun adaptParams(base: SearchParams): SearchParams =
+        adaptParams(base, currentEngine is PikafishNativeEngine, difficultyLevel)
 
     private fun applyDifficulty() {
         simpleEngine?.configure(difficultyLevel)
@@ -175,6 +154,47 @@ class EngineManager(private val context: Context) {
     }
 
     companion object {
+
+        /**
+         * 按难度调整搜索参数. 纯函数, 便于测试.
+         *
+         * 注意 movetime 用的是 **coerceAtLeast** —— 难度越高想得越久, 这对
+         * 对局是对的. 但它会静默抬高调用方传的值: 实时支招传 600ms, 难度 8
+         * 会被抬成 4000ms, "实时"直接名存实亡. [SearchParams.strictMovetime]
+         * 就是给这种"延迟是硬约束"的调用方留的出口.
+         */
+        internal fun adaptParams(
+            base: SearchParams,
+            isPikafish: Boolean,
+            difficultyLevel: Int,
+        ): SearchParams {
+            val strength = difficultyLevel.coerceIn(1, 10)
+            if (base.strictMovetime) {
+                return if (isPikafish) base.copy(
+                    threads = base.threads.coerceAtLeast(2),
+                    hashMb = base.hashMb.coerceAtLeast(64),
+                ) else base
+            }
+            return when {
+                isPikafish -> when (strength) {
+                    6 -> base.copy(threads = base.threads.coerceAtLeast(1), hashMb = base.hashMb.coerceAtLeast(32), movetime = base.movetime.coerceAtLeast(2000))
+                    7 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(64), movetime = base.movetime.coerceAtLeast(3000))
+                    8 -> base.copy(threads = base.threads.coerceAtLeast(2), hashMb = base.hashMb.coerceAtLeast(128), movetime = base.movetime.coerceAtLeast(4000))
+                    9 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(256), movetime = base.movetime.coerceAtLeast(6000))
+                    10 -> base.copy(threads = base.threads.coerceAtLeast(4), hashMb = base.hashMb.coerceAtLeast(512), movetime = base.movetime.coerceAtLeast(8000))
+                    else -> base
+                }
+                else -> when (strength) {
+                    1 -> base.copy(movetime = base.movetime.coerceAtLeast(100))
+                    2 -> base.copy(movetime = base.movetime.coerceAtLeast(300))
+                    3 -> base.copy(movetime = base.movetime.coerceAtLeast(800))
+                    4 -> base.copy(movetime = base.movetime.coerceAtLeast(1500))
+                    5 -> base.copy(movetime = base.movetime.coerceAtLeast(2000))
+                    else -> base
+                }
+            }
+        }
+
         /** 从这一难度起才尝试 Pikafish */
         const val PIKAFISH_MIN_LEVEL = 6
 
