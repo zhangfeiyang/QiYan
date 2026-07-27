@@ -131,7 +131,7 @@ class NnueEvaluatorTest {
         head.put("XQNN".toByteArray())
         head.putInt(1)
         head.putInt(NnueFeatures.FEATURES)
-        head.putInt(1 shl 30)   // L1 离谱
+        head.putInt(1 shl 20)   // L1 离谱
         head.putInt(32)
         head.putInt(32)
         head.putInt(NnueNetwork.QA)
@@ -162,7 +162,7 @@ class NnueEvaluatorTest {
             NnueNetwork.load(ByteArrayInputStream(full + ByteArray(8)))
             fail("应当拒绝")
         } catch (e: IOException) {
-            assertTrue(e.message!!.contains("多余"))
+            assertTrue("实际信息: ${e.message}", e.message!!.contains("长度不符"))
         }
     }
 }

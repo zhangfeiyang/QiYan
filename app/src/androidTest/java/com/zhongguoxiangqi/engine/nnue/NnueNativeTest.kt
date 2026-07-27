@@ -1,0 +1,160 @@
+package com.zhongguoxiangqi.engine.nnue
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * NEON 求值核心的正确性. **必须在真机或模拟器上跑**:
+ *
+ * ```
+ * ./gradlew :app:connectedDebugAndroidTest --tests "*NnueNativeTest*"
+ * ```
+ *
+ * 为什么非要有这个: NEON 那段代码在开发机上没有任何办法验证 —— 手边没有
+ * ARM 硬件。而 NNUE 算错不会崩溃, 只会让棋力莫名其妙地差, 是最难查的那类
+ * 问题。所以正确性必须在能真正执行 NEON 指令的地方证明一遍。
+ *
+ * 注意在 x86 模拟器上跑时, arm64 代码是被翻译执行的: **结论只对正确性有效,
+ * 速度数字没有意义**。
+ */
+@RunWith(AndroidJUnit4::class)
+class NnueNativeTest {
+
+    private val assets get() = InstrumentationRegistry.getInstrumentation().context.assets
+
+    private fun loadNet() = assets.open("nnue/test.nnue").use { NnueNetwork.load(it) }
+
+    @Test
+    fun native库应当可用() {
+        assertTrue(
+            "libxqnnue 没加载起来 —— 后面的测试会静默地退回 Kotlin 实现, " +
+                "看着全过其实什么都没验证",
+            NnueNative.available
+        )
+        assertTrue("arm64 上应当有 SIMD", NnueNative.nativeHasSimd())
+    }
+
+    @Test
+    fun NEON与标量路径必须逐位相同() {
+        val net = loadNet()
+        val h = NnueNative.nativeCreate(net.raw)
+        assertTrue("native 加载网络失败", h != 0L)
+        try {
+            // 样本数给大一些: 这是唯一能真正执行 NEON 的场合, 不差这点时间
+            val bad = NnueNative.nativeSelfCheck(h, 20_000)
+            assertEquals("NEON 与标量结果不一致的条数", 0, bad)
+        } finally {
+            NnueNative.nativeDestroy(h)
+        }
+    }
+
+    @Test
+    fun native结果必须与黄金向量完全相等() {
+        // 自检只证明"NEON 和标量一致", 万一两条路径错得一样就漏过去了。
+        // 黄金向量的期望值出自 Python 参考实现, 是独立的第三方基准。
+        val net = loadNet()
+        val ev = NnueEvaluator(net)
+        try {
+            assertTrue(
+                "没走上 native —— 那这个测试验的还是 Kotlin 实现",
+                ev.usingNative
+            )
+            val lines = assets.open("nnue/golden.txt").bufferedReader().readLines()
+                .filter { it.isNotBlank() && !it.startsWith("#") }
+            assertTrue("素材太少", lines.size >= 100)
+
+            var checked = 0
+            for ((i, line) in lines.withIndex()) {
+                val parts = line.split("|")
+                val black = parts[0].trim() == "1"
+                val pairs = parts[1].trim().split(" ").filter { it.isNotEmpty() }
+                val expected = parts[2].trim().toInt()
+
+                val pieces = IntArray(NnueFeatures.MAX_PIECES * 2)
+                for ((k, p) in pairs.withIndex()) {
+                    val (idx, sq) = p.split(",")
+                    pieces[k * 2] = idx.toInt()
+                    pieces[k * 2 + 1] = sq.toInt()
+                }
+                assertEquals(
+                    "第 ${i + 1} 条: native 与 Python 参考实现不一致",
+                    expected, ev.evaluatePieces(pieces, pairs.size, black)
+                )
+                checked++
+            }
+            println("[native] 与黄金向量比对 $checked 条, 全部相同")
+        } finally {
+            ev.close()
+        }
+    }
+
+    @Test
+    fun native与Kotlin实现必须逐位相同() {
+        // 第三重保险: 同一个 evaluator 的两条路径直接对拆。
+        val net = loadNet()
+        val ev = NnueEvaluator(net)
+        try {
+            assertTrue("没走上 native", ev.usingNative)
+            val rng = java.util.Random(12345)
+            val pieces = IntArray(NnueFeatures.MAX_PIECES * 2)
+            repeat(2000) {
+                val n = 2 + rng.nextInt(NnueFeatures.MAX_PIECES - 1)
+                for (i in 0 until n) {
+                    pieces[i * 2] = rng.nextInt(14)
+                    pieces[i * 2 + 1] = rng.nextInt(NnueFeatures.SQUARES)
+                }
+                val black = rng.nextBoolean()
+                assertEquals(
+                    "native 与 Kotlin 求值不一致 ($n 子)",
+                    ev.evaluateKotlin(pieces, n, black),
+                    ev.evaluatePieces(pieces, n, black)
+                )
+            }
+        } finally {
+            ev.close()
+        }
+    }
+
+    @Test
+    fun 求值速度() {
+        val net = loadNet()
+        val ev = NnueEvaluator(net)
+        try {
+            val pieces = IntArray(NnueFeatures.MAX_PIECES * 2)
+            var n = 0
+            // 摆一个满盘局面: 32 个子是累加器开销最大的情形
+            for (idx in 0 until 14) {
+                for (k in 0 until if (idx % 7 == 0) 1 else 2) {
+                    if (n >= 32) break
+                    pieces[n * 2] = idx
+                    pieces[n * 2 + 1] = (n * 7) % NnueFeatures.SQUARES
+                    n++
+                }
+            }
+            repeat(20_000) { ev.evaluatePieces(pieces, n, false) }
+
+            val iters = 200_000
+            val t0 = System.nanoTime()
+            var sink = 0
+            repeat(iters) { sink += ev.evaluatePieces(pieces, n, false) }
+            val nativePerSec = iters / ((System.nanoTime() - t0) / 1e9)
+
+            repeat(5_000) { ev.evaluateKotlin(pieces, n, false) }
+            val t1 = System.nanoTime()
+            repeat(20_000) { sink += ev.evaluateKotlin(pieces, n, false) }
+            val kotlinPerSec = 20_000 / ((System.nanoTime() - t1) / 1e9)
+
+            println("[native] native ${nativePerSec.toLong()} 次/秒, " +
+                "Kotlin ${kotlinPerSec.toLong()} 次/秒, " +
+                "快 ${"%.1f".format(nativePerSec / kotlinPerSec)} 倍 (sink=$sink)")
+            println("[native] 注意: 在 x86 模拟器上 arm64 是翻译执行的, " +
+                "速度数字没有意义, 只有真机上的才作数")
+        } finally {
+            ev.close()
+        }
+    }
+}

@@ -1,6 +1,5 @@
 package com.zhongguoxiangqi.engine.nnue
 
-import java.io.DataInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -9,42 +8,67 @@ import java.nio.ByteOrder
 /**
  * 量化后的 NNUE 权重. 由 nnue/export.py 写出, 格式见 nnue/FORMAT.md.
  *
- * 权重是只读的, 六百多 KB, 全进程共享一份; 推理时的临时缓冲放在
- * [NnueEvaluator] 里, 每个搜索线程一个. 分成两个类就是为了这件事 ——
- * 合在一起的话, 要么多线程搜索时互相踩缓冲区, 要么每个线程复制一份权重.
+ * 持有的是**原始字节**, 各层权重按需解析.
+ *
+ * 这么做是因为端上真正干活的是 C++/NEON 实现, 它直接吃原始字节;
+ * Kotlin 侧那份数组只在没有 native 库时(单元测试、native 自检不过)才用得上.
+ * 两份都常驻就是白占 645KB —— 用 lazy 之后, 走 native 的设备上那些数组
+ * 根本不会被分配.
  */
 class NnueNetwork private constructor(
+    val raw: ByteArray,
     val l1: Int,
     val l2: Int,
     val l3: Int,
-    val ftWeight: ShortArray,   // [FEATURES * l1] 行主序
-    val ftBias: ShortArray,     // [l1]
-    val fc1Weight: ByteArray,   // [l2 * (l1*2)] 行主序
-    val fc1Bias: IntArray,      // [l2]
-    val fc2Weight: ByteArray,   // [l3 * l2]
-    val fc2Bias: IntArray,      // [l3]
-    val outWeight: ShortArray,  // [l3]
-    val outBias: Int,
 ) {
 
+    val ftWeight: ShortArray by lazy { readAt(0) { b, n -> ShortArray(n) { b.short } } }
+    val ftBias: ShortArray by lazy { readAt(1) { b, n -> ShortArray(n) { b.short } } }
+    val fc1Weight: ByteArray by lazy { readAt(2) { b, n -> ByteArray(n).also(b::get) } }
+    val fc1Bias: IntArray by lazy { readAt(3) { b, n -> IntArray(n) { b.int } } }
+    val fc2Weight: ByteArray by lazy { readAt(4) { b, n -> ByteArray(n).also(b::get) } }
+    val fc2Bias: IntArray by lazy { readAt(5) { b, n -> IntArray(n) { b.int } } }
+    val outWeight: ShortArray by lazy { readAt(6) { b, n -> ShortArray(n) { b.short } } }
+    val outBias: Int by lazy { readAt(7) { b, _ -> b.int } }
+
+    /** 各段的 (元素数, 每元素字节数), 顺序即文件中的顺序 */
+    private fun sections(): List<Pair<Int, Int>> = listOf(
+        NnueFeatures.FEATURES * l1 to 2,   // ft.weight  i16
+        l1 to 2,                           // ft_bias    i16
+        l2 * (l1 * 2) to 1,                // fc1.weight i8
+        l2 to 4,                           // fc1.bias   i32
+        l3 * l2 to 1,                      // fc2.weight i8
+        l3 to 4,                           // fc2.bias   i32
+        l3 to 2,                           // out.weight i16
+        1 to 4,                            // out.bias   i32
+    )
+
+    private fun <T> readAt(index: Int, reader: (ByteBuffer, Int) -> T): T {
+        val secs = sections()
+        var offset = HEADER_BYTES
+        for (i in 0 until index) offset += secs[i].first * secs[i].second
+        val buf = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN)
+        buf.position(offset)
+        return reader(buf, secs[index].first)
+    }
+
     companion object {
-        /**
-         * 层宽从文件头读, 不写死在代码里.
-         *
-         * 因为它是要**调**的: 求值速度基本正比于 l1, 而棋力随 l1 递增,
-         * 中间那个甜点只能实测出来. 写死的话每试一个宽度都要改代码重编,
-         * 而且端上还可能装着按另一个宽度导出的文件.
-         *
-         * FEATURES 相反, 它由数据格式定死 (见 FORMAT.md), 改了等于作废
-         * 已经生成的全部样本, 所以必须严格校验.
-         */
-        private const val MAX_LAYER = 4096
+        const val HEADER_BYTES = 4 + 7 * 4
 
         /** 激活值尺度: ClippedReLU 的上界 1.0 对应 QA */
         const val QA = 127
 
         /** 权重尺度 */
         const val QW = 64
+
+        /**
+         * 层宽上限, 必须与 C++ 侧 nnue_core.h 的 kMaxL1 / kMaxL23 一致.
+         *
+         * 这不是"建议值": native 推理用的是栈上定长缓冲, 层宽超了会直接踩坏栈.
+         * 所以拦在这里, 别让不可信的文件走到 native.
+         */
+        const val MAX_L1 = 1024
+        const val MAX_L23 = 256
 
         /** 逐字节比对而不是拼成 int 比: 拼 int 要考虑字节序, 很容易写反 */
         private val MAGIC = byteArrayOf('X'.code.toByte(), 'Q'.code.toByte(),
@@ -60,92 +84,52 @@ class NnueNetwork private constructor(
          */
         @Throws(IOException::class)
         fun load(input: InputStream): NnueNetwork {
-            val data = DataInputStream(input.buffered())
-
-            val magic = ByteArray(4)
-            data.readFully(magic)
-            if (!magic.contentEquals(MAGIC)) {
+            val raw = input.readBytes()
+            if (raw.size < HEADER_BYTES) throw IOException("NNUE 文件太短")
+            if (!raw.copyOf(4).contentEquals(MAGIC)) {
                 throw IOException(
-                    "不是 NNUE 文件 (magic=${String(magic, Charsets.ISO_8859_1)})"
+                    "不是 NNUE 文件 (magic=${String(raw, 0, 4, Charsets.ISO_8859_1)})"
                 )
             }
 
-            val header = ByteArray(7 * 4)
-            data.readFully(header)
-            val hb = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
-
+            val hb = ByteBuffer.wrap(raw, 4, 7 * 4).order(ByteOrder.LITTLE_ENDIAN)
             val version = hb.int
             if (version != VERSION) {
                 throw IOException("NNUE 版本不支持: $version, 期望 $VERSION")
             }
-            check(hb, NnueFeatures.FEATURES, "FEATURES")
-            val l1 = dim(hb, "L1")
-            val l2 = dim(hb, "L2")
-            val l3 = dim(hb, "L3")
-            check(hb, QA, "QA")
-            check(hb, QW, "QW")
+            check(hb.int, NnueFeatures.FEATURES, "FEATURES")
+            val l1 = dim(hb.int, "L1", MAX_L1)
+            val l2 = dim(hb.int, "L2", MAX_L23)
+            val l3 = dim(hb.int, "L3", MAX_L23)
+            check(hb.int, QA, "QA")
+            check(hb.int, QW, "QW")
 
-            val ftWeight = readShorts(data, NnueFeatures.FEATURES * l1)
-            val ftBias = readShorts(data, l1)
-            val fc1Weight = readBytes(data, l2 * (l1 * 2))
-            val fc1Bias = readInts(data, l2)
-            val fc2Weight = readBytes(data, l3 * l2)
-            val fc2Bias = readInts(data, l3)
-            val outWeight = readShorts(data, l3)
-            val outBias = readInts(data, 1)[0]
+            // native 的 NEON 路径按 16 个一组处理, 不写收尾循环
+            if (l1 % 16 != 0) throw IOException("NNUE L1 必须是 16 的倍数: $l1")
 
-            // 文件应当到此为止. 还有剩余说明导出脚本和这里对格式的理解不一致,
-            // 前面读到的东西很可能已经错位了.
-            if (data.read() != -1) {
-                throw IOException("NNUE 文件尾部有多余数据, 格式不一致")
+            val net = NnueNetwork(raw, l1, l2, l3)
+            val expected = HEADER_BYTES + net.sections().sumOf { it.first * it.second }
+            if (raw.size != expected) {
+                throw IOException(
+                    "NNUE 文件长度不符: 实际 ${raw.size} 字节, 按结构应为 $expected"
+                )
             }
-
-            return NnueNetwork(
-                l1, l2, l3, ftWeight, ftBias, fc1Weight, fc1Bias,
-                fc2Weight, fc2Bias, outWeight, outBias,
-            )
+            return net
         }
 
         /**
-         * 读一个层宽. 上界检查不是防手误, 是防**恶意或损坏的文件**:
-         * 这里读到的数字直接决定后面要分配多大的数组, 一个 20 亿的层宽会
-         * 让 App 在加载网络时直接 OOM 崩掉.
+         * 层宽检查. 上界不是防手误, 是防**损坏或伪造的文件**: 这个数字直接
+         * 决定 native 侧栈上缓冲的用量, 放过去就是踩栈.
          */
-        private fun dim(hb: ByteBuffer, name: String): Int {
-            val v = hb.int
-            if (v <= 0 || v > MAX_LAYER) {
-                throw IOException("NNUE $name 不合理: $v")
-            }
+        private fun dim(v: Int, name: String, max: Int): Int {
+            if (v <= 0 || v > max) throw IOException("NNUE $name 不合理: $v")
             return v
         }
 
-        private fun check(hb: ByteBuffer, expected: Int, name: String) {
-            val got = hb.int
+        private fun check(got: Int, expected: Int, name: String) {
             if (got != expected) {
                 throw IOException("NNUE $name 不匹配: 文件是 $got, 端上是 $expected")
             }
-        }
-
-        private fun readBuf(data: DataInputStream, bytes: Int): ByteBuffer {
-            val raw = ByteArray(bytes)
-            data.readFully(raw)
-            return ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN)
-        }
-
-        private fun readShorts(data: DataInputStream, n: Int): ShortArray {
-            val buf = readBuf(data, n * 2)
-            return ShortArray(n) { buf.short }
-        }
-
-        private fun readInts(data: DataInputStream, n: Int): IntArray {
-            val buf = readBuf(data, n * 4)
-            return IntArray(n) { buf.int }
-        }
-
-        private fun readBytes(data: DataInputStream, n: Int): ByteArray {
-            val raw = ByteArray(n)
-            data.readFully(raw)
-            return raw
         }
     }
 }

@@ -111,6 +111,23 @@ android {
         noCompress += listOf("onnx", "nnue")
     }
 
+    // 自研 NNUE 的求值核心走 C++/NEON。纯 Kotlin 标量实现实测比手写评估
+    // 慢 20~60 倍, 折合少搜三四层, 网络再准也补不回来 —— 而 int8 点积正是
+    // SIMD 最擅长的形状。这是我们自己的代码, 不涉及任何 GPL 依赖。
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+
+    // 仪器测试要在设备上读同一批黄金向量, 而 assets 是它唯一能可靠读到的
+    // 地方。与其在仓库里放一份 663KB 的副本(两份迟早会不一致), 不如构建时
+    // 从 test/resources 拷过去 —— 素材只有一份, 改了立刻两边都生效。
+    sourceSets.getByName("androidTest") {
+        assets.srcDir(layout.buildDirectory.dir("generated/androidTestAssets"))
+    }
+
     testOptions {
         unitTests.all {
             // 让 -Dnnue.* 这类系统属性能透传进测试 JVM.
@@ -186,4 +203,12 @@ dependencies {
     testImplementation("org.json:json:20231013")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+}
+// 见上面 androidTest 的 assets 配置
+val copyNnueFixtures by tasks.registering(Copy::class) {
+    from(layout.projectDirectory.dir("src/test/resources/nnue"))
+    into(layout.buildDirectory.dir("generated/androidTestAssets/nnue"))
+}
+tasks.matching { it.name.contains("AndroidTest") }.configureEach {
+    dependsOn(copyNnueFixtures)
 }

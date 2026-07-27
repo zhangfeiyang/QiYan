@@ -17,9 +17,57 @@ import com.zhongguoxiangqi.game.Position
  * 除法一律用 Kotlin 的 `/` (截断向零), Python 侧用 np.fix 对齐. 用向下取整
  * 会在负数上差 1 —— 隐藏层因为紧接着 clamp 到 0 看不出来, 输出层会直接差一分.
  */
-class NnueEvaluator(private val net: NnueNetwork) {
+class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
 
     private val scratchPieces = IntArray(NnueFeatures.MAX_PIECES * 2)
+
+    /**
+     * native 句柄; 0 表示走 Kotlin 实现.
+     *
+     * 拿到句柄之后立刻做一次 NEON vs 标量自检, 不过就退回 Kotlin —— 开发机上
+     * 没有 ARM 硬件能验 NEON, 只能让它在真机上自证. 算错的代价不是崩溃, 是
+     * 棋力莫名其妙地差, 所以宁可慢也不能带着可疑的实现跑.
+     */
+    private var handle: Long = 0L
+    private var pieceBuf: java.nio.ByteBuffer? = null
+
+    init {
+        if (NnueNative.available) {
+            val h = runCatching { NnueNative.nativeCreate(net.raw) }.getOrDefault(0L)
+            if (h != 0L) {
+                val bad = runCatching { NnueNative.nativeSelfCheck(h, SELF_CHECK_SAMPLES) }
+                    .getOrDefault(-1)
+                if (bad == 0) {
+                    handle = h
+                    pieceBuf = NnueNative.nativePieceBuffer(h)
+                    if (pieceBuf == null) {
+                        NnueNative.nativeDestroy(h)
+                        handle = 0L
+                    }
+                } else {
+                    runCatching {
+                        android.util.Log.e(
+                            "NnueEvaluator",
+                            "native 自检未通过 ($bad/$SELF_CHECK_SAMPLES 条不一致), " +
+                                "退回 Kotlin 求值"
+                        )
+                    }
+                    NnueNative.nativeDestroy(h)
+                }
+            }
+        }
+    }
+
+    /** 当前真的在走 native 吗. 给基准测试和诊断用. */
+    val usingNative: Boolean get() = handle != 0L
+
+    override fun close() {
+        if (handle != 0L) {
+            NnueNative.nativeDestroy(handle)
+            handle = 0L
+            pieceBuf = null
+        }
+    }
 
     /** 两个视角的累加器拼在一起, 正好是 fc1 的输入 */
     private val acc = IntArray(net.l1 * 2)
@@ -48,6 +96,22 @@ class NnueEvaluator(private val net: NnueNetwork) {
      * [pieces] 每子两项, 长度至少 2*[n]. 允许传入外部数组, 不做拷贝.
      */
     fun evaluatePieces(pieces: IntArray, n: Int, blackToMove: Boolean): Int {
+        val buf = pieceBuf
+        if (handle != 0L && buf != null) {
+            // 直接往 native 的缓冲里写, 免掉每次求值一次数组拷贝 ——
+            // JNI 调用本身才十几纳秒, 拷贝反而是大头
+            buf.clear()
+            for (i in 0 until n) {
+                buf.put(pieces[i * 2].toByte())
+                buf.put(pieces[i * 2 + 1].toByte())
+            }
+            return NnueNative.nativeEval(handle, n, blackToMove)
+        }
+        return evaluateKotlin(pieces, n, blackToMove)
+    }
+
+    /** 纯 Kotlin 实现. 既是 native 不可用时的退路, 也是它的正确性基准. */
+    fun evaluateKotlin(pieces: IntArray, n: Int, blackToMove: Boolean): Int {
         refresh(pieces, n, blackToMove)
 
         // fc1: (L2 × L1*2) @ acc
@@ -113,6 +177,14 @@ class NnueEvaluator(private val net: NnueNetwork) {
         for (i in acc.indices) {
             acc[i] = clipped(acc[i])
         }
+    }
+
+    private companion object {
+        /**
+         * 自检样本数. 几百条就足以逼出下标算错、通道错位这类系统性错误
+         * (它们会让几乎每条都对不上); 而加载只做一次, 这点开销无所谓.
+         */
+        const val SELF_CHECK_SAMPLES = 256
     }
 
     /** ClippedReLU 的定点版本 */

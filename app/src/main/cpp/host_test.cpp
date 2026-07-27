@@ -1,0 +1,163 @@
+// 宿主机上验证 C++ 推理核心。**不参与 Android 构建**。
+//
+//   g++ -O2 -std=c++17 nnue_core.cpp host_test.cpp -o /tmp/nnue_host_test
+//   /tmp/nnue_host_test ../test/resources/nnue/test.nnue ../test/resources/nnue/golden.txt
+//
+// 为什么要有它: 我在开发机上没有 ARM 硬件也没有模拟器, 而 NNUE 的错误
+// 不会崩溃, 只会让棋力莫名其妙地差。至少要让标量路径在推上真机之前就
+// 用黄金向量证明过 —— 那批向量的期望值出自 Python 参考实现, 和 Kotlin
+// 侧比对的是同一批。NEON 路径没法在这里跑, 交给运行时自检。
+#include "nnue_core.h"
+
+#include <chrono>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+namespace {
+
+struct Loaded {
+    nnue::Net net{};
+    std::vector<int16_t> ft_w, ft_b, out_w;
+    std::vector<int8_t> fc1_w, fc2_w;
+    std::vector<int32_t> fc1_b, fc2_b;
+    int32_t out_b = 0;
+};
+
+template <typename T>
+bool take(std::ifstream& f, std::vector<T>& v, size_t n) {
+    v.resize(n);
+    f.read(reinterpret_cast<char*>(v.data()), n * sizeof(T));
+    return static_cast<size_t>(f.gcount()) == n * sizeof(T);
+}
+
+bool load(const char* path, Loaded& out) {
+    std::ifstream f(path, std::ios::binary);
+    if (!f) { std::fprintf(stderr, "打不开 %s\n", path); return false; }
+
+    char magic[4];
+    f.read(magic, 4);
+    if (std::memcmp(magic, "XQNN", 4) != 0) {
+        std::fprintf(stderr, "magic 不对\n"); return false;
+    }
+    int32_t h[7];
+    f.read(reinterpret_cast<char*>(h), sizeof(h));
+    const int version = h[0], features = h[1];
+    const int l1 = h[2], l2 = h[3], l3 = h[4], qa = h[5], qw = h[6];
+    if (version != 1 || features != nnue::kFeatures ||
+        qa != nnue::kQA || qw != nnue::kQW) {
+        std::fprintf(stderr, "文件头对不上: v=%d f=%d qa=%d qw=%d\n",
+                     version, features, qa, qw);
+        return false;
+    }
+
+    bool ok = take(f, out.ft_w, size_t(features) * l1)
+           && take(f, out.ft_b, l1)
+           && take(f, out.fc1_w, size_t(l2) * l1 * 2)
+           && take(f, out.fc1_b, l2)
+           && take(f, out.fc2_w, size_t(l3) * l2)
+           && take(f, out.fc2_b, l3)
+           && take(f, out.out_w, l3);
+    f.read(reinterpret_cast<char*>(&out.out_b), 4);
+    if (!ok || f.gcount() != 4) { std::fprintf(stderr, "权重读不全\n"); return false; }
+
+    out.net = nnue::Net{l1, l2, l3, out.ft_w.data(), out.ft_b.data(),
+                        out.fc1_w.data(), out.fc1_b.data(),
+                        out.fc2_w.data(), out.fc2_b.data(),
+                        out.out_w.data(), out.out_b};
+    return true;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    if (argc < 3) {
+        std::fprintf(stderr, "用法: %s <net.nnue> <golden.txt>\n", argv[0]);
+        return 2;
+    }
+    Loaded L;
+    if (!load(argv[1], L)) return 1;
+    if (!nnue::validate(L.net)) {
+        std::fprintf(stderr, "网络尺寸不合法\n");
+        return 1;
+    }
+    std::printf("[host] l1=%d l2=%d l3=%d  SIMD=%s\n",
+                L.net.l1, L.net.l2, L.net.l3, nnue::has_simd() ? "有" : "无(标量)");
+
+    const int32_t worst = nnue::worst_case_accumulator(L.net);
+    std::printf("[host] 累加器最坏情况 %d, int16 上限 32767 (余量 %.1f 倍)\n",
+                worst, 32767.0 / worst);
+    if (worst >= 32767) {
+        std::fprintf(stderr, "[host] !! 累加器会溢出 int16\n");
+        return 1;
+    }
+
+    std::ifstream g(argv[2]);
+    if (!g) { std::fprintf(stderr, "打不开 %s\n", argv[2]); return 1; }
+
+    std::string line;
+    int checked = 0, bad = 0;
+    while (std::getline(g, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        const size_t b1 = line.find('|'), b2 = line.rfind('|');
+        if (b1 == std::string::npos || b1 == b2) continue;
+
+        const bool black = line.substr(0, b1) == "1";
+        const int32_t expect = std::atoi(line.c_str() + b2 + 1);
+
+        std::vector<uint8_t> pieces;
+        std::istringstream ps(line.substr(b1 + 1, b2 - b1 - 1));
+        std::string tok;
+        while (ps >> tok) {
+            const size_t c = tok.find(',');
+            pieces.push_back(static_cast<uint8_t>(std::atoi(tok.substr(0, c).c_str())));
+            pieces.push_back(static_cast<uint8_t>(std::atoi(tok.substr(c + 1).c_str())));
+        }
+        const int n = static_cast<int>(pieces.size() / 2);
+
+        const int32_t got = nnue::eval_scalar(L.net, pieces.data(), n, black);
+        if (got != expect) {
+            if (++bad <= 5) {
+                std::fprintf(stderr, "[host] 第 %d 条不一致: 期望 %d 实得 %d (%d 子)\n",
+                             checked + 1, expect, got, n);
+            }
+        }
+        ++checked;
+    }
+
+    std::printf("[host] 比对 %d 条, 不一致 %d 条\n", checked, bad);
+    if (checked < 100) {
+        std::fprintf(stderr, "[host] !! 素材太少, 没验证到什么\n");
+        return 1;
+    }
+    if (bad) {
+        std::fprintf(stderr, "[host] !! C++ 与 Python 参考实现对不上\n");
+        return 1;
+    }
+    std::printf("[host] C++ 标量路径与 Python 参考实现逐条相同\n");
+
+    // 顺带量一下标量吞吐。这不是 NEON 的速度 (宿主机是 x86), 但它能把
+    // "慢在语言上"和"慢在没有 SIMD 上"这两件事分开 —— Kotlin 标量实测
+    // 28k 次/秒, 若 C++ 标量能到十几万, 说明相当一部分差距只是 JVM 的
+    // 边界检查和装箱, 换 native 本身就能拿回来。
+    {
+        uint8_t full[nnue::kMaxPieces * 2];
+        for (int i = 0; i < nnue::kMaxPieces; ++i) {
+            full[i * 2] = static_cast<uint8_t>(i % 14);
+            full[i * 2 + 1] = static_cast<uint8_t>((i * 7) % nnue::kSquares);
+        }
+        const int iters = 200000;
+        volatile int32_t sink = 0;
+        for (int i = 0; i < 20000; ++i) sink += nnue::eval_scalar(L.net, full, 32, false);
+        const auto t0 = std::chrono::steady_clock::now();
+        for (int i = 0; i < iters; ++i) sink += nnue::eval_scalar(L.net, full, 32, false);
+        const auto t1 = std::chrono::steady_clock::now();
+        const double secs = std::chrono::duration<double>(t1 - t0).count();
+        std::printf("[host] C++ 标量吞吐 %.0f 次/秒 (32 子满盘)\n", iters / secs);
+    }
+    return 0;
+}
