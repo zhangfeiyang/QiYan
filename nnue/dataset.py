@@ -44,8 +44,7 @@ class SelfPlayDataset(Dataset):
     访问, memmap 让操作系统按页调度比我们自己管理缓存更合适.
     """
 
-    def __init__(self, paths, score_scale=400.0):
-        self.score_scale = score_scale
+    def __init__(self, paths):
         self.chunks = []
         self.offsets = [0]
         total = 0
@@ -110,8 +109,14 @@ class SelfPlayDataset(Dataset):
         own_pad[:count] = own
         opp_pad[:count] = opp
 
-        # 分数 -> 胜率尺度. 直接回归厘兵分会让少数极端分数主导损失.
-        target = np.tanh(score / self.score_scale).astype(np.float32)
+        # 返回**原始厘兵分**, 不在这里做 tanh.
+        #
+        # 之前这里直接返回 tanh(score/400), 等于让网络去预测 tanh 空间的值 ——
+        # 那样端上拿到输出还得做 atanh 才能还原成厘兵分, 运算贵且在 ±1 附近
+        # 数值爆炸. 正确做法是网络输出原始评估值, 把 tanh 放进损失函数里两边
+        # 同时压 (Stockfish 就是这么做的): 既避免极端分数主导损失, 又让推理
+        # 端可以直接把输出当分数用.
+        target = np.float32(score)
 
         return (
             torch.from_numpy(own_pad),

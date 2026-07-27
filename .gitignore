@@ -16,3 +16,7 @@ captures/
 .kotlin/
 # Pikafish 构建缓存
 third_party/
+
+# Python
+__pycache__/
+*.pyc
