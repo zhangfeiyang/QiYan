@@ -22,14 +22,21 @@ import kotlin.random.Random
  *
  * 1. **开局随机化**. 前 [randomPlies] 步随机走, 否则每局开头都一样, 生成
  *    一百万局也只是把同一批开局局面抄了一百万遍.
- * 2. **跳过将军局面**. 被将时的分数被战术主导, 静态评估学不到东西, 反而
+ * 2. **中局偶尔乱走** ([randomMoveChance]). 开局随机之后引擎是确定性的,
+ *    一局棋会一路走在同一条最佳线上 —— 那一百多条样本彼此只差一步棋,
+ *    高度相关, 条数看着多, 有效信息远没那么多. 每步以小概率插一手随机着法,
+ *    能把局面推到最佳线之外, 顺便覆盖到"引擎自己不会走进去"的局面.
+ *    注意标签不受影响: 分数是**走这手之前**那个局面的搜索分, 后面走什么
+ *    都不改变它的正确性.
+ * 3. **跳过将军局面**. 被将时的分数被战术主导, 静态评估学不到东西, 反而
  *    污染回归目标.
- * 3. **分数统一为走子方视角**. 和引擎内部 negamax 约定一致, 训练侧不用再猜。
+ * 4. **分数统一为走子方视角**. 和引擎内部 negamax 约定一致, 训练侧不用再猜。
  */
 class SelfPlayGenerator(
     private val searchDepth: Int = 5,
     private val randomPlies: Int = 8,
     private val maxPlies: Int = 200,
+    private val randomMoveChance: Double = 0.05,
     private val seed: Long = System.nanoTime(),
 ) {
 
@@ -87,7 +94,14 @@ class SelfPlayGenerator(
                     samples++
                 }
             }
-            pos.doMove(move)
+
+            // 样本已经写完再决定走哪一手 —— 标签属于当前局面, 与后面走什么无关
+            val played = if (ply >= randomPlies && rng.nextDouble() < randomMoveChance) {
+                legal[rng.nextInt(legal.size)]
+            } else {
+                move
+            }
+            pos.doMove(played)
         }
         engine.shutdown()
         return samples
