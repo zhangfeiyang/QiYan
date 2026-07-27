@@ -13,6 +13,11 @@
     <!-- AI 分析走本地代理, 需要网络. 之前拍照识别和引擎都是进程内的, 不需要 INTERNET. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- 实时支招要在应用内取相机流. 原来的"拍照"走的是系统相机 App,
+         那种方式不需要这条权限, 所以之前一直没有. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
 
     <application
@@ -70,6 +75,12 @@
             android:name=".ui.board.BoardEditorActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_board_editor" />
+
+        <!-- 实时支招: 相机常开, 横竖屏都可能用, 不锁方向 -->
+        <activity
+            android:name=".ui.live.LiveAdviceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ZhongguoXiangqi" />
 
         <activity
             android:name=".ui.recognize.RecognizeActivity"

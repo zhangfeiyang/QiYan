@@ -3,13 +3,18 @@ package com.zhongguoxiangqi.ui.recognize
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.zhongguoxiangqi.R
@@ -58,6 +63,12 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
      */
     private var boardFlipped = false
 
+    /** 已经识别过一次: 决定回到这一屏时要不要再自动开相机 */
+    private var hasRecognized = false
+
+    /** 阻止求招的硬伤(缺帅/多子等). 点"支招"时才提示, 不常驻界面 */
+    private var blockingIssues: List<String> = emptyList()
+
     private val sideToMove: Int
         get() = if (binding.sideRed.isChecked) Color.RED else Color.BLACK
 
@@ -73,15 +84,25 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         super.onCreate(savedInstanceState)
         binding = ActivityRecognizeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // 不设 setSupportActionBar: 一旦交给 ActionBar 管, XML 里 app:menu
+        // 声明的菜单项就不会渲染到 Toolbar 上. 返回键这里是自己接的.
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         binding.boardView.editMode = true
-        binding.boardView.onCellTapListener = { sq -> showPiecePicker(sq) }
+        binding.boardView.onCellTapListener = { sq -> onBoardTap(sq) }
 
-        binding.btnGallery.setOnClickListener { pickImage.launch("image/*") }
-        binding.btnCamera.setOnClickListener { launchCamera() }
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_live -> {
+                    startActivity(Intent(this,
+                        com.zhongguoxiangqi.ui.live.LiveAdviceActivity::class.java))
+                    true
+                }
+                R.id.action_retake -> { launchCamera(); true }
+                R.id.action_gallery -> { pickImage.launch("image/*"); true }
+                else -> false
+            }
+        }
         binding.btnAdvise.setOnClickListener { requestAdvice() }
         binding.sideGroup.setOnCheckedChangeListener { _, _ -> refreshBoard() }
         binding.btnFlip.setOnClickListener {
@@ -89,15 +110,24 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             refreshBoard()
         }
 
+        buildTrays()
+        refreshBoard()
+
         // 模型有 40MB, 加载要几百毫秒, 不能卡住界面
         lifecycleScope.launch {
             val r = withContext(Dispatchers.IO) { BoardRecognizer.create(this@RecognizeActivity) }
             recognizer = r
             if (r == null) {
-                binding.status.text = getString(R.string.recognize_model_failed)
-                binding.btnCamera.isEnabled = false
-                binding.btnGallery.isEnabled = false
+                Toast.makeText(
+                    this@RecognizeActivity,
+                    R.string.recognize_model_failed, Toast.LENGTH_LONG
+                ).show()
+                return@launch
             }
+            // 模型就绪后自动开相机: 用户点"拍照识别棋局"进来, 想做的就是拍,
+            // 再让他多按一次"拍照"没有意义. savedInstanceState 非空说明是
+            // 旋转/重建, 那次不要再弹一遍相机.
+            if (savedInstanceState == null && !hasRecognized) launchCamera()
         }
     }
 
@@ -144,8 +174,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         val r = recognizer ?: return
         if (busy) return
         busy = true
-        binding.status.text = getString(R.string.recognize_working)
-        binding.btnAdvise.isEnabled = false
+        Toast.makeText(this, R.string.recognize_working, Toast.LENGTH_SHORT).show()
         binding.advice.visibility = View.GONE
 
         lifecycleScope.launch {
@@ -157,18 +186,21 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             }
             busy = false
             if (result == null) {
-                binding.status.text = getString(R.string.recognize_failed)
+                Toast.makeText(this@RecognizeActivity,
+                    R.string.recognize_failed, Toast.LENGTH_LONG).show()
                 return@launch
             }
             layout = result.layout
             confidence = result.confidence
+            hasRecognized = true
             // 按原照片的上下关系显示: 拍的时候红方在上, 屏幕上也让红方在上,
             // 用户才对得上自己拍的那张图
             boardFlipped = result.redOnTop
-            binding.preview.setImageBitmap(
-                if (boardFlipped) rotate180(result.warped) else result.warped
-            )
-            binding.preview.visibility = View.VISIBLE
+            // 不再显示校正后的原图: 用户要核对的是"识别出来的这盘棋对不对",
+            // 那盘棋就在下面的棋盘上, 再摆一张照片只是占地方.
+            held = null
+            syncTraySelection()
+            binding.boardView.setSelectedSquare(-1)
 
             // 四角没框住时先说清楚, 否则用户会以为是模型不认识棋子
             if (result.meanCornerScore < BoardLayout.LOW_CORNER_SCORE || result.offBoardCount > 0) {
@@ -199,21 +231,151 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         }
         binding.boardView.setSuspectSquares(suspect)
 
-        val blocking = issues.filter { it.blocking }
-        binding.btnAdvise.isEnabled = blocking.isEmpty()
-        binding.status.text = buildString {
-            if (blocking.isNotEmpty()) {
-                append(getString(R.string.recognize_must_fix)).append('\n')
-                blocking.forEach { append("• ").append(it.message).append('\n') }
-            }
-            issues.filterNot { it.blocking }.forEach {
-                append("• ").append(it.message).append('\n')
-            }
-            if (blocking.isEmpty()) {
-                append(getString(R.string.recognize_ready, suspect.size))
-            }
-        }.trim()
+        // 局面有硬伤时不常驻一段说明文字占地方, 改成点"支招"那一刻再讲
+        // (见 requestAdvice). 按钮始终可点, 否则用户只看到一个灰按钮,
+        // 连"为什么不能点"都不知道.
+        blockingIssues = issues.filter { it.blocking }.map { it.message }
     }
+
+    // ====== 摆子托盘 ======
+
+    /**
+     * 当前"手里拿着"的东西. 三种状态互斥:
+     *  - null            什么都没选
+     *  - FromTray(ch)    从托盘拿起一个兵种, 点棋盘就落子
+     *  - FromBoard(sq)   选中棋盘上的一个子, 点空点=移动, 点虚线圈=拿掉
+     */
+    private sealed class Held {
+        data class FromTray(val fen: Char) : Held()
+        data class FromBoard(val square: Int) : Held()
+    }
+
+    private var held: Held? = null
+    private val trayViews = mutableListOf<TextView>()
+
+    /** 七个兵种, 红黑各一排; 末尾额外一个虚线圈作"拿掉" */
+    private fun buildTrays() {
+        val red = listOf('K', 'A', 'B', 'N', 'R', 'C', 'P')
+        val black = red.map { it.lowercaseChar() }
+        fill(binding.trayBlack, black, isRed = false)
+        fill(binding.trayRed, red, isRed = true)
+    }
+
+    private fun fill(row: LinearLayout, chars: List<Char>, isRed: Boolean) {
+        row.removeAllViews()
+        val gap = resources.getDimensionPixelSize(R.dimen.space_1)
+        // 槽位直径 = 棋盘一格的宽度, 让托盘里的子和盘上的子一样大 —— 托盘
+        // 是"还没摆上去的同一副棋子", 大小不一致会让人以为是两种东西.
+        // 棋盘横向 9 路, 所以按屏宽 / 9 算; 8 个槽自然放得下.
+        val boardMargin = resources.getDimensionPixelSize(R.dimen.space_1) * 2
+        val cell = (resources.displayMetrics.widthPixels - boardMargin) / 9
+        val size = (cell - gap * 2).coerceAtLeast(resources.getDimensionPixelSize(R.dimen.space_5))
+        chars.forEach { ch ->
+            val piece = Piece.entries.first { it.fen == ch }
+            val tv = TextView(this).apply {
+                text = piece.chinese
+                gravity = Gravity.CENTER
+                // 字随圆走, 固定 16sp 在小屏上会顶破圆圈
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, size * 0.5f)
+                setTypeface(Typeface.SERIF, Typeface.BOLD)
+                setTextColor(
+                    ContextCompat.getColor(
+                        this@RecognizeActivity,
+                        if (isRed) R.color.piece_red else R.color.piece_black
+                    )
+                )
+                setBackgroundResource(
+                    if (isRed) R.drawable.bg_tray_piece_red else R.drawable.bg_tray_piece_black
+                )
+                layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                    marginStart = gap; marginEnd = gap
+                }
+                setOnClickListener { onTrayTap(ch) }
+            }
+            row.addView(tv)
+            trayViews += tv
+        }
+        // "拿掉"槽: 只有手里握着棋盘上的子时才有意义
+        val trash = TextView(this).apply {
+            gravity = Gravity.CENTER
+            setBackgroundResource(R.drawable.bg_tray_trash)
+            layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                marginStart = gap * 2; marginEnd = gap
+            }
+            setOnClickListener { onTrashTap() }
+        }
+        row.addView(trash)
+    }
+
+    private fun onTrayTap(fen: Char) {
+        // 再点一次同一个兵种 = 放下
+        held = if ((held as? Held.FromTray)?.fen == fen) null else Held.FromTray(fen)
+        syncTraySelection()
+        binding.boardView.setSelectedSquare(-1)
+        refreshBoard()
+    }
+
+    /** 点虚线圈: 把选中的子从盘上拿掉 */
+    private fun onTrashTap() {
+        val h = held as? Held.FromBoard ?: return
+        setCell(h.square, BoardRecognizer.CHAR_EMPTY)
+        held = null
+        syncTraySelection()
+        binding.boardView.setSelectedSquare(-1)
+        refreshBoard()
+    }
+
+    /**
+     * 点棋盘.
+     *
+     * 手里有托盘子 → 落在这一格;
+     * 手里有盘上的子 → 移过去 (点自己 = 取消);
+     * 手里空着 → 这一格有子就拿起它, 空格则无事发生.
+     */
+    private fun onBoardTap(sq: Int) {
+        when (val h = held) {
+            is Held.FromTray -> {
+                setCell(sq, h.fen)
+                held = null
+            }
+            is Held.FromBoard -> {
+                if (h.square == sq) {
+                    held = null
+                } else {
+                    val moving = cellOf(h.square)
+                    setCell(h.square, BoardRecognizer.CHAR_EMPTY)
+                    setCell(sq, moving)
+                    held = null
+                }
+            }
+            null -> {
+                held = if (cellOf(sq) != BoardRecognizer.CHAR_EMPTY) Held.FromBoard(sq) else null
+            }
+        }
+        syncTraySelection()
+        binding.boardView.setSelectedSquare((held as? Held.FromBoard)?.square ?: -1)
+        refreshBoard()
+    }
+
+    private fun cellOf(sq: Int): Char = layout[Square.row(sq)][Square.col(sq)]
+
+    private fun setCell(sq: Int, ch: Char) {
+        val r = Square.row(sq)
+        val c = Square.col(sq)
+        layout[r][c] = ch
+        // 用户亲手摆的, 不该再被标成"识别可疑"
+        confidence?.get(r)?.set(c, 1f)
+    }
+
+    private fun syncTraySelection() {
+        val heldFen = (held as? Held.FromTray)?.fen
+        trayViews.forEach { tv ->
+            tv.isSelected = heldFen != null && tv.text == pieceChinese(heldFen)
+        }
+    }
+
+    private fun pieceChinese(fen: Char): String =
+        Piece.entries.first { it.fen == fen }.chinese
 
     /** 点格子改子 */
     private fun showPiecePicker(sq: Int) {
@@ -245,6 +407,14 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     // ====== 支招 ======
 
     private fun requestAdvice() {
+        if (blockingIssues.isNotEmpty()) {
+            Toast.makeText(
+                this,
+                getString(R.string.recognize_must_fix) + " " + blockingIssues.joinToString("; "),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         val issues = BoardLayout.validate(layout, sideToMove)
         if (issues.any { it.blocking }) { refreshBoard(); return }
         val fen = BoardLayout.toFen(layout, sideToMove)

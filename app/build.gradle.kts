@@ -111,6 +111,17 @@ android {
         noCompress += listOf("onnx", "nnue")
     }
 
+    testOptions {
+        unitTests.all {
+            // 让 -Dnnue.* 这类系统属性能透传进测试 JVM.
+            // 默认 Gradle 不转发, 数据生成的参数会全部丢失退回默认值.
+            it.systemProperties(System.getProperties().filterKeys { k ->
+                k.toString().startsWith("nnue.")
+            }.mapKeys { e -> e.key.toString() })
+            it.maxHeapSize = "4g"
+        }
+    }
+
     lint {
         abortOnError = false
         checkReleaseBuilds = false
@@ -158,6 +169,12 @@ dependencies {
 
     // ONNX Runtime —— 拍照识别棋局 (棋盘四角关键点 + 棋子分类)
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
+
+    // 实时预览支招: 摄像头常开 + 逐帧分析
+    implementation("androidx.camera:camera-core:1.3.4")
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
 
     // Anthropic SDK —— AI 分析功能, 走 AstroSimulator 的本地代理
     implementation("com.anthropic:anthropic-java:2.52.0")
