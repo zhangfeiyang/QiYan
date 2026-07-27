@@ -116,7 +116,7 @@ android {
             // 让 -Dnnue.* 这类系统属性能透传进测试 JVM.
             // 默认 Gradle 不转发, 数据生成的参数会全部丢失退回默认值.
             it.systemProperties(System.getProperties().filterKeys { k ->
-                k.toString().startsWith("nnue.")
+                k.toString().startsWith("nnue.") || k.toString().startsWith("match.")
             }.mapKeys { e -> e.key.toString() })
             it.maxHeapSize = "4g"
         }
