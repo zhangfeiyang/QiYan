@@ -490,6 +490,20 @@ class SimpleEngine : ChessEngine {
     }
 
     /** 直接设定局面, 跳过 FEN 往返. 数据生成时每步都要调, 省掉字符串开销 */
+    /**
+     * 只跑评估函数, 返回耗时纳秒. 用来和 NNUE 的求值速度做同口径比较 ——
+     * NNUE 换来的棋力只有在搜索速度没被拖垮的前提下才成立.
+     */
+    internal fun benchmarkEval(pos: Position, times: Int): Long {
+        var sink = 0
+        repeat(20_000) { sink += evaluate(pos) }   // 预热 JIT
+        val t0 = System.nanoTime()
+        repeat(times) { sink += evaluate(pos) }
+        val ns = System.nanoTime() - t0
+        if (sink == Int.MIN_VALUE) println("")     // 防止被优化掉
+        return ns
+    }
+
     internal fun setPositionDirect(pos: Position) {
         currentPosition = pos.copy()
     }

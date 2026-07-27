@@ -22,9 +22,9 @@ class NnueEvaluator(private val net: NnueNetwork) {
     private val scratchPieces = IntArray(NnueFeatures.MAX_PIECES * 2)
 
     /** 两个视角的累加器拼在一起, 正好是 fc1 的输入 */
-    private val acc = IntArray(NnueNetwork.L1 * 2)
-    private val h1 = IntArray(NnueNetwork.L2)
-    private val h2 = IntArray(NnueNetwork.L3)
+    private val acc = IntArray(net.l1 * 2)
+    private val h1 = IntArray(net.l2)
+    private val h2 = IntArray(net.l3)
 
     /**
      * 返回**走子方视角**的评估值, 单位厘兵. 正数表示走子方占优.
@@ -51,8 +51,8 @@ class NnueEvaluator(private val net: NnueNetwork) {
         refresh(pieces, n, blackToMove)
 
         // fc1: (L2 × L1*2) @ acc
-        val inDim = NnueNetwork.L1 * 2
-        for (o in 0 until NnueNetwork.L2) {
+        val inDim = net.l1 * 2
+        for (o in 0 until net.l2) {
             var sum = net.fc1Bias[o]
             val row = o * inDim
             for (i in 0 until inDim) {
@@ -62,10 +62,10 @@ class NnueEvaluator(private val net: NnueNetwork) {
         }
 
         // fc2: (L3 × L2) @ h1
-        for (o in 0 until NnueNetwork.L3) {
+        for (o in 0 until net.l3) {
             var sum = net.fc2Bias[o]
-            val row = o * NnueNetwork.L2
-            for (i in 0 until NnueNetwork.L2) {
+            val row = o * net.l2
+            for (i in 0 until net.l2) {
                 sum += net.fc2Weight[row + i].toInt() * h1[i]
             }
             h2[o] = clipped(sum / NnueNetwork.QW)
@@ -73,7 +73,7 @@ class NnueEvaluator(private val net: NnueNetwork) {
 
         // 输出层: h2 带着 QA 的尺度, 权重带着 QW 的尺度, 所以除 QA*QW
         var out = net.outBias
-        for (i in 0 until NnueNetwork.L3) {
+        for (i in 0 until net.l3) {
             out += net.outWeight[i].toInt() * h2[i]
         }
         return out / (NnueNetwork.QA * NnueNetwork.QW)
@@ -87,7 +87,7 @@ class NnueEvaluator(private val net: NnueNetwork) {
      * 天然带上了红黑对称的先验.
      */
     private fun refresh(pieces: IntArray, n: Int, blackToMove: Boolean) {
-        val l1 = NnueNetwork.L1
+        val l1 = net.l1
         for (i in 0 until l1) {
             val b = net.ftBias[i].toInt()
             acc[i] = b

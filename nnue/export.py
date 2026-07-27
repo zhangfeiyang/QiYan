@@ -57,6 +57,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--l1", type=int, default=L1,
+                    help="FeatureTransformer 宽度, 必须与训练时一致")
     ap.add_argument(
         "--stress", type=float, default=0.0,
         help="把输出层权重放大若干倍. 两个用途: (1) 在网络还没练出来时提前\n"
@@ -66,7 +68,7 @@ def main():
     )
     args = ap.parse_args()
 
-    net = NnueNet()
+    net = NnueNet(l1=args.l1)
     net.load_state_dict(torch.load(args.ckpt, map_location="cpu"))
     net.eval()
 
@@ -86,9 +88,9 @@ def main():
     sd = {k: v.detach().cpu().numpy() for k, v in net.state_dict().items()}
 
     # EmbeddingBag 的权重是 (FEATURES+1, L1), 最后一行是 padding, 不导出
-    ft_w = sd["ft.weight"][:FEATURES]        # (1260, 256)
-    ft_b = sd["ft_bias"]                     # (256,)
-    fc1_w, fc1_b = sd["fc1.weight"], sd["fc1.bias"]   # (32, 512)
+    ft_w = sd["ft.weight"][:FEATURES]        # (1260, l1)
+    ft_b = sd["ft_bias"]                     # (l1,)
+    fc1_w, fc1_b = sd["fc1.weight"], sd["fc1.bias"]   # (32, l1*2)
     fc2_w, fc2_b = sd["fc2.weight"], sd["fc2.bias"]   # (32, 32)
     out_w, out_b = sd["out.weight"], sd["out.bias"]   # (1, 32)
 
@@ -108,7 +110,7 @@ def main():
         f.write(MAGIC)
         # 把结构写进文件头: 端上加载时校验, 尺寸对不上直接拒绝加载,
         # 而不是读出一堆噪声然后"能跑但棋力莫名其妙地差"
-        f.write(struct.pack("<7i", VERSION, FEATURES, L1, L2, L3, QA, QW))
+        f.write(struct.pack("<7i", VERSION, FEATURES, args.l1, L2, L3, QA, QW))
         for arr in (ft_wq, ft_bq, fc1_wq, fc1_bq,
                     fc2_wq, fc2_bq, out_wq, out_bq):
             f.write(arr.tobytes())

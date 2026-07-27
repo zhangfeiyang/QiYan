@@ -110,9 +110,9 @@ class NnueEvaluatorTest {
         head.put("XQNN".toByteArray())
         head.putInt(1)
         head.putInt(999)      // FEATURES 故意写错
-        head.putInt(NnueNetwork.L1)
-        head.putInt(NnueNetwork.L2)
-        head.putInt(NnueNetwork.L3)
+        head.putInt(256)
+        head.putInt(32)
+        head.putInt(32)
         head.putInt(NnueNetwork.QA)
         head.putInt(NnueNetwork.QW)
         try {
@@ -120,6 +120,27 @@ class NnueEvaluatorTest {
             fail("应当拒绝")
         } catch (e: IOException) {
             assertTrue(e.message!!.contains("FEATURES"))
+        }
+    }
+
+    @Test
+    fun `层宽离谱要拒绝加载, 而不是照着分配内存`() {
+        // 这个数字直接决定要分配多大的数组. 不拦的话, 一个损坏的文件能让
+        // App 在加载网络时 OOM 崩掉.
+        val head = ByteBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN)
+        head.put("XQNN".toByteArray())
+        head.putInt(1)
+        head.putInt(NnueFeatures.FEATURES)
+        head.putInt(1 shl 30)   // L1 离谱
+        head.putInt(32)
+        head.putInt(32)
+        head.putInt(NnueNetwork.QA)
+        head.putInt(NnueNetwork.QW)
+        try {
+            NnueNetwork.load(ByteArrayInputStream(head.array()))
+            fail("应当拒绝")
+        } catch (e: IOException) {
+            assertTrue(e.message!!.contains("L1"))
         }
     }
 

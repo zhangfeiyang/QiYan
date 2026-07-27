@@ -39,12 +39,16 @@ def main():
     ap.add_argument("--batch", type=int, default=8192)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--l1", type=int, default=256,
+                    help="FeatureTransformer 宽度. 端上求值耗时基本正比于它,\n"
+                         "导出时要用同样的值")
     args = ap.parse_args()
 
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[dev] {dev}")
 
-    net = NnueNet().to(dev)
+    net = NnueNet(l1=args.l1).to(dev)
+    print(f"[net] l1={args.l1}")
     opt = torch.optim.AdamW(net.parameters(), lr=args.lr, weight_decay=1e-5)
     # 损失在"胜率空间"里算: 两边都过 tanh 再比.
     #

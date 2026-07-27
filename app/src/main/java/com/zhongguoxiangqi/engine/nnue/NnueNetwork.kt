@@ -14,20 +14,31 @@ import java.nio.ByteOrder
  * 合在一起的话, 要么多线程搜索时互相踩缓冲区, 要么每个线程复制一份权重.
  */
 class NnueNetwork private constructor(
-    val ftWeight: ShortArray,   // [FEATURES * L1] 行主序
-    val ftBias: ShortArray,     // [L1]
-    val fc1Weight: ByteArray,   // [L2 * (L1*2)] 行主序
-    val fc1Bias: IntArray,      // [L2]
-    val fc2Weight: ByteArray,   // [L3 * L2]
-    val fc2Bias: IntArray,      // [L3]
-    val outWeight: ShortArray,  // [L3]
+    val l1: Int,
+    val l2: Int,
+    val l3: Int,
+    val ftWeight: ShortArray,   // [FEATURES * l1] 行主序
+    val ftBias: ShortArray,     // [l1]
+    val fc1Weight: ByteArray,   // [l2 * (l1*2)] 行主序
+    val fc1Bias: IntArray,      // [l2]
+    val fc2Weight: ByteArray,   // [l3 * l2]
+    val fc2Bias: IntArray,      // [l3]
+    val outWeight: ShortArray,  // [l3]
     val outBias: Int,
 ) {
 
     companion object {
-        const val L1 = 256
-        const val L2 = 32
-        const val L3 = 32
+        /**
+         * 层宽从文件头读, 不写死在代码里.
+         *
+         * 因为它是要**调**的: 求值速度基本正比于 l1, 而棋力随 l1 递增,
+         * 中间那个甜点只能实测出来. 写死的话每试一个宽度都要改代码重编,
+         * 而且端上还可能装着按另一个宽度导出的文件.
+         *
+         * FEATURES 相反, 它由数据格式定死 (见 FORMAT.md), 改了等于作废
+         * 已经生成的全部样本, 所以必须严格校验.
+         */
+        private const val MAX_LAYER = 4096
 
         /** 激活值尺度: ClippedReLU 的上界 1.0 对应 QA */
         const val QA = 127
@@ -68,19 +79,19 @@ class NnueNetwork private constructor(
                 throw IOException("NNUE 版本不支持: $version, 期望 $VERSION")
             }
             check(hb, NnueFeatures.FEATURES, "FEATURES")
-            check(hb, L1, "L1")
-            check(hb, L2, "L2")
-            check(hb, L3, "L3")
+            val l1 = dim(hb, "L1")
+            val l2 = dim(hb, "L2")
+            val l3 = dim(hb, "L3")
             check(hb, QA, "QA")
             check(hb, QW, "QW")
 
-            val ftWeight = readShorts(data, NnueFeatures.FEATURES * L1)
-            val ftBias = readShorts(data, L1)
-            val fc1Weight = readBytes(data, L2 * (L1 * 2))
-            val fc1Bias = readInts(data, L2)
-            val fc2Weight = readBytes(data, L3 * L2)
-            val fc2Bias = readInts(data, L3)
-            val outWeight = readShorts(data, L3)
+            val ftWeight = readShorts(data, NnueFeatures.FEATURES * l1)
+            val ftBias = readShorts(data, l1)
+            val fc1Weight = readBytes(data, l2 * (l1 * 2))
+            val fc1Bias = readInts(data, l2)
+            val fc2Weight = readBytes(data, l3 * l2)
+            val fc2Bias = readInts(data, l3)
+            val outWeight = readShorts(data, l3)
             val outBias = readInts(data, 1)[0]
 
             // 文件应当到此为止. 还有剩余说明导出脚本和这里对格式的理解不一致,
@@ -90,9 +101,22 @@ class NnueNetwork private constructor(
             }
 
             return NnueNetwork(
-                ftWeight, ftBias, fc1Weight, fc1Bias,
+                l1, l2, l3, ftWeight, ftBias, fc1Weight, fc1Bias,
                 fc2Weight, fc2Bias, outWeight, outBias,
             )
+        }
+
+        /**
+         * 读一个层宽. 上界检查不是防手误, 是防**恶意或损坏的文件**:
+         * 这里读到的数字直接决定后面要分配多大的数组, 一个 20 亿的层宽会
+         * 让 App 在加载网络时直接 OOM 崩掉.
+         */
+        private fun dim(hb: ByteBuffer, name: String): Int {
+            val v = hb.int
+            if (v <= 0 || v > MAX_LAYER) {
+                throw IOException("NNUE $name 不合理: $v")
+            }
+            return v
         }
 
         private fun check(hb: ByteBuffer, expected: Int, name: String) {

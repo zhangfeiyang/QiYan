@@ -27,17 +27,24 @@ class ClippedReLU(nn.Module):
 
 
 class NnueNet(nn.Module):
-    def __init__(self):
+    """
+    [l1] 可调. 端上求值耗时基本正比于 l1 (FeatureTransformer 的累加和 fc1
+    的乘加都是 l1 量级), 而棋力随 l1 递增 —— 甜点只能实测, 所以留成参数而
+    不是常量. 样本格式与 l1 无关, 换宽度只需重训, 不必重新生成数据.
+    """
+
+    def __init__(self, l1=L1):
         super().__init__()
+        self.l1 = l1
         # padding_idx=FEATURES 用来吃掉补位: 数据里空位是 -1, 前向时会被
         # 映射到这个下标, 它的 embedding 恒为 0 且不参与梯度.
         self.ft = nn.EmbeddingBag(
-            FEATURES + 1, L1, mode="sum", padding_idx=FEATURES
+            FEATURES + 1, l1, mode="sum", padding_idx=FEATURES
         )
-        self.ft_bias = nn.Parameter(torch.zeros(L1))
+        self.ft_bias = nn.Parameter(torch.zeros(l1))
 
         self.act = ClippedReLU()
-        self.fc1 = nn.Linear(L1 * 2, L2)
+        self.fc1 = nn.Linear(l1 * 2, L2)
         self.fc2 = nn.Linear(L2, L3)
         self.out = nn.Linear(L3, 1)
 
