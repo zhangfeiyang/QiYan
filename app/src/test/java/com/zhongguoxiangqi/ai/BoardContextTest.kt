@@ -28,7 +28,9 @@ class BoardContextTest {
         assertTrue("应包含当前局面", ctx.contains("当前局面"))
         assertTrue("应包含玩家执红", ctx.contains("玩家执红"))
         assertTrue("应包含难度 6", ctx.contains("难度 6"))
-        assertTrue("应包含 Elo 1900", ctx.contains("Elo 1900"))
+        // 措辞从 "Pikafish Elo 1900" 改成 "约 N 分": Pikafish 已移除, 而那个
+        // 分数本来就是估计值, 不该以引擎名背书
+        assertTrue("应包含棋力说明", ctx.contains("约 1900 分"))
     }
 
     @Test

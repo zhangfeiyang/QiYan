@@ -135,6 +135,16 @@ class MainMenuActivity : AppCompatActivity() {
 /**
  * 难度等级定义.
  */
+/**
+ * 难度档位.
+ *
+ * 原来有 10 档、最高标 Elo 3300 —— 那是 Pikafish 的棋力。Pikafish 因 GPL-3
+ * 已从包中移除, 现在对手只有自研引擎, 再挂那些数字就是虚假宣传。
+ *
+ * 现在是 6 档, 上限 1700。这个数**仍然是估计值**: 绝对 Elo 要有已知等级分的
+ * 对手才能标定, 我们没有。所以界面上不再显示具体分数(见 item_difficulty),
+ * 只保留"对手大概什么水平"的描述; elo 字段只用于玩家自己积分的换算。
+ */
 enum class DifficultyLevel(
     val id: Int,
     val nameRes: Int,
@@ -145,11 +155,7 @@ enum class DifficultyLevel(
     EASY(1, R.string.difficulty_easy, R.string.difficulty_desc_easy, 600, R.color.rank_bronze),
     BEGINNER(2, R.string.difficulty_beginner, R.string.difficulty_desc_beginner, 900, R.color.rank_bronze),
     INTERMEDIATE(3, R.string.difficulty_intermediate, R.string.difficulty_desc_intermediate, 1200, R.color.rank_silver),
-    ADVANCED(4, R.string.difficulty_advanced, R.string.difficulty_desc_advanced, 1500, R.color.rank_silver),
-    EXPERT(5, R.string.difficulty_expert, R.string.difficulty_desc_expert, 1700, R.color.rank_gold),
-    MASTER(6, R.string.difficulty_master, R.string.difficulty_desc_master, 1900, R.color.rank_gold),
-    CHAMPION(7, R.string.difficulty_champion, R.string.difficulty_desc_champion, 2200, R.color.rank_platinum),
-    ELITE(8, R.string.difficulty_elite, R.string.difficulty_desc_elite, 2500, R.color.rank_diamond),
-    LEGEND(9, R.string.difficulty_legend, R.string.difficulty_desc_legend, 2900, R.color.rank_master),
-    IMMORTAL(10, R.string.difficulty_immortal, R.string.difficulty_desc_immortal, 3300, R.color.rank_grandmaster);
+    ADVANCED(4, R.string.difficulty_advanced, R.string.difficulty_desc_advanced, 1450, R.color.rank_silver),
+    EXPERT(5, R.string.difficulty_expert, R.string.difficulty_desc_expert, 1600, R.color.rank_gold),
+    MASTER(6, R.string.difficulty_master, R.string.difficulty_desc_master, 1700, R.color.rank_gold);
 }

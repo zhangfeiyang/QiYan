@@ -13,7 +13,7 @@ import com.zhongguoxiangqi.game.UciCoords
  * 全走法 (23 步): h2e2 h7e7 c0d2 c9d2 ...
  * 当前局面: rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/...
  * 玩家执红, 当前轮到黑方
- * 难度 6 级 (Pikafish Elo 1900)
+ * 难度 6 级 (约 1700 分)
  * ```
  *
  * 注意:
@@ -48,6 +48,6 @@ object BoardContext {
             .append(", 当前轮到")
             .append(if (currentPosition.sideToMove == 1) "红" else "黑")
             .append("方\n")
-        append("难度 ").append(difficulty).append(" 级 (Pikafish Elo ").append(engineElo).append(')')
+        append("难度 ").append(difficulty).append(" 级 (约 ").append(engineElo).append(" 分)")
     }
 }

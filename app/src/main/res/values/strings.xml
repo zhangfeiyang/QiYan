@@ -20,25 +20,18 @@
     <string name="difficulty_advanced">高级</string>
     <string name="difficulty_expert">大师</string>
     <string name="difficulty_master">特级大师</string>
-    <string name="difficulty_champion">冠军</string>
-    <string name="difficulty_elite">精英</string>
-    <string name="difficulty_legend">传说</string>
-    <string name="difficulty_immortal">超凡入圣</string>
 
     <!-- 棋力描述 -->
-    <!-- 每档一句, 说清"对手大概什么水平". 之前 10 档里有 9 档共用
-         difficulty_desc_easy, 于是 Elo 1900 的"特级大师"也写着"适合新手
-         练习" —— 用户照着描述选难度只会被带偏. -->
+    <!-- 每档一句, 说清"对手大概什么水平".
+         档位从 10 档减到 6 档: 原来 7-10 档标的是 Pikafish 的棋力(最高
+         Elo 3300), 而 Pikafish 因 GPL-3 已从包中移除, 再挂那些数字就是
+         虚假宣传. 现在每一档都是自研引擎真能兑现的. -->
     <string name="difficulty_desc_easy">会走棋, 但经常白送子</string>
     <string name="difficulty_desc_beginner">能吃明摆着的子, 看不出陷阱</string>
     <string name="difficulty_desc_intermediate">有基本战术, 会抓双叫将</string>
     <string name="difficulty_desc_advanced">开局成套路, 中局能算三五步</string>
     <string name="difficulty_desc_expert">很少走软手, 残局功底扎实</string>
-    <string name="difficulty_desc_master">接近专业棋手, 一步失误就被抓住</string>
-    <string name="difficulty_desc_champion">省级冠军强度, 需要完整计划才能抗衡</string>
-    <string name="difficulty_desc_elite">全国顶尖棋手强度</string>
-    <string name="difficulty_desc_legend">已超出人类冠军水平</string>
-    <string name="difficulty_desc_immortal">可轻松击败最顶级人类棋手</string>
+    <string name="difficulty_desc_master">本机最强档, 算得深, 抓得住明显失误</string>
 
     <!-- 游戏控制 -->
     <string name="action_hint">提示</string>
@@ -162,7 +155,7 @@
     <string name="settings_board_style">棋盘样式</string>
     <string name="settings_about">关于</string>
     <string name="settings_engine_path">AI 模型路径</string>
-    <string name="settings_about_text">棋眼 v1.0\n\n对弈 AI 基于 Pikafish (GPL-3)\n支持拍照识局、实时支招</string>
+    <string name="settings_about_text">棋眼 v1.0\n\n自研对弈 AI (NNUE 神经网络评估)\n支持拍照识局、实时支招</string>
 
     <!-- 关于 -->
     <string name="about_engine_title">AI 信息</string>

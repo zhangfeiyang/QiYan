@@ -22,7 +22,5 @@ class ZhongguoXiangqiApp : Application() {
                 else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             }
         )
-        // 提前加载 Pikafish JNI .so, 避免在引擎初始化时与 UI 线程竞争
-    try { System.loadLibrary("pikafish") } catch (_: Exception) {}
     }
 }

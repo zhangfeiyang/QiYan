@@ -132,7 +132,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         /** 对手实际棋力(降级时低于难度标称值) */
         val engineElo: Int = 1500,
         /** 是否因引擎缺失而降级 */
-        val engineDowngraded: Boolean = false
     )
 
     sealed class GameEvent {
@@ -196,14 +195,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             playerRank = rank.chineseTitle,
             engineName = engineManager.currentEngine?.name() ?: "未知",
             engineElo = engineManager.effectiveElo(),
-            engineDowngraded = engineManager.isDowngraded
         )
-
-        if (engineManager.isDowngraded) {
-            _events.value = GameEvent.ShowToast(
-                "未找到 Pikafish 引擎文件,已降级为内置引擎(约 ${engineManager.effectiveElo()} 分)"
-            )
-        }
 
         // 如果玩家执黑,引擎先走
         if (playerSide == Color.BLACK) {
@@ -417,7 +409,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = _state.value.copy(
             difficulty = clamped,
             engineElo = engineManager.effectiveElo(),
-            engineDowngraded = engineManager.isDowngraded
         )
         if (wasThinking && !_state.value.isGameOver) {
             stopEngine()

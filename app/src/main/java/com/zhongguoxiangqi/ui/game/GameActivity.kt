@@ -224,11 +224,14 @@ class GameActivity : AppCompatActivity() {
                     if (playerRed) R.drawable.dot_side_black else R.drawable.dot_side_red
                 )
 
-                binding.opponentName.text = if (state.playerSide == Color.RED) "引擎 (执黑)" else "引擎 (执红)"
-                // 显示真实棋力; 降级时标出来,避免"Elo 3300"名不副实
-                binding.opponentRating.text =
-                    if (state.engineDowngraded) "Elo ${state.engineElo} (已降级)"
-                    else "Elo ${state.engineElo}"
+                binding.opponentName.text = if (state.playerSide == Color.RED) "AI (执黑)" else "AI (执红)"
+                // 显示档位名而不是分数: 那个分数是估计值, 没有已知等级分的
+                // 对手可标定, 摆出来是给用户一个并不存在的精确度。
+                binding.opponentRating.text = getString(
+                    com.zhongguoxiangqi.ui.menu.DifficultyLevel.values()
+                        .firstOrNull { it.id == state.difficulty }?.nameRes
+                        ?: com.zhongguoxiangqi.R.string.difficulty_intermediate
+                )
                 binding.playerName.text = if (state.playerSide == Color.RED) "我 (执红)" else "我 (执黑)"
                 binding.playerRating.text = "Elo ${state.playerRating} ${state.playerRank}"
                 binding.moveCount.text = "第${state.moveCount / 2 + 1}手"

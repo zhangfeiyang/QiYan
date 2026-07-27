@@ -8,12 +8,14 @@ plugins {
 
 android {
     namespace = "com.zhongguoxiangqi"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zhongguoxiangqi"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
+        // Play 上传前必查已用过的 versionCode: 撞号会被拒("已有版本使用了版本
+        // 代码"), 而这个错误只在 bundle 那一行显示为红字, 整个草稿版本会静默失效。
         versionCode = 1
         versionName = "1.0.0"
 
@@ -56,14 +58,27 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            // 用户自行配置签名
+        create("upload") {
+            // 从 ~/.android/qiyan-keystore.properties 读, 那个文件不进仓库。
+            //
+            // 单独一套而不是复用 AstroSimulator 的 keystore.properties ——
+            // 两个应用共用一个上传密钥, 一旦其中一个要换密钥就会互相牵连;
+            // 而且覆盖那个文件会让 AstroSimulator 再也无法更新。
+            val ksProps = file(System.getProperty("user.home") + "/.android/qiyan-keystore.properties")
+            if (ksProps.exists()) {
+                val props = Properties().apply { ksProps.inputStream().use { load(it) } }
+                storeFile = file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("upload")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
