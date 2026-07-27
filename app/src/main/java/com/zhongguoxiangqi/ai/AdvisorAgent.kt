@@ -21,6 +21,7 @@ sealed class AdvisorEvent {
     object Thinking : AdvisorEvent()
     data class Delta(val text: String) : AdvisorEvent()
     data class Error(val message: String) : AdvisorEvent()
+    object AccountKeyRejected : AdvisorEvent()
     object Done : AdvisorEvent()
 }
 
@@ -82,21 +83,83 @@ class AdvisorAgent(
                     }
                 }
             }
-            // 整段答完了. Done 携带 finalText 是为了让 ViewModel 把
-            // 当前 Assistant 消息固化到 history.
             trySend(AdvisorEvent.Done)
-        } catch (e: UnauthorizedException) {
-            trySend(AdvisorEvent.Error("代理令牌被拒, 请联系开发者"))
-        } catch (e: PermissionDeniedException) {
-            trySend(AdvisorEvent.Error("代理拒绝访问, 可能是额度用尽"))
-        } catch (e: Throwable) {
-            // 真正的网络错误. 不要让 stacktrace 露到用户面前.
-            trySend(AdvisorEvent.Error(e.message ?: "分析暂时不可用, 稍后再试"))
+        } catch (t: Throwable) {
+            when {
+                isUnknownKey(t) -> send(AdvisorEvent.AccountKeyRejected)
+                else -> send(AdvisorEvent.Error(describeFailure(t)))
+            }
         }
     }.flowOn(streamDispatcher)
+
+    private fun describeFailure(t: Throwable): String = Companion.describeFailure(t)
 
     companion object {
         private const val MAX_HISTORY_TURNS = 4
         private const val MAX_OUTPUT_TOKENS = 1024L
+
+        internal fun isUnknownKey(t: Throwable): Boolean {
+            var current: Throwable? = t
+            var depth = 0
+            while (current != null && depth < MAX_CAUSE_DEPTH) {
+                val c = current
+                if (c is UnauthorizedException) {
+                    val fields = runCatching {
+                        @Suppress("UNCHECKED_CAST")
+                        c.body().convert(Map::class.java) as? Map<String, Any?>
+                    }.getOrNull()
+                    return fields?.get("error") == "unknown_key"
+                }
+                current = c.cause.takeIf { it !== c }
+                depth++
+            }
+            return false
+        }
+
+        internal fun describeFailure(t: Throwable): String {
+            // AdvisorConfig.validate() / AdvisorSession.open() 的 require/check
+            // 本身就写了成句的中文提示, 原样透出, 不要再套一层"请求失败:".
+            if (t is IllegalArgumentException || t is IllegalStateException) {
+                t.message?.takeIf { it.isNotBlank() }?.let { return it }
+            }
+
+            val chain = buildString {
+                var current: Throwable? = t
+                var depth = 0
+                while (current != null && depth < MAX_CAUSE_DEPTH) {
+                    append(current.javaClass.simpleName).append(' ')
+                    current.message?.let { append(it).append(' ') }
+                    current = current.cause.takeIf { it !== current }
+                    depth++
+                }
+            }
+            fun has(vararg needles: String) =
+                needles.any { chain.contains(it, ignoreCase = true) }
+
+            return when {
+                has("401", "unauthorized", "authentication") ->
+                    "云端代理拒绝了请求（凭据无效）。请检查代理令牌配置。"
+                has("403", "forbidden") ->
+                    "云端代理拒绝了请求（无权限）。请确认令牌是否仍然有效。"
+                has("429", "rate limit") ->
+                    "云端请求过于频繁，请稍后再试。"
+                has("UnknownHost", "ConnectException", "NoRouteToHost", "unreachable") ->
+                    "连不上云端代理，请确认设备网络和代理地址。"
+                has("SocketTimeout", "timeout", "timed out") ->
+                    "云端响应超时，请检查网络后重试。"
+                has("SSL", "CertPath", "handshake") ->
+                    "与云端建立安全连接失败，请检查证书或代理地址。"
+                has("cleartext") ->
+                    "系统拦截了明文 HTTP 请求，请改用 HTTPS 代理地址。"
+                has("500", "502", "503", "504", "upstream unavailable") ->
+                    "云端服务暂时不可用，请稍后再试。"
+                else -> {
+                    val detail = t.message?.takeIf { it.isNotBlank() } ?: t.javaClass.simpleName
+                    "请求失败：$detail"
+                }
+            }
+        }
+
+        private const val MAX_CAUSE_DEPTH = 8
     }
 }

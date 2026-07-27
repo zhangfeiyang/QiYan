@@ -7,6 +7,7 @@ import com.zhongguoxiangqi.ai.AdvisorAgent
 import com.zhongguoxiangqi.ai.AdvisorConfig
 import com.zhongguoxiangqi.ai.AdvisorEvent
 import com.zhongguoxiangqi.ai.AdvisorHistoryTurn
+import com.zhongguoxiangqi.ai.AdvisorPromptBuilder
 import com.zhongguoxiangqi.ai.AdvisorSession
 import com.zhongguoxiangqi.ai.BoardContext
 import kotlinx.coroutines.Job
@@ -45,6 +46,10 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
     private val _configured = MutableStateFlow(config.baseUrl.isNotBlank() && config.proxyToken.isNotBlank())
     val configured: StateFlow<Boolean> = _configured.asStateFlow()
 
+    /** AI 最近一次讲到的具体着法 (UCI 起点/终点), 供界面在棋盘上演示 */
+    private val _suggestedMove = MutableStateFlow<Pair<String, String>?>(null)
+    val suggestedMove: StateFlow<Pair<String, String>?> = _suggestedMove.asStateFlow()
+
     private var context: String = ""
     private var history: MutableList<AdvisorHistoryTurn> = mutableListOf()
     private var currentJob: Job? = null
@@ -55,12 +60,18 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
 
     fun send(text: String) {
         if (text.isBlank() || _busy.value) return
+        // agent 非空不代表能用: session 现在是懒建的, 漏配代理地址要到
+        // open() 才发现. 所以未配置在这里就拦掉, 不必白跑一轮网络.
+        if (!_configured.value) {
+            _messages.update {
+                it + MessageAdapter.Message.User(text) +
+                    MessageAdapter.Message.Error("AI 功能未配置, 请联系开发者")
+            }
+            return
+        }
         val ag = agent ?: run {
             _messages.update {
-                it + MessageAdapter.Message.Error(
-                    if (_configured.value) "AI 暂时不可用, 请稍后再试"
-                    else "AI 功能未配置, 请联系开发者"
-                )
+                it + MessageAdapter.Message.Error("AI 暂时不可用, 请稍后再试")
             }
             return
         }
@@ -79,24 +90,38 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
                             acc.append(event.text)
                             _messages.value = _messages.value.toMutableList().also {
                                 it[assistantIndex] = MessageAdapter.Message.Assistant(
-                                    acc.toString(), streaming = true
+                                    displayTextOf(acc.toString()), streaming = true
                                 )
                             }
                         }
                         is AdvisorEvent.Error -> {
-                            // 出错时把正在打字的占位消息换成错误消息.
                             _messages.value = _messages.value.toMutableList().also {
                                 it[assistantIndex] = MessageAdapter.Message.Error(event.message)
                             }
                             _busy.value = false
                         }
-                        AdvisorEvent.Done -> {
+                        AdvisorEvent.AccountKeyRejected -> {
                             _messages.value = _messages.value.toMutableList().also {
-                                it[assistantIndex] = MessageAdapter.Message.Assistant(
-                                    acc.toString(), streaming = false
+                                it[assistantIndex] = MessageAdapter.Message.Error(
+                                    "认证密钥无效或已被吊销。请重新配置代理令牌。"
                                 )
                             }
-                            history += AdvisorHistoryTurn(text, acc.toString())
+                            _busy.value = false
+                        }
+                        AdvisorEvent.Done -> {
+                            val answer = AdvisorPromptBuilder.parseAnswer(acc.toString())
+                            _messages.value = _messages.value.toMutableList().also {
+                                it[assistantIndex] = MessageAdapter.Message.Assistant(
+                                    answer.text, streaming = false
+                                )
+                            }
+                            // 历史里存剥过标记的正文: 带着标记回灌会让模型
+                            // 以为那是对话的一部分, 下一轮开始学着乱标.
+                            history += AdvisorHistoryTurn(text, answer.text)
+                            _suggestedMove.value =
+                                if (answer.fromUci != null && answer.toUci != null) {
+                                    answer.fromUci to answer.toUci
+                                } else null
                             _busy.value = false
                         }
                     }
@@ -104,10 +129,28 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * 流式过程中要显示的正文.
+     *
+     * 标记是逐 token 吐出来的, 中途会出现 "[MOVE:h2e" 这种半截字符串 —— 直接
+     * 显示会让用户看到一串乱码闪一下. 所以完整标记直接剥掉, 末尾那个还没写完
+     * 的也一并截掉, 等它写完再说.
+     */
+    private fun displayTextOf(raw: String): String {
+        val stripped = AdvisorPromptBuilder.parseAnswer(raw).text
+        val open = stripped.lastIndexOf('[')
+        return if (open >= 0 && !stripped.substring(open).contains(']')) {
+            stripped.substring(0, open).trimEnd()
+        } else {
+            stripped
+        }
+    }
+
     fun clear() {
         if (_busy.value) currentJob?.cancel()
         history.clear()
         _messages.value = emptyList()
+        _suggestedMove.value = null
         _busy.value = false
     }
 

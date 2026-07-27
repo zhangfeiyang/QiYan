@@ -18,6 +18,7 @@ import com.zhongguoxiangqi.databinding.ActivityAdvisorBinding
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Position
+import com.zhongguoxiangqi.game.UciCoords
 import kotlinx.coroutines.launch
 
 /**
@@ -36,12 +37,15 @@ class AdvisorActivity : AppCompatActivity() {
 
     private val adapter = MessageAdapter()
 
+    /** 上半屏展示用的局面, 由 EXTRA_FEN 还原 */
+    private val boardPosition = Position()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAdvisorBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // 不设 setSupportActionBar: 一旦交给 ActionBar 管, XML 里 app:menu
+        // 声明的菜单项就不会渲染到 Toolbar 上. 返回键这里是自己接的.
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.toolbar.setOnMenuItemClickListener { onToolbarMenu(it) }
 
@@ -64,6 +68,15 @@ class AdvisorActivity : AppCompatActivity() {
         }
         binding.input.addTextChangedListener(textWatcher)
 
+        // 建议问题: 点一下直接当成用户输入发出去, 省掉"想 + 打字"两步
+        listOf(
+            binding.suggestAnalyze,
+            binding.suggestNext,
+            binding.suggestReview,
+        ).forEach { chip ->
+            chip.setOnClickListener { viewModel.send(chip.text.toString()) }
+        }
+
         // 启动时塞入 context
         val ctx = intent.getStringExtra(EXTRA_CONTEXT) ?: ""
         val summary = intent.getStringExtra(EXTRA_SUMMARY) ?: ""
@@ -71,13 +84,21 @@ class AdvisorActivity : AppCompatActivity() {
         binding.contextSummary.text = summary
         binding.contextSummary.visibility = if (summary.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
 
+        setupBoard()
+
         // 流式收集
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.messages.collect { msgs ->
                         adapter.submit(msgs)
-                        if (msgs.isNotEmpty()) binding.messages.scrollToPosition(msgs.size - 1)
+                        // 空状态与消息列表互斥: 有第一条消息就永久让位
+                        val hasMessages = msgs.isNotEmpty()
+                        binding.emptyState.visibility =
+                            if (hasMessages) android.view.View.GONE else android.view.View.VISIBLE
+                        binding.messages.visibility =
+                            if (hasMessages) android.view.View.VISIBLE else android.view.View.GONE
+                        if (hasMessages) binding.messages.scrollToPosition(msgs.size - 1)
                     }
                 }
                 launch {
@@ -86,8 +107,52 @@ class AdvisorActivity : AppCompatActivity() {
                             !binding.input.text.isNullOrBlank() && !busy
                     }
                 }
+                launch {
+                    viewModel.suggestedMove.collect { mv ->
+                        showSuggestedMove(mv?.first, mv?.second)
+                    }
+                }
             }
         }
+    }
+
+    /** 上半屏的棋局. 只读 —— 这里是"看 AI 讲棋", 不是下棋的地方. */
+    private fun setupBoard() {
+        val fen = intent.getStringExtra(EXTRA_FEN)
+        if (fen.isNullOrBlank() || !boardPosition.setFromFen(fen)) {
+            binding.boardView.visibility = android.view.View.GONE
+            return
+        }
+        binding.boardView.editMode = true          // 吃掉点击, 不让用户在这儿走子
+        binding.boardView.onCellTapListener = { }
+        binding.boardView.setFlipped(
+            intent.getIntExtra(EXTRA_SIDE, Color.RED) == Color.BLACK
+        )
+        binding.boardView.setPosition(boardPosition)
+    }
+
+    /**
+     * AI 讲到具体一步时, 在盘上把它标出来.
+     *
+     * 复用棋盘原本给"提示"用的那套箭头 + 虚影渲染 —— 用户在对局界面按提示
+     * 看到的就是这个样子, 这里再学一遍新语汇没有必要.
+     */
+    private fun showSuggestedMove(fromUci: String?, toUci: String?) {
+        if (fromUci == null || toUci == null) {
+            binding.boardView.clearHint()
+            binding.moveBanner.visibility = android.view.View.GONE
+            return
+        }
+        // 模型给的坐标不一定落在盘内 (它也会写错), parse 返回 null 就当没讲
+        val move = UciCoords.parse(fromUci + toUci)
+        if (move == null) {
+            binding.boardView.clearHint()
+            binding.moveBanner.visibility = android.view.View.GONE
+            return
+        }
+        binding.boardView.setHint(move)
+        binding.moveBanner.text = getString(R.string.advisor_move_banner, fromUci, toUci)
+        binding.moveBanner.visibility = android.view.View.VISIBLE
     }
 
     private fun onToolbarMenu(item: MenuItem): Boolean = when (item.itemId) {
@@ -113,6 +178,8 @@ class AdvisorActivity : AppCompatActivity() {
         private const val EXTRA_ELO = "elo"
         private const val EXTRA_CONTEXT = "context"
         private const val EXTRA_SUMMARY = "summary"
+        /** 当前局面, 用来在上半屏画棋盘 */
+        private const val EXTRA_FEN = "fen"
 
         /**
          * 从对弈界面启动. 上下文是当前局面 + 全走法.
@@ -142,6 +209,8 @@ class AdvisorActivity : AppCompatActivity() {
             activity.startActivity(Intent(activity, AdvisorActivity::class.java).apply {
                 putExtra(EXTRA_CONTEXT, ctx)
                 putExtra(EXTRA_SUMMARY, summary)
+                putExtra(EXTRA_FEN, currentPosition.toFen())
+                putExtra(EXTRA_SIDE, playerSide)
             })
         }
 
@@ -169,6 +238,8 @@ class AdvisorActivity : AppCompatActivity() {
             activity.startActivity(Intent(activity, AdvisorActivity::class.java).apply {
                 putExtra(EXTRA_CONTEXT, ctx)
                 putExtra(EXTRA_SUMMARY, summary)
+                putExtra(EXTRA_FEN, currentPosition.toFen())
+                putExtra(EXTRA_SIDE, playerSide)
             })
         }
     }

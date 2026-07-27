@@ -34,7 +34,37 @@ object AdvisorPromptBuilder {
 - 简短: 多数情况 3-6 句话或一个短列表. 用户明确说"详细说说"才展开.
 - 需要分点时用 Markdown 列表, 关键棋步用 **粗体**.
 - 引用棋谱时**优先用传统叫法** (炮二平五, 飞象, 卧槽马, 屏风马 等专业术语), 不是 UCI 字符.
+
+**着法标记** (给 App 用, 不是给人看的):
+当你的回答里推荐或点评了**一步具体的着法**时, 在整段回答的**最后单独一行**补一个标记:
+
+    [MOVE:起点终点]
+
+用 UCI 坐标, 例如推荐"炮二平五"就写 `[MOVE:h2e2]`. 规则:
+- 一次只标**一步**, 就是你最主要推荐/点评的那一步.
+- 这一行必须在最后, 前面不要有别的字, 后面也不要再写内容.
+- 只有当你确实说到了某一步具体着法时才写; 只是泛泛讲思路就**不要**写.
+- 这一行不会显示给用户, 用户看到的是你正文里的传统叫法, 所以正文该怎么写还怎么写, 不要因为有了标记就省略文字说明.
 """
+
+    /**
+     * 从回答里抠出 `[MOVE:xxxx]` 标记.
+     *
+     * 让模型附一个机器可读的坐标, 而不是去解析"炮二平五"这类中文记谱 ——
+     * 中文记谱要正确还原成坐标, 得先知道是哪一方、同线有没有同名子(前马/后马)、
+     * 红黑的"进退"方向相反, 解析器本身就是个小引擎, 而且模型措辞一变就崩.
+     * 让模型直接给坐标, 解析退化成一次正则.
+     */
+    private val MOVE_TAG = Regex("""\[MOVE:\s*([a-i][0-9])\s*([a-i][0-9])\s*]""", RegexOption.IGNORE_CASE)
+
+    /** 正文(已去掉标记) 与 着法坐标(没有就是 null) */
+    data class Answer(val text: String, val fromUci: String?, val toUci: String?)
+
+    fun parseAnswer(raw: String): Answer {
+        val m = MOVE_TAG.find(raw) ?: return Answer(raw.trim(), null, null)
+        val body = raw.removeRange(m.range).trim()
+        return Answer(body, m.groupValues[1].lowercase(), m.groupValues[2].lowercase())
+    }
 
     fun systemPrompt(contextPreamble: String): String = buildString {
         append(ROLE.trim())
