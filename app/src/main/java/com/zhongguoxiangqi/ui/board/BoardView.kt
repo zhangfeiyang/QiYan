@@ -22,6 +22,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
@@ -46,6 +49,17 @@ class BoardView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    /**
+     * 从资源解析颜色, 替代原来满屏的 parseColor("#XXXXXX").
+     *
+     * 之前棋盘的三十来个颜色是写死在 Kotlin 里的字符串字面量, colors.xml
+     * 里那套 board_* / piece_* / highlight_* 则从没被解析过 —— 两套值各写
+     * 各的, 改了资源棋盘纹丝不动. 走资源之后才能随明暗主题自动翻转.
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun themeColor(@ColorRes id: Int): Int =
+        ContextCompat.getColor(context, id)
 
     // ====== 配置 ======
     private var flipped = false
@@ -105,43 +119,43 @@ class BoardView @JvmOverloads constructor(
     private val pieceBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val boardLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#3B2412")
+        color = themeColor(R.color.board_line)
         strokeWidth = 2f
         style = Paint.Style.STROKE
     }
     private val boardBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val palaceLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#3B2412")
+        color = themeColor(R.color.board_line)
         strokeWidth = 2f
         style = Paint.Style.STROKE
     }
     private val highlightSelectPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#80FFD700")
+        color = themeColor(R.color.hl_select)
         style = Paint.Style.STROKE
         strokeWidth = 6f
     }
     private val highlightMovePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#8032CD32")
+        color = themeColor(R.color.hl_move)
     }
     /** 可走点的外圈光晕: 单独一支笔, 避免改到 highlightMovePaint 的 alpha */
     private val highlightMoveHaloPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#5032CD32")
+        color = themeColor(R.color.hl_move_halo)
     }
     private val highlightCapturePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#80DC143C")
+        color = themeColor(R.color.hl_capture)
     }
     private val highlightLastMovePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#80FF8C00")
+        color = themeColor(R.color.hl_last)
         style = Paint.Style.STROKE
         strokeWidth = 4f
     }
     private val highlightHintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#804169E1")
+        color = themeColor(R.color.hl_hint)
         style = Paint.Style.STROKE
         strokeWidth = 5f
     }
     private val highlightHintSecondaryPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#609090EE")
+        color = themeColor(R.color.hl_hint_soft)
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }
@@ -149,28 +163,28 @@ class BoardView @JvmOverloads constructor(
     private val suspectPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 6f
-        color = AndroidColor.parseColor("#FFB300")
+        color = themeColor(R.color.warning)
     }
 
     /** 红方子被威胁: 我方子被瞄, 红色光晕警示 */
     private val dangerRedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#80DC143C")
+        color = themeColor(R.color.hl_capture)
     }
     /** 黑方子被威胁: 对方子被瞄, 绿色光晕(可吃) */
     private val dangerGreenPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#8032CD32")
+        color = themeColor(R.color.hl_move)
     }
 
     /** 提示走法的箭头: 深绿, 粗笔 */
     private val hintArrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#FF2E7D32")
+        color = themeColor(R.color.hl_arrow)
         strokeWidth = 8f
         strokeCap = Paint.Cap.ROUND
         style = Paint.Style.STROKE
     }
     /** 提示走法箭头头部的小三角 */
     private val hintArrowHeadPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#FF2E7D32")
+        color = themeColor(R.color.hl_arrow)
         style = Paint.Style.FILL
     }
     /** 提示走法虚影: 棋子位图叠一层 alpha */
@@ -179,18 +193,128 @@ class BoardView @JvmOverloads constructor(
     }
 
     private val checkMarkerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#FFFF0000")
+        color = themeColor(R.color.hl_check)
         style = Paint.Style.STROKE
         strokeWidth = 8f
     }
+
+    /** 选中环: 不透明, 因为它要压在棋子上, 半透明会和棋子颜色混脏 */
+    private val selectionRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = themeColor(R.color.sel_ring)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val selectionGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = themeColor(R.color.sel_ring)
+        style = Paint.Style.STROKE
+    }
+
+    /** 选中环的呼吸相位 0..1, 由 [selectionAnimator] 驱动 */
+    private var selectionPulse = 0f
+    private var selectionAnimator: ValueAnimator? = null
+
+    // ====== 吃子特效 ======
+
+    /**
+     * 一颗碎片.
+     *
+     * 位置/速度都用"格宽的倍数"存, 不存像素 —— 棋盘尺寸会随屏幕变, 存像素
+     * 就得在 onSizeChanged 里重算所有粒子.
+     */
+    private class Shard(
+        var x: Float, var y: Float,
+        val vx: Float, val vy: Float,
+        val spin: Float,
+        val size: Float,
+        val color: Int,
+    )
+
+    private var fxSquare = -1
+    private var fxPiece = Piece.NONE.code
+    private var fxProgress = 0f
+    private var fxAnimator: ValueAnimator? = null
+    private val fxShards = ArrayList<Shard>(28)
+    private val fxPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val fxPath = Path()
+
+    /** 提示箭头的三角头, 复用避免 onDraw 内分配 */
+    private val arrowHeadPath = Path()
+
+    /**
+     * 播放吃子特效.
+     *
+     * 每个兵种一套视觉, 不是同一个爆炸换颜色 —— 吃车和吃兵在棋上的分量差得远,
+     * 特效也应该说出这个差别. 具体见 [drawCaptureFx].
+     */
+    fun playCaptureEffect(square: Int, capturedPiece: Int) {
+        if (square < 0 || square >= Square.COUNT) return
+        fxAnimator?.cancel()
+        fxSquare = square
+        fxPiece = capturedPiece
+        fxProgress = 0f
+        seedShards(capturedPiece)
+
+        fxAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = captureFxDuration(capturedPiece)
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                fxProgress = it.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    fxSquare = -1
+                    fxShards.clear()
+                    invalidate()
+                }
+            })
+            start()
+        }
+    }
+
+    /** 将/帅被吃是终局, 值得演久一点; 兵卒频繁被吃, 拖长了会烦 */
+    private fun captureFxDuration(piece: Int): Long = when (Piece.fromCode(piece)) {
+        Piece.R_KING, Piece.B_KING -> 1100L
+        Piece.R_ROOK, Piece.B_ROOK, Piece.R_CANNON, Piece.B_CANNON -> 780L
+        Piece.R_PAWN, Piece.B_PAWN -> 420L
+        else -> 620L
+    }
+
+    private fun seedShards(pieceCode: Int) {
+        fxShards.clear()
+        val piece = Piece.fromCode(pieceCode)
+        val warm = if (piece.isRed) themeColor(R.color.piece_red) else themeColor(R.color.piece_black)
+        val spark = themeColor(R.color.fx_spark)
+        val rnd = java.util.Random(pieceCode.toLong() * 31 + fxSquare)
+
+        val count = when (piece) {
+            Piece.R_PAWN, Piece.B_PAWN -> 8
+            Piece.R_KING, Piece.B_KING -> 26
+            Piece.R_ROOK, Piece.B_ROOK -> 18
+            else -> 14
+        }
+        repeat(count) { i ->
+            val ang = (i.toFloat() / count) * (Math.PI * 2).toFloat() +
+                rnd.nextFloat() * 0.4f
+            val speed = 0.5f + rnd.nextFloat() * 0.9f
+            fxShards += Shard(
+                x = 0f, y = 0f,
+                vx = kotlin.math.cos(ang) * speed,
+                vy = kotlin.math.sin(ang) * speed,
+                spin = (rnd.nextFloat() - 0.5f) * 720f,
+                size = 0.06f + rnd.nextFloat() * 0.10f,
+                color = if (i % 3 == 0) spark else warm,
+            )
+        }
+    }
     private val coordinatePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#6B4423")
+        color = themeColor(R.color.board_coord)
         textSize = 28f
         textAlign = Paint.Align.CENTER
         typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
     }
     private val riverTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#7B3F00")
+        color = themeColor(R.color.board_palace)
         textSize = 56f
         textAlign = Paint.Align.CENTER
         typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
@@ -223,28 +347,28 @@ class BoardView @JvmOverloads constructor(
     // 棋子绘制用的常驻画笔(onDraw 中不再分配对象)
     private val pieceInnerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceWoodLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#30A0826D")
+        color = themeColor(R.color.piece_grain)
         strokeWidth = 0.8f
         style = Paint.Style.STROKE
     }
     private val boardWoodPaint = Paint().apply {
-        color = AndroidColor.parseColor("#80A0826D")
+        color = themeColor(R.color.board_grain)
         strokeWidth = 1f
         style = Paint.Style.STROKE
     }
     private val boardBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = AndroidColor.parseColor("#5D2F0E")
+        color = themeColor(R.color.board_border)
         style = Paint.Style.STROKE
         strokeWidth = 6f
     }
     private val boardRect = RectF()
 
-    private val redPieceColor = AndroidColor.parseColor("#C8102E")
-    private val blackPieceColor = AndroidColor.parseColor("#1A1A1A")
+    private val redPieceColor = themeColor(R.color.piece_red)
+    private val blackPieceColor = themeColor(R.color.piece_black)
 
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
-        pieceShadowPaint.color = AndroidColor.parseColor("#40000000")
+        pieceShadowPaint.color = themeColor(R.color.piece_shadow)
         pieceBorderPaint.style = Paint.Style.FILL
         // 棋子文字必须居中对齐,否则字会整体偏到棋子右侧
         pieceRedPaint.textAlign = Paint.Align.CENTER
@@ -281,6 +405,7 @@ class BoardView @JvmOverloads constructor(
         this.hintMoveSecondary = emptyList()
         this.selectedSquare = -1
         this.legalMovesFromSelected = emptyList()
+        syncSelectionAnimator()
         this.checkedKingSq = -1
 
         if (animateMove != null && animationEnabled && cellWidth > 0f) {
@@ -389,7 +514,48 @@ class BoardView @JvmOverloads constructor(
     fun clearSelection() {
         this.selectedSquare = -1
         this.legalMovesFromSelected = emptyList()
+        syncSelectionAnimator()
         invalidate()
+    }
+
+    /**
+     * 直接指定高亮哪一格, 传 -1 取消.
+     *
+     * 编辑模式用: 摆子时"选中"不走合法着法那一套 (局面可能还缺将、多子,
+     * 根本算不出合法着法), 只需要把用户点的那格标出来.
+     */
+    fun setSelectedSquare(sq: Int) {
+        this.selectedSquare = sq
+        this.legalMovesFromSelected = emptyList()
+        syncSelectionAnimator()
+        invalidate()
+    }
+
+    /**
+     * 选中时才让呼吸动画跑起来.
+     *
+     * 一个无限循环的 ValueAnimator 会一直触发 invalidate, 没选中棋子时就是
+     * 纯耗电 —— 对局界面常年停在那儿, 这点开销不能白花.
+     */
+    private fun syncSelectionAnimator() {
+        val shouldRun = selectedSquare != -1
+        if (shouldRun && selectionAnimator == null) {
+            selectionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 900L
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+                interpolator = DecelerateInterpolator()
+                addUpdateListener {
+                    selectionPulse = it.animatedValue as Float
+                    invalidate()
+                }
+                start()
+            }
+        } else if (!shouldRun) {
+            selectionAnimator?.cancel()
+            selectionAnimator = null
+            selectionPulse = 0f
+        }
     }
 
     // ====== 触摸事件 ======
@@ -435,6 +601,10 @@ class BoardView @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
+        selectionAnimator?.cancel()
+        selectionAnimator = null
+        fxAnimator?.cancel()
+        fxAnimator = null
         super.onDetachedFromWindow()
         cancelPendingLongPress()
         animationAnimator?.cancel()
@@ -476,6 +646,7 @@ class BoardView @JvmOverloads constructor(
             // 没有选格,尝试选本方棋子
             if (piece != Piece.NONE.code && Piece.fromCode(piece).color == position.sideToMove) {
                 selectedSquare = sq
+                syncSelectionAnimator()
                 val moves = mutableListOf<Move>()
                 com.zhongguoxiangqi.game.Rules.generateAllLegal(position, moves)
                 legalMovesFromSelected = moves.filter { it.from == sq }
@@ -491,6 +662,7 @@ class BoardView @JvmOverloads constructor(
             // 是本方另一棋子?切换选格
             if (piece != Piece.NONE.code && Piece.fromCode(piece).color == position.sideToMove) {
                 selectedSquare = sq
+                syncSelectionAnimator()
                 val moves = mutableListOf<Move>()
                 com.zhongguoxiangqi.game.Rules.generateAllLegal(position, moves)
                 legalMovesFromSelected = moves.filter { it.from == sq }
@@ -604,10 +776,10 @@ class BoardView @JvmOverloads constructor(
         boardBgPaint.shader = LinearGradient(
             boardRect.left, boardRect.top, boardRect.right, boardRect.bottom,
             intArrayOf(
-                AndroidColor.parseColor("#DEB887"),
-                AndroidColor.parseColor("#D2A56C"),
-                AndroidColor.parseColor("#C8A06A"),
-                AndroidColor.parseColor("#B88A52")
+                themeColor(R.color.board_grad_1),
+                themeColor(R.color.board_grad_2),
+                themeColor(R.color.board_grad_3),
+                themeColor(R.color.board_grad_4)
             ),
             floatArrayOf(0f, 0.4f, 0.7f, 1f),
             Shader.TileMode.CLAMP
@@ -616,9 +788,9 @@ class BoardView @JvmOverloads constructor(
         pieceInnerPaint.shader = RadialGradient(
             -pieceRadius * 0.3f, -pieceRadius * 0.3f, pieceRadius * 0.7f,
             intArrayOf(
-                AndroidColor.parseColor("#FFF8DC"),
-                AndroidColor.parseColor("#F5DEB3"),
-                AndroidColor.parseColor("#DEB887")
+                themeColor(R.color.piece_grad_1),
+                themeColor(R.color.piece_grad_2),
+                themeColor(R.color.piece_grad_3)
             ),
             floatArrayOf(0f, 0.5f, 1f),
             Shader.TileMode.CLAMP
@@ -637,8 +809,207 @@ class BoardView @JvmOverloads constructor(
         drawThreats(canvas)            // 威胁光晕: 画在棋子下, 看起来像棋子在"发光"
         drawHighlights(canvas)
         drawPieces(canvas)
+        drawSelectionRing(canvas)      // 选中环: 必须压在棋子之上, 见下方说明
         if (animatingMove != null) drawAnimatingPiece(canvas)
         drawHintOverlay(canvas)        // 虚影 + 箭头: 画在棋子之上, 永远可见
+        drawCaptureFx(canvas)          // 吃子特效压在最上层
+    }
+
+    /**
+     * 吃子特效. 七个兵种七套视觉:
+     *
+     *   车  十字冲击波 —— 车走直线, 冲击波也沿横竖两条线扫出去
+     *   马  螺旋轨迹   —— 对应马走"日"字的折返感
+     *   炮  爆炸       —— 双层冲击环 + 四散火星, 最响的一个
+     *   兵卒 小碎片     —— 最轻, 一闪而过, 免得频繁吃兵时满屏乱飞
+     *   士仕 菱形内爆   —— 士守在九宫里, 用向内收的菱形
+     *   象相 双环扩散   —— 象走田字, 两个同心方环
+     *   将帅 金光爆发   —— 终局, 光柱 + 全盘泛光
+     *
+     * 所有几何量都按 [pieceRadius] 缩放, 换屏幕尺寸不会走样.
+     */
+    private fun drawCaptureFx(canvas: Canvas) {
+        if (fxSquare == -1) return
+        val c = squareToCenter(fxSquare)
+        val t = fxProgress
+        val fade = ((1f - t) * 255).toInt().coerceIn(0, 255)
+        val piece = Piece.fromCode(fxPiece)
+        val main = if (piece.isRed) themeColor(R.color.piece_red) else themeColor(R.color.piece_black)
+        val spark = themeColor(R.color.fx_spark)
+
+        when (piece) {
+            Piece.R_ROOK, Piece.B_ROOK -> {
+                // 十字冲击波: 横竖两道亮条向外扫
+                fxPaint.style = Paint.Style.STROKE
+                fxPaint.strokeCap = Paint.Cap.ROUND
+                fxPaint.color = spark
+                fxPaint.alpha = fade
+                fxPaint.strokeWidth = pieceRadius * 0.42f * (1f - t)
+                val reach = pieceRadius * (1f + 5f * t)
+                canvas.drawLine(c.x - reach, c.y, c.x + reach, c.y, fxPaint)
+                canvas.drawLine(c.x, c.y - reach, c.x, c.y + reach, fxPaint)
+                fxPaint.color = main
+                fxPaint.alpha = (fade * 0.7f).toInt()
+                fxPaint.strokeWidth = pieceRadius * 0.16f * (1f - t)
+                canvas.drawCircle(c.x, c.y, pieceRadius * (1f + 2.4f * t), fxPaint)
+            }
+
+            Piece.R_HORSE, Piece.B_HORSE -> {
+                // 螺旋: 碎片绕着中心转出去
+                fxPaint.style = Paint.Style.FILL
+                fxShards.forEachIndexed { i, s ->
+                    val ang = kotlin.math.atan2(s.vy, s.vx) + t * 3.2f
+                    val r = pieceRadius * (0.3f + 2.6f * t) * (0.6f + s.size * 3f)
+                    val px = c.x + kotlin.math.cos(ang) * r
+                    val py = c.y + kotlin.math.sin(ang) * r
+                    fxPaint.color = if (i % 2 == 0) spark else main
+                    fxPaint.alpha = fade
+                    canvas.drawCircle(px, py, pieceRadius * s.size * (1f - t * 0.6f), fxPaint)
+                }
+            }
+
+            Piece.R_CANNON, Piece.B_CANNON -> {
+                // 爆炸: 内外两层冲击环 + 四散火星
+                fxPaint.style = Paint.Style.STROKE
+                fxPaint.color = spark
+                fxPaint.alpha = fade
+                fxPaint.strokeWidth = pieceRadius * 0.30f * (1f - t)
+                canvas.drawCircle(c.x, c.y, pieceRadius * (0.6f + 3.4f * t), fxPaint)
+                fxPaint.strokeWidth = pieceRadius * 0.16f * (1f - t)
+                fxPaint.alpha = (fade * 0.6f).toInt()
+                canvas.drawCircle(c.x, c.y, pieceRadius * (0.4f + 2.0f * t), fxPaint)
+                fxPaint.style = Paint.Style.FILL
+                drawShards(canvas, c.x, c.y, t, fade, speedScale = 3.4f)
+            }
+
+            Piece.R_PAWN, Piece.B_PAWN -> {
+                // 最轻的一档: 只有几粒碎片
+                fxPaint.style = Paint.Style.FILL
+                drawShards(canvas, c.x, c.y, t, fade, speedScale = 1.8f)
+            }
+
+            Piece.R_ADVISOR, Piece.B_ADVISOR -> {
+                // 菱形内爆: 从外向内收
+                fxPaint.style = Paint.Style.STROKE
+                fxPaint.strokeWidth = pieceRadius * 0.20f
+                fxPaint.color = spark
+                fxPaint.alpha = fade
+                val r = pieceRadius * (2.2f - 1.8f * t)
+                fxPath.reset()
+                fxPath.moveTo(c.x, c.y - r)
+                fxPath.lineTo(c.x + r, c.y)
+                fxPath.lineTo(c.x, c.y + r)
+                fxPath.lineTo(c.x - r, c.y)
+                fxPath.close()
+                canvas.drawPath(fxPath, fxPaint)
+            }
+
+            Piece.R_ELEPHANT, Piece.B_ELEPHANT -> {
+                // 双方环扩散, 对应"田"字
+                fxPaint.style = Paint.Style.STROKE
+                fxPaint.strokeWidth = pieceRadius * 0.18f * (1f - t)
+                for (k in 0..1) {
+                    val phase = (t + k * 0.35f).coerceAtMost(1f)
+                    fxPaint.color = if (k == 0) spark else main
+                    fxPaint.alpha = ((1f - phase) * 255).toInt().coerceIn(0, 255)
+                    val half = pieceRadius * (0.7f + 2.6f * phase)
+                    canvas.drawRect(c.x - half, c.y - half, c.x + half, c.y + half, fxPaint)
+                }
+            }
+
+            Piece.R_KING, Piece.B_KING -> {
+                // 终局: 全盘泛光 + 放射光柱 + 大量碎片
+                fxPaint.style = Paint.Style.FILL
+                fxPaint.color = spark
+                fxPaint.alpha = (fade * 0.22f).toInt()
+                canvas.drawRect(boardRect, fxPaint)
+
+                fxPaint.style = Paint.Style.STROKE
+                fxPaint.strokeCap = Paint.Cap.ROUND
+                fxPaint.color = spark
+                fxPaint.alpha = fade
+                val rays = 12
+                val inner = pieceRadius * (0.5f + 1.2f * t)
+                val outer = pieceRadius * (1.2f + 6f * t)
+                fxPaint.strokeWidth = pieceRadius * 0.14f * (1f - t)
+                for (i in 0 until rays) {
+                    val a = (i.toFloat() / rays) * (Math.PI * 2).toFloat() + t * 0.6f
+                    val ca = kotlin.math.cos(a)
+                    val sa = kotlin.math.sin(a)
+                    canvas.drawLine(
+                        c.x + ca * inner, c.y + sa * inner,
+                        c.x + ca * outer, c.y + sa * outer, fxPaint
+                    )
+                }
+                fxPaint.style = Paint.Style.FILL
+                drawShards(canvas, c.x, c.y, t, fade, speedScale = 4.0f)
+            }
+
+            else -> {
+                fxPaint.style = Paint.Style.FILL
+                drawShards(canvas, c.x, c.y, t, fade, speedScale = 2.4f)
+            }
+        }
+    }
+
+    /** 碎片四散: 带一点重力, 让它们往下掉而不是平着飞 */
+    private fun drawShards(
+        canvas: Canvas, cx: Float, cy: Float,
+        t: Float, fade: Int, speedScale: Float,
+    ) {
+        val gravity = 1.6f * t * t
+        fxShards.forEach { s ->
+            val px = cx + s.vx * pieceRadius * speedScale * t
+            val py = cy + s.vy * pieceRadius * speedScale * t + pieceRadius * gravity
+            fxPaint.color = s.color
+            fxPaint.alpha = fade
+            val save = canvas.save()
+            canvas.rotate(s.spin * t, px, py)
+            val half = pieceRadius * s.size * (1f - t * 0.5f)
+            canvas.drawRect(px - half, py - half, px + half, py + half, fxPaint)
+            canvas.restoreToCount(save)
+        }
+    }
+
+    /**
+     * 选中棋子的标识.
+     *
+     * 以前这个环是在 [drawHighlights] 里画的, 也就是**在棋子之前** —— 画完
+     * 立刻被棋子盖住, 用户点了子看不出有没有点中. 挪到 drawPieces 之后, 并且
+     * 半径比棋子大一圈, 保证露在外面.
+     *
+     * 做成一圈会呼吸的亮环 + 外层柔光: 静态描边在木色棋盘上仍然容易被看漏,
+     * 动起来才抓得住眼睛.
+     */
+    private fun drawSelectionRing(canvas: Canvas) {
+        if (selectedSquare == -1) return
+        val center = squareToCenter(selectedSquare)
+        val cx = center.x
+        val cy = center.y
+        val phase = selectionPulse                      // 0..1 往复
+        val ringR = pieceRadius * (1.06f + 0.10f * phase)
+
+        // 外层柔光, 让环在木色底上"浮"出来
+        selectionGlowPaint.alpha = (70 * (1f - phase * 0.5f)).toInt().coerceIn(0, 255)
+        selectionGlowPaint.strokeWidth = pieceRadius * 0.30f
+        canvas.drawCircle(cx, cy, ringR, selectionGlowPaint)
+
+        // 实环
+        selectionRingPaint.strokeWidth = pieceRadius * 0.13f
+        canvas.drawCircle(cx, cy, ringR, selectionRingPaint)
+
+        // 四角小标记: 即使用户对颜色不敏感, 这四个角也能说明"这一个被选中了"
+        val corner = pieceRadius * 1.34f
+        val len = pieceRadius * 0.34f
+        selectionRingPaint.strokeWidth = pieceRadius * 0.11f
+        for (sx in intArrayOf(-1, 1)) {
+            for (sy in intArrayOf(-1, 1)) {
+                val x = cx + sx * corner
+                val y = cy + sy * corner
+                canvas.drawLine(x, y, x - sx * len, y, selectionRingPaint)
+                canvas.drawLine(x, y, x, y - sy * len, selectionRingPaint)
+            }
+        }
     }
 
     private fun drawBoard(canvas: Canvas) {
@@ -770,8 +1141,11 @@ class BoardView @JvmOverloads constructor(
         val dy = to.y - from.y
         val len = kotlin.math.sqrt(dx * dx + dy * dy)
         if (len < 1f) return
-        // 箭头在两端各留出一段, 不要画到棋子内部, 也不要画过终点
-        val headLen = pieceRadius * 0.55f
+        // 箭头在两端各留出一段, 不要画到棋子内部, 也不要画过终点.
+        // 线宽/头长都按 pieceRadius 走: 原来杆子写死 8f 像素, 高分屏上细得
+        // 像根发丝, 三角头也就跟着显不出来.
+        hintArrowPaint.strokeWidth = pieceRadius * 0.17f
+        val headLen = pieceRadius * 0.72f
         val tailGap = pieceRadius * 0.4f
         val ux = dx / len
         val uy = dy / len
@@ -788,10 +1162,14 @@ class BoardView @JvmOverloads constructor(
         val p1y = to.y - headLen * kotlin.math.sin(angle - headAngle)
         val p2x = to.x - headLen * kotlin.math.cos(angle + headAngle)
         val p2y = to.y - headLen * kotlin.math.sin(angle + headAngle)
-        val path = android.graphics.Path().apply {
-            moveTo(to.x, to.y); lineTo(p1x, p1y); lineTo(p2x, p2y); close()
-        }
-        canvas.drawPath(path, hintArrowHeadPaint)
+        // 复用成员 Path: 这个方法是从 onDraw 调的, 提示箭头在时每帧都会走一遍.
+        // 每帧 new 一个 Path 就是每帧一次分配, 动画期间会持续制造 GC 压力.
+        arrowHeadPath.reset()
+        arrowHeadPath.moveTo(to.x, to.y)
+        arrowHeadPath.lineTo(p1x, p1y)
+        arrowHeadPath.lineTo(p2x, p2y)
+        arrowHeadPath.close()
+        canvas.drawPath(arrowHeadPath, hintArrowHeadPaint)
     }
 
     private fun drawHighlights(canvas: Canvas) {
@@ -896,7 +1274,7 @@ class BoardView @JvmOverloads constructor(
         canvas.drawCircle(3f, 4f, radius * 1.05f, pieceShadowPaint)
 
         // 棋子外圈
-        pieceBorderPaint.color = if (isRed) AndroidColor.parseColor("#7B0A1A") else blackPieceColor
+        pieceBorderPaint.color = if (isRed) themeColor(R.color.piece_red_edge) else blackPieceColor
         canvas.drawCircle(0f, 0f, radius, pieceBorderPaint)
 
         // 棋子内圈(木纹底色)

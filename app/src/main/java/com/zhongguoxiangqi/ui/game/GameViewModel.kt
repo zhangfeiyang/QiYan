@@ -144,7 +144,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         object PlayerInCheck : GameEvent()
         object Checkmate : GameEvent()
         object NormalMove : GameEvent()
-        data class CapturedPiece(val piece: Piece) : GameEvent()
+        /** [square] 是被吃子所在的格子, 特效要画在那儿 */
+        data class CapturedPiece(val piece: Piece, val square: Int) : GameEvent()
     }
 
     // ====== 初始化 ======
@@ -154,12 +155,20 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
      * @param difficulty 难度 1-10
      * @param playerSide 玩家执子 Color.RED / Color.BLACK
      */
-    fun startNewGame(difficulty: Int, playerSide: Int) {
+    /**
+     * @param startFen 非空时从这个局面开局 (拍照识别摆好的残局), 否则标准开局.
+     *                 解析失败就退回标准开局 —— 宁可开一盘正常的棋, 也不要
+     *                 让用户对着一个空棋盘不知道发生了什么.
+     */
+    fun startNewGame(difficulty: Int, playerSide: Int, startFen: String? = null) {
         stopEngine()
         engineManager.shutdown()
 
         moveHistory.clear()
-        position.setupStartPosition()
+        // setFromFen 返回 Boolean 而不是抛异常, 所以判断要看返回值
+        val loaded = startFen != null &&
+            runCatching { position.setFromFen(startFen) }.getOrDefault(false)
+        if (!loaded) position.setupStartPosition()
         initialFen = position.toFen()
         gameStartTime = System.currentTimeMillis()
         gameStartRating = userProfile.displayedRating
@@ -267,7 +276,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             val captured = capturedPiece != null
             position.doMove(move)
             moveHistory.add(move)
-            updateAfterMove(captured, capturedPiece)
+            updateAfterMove(captured, capturedPiece, move.to)
         }
     }
 
@@ -309,7 +318,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             _events.value = GameEvent.ShowToast("被将军, 必须应招或消除威胁")
             return false
         }
-        updateAfterMove(captured, capturedPiece)
+        updateAfterMove(captured, capturedPiece, move.to)
 
         // 如果游戏未结束,让引擎走
         if (!_state.value.isGameOver) {
@@ -392,6 +401,49 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = _state.value.copy(playerSide = side)
     }
 
+    /**
+     * 对局中途改 AI 等级, 立即生效.
+     *
+     * 不重开局: 用户想在被虐时调低、觉得太easy时调高, 重开就等于让这个功能
+     * 没意义. 引擎的搜索参数是每次 [makeEngineMove] 现算的, 所以只要改掉
+     * state.difficulty, 下一手就是新等级; 唯一要处理的是它正在思考 —— 那就
+     * 打断重下, 否则这一手仍按旧等级出.
+     */
+    fun setDifficulty(level: Int) {
+        val clamped = level.coerceIn(1, 10)
+        if (clamped == _state.value.difficulty) return
+        val wasThinking = _state.value.isThinking
+        engineManager.difficultyLevel = clamped
+        _state.value = _state.value.copy(
+            difficulty = clamped,
+            engineElo = engineManager.effectiveElo(),
+            engineDowngraded = engineManager.isDowngraded
+        )
+        if (wasThinking && !_state.value.isGameOver) {
+            stopEngine()
+            _state.value = _state.value.copy(isThinking = false)
+            makeEngineMove()
+        }
+    }
+
+    /**
+     * 交换执子: 我方红黑对调, 引擎接手原来我方那一边.
+     *
+     * 「翻转」以前只是翻转视角, 盘还是自己那盘. 现在它真的换边 —— 换完如果
+     * 轮到的是引擎那一方, 立刻让引擎接着走, 否则局面会卡住等一个永远不会
+     * 落子的人.
+     */
+    fun swapSides() {
+        if (_state.value.isGameOver) return
+        val newSide = if (_state.value.playerSide == Color.RED) Color.BLACK else Color.RED
+        stopEngine()
+        _hintState.value = null
+        _state.value = _state.value.copy(playerSide = newSide, isThinking = false)
+        if (position.sideToMove != newSide) {
+            makeEngineMove()
+        }
+    }
+
     /** 重置胜率显示 */
     fun resetAnalysisDisplay() {
         _winRateSnapshot.value = WinRateSnapshot(redWinRate = 50.0)
@@ -449,7 +501,11 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = _state.value.copy(isThinking = false)
     }
 
-    private fun updateAfterMove(captured: Boolean, capturedPiece: Piece? = null) {
+    private fun updateAfterMove(
+        captured: Boolean,
+        capturedPiece: Piece? = null,
+        capturedSquare: Int = -1,
+    ) {
         // 检测将军 / 终局
         val inCheck = Rules.isInCheck(position, position.sideToMove)
         val gameOver = Rules.gameOver(position)
@@ -482,7 +538,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         // 重新算威胁光晕 + 触发音效
         emitThreats()
-        emitFeedback(inCheck, isOver, gameOver, capturedPiece)
+        emitFeedback(inCheck, isOver, gameOver, capturedPiece, capturedSquare)
 
         if (isOver) {
             // 确定玩家结果
@@ -514,12 +570,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     }
 
     /** 走子后发出音效/震动事件, 由 Activity 转发给 GameFeedback */
-    private fun emitFeedback(inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver, capturedPiece: Piece?) {
+    private fun emitFeedback(
+        inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver,
+        capturedPiece: Piece?, capturedSquare: Int,
+    ) {
         _events.value = when {
             isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) ->
                 GameEvent.Checkmate
             inCheck -> GameEvent.PlayerInCheck
-            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece)
+            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece, capturedSquare)
             else -> GameEvent.NormalMove
         }
     }

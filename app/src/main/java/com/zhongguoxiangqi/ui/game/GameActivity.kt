@@ -8,12 +8,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.databinding.ActivityGameBinding
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.rating.UserProfile
+import com.zhongguoxiangqi.ui.menu.DifficultyAdapter
+import com.zhongguoxiangqi.ui.menu.DifficultyLevel
 import com.zhongguoxiangqi.ui.settings.AppSettings
 import kotlinx.coroutines.launch
 
@@ -36,11 +40,17 @@ class GameActivity : AppCompatActivity() {
 
     private var lastPlayerSide = Color.RED
     private var lastDifficulty = 5
+
+    /** 非空 = 这盘是从拍照识别摆好的局面开的, "再来一局"要接着用同一个局面 */
+    private var startFen: String? = null
     private var gameOverDialog: AlertDialog? = null
 
     /** 棋盘上已经渲染到第几步,用来判断是"又走了一步"还是悔棋/重开 */
     private var renderedMoveCount = 0
     private lateinit var feedback: GameFeedback
+
+    /** 背景音乐. 跟着界面走: 切后台就停, 免得用户在别的 App 里还听见 */
+    private val bgm by lazy { BgmPlayer(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +70,9 @@ class GameActivity : AppCompatActivity() {
         setupControls()
         observeState()
 
-        // 启动新对局
-        viewModel.startNewGame(lastDifficulty, lastPlayerSide)
+        // 启动新对局. startFen 非空时是从拍照识别摆好的局面接着下
+        startFen = intent.getStringExtra(EXTRA_START_FEN)
+        viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen)
     }
 
     private fun setupBoard() {
@@ -105,9 +116,23 @@ class GameActivity : AppCompatActivity() {
                 .show()
         }
 
+        // 「翻转」以前只是换个看棋的视角, 盘还是自己那盘. 现在它真的换边:
+        // 我方红黑对调, 引擎接手原来我这边. 视角跟着走, 否则换完自己的子
+        // 跑到对面去了, 更难认.
         binding.btnFlip.setOnClickListener {
-            binding.boardView.setFlipped(!binding.boardView.isFlipped())
+            viewModel.swapSides()
+            val nowBlack = viewModel.state.value.playerSide == Color.BLACK
+            binding.boardView.setFlipped(nowBlack)
+            persistGameSetup()
+            Toast.makeText(
+                this,
+                if (nowBlack) "已换为执黑" else "已换为执红",
+                Toast.LENGTH_SHORT
+            ).show()
         }
+
+        // 对手信息整行可点 -> 改 AI 等级
+        binding.opponentRow.setOnClickListener { showDifficultyPicker() }
 
         binding.btnResign.setOnClickListener {
             AlertDialog.Builder(this)
@@ -167,6 +192,7 @@ class GameActivity : AppCompatActivity() {
                     viewModel.consumeEvent()
                 }
                 is GameViewModel.GameEvent.CapturedPiece -> {
+                    binding.boardView.playCaptureEffect(event.square, event.piece.code)
                     // 走子音效+振动 + 弹 "吃X" 的提示. 这是用户对局中**唯一**会看
                     // 到的吃子提示位置, 必须有可识别的文字, 不然车被吃也不知道.
                     val msg = getString(R.string.captured_piece_format,
@@ -183,6 +209,21 @@ class GameActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.state.collect { state ->
                 // 引擎名/对手评分
+                // 轮到谁走谁就亮起来. 在此之前, 玩家判断"是不是该我了"只能靠
+                // 那个转瞬即逝的"引擎思考中"胶囊 —— 它消失之后两行长得一模一样.
+                val myTurn = state.sideToMove == state.playerSide && !state.isGameOver
+                binding.playerRow.alpha = if (myTurn) 1f else DIMMED
+                binding.opponentRow.alpha = if (myTurn) DIMMED else 1f
+
+                // 换边后两边的执子圆点必须跟着换, 否则颜色和文字对不上
+                val playerRed = state.playerSide == Color.RED
+                binding.playerDot.setBackgroundResource(
+                    if (playerRed) R.drawable.dot_side_red else R.drawable.dot_side_black
+                )
+                binding.opponentDot.setBackgroundResource(
+                    if (playerRed) R.drawable.dot_side_black else R.drawable.dot_side_red
+                )
+
                 binding.opponentName.text = if (state.playerSide == Color.RED) "引擎 (执黑)" else "引擎 (执红)"
                 // 显示真实棋力; 降级时标出来,避免"Elo 3300"名不副实
                 binding.opponentRating.text =
@@ -192,7 +233,16 @@ class GameActivity : AppCompatActivity() {
                 binding.playerRating.text = "Elo ${state.playerRating} ${state.playerRank}"
                 binding.moveCount.text = "第${state.moveCount / 2 + 1}手"
 
-                binding.thinkIndicator.visibility = if (state.isThinking) View.VISIBLE else View.GONE
+                val level = DifficultyLevel.entries.firstOrNull { it.id == state.difficulty }
+                binding.levelChip.text = level
+                    ?.let { "Lv.${it.id} ${getString(it.nameRes)}" }
+                    ?: "Lv.${state.difficulty}"
+
+                // INVISIBLE 而不是 GONE: 这个指示器每走一步都要出现/消失一次,
+                // 用 GONE 会让它所在的信息行时高时矮, 而棋盘是 weight=1 吃剩余
+                // 空间 —— 于是每走一步棋盘就被挤扁再弹回, 看起来就是上下抖动.
+                binding.thinkIndicator.visibility =
+                    if (state.isThinking) View.VISIBLE else View.INVISIBLE
 
                 // 棋盘更新
                 updateBoard(state)
@@ -215,21 +265,13 @@ class GameActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.hintState.collect { hint ->
-                if (hint != null && hint.primaryMove != null) {
+                // 只在棋盘上画箭头, 不再弹"推荐 X / 备选 Y / 评估 Z / 深度 N"
+                // 那张卡片: 用户按提示是想知道"走哪儿", 箭头已经把这件事说完了,
+                // 那串引擎术语既占地方又没人读.
+                if (hint?.primaryMove != null) {
                     binding.boardView.setHint(hint.primaryMove, hint.secondaryMoves)
-                    binding.hintRow.visibility = View.VISIBLE
-                    val mainMv = moveToChinese(hint.primaryMove)
-                    val secMv = hint.secondaryMoves.map { moveToChinese(it) }.joinToString(", ")
-                    binding.hintText.text = "推荐: $mainMv${if (secMv.isNotEmpty()) "  备选: $secMv" else ""}"
-                    val evalStr = if (hint.scoreMate != 0) {
-                        if (hint.scoreMate > 0) "${hint.scoreMate}步杀" else "${-hint.scoreMate}步被杀"
-                    } else {
-                        "%.1f 兵".format(hint.scoreCp / 100.0)
-                    }
-                    binding.hintScore.text = "评估: $evalStr   深度: ${hint.depth}"
                 } else {
                     binding.boardView.clearHint()
-                    binding.hintRow.visibility = View.GONE
                 }
             }
         }
@@ -297,7 +339,7 @@ class GameActivity : AppCompatActivity() {
             .setCancelable(false)
             .setPositiveButton(R.string.action_new_game) { _, _ ->
                 gameOverDialog = null
-                viewModel.startNewGame(lastDifficulty, lastPlayerSide)
+                viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen)
             }
             .setNegativeButton(R.string.action_back) { _, _ ->
                 gameOverDialog = null
@@ -306,7 +348,57 @@ class GameActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * 对局中改 AI 等级.
+     *
+     * 复用主菜单原来那套难度列表 —— 它已经带了每档的说明和 Elo, 正是"我该
+     * 选哪档"需要的信息, 没必要在这里另做一份简化版.
+     */
+    private fun showDifficultyPicker() {
+        val view = layoutInflater.inflate(R.layout.dialog_difficulty, null)
+        val rv = view.findViewById<RecyclerView>(R.id.difficulty_list)
+        rv.layoutManager = LinearLayoutManager(this)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.menu_difficulty)
+            .setView(view)
+            .setNegativeButton(R.string.dialog_cancel, null)
+            .create()
+
+        val levels = DifficultyLevel.entries.toList()
+        rv.adapter = DifficultyAdapter(levels) { level ->
+            dialog.dismiss()
+            viewModel.setDifficulty(level.id)
+            lastDifficulty = level.id
+            persistGameSetup()
+        }
+        dialog.show()
+        // 滚到当前档位, 免得每次都从第一档开始找
+        levels.indexOfFirst { it.id == viewModel.state.value.difficulty }
+            .takeIf { it >= 0 }
+            ?.let { rv.scrollToPosition(it) }
+    }
+
+    /** 记住当前设定, 让主菜单的"直接开局"接着用 */
+    private fun persistGameSetup() {
+        getSharedPreferences(PREFS_GAME, MODE_PRIVATE).edit()
+            .putInt(KEY_LAST_DIFFICULTY, viewModel.state.value.difficulty)
+            .putInt(KEY_LAST_SIDE, viewModel.state.value.playerSide)
+            .apply()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bgm.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        bgm.pause()
+    }
+
     override fun onDestroy() {
+        bgm.release()
         // 界面销毁时必须关掉对话框,否则会泄漏 Activity
         gameOverDialog?.dismiss()
         gameOverDialog = null
@@ -318,5 +410,16 @@ class GameActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_DIFFICULTY = "difficulty"
         const val EXTRA_PLAYER_SIDE = "player_side"
+
+        /** 自定义起始局面 (拍照识别摆好后交过来的 FEN) */
+        const val EXTRA_START_FEN = "start_fen"
+
+        /** 非当前走子方那一行的淡出程度. 太淡会看不清对手信息, 0.45 刚好 */
+        const val DIMMED = 0.45f
+
+        /** 上次对局的设定, 供主菜单"直接开局"复用 */
+        const val PREFS_GAME = "game_setup"
+        const val KEY_LAST_DIFFICULTY = "last_difficulty"
+        const val KEY_LAST_SIDE = "last_side"
     }
 }
