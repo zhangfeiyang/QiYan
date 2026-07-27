@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  两条取图路径都放在 toolbar 上常驻显示.
+
+  之前"从相册选"用 showAsAction="never" 藏进了溢出菜单 —— 进来相机是自动
+  弹出的, 用户还没看过 toolbar 就已经在相机里了; 退出相机后又只剩一个不起眼
+  的三点按钮, 等于把这条路藏了起来.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_live"
+        android:icon="@drawable/ic_live"
+        android:title="@string/live_entry"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_gallery"
+        android:icon="@drawable/ic_image"
+        android:title="@string/recognize_pick_image"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_retake"
+        android:icon="@drawable/ic_camera"
+        android:title="@string/recognize_take_photo"
+        app:showAsAction="always" />
+</menu>

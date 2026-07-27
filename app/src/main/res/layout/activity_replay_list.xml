@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 复盘列表. 空状态原来只有一行灰字, 现在给图标 + 引导语. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="@string/title_replay"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -24,18 +25,36 @@
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/margin_small"
+            android:paddingHorizontal="@dimen/screen_gutter"
+            android:paddingBottom="@dimen/space_4"
             android:clipToPadding="false" />
 
-        <TextView
+        <LinearLayout
             android:id="@+id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             android:gravity="center"
-            android:text="@string/replay_empty"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_large"
-            android:visibility="gone" />
+            android:paddingHorizontal="@dimen/space_8"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_history"
+                app:tint="@color/text_tertiary"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_4"
+                android:gravity="center"
+                android:text="@string/replay_empty"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+        </LinearLayout>
 
     </FrameLayout>
 

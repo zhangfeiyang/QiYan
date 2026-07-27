@@ -4,47 +4,55 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="@string/title_board_editor"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
 
     <com.zhongguoxiangqi.ui.board.BoardView
         android:id="@+id/board_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="@dimen/margin_small" />
+        android:layout_margin="@dimen/space_2" />
 
+    <!-- 重置=恢复标准开局(可预期), 清空=抹掉整盘(破坏性), 两者后果差得远,
+         所以不再用两个一模一样的描边键并排. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/margin_small">
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:paddingBottom="@dimen/space_3">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_reset"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Outlined"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="重置" />
+            android:text="@string/editor_reset"
+            app:icon="@drawable/ic_refresh"
+            app:iconGravity="textStart"
+            app:iconSize="@dimen/icon_sm" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Danger"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
-            android:text="清空" />
+            android:layout_marginStart="@dimen/space_2"
+            android:text="@string/editor_clear"
+            app:icon="@drawable/ic_close"
+            app:iconGravity="textStart"
+            app:iconSize="@dimen/icon_sm" />
 
     </LinearLayout>
 

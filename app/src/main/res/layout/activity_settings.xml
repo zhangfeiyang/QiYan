@@ -1,256 +1,330 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  设置.
+
+  旧版每个开关只有一个两字标题 —— "默认翻转"翻转什么?"哈希表(MB)"调大
+  有什么后果? 用户只能靠猜, 于是干脆不敢动. 现在每项都带一行说明.
+
+  分区标题原来是行动色的大号粗体, 比它统辖的内容还抢眼; 改成小号次要色,
+  让它退回"分隔符"的本分.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="@string/title_settings"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/margin_medium">
+            android:paddingHorizontal="@dimen/screen_gutter"
+            android:paddingBottom="@dimen/space_8">
 
-            <!-- 引擎设置 -->
+            <!-- ========== 引擎 ========== -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginTop="@dimen/space_4"
+                android:layout_marginBottom="@dimen/space_2"
                 android:text="@string/settings_engine"
-                android:textColor="@color/accent"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
                 android:orientation="vertical"
-                android:background="@color/bg_card"
-                android:padding="@dimen/margin_medium">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_threads"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                android:background="@drawable/bg_surface_card"
+                android:padding="@dimen/space_4">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:baselineAligned="false">
 
-                    <SeekBar
-                        android:id="@+id/seek_threads"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:max="8"
-                        android:progress="2" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_threads"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_desc_threads"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_threads_value"
-                        android:layout_width="48dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="40dp"
                         android:gravity="end"
-                        android:text="2"
-                        android:textColor="@color/accent"
-                        android:textStyle="bold" />
+                        android:textColor="@color/action"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        tools:text="2" />
 
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <SeekBar
+                    android:id="@+id/seek_threads"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:text="@string/settings_hash"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:layout_marginTop="@dimen/space_1"
+                    android:max="8"
+                    android:progress="2" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/stroke_hairline"
+                    android:layout_marginVertical="@dimen/space_3"
+                    android:background="@color/border_subtle" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:baselineAligned="false">
 
-                    <SeekBar
-                        android:id="@+id/seek_hash"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:max="1024"
-                        android:progress="64" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_hash"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_desc_hash"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_hash_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="72dp"
                         android:gravity="end"
-                        android:minWidth="80dp"
-                        android:text="64 MB"
-                        android:textColor="@color/accent"
-                        android:textStyle="bold" />
+                        android:textColor="@color/action"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        tools:text="64 MB" />
 
                 </LinearLayout>
 
+                <SeekBar
+                    android:id="@+id/seek_hash"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:max="1024"
+                    android:progress="64" />
+
             </LinearLayout>
 
-            <!-- 界面设置 -->
+            <!-- ========== 界面 ========== -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_large"
-                android:text="界面设置"
-                android:textColor="@color/accent"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_section_display"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
                 android:orientation="vertical"
-                android:background="@color/bg_card"
-                android:padding="@dimen/margin_medium">
+                android:background="@drawable/bg_surface_card"
+                android:paddingHorizontal="@dimen/space_4"
+                android:paddingVertical="@dimen/space_2">
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_sound"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_sound" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_sound"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:text="@string/settings_desc_sound" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/sw_bgm"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_bgm" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_desc_bgm" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_vibrate"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_vibrate" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_vibrate"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:text="@string/settings_desc_vibrate" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_show_coords"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_show_coords" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_show_coords"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:text="@string/settings_desc_coords" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_show_winrate"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_show_winrate" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_show_winrate"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:text="@string/settings_desc_winrate" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_animation"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_animation" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_animation"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:text="@string/settings_desc_animation" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_flipped"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_board_flip" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_board_flip"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:layout_marginBottom="@dimen/space_2"
+                    android:text="@string/settings_desc_flip" />
 
             </LinearLayout>
 
-            <!-- 主题设置 -->
+            <!-- ========== 主题 ========== -->
+            <!-- 深色排第一: 它是默认, 选项顺序应该反映这一点 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_large"
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
                 android:text="@string/settings_theme"
-                android:textColor="@color/accent"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
 
             <RadioGroup
                 android:id="@+id/theme_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
-                android:background="@color/bg_card"
-                android:padding="@dimen/margin_medium"
+                android:background="@drawable/bg_surface_card"
+                android:paddingHorizontal="@dimen/space_4"
+                android:paddingVertical="@dimen/space_2"
                 android:orientation="vertical">
 
                 <RadioButton
-                    android:id="@+id/theme_system"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="跟随系统"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium"
-                    android:checked="true" />
+                    android:id="@+id/theme_dark"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_theme_dark" />
 
                 <RadioButton
                     android:id="@+id/theme_light"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="浅色"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_theme_light" />
 
                 <RadioButton
-                    android:id="@+id/theme_dark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="深色"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_medium" />
+                    android:id="@+id/theme_system"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_theme_system" />
 
             </RadioGroup>
 
-            <!-- 关于 & 数据 -->
+            <!-- ========== 其他 ========== -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_large"
-                android:text="其他"
-                android:textColor="@color/accent"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_section_other"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_about"
-                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+                style="@style/Widget.Xiangqi.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
-                android:text="@string/menu_about" />
+                android:text="@string/menu_about"
+                app:icon="@drawable/ic_info"
+                app:iconGravity="textStart"
+                app:iconSize="@dimen/icon_sm" />
 
+            <!-- 清除数据不可逆, 用危险色描边样式单独拉出来 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_clear_data"
-                style="@style/Widget.ZhongguoXiangqi.Button.Text"
+                style="@style/Widget.Xiangqi.Button.Danger"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="清除所有数据"
-                android:textColor="@color/status_red" />
+                android:layout_marginTop="@dimen/space_3"
+                android:text="@string/settings_clear_data" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:gravity="center"
+                android:text="@string/settings_clear_data_desc"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
 
         </LinearLayout>
 

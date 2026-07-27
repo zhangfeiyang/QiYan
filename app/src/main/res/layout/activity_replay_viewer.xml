@@ -4,25 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="对局回放"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
 
     <!-- 对局信息 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/bg_panel"
-        android:padding="@dimen/margin_small">
+        android:background="@color/surface_raised"
+        android:padding="@dimen/space_2">
 
         <TextView
             android:id="@+id/title_text"
@@ -30,7 +29,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium"
+            android:textSize="@dimen/text_label"
             android:textStyle="bold" />
 
         <TextView
@@ -38,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_caption" />
 
     </LinearLayout>
 
@@ -48,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="@dimen/margin_small" />
+        android:layout_margin="@dimen/space_2" />
 
     <!-- 走法信息 -->
     <TextView
@@ -56,78 +55,81 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="@dimen/margin_small"
-        android:background="@color/bg_panel"
+        android:padding="@dimen/space_2"
+        android:background="@color/surface_raised"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_medium"
+        android:textSize="@dimen/text_label"
         android:textStyle="bold" />
 
-    <!-- 控制按钮 -->
+    <!-- ============ 回放控制 ============ -->
+    <!-- 原来是 6 个纯文字按钮挤一行, 字号被压到 12sp 才塞得下. 换成图标
+         工具键: 首/上一手/播放/下一手/末 + AI 分析, 播放键用行动色实心
+         标出来 —— 它是这一排里唯一会改变播放状态的键. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/bg_panel"
-        android:padding="@dimen/margin_small">
+        android:paddingHorizontal="@dimen/space_2"
+        android:paddingBottom="@dimen/space_2"
+        android:baselineAligned="false">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_first"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/replay_first"
-            android:textSize="@dimen/text_small" />
+            app:icon="@drawable/ic_first" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_prev"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
             android:text="@string/replay_prev"
-            android:textSize="@dimen/text_small" />
+            app:icon="@drawable/ic_prev" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_auto"
-            style="@style/Widget.ZhongguoXiangqi.Button"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
             android:text="@string/replay_play"
-            android:textSize="@dimen/text_small" />
+            android:textColor="@color/action"
+            app:icon="@drawable/ic_play"
+            app:iconTint="@color/action" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
             android:text="@string/replay_next"
-            android:textSize="@dimen/text_small" />
+            app:icon="@drawable/ic_next" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_last"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
             android:text="@string/replay_last"
-            android:textSize="@dimen/text_small" />
+            app:icon="@drawable/ic_last" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ai"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+            style="@style/Widget.Xiangqi.Button.Tool"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
             android:text="@string/advisor_button"
-            android:textSize="@dimen/text_small" />
+            android:textColor="@color/action"
+            app:icon="@drawable/ic_ai"
+            app:iconTint="@color/action" />
 
     </LinearLayout>
 

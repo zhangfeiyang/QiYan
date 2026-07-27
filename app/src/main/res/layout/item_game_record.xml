@@ -1,64 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  一条对局记录.
+
+  旧版胜负结果固定用 status_red 上色 —— 赢是红的, 输也是红的, 颜色没传达
+  任何信息. 结果色改由 Adapter 按胜/负/和分别设置.
+  另外整条列表项原来没有按压反馈, 点下去毫无动静.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_difficulty_item"
-    android:padding="@dimen/margin_medium"
-    android:layout_marginVertical="@dimen/margin_tiny">
+    android:background="@drawable/bg_surface_card"
+    android:foreground="@drawable/ripple_item"
+    android:padding="@dimen/space_4"
+    android:layout_marginVertical="@dimen/space_1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/result"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="胜"
-            android:textColor="@color/status_red"
             android:textSize="@dimen/text_title"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="胜"
+            tools:textColor="@color/action" />
 
         <TextView
             android:id="@+id/side"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:text="执红"
+            android:layout_marginStart="@dimen/space_3"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium" />
+            android:textSize="@dimen/text_body_sm"
+            tools:text="执红" />
 
         <TextView
             android:id="@+id/difficulty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:text="Lv.5"
-            android:textColor="@color/accent"
-            android:textSize="@dimen/text_medium"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/space_2"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="@dimen/space_2"
+            android:paddingVertical="1dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            tools:text="Lv.5" />
 
-        <TextView
+        <View
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="1dp" />
 
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="01-01 12:00"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/text_caption"
+            tools:text="01-01 12:00" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_tiny"
+        android:layout_marginTop="@dimen/space_2"
         android:orientation="horizontal">
 
         <TextView
@@ -66,18 +79,19 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="32手  将死"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_caption"
+            tools:text="32 手 · 将死" />
 
         <TextView
             android:id="@+id/rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Elo 1500 (+10)"
-            android:textColor="@color/accent"
-            android:textSize="@dimen/text_small"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_caption"
+            android:fontFamily="monospace"
+            android:textStyle="bold"
+            tools:text="Elo 1500 (+10)" />
 
     </LinearLayout>
 

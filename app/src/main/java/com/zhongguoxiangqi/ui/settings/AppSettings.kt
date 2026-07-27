@@ -22,8 +22,17 @@ class AppSettings(context: Context) {
     val animationEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_ANIMATION, true)
     val boardFlipped: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_FLIPPED, false)
 
-    /** 主题模式: 0=跟随系统 1=深色 2=浅色 */
-    val themeMode: Int get() = prefs.getInt(SettingsActivity.KEY_THEME, 0)
+    /** 背景音乐. 默认开 —— 氛围是这次特意加的, 但随时能关 */
+    val bgmEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_BGM, true)
+
+    /**
+     * 主题模式: 0=跟随系统 1=深色 2=浅色.
+     *
+     * 默认 1 而不是 0 —— 这个 App 的配色是照着深色设计的 (棋盘木色、红黑
+     * 双方、胜率条的对比度都按深底调过), 浅色是备选. 跟随系统会让多数人
+     * 第一次打开时看到的是备选方案.
+     */
+    val themeMode: Int get() = prefs.getInt(SettingsActivity.KEY_THEME, 1)
 
     companion object {
         const val PREFS_NAME = "settings"

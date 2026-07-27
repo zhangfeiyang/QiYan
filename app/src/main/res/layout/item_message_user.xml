@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 自己的提问: 靠右, 行动色实底. maxWidth 用百分比而非写死 280dp,
+     否则在窄屏上会顶满、在平板上又缩成一小条. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="end"
-    android:paddingVertical="@dimen/margin_tiny">
+    android:paddingVertical="@dimen/space_1">
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="280dp"
+        android:maxWidth="300dp"
         android:background="@drawable/bg_msg_user"
-        android:padding="@dimen/margin_small"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/text_medium" />
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_3"
+        android:textColor="@color/text_on_action"
+        android:textSize="@dimen/text_body"
+        android:lineSpacingMultiplier="1.3" />
 </LinearLayout>

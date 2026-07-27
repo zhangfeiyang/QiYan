@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- AI 回复: 靠左, 中性表面. 行距放到 1.4 —— 这里经常是整段棋理分析,
+     默认行距读起来太挤. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="start"
-    android:paddingVertical="@dimen/margin_tiny">
+    android:paddingVertical="@dimen/space_1">
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="280dp"
+        android:maxWidth="320dp"
         android:background="@drawable/bg_msg_assistant"
-        android:padding="@dimen/margin_small"
+        android:paddingHorizontal="@dimen/space_4"
+        android:paddingVertical="@dimen/space_3"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_medium"
+        android:textSize="@dimen/text_body"
+        android:lineSpacingMultiplier="1.4"
         android:textIsSelectable="true" />
 </LinearLayout>

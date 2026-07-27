@@ -105,11 +105,15 @@ class GameRecordAdapter(
             -1 -> "负"
             else -> "和"
         }
+        // 胜负用语义色, 不是执子色. 原来"胜"取 status_red、"负"取
+        // status_black —— 那两个是红方/黑方的标识色, 跟输赢无关, 结果
+        // 就是赢和输染成了同一族的颜色, 扫一眼列表分不出战绩.
+        // 这里与主菜单胜率条的图例保持同一套: 胜=行动色, 负=危险色.
         holder.result.setTextColor(
             holder.itemView.context.getColor(
                 when (r.result) {
-                    1 -> R.color.status_red
-                    -1 -> R.color.status_black
+                    1 -> R.color.action
+                    -1 -> R.color.danger
                     else -> R.color.text_secondary
                 }
             )
@@ -117,7 +121,7 @@ class GameRecordAdapter(
         holder.side.text = if (r.playerSide == Color.RED) "执红" else "执黑"
         holder.difficulty.text = "Lv.${r.difficulty}"
         holder.date.text = dateFormat.format(Date(r.startTime))
-        holder.moves.text = "${r.moves.size}手  ${r.endReason}"
+        holder.moves.text = "${r.moves.size} 手 · ${r.endReason}"
         val delta = if (r.ratingDelta >= 0) "+${r.ratingDelta}" else "${r.ratingDelta}"
         holder.rating.text = "Elo ${r.playerRating} ($delta)"
         holder.itemView.setOnClickListener { onClick(r) }

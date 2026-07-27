@@ -6,14 +6,15 @@
     android:background="@drawable/bg_difficulty_item"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="@dimen/margin_medium"
-    android:layout_marginVertical="@dimen/margin_tiny">
+    android:padding="@dimen/space_4"
+    android:layout_marginVertical="@dimen/space_1">
 
+    <!-- 难度色条: 颜色由 Adapter 按档位设置 -->
     <View
         android:id="@+id/difficulty_badge"
-        android:layout_width="6dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="@dimen/margin_small" />
+        android:layout_width="4dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="@dimen/space_3" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -26,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/text_body"
             android:textStyle="bold" />
 
         <TextView
@@ -34,18 +35,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_caption" />
 
     </LinearLayout>
 
+    <!-- Elo 徽标原来是 surface_raised 实色方块, 和卡片自身同色, 等于
+         没有背景; 改成胶囊 + 等宽数字, 竖着扫一列时数字能对齐. -->
     <TextView
         android:id="@+id/difficulty_elo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/margin_small"
-        android:background="@color/bg_panel"
-        android:textColor="@color/accent"
-        android:textSize="@dimen/text_medium"
+        android:background="@drawable/bg_pill"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_1"
+        android:textColor="@color/action"
+        android:textSize="@dimen/text_body_sm"
+        android:fontFamily="monospace"
         android:textStyle="bold" />
 
 </LinearLayout>

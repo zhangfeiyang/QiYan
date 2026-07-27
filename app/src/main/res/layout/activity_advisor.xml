@@ -1,31 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI 分析.
+
+  旧版的问题(见报错截图): 进来是一整屏空白, 局面摘要缩成一行灰字看不见,
+  发送键是个写着"发送"的方按钮, 报错气泡还是褐色 —— 和普通回复一个色系.
+  这版:
+    · 空状态给三个可直接点的建议问题, 不用先想再打字
+    · 局面摘要做成带图标的胶囊, 明确告诉用户"AI 正在看这个局面"
+    · 发送键改成圆形图标键, 输入区做成一条悬浮胶囊
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="@string/advisor_title"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF"
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary"
         app:menu="@menu/advisor_menu" />
 
-    <!-- 当前棋局摘要 (不可编辑, 让用户知道 AI 在看什么) -->
+    <!-- 局面摘要: AI 看到的是什么, 要让用户看得见 -->
     <TextView
         android:id="@+id/context_summary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginBottom="@dimen/space_2"
+        android:background="@drawable/bg_pill"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_2"
+        android:drawablePadding="@dimen/space_2"
+        app:drawableStartCompat="@drawable/ic_ai"
+        app:drawableTint="@color/action"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption"
+        tools:text="复盘第 12 手" />
+
+    <!--
+      上半屏留给棋局.
+
+      纯聊天界面看 AI 讲"炮二平五"时, 用户得在脑子里把这步套回自己刚才看的
+      那盘棋; 把棋盘摆在对话上面, 讲到哪一步就能在盘上直接标出来.
+      高度给 0dp + weight, 与下面的对话按 1:1 分屏.
+    -->
+    <com.zhongguoxiangqi.ui.board.BoardView
+        android:id="@+id/board_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="@dimen/space_2"
+        android:layout_marginBottom="@dimen/space_2" />
+
+    <!-- AI 演示的着法, 讲了具体一步时才出现 -->
+    <TextView
+        android:id="@+id/move_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bg_card"
-        android:padding="@dimen/margin_small"
-        android:textColor="@color/text_secondary"
-        android:textSize="@dimen/text_small" />
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginBottom="@dimen/space_2"
+        android:background="@drawable/bg_surface_card"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_2"
+        android:drawablePadding="@dimen/space_2"
+        app:drawableStartCompat="@drawable/ic_hint"
+        app:drawableTint="@color/info"
+        android:textColor="@color/info"
+        android:textSize="@dimen/text_body_sm"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:text="AI 演示: 炮二平五" />
+
+    <!-- ============ 空状态 ============ -->
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingHorizontal="@dimen/space_6">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_ai"
+            app:tint="@color/action"
+            android:alpha="0.9"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:text="@string/advisor_empty_title"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:gravity="center"
+            android:text="@string/advisor_empty_subtitle"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/suggest_analyze"
+            style="@style/Widget.Xiangqi.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:minHeight="@dimen/button_height_sm"
+            android:text="@string/advisor_suggest_analyze" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/suggest_next"
+            style="@style/Widget.Xiangqi.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:minHeight="@dimen/button_height_sm"
+            android:text="@string/advisor_suggest_next" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/suggest_review"
+            style="@style/Widget.Xiangqi.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:minHeight="@dimen/button_height_sm"
+            android:text="@string/advisor_suggest_review" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages"
@@ -33,38 +147,59 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:padding="@dimen/margin_small" />
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:paddingBottom="@dimen/space_2"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
+    <!-- ============ 输入区 ============ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/bg_card"
-        android:padding="@dimen/margin_small"
-        android:gravity="center_vertical">
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:paddingTop="@dimen/space_2"
+        android:paddingBottom="@dimen/space_3"
+        android:gravity="bottom">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- 胶囊输入条: 不再用 OutlinedBox, 那个自带的浮动标签在聊天场景
+             里只会把行高撑高一截, 什么也没多说明 -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+            android:background="@drawable/bg_input"
+            android:paddingHorizontal="@dimen/space_4"
+            android:paddingVertical="@dimen/space_3"
+            android:minHeight="@dimen/touch_min"
+            android:hint="@string/advisor_input_hint"
+            android:textColorHint="@color/text_tertiary"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body"
+            android:imeOptions="actionSend"
+            android:inputType="text|textCapSentences|textMultiLine"
+            android:maxLines="4" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/advisor_input_hint"
-                android:imeOptions="actionSend"
-                android:inputType="text|textCapSentences|textMultiLine"
-                android:maxLines="3" />
-        </com.google.android.material.textfield.TextInputLayout>
-
+        <!-- 圆形图标键: 聊天界面的发送不需要"发送"两个字占一块地 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="@dimen/touch_min"
+            android:layout_height="@dimen/touch_min"
+            android:layout_marginStart="@dimen/space_2"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:enabled="false"
-            android:text="@string/advisor_send" />
+            android:contentDescription="@string/advisor_send_desc"
+            app:backgroundTint="@color/selector_action_bg"
+            app:icon="@drawable/ic_send"
+            app:iconTint="@color/text_on_action"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="@dimen/icon_md"
+            app:cornerRadius="@dimen/radius_pill"
+            app:elevation="0dp" />
+
     </LinearLayout>
 </LinearLayout>

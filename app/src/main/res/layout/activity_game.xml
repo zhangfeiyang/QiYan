@@ -1,220 +1,247 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  对弈.
+
+  旧版底部是 5 个一模一样的描边按钮 (提示/悔棋/翻转/认输 + 独占一行的
+  AI分析). 问题有两个:
+    · 认输是不可逆操作, 却和"提示"长得完全一样, 只隔了 4dp
+    · 5 个按钮里 4 个挤在一行, 字号被压到 12sp 才塞得下, 且全是纯文字
+  现在改成图标在上、文字在下的工具键排成一行, 认输单独用危险色描边分出来;
+  AI 分析并入同一行, 省下的一整行高度还给棋盘.
+
+  对局双方那两行原来只靠一条 4dp 色条区分; 现在执子色做成圆点, 并且由
+  GameActivity 按当前走子方调整两行的 alpha —— 轮到谁走谁就亮起来.
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_main"
+    android:background="@color/surface_base"
     android:orientation="vertical"
     tools:context=".ui.game.GameActivity">
 
-    <!-- 顶部状态栏 -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
 
-    <!-- 对手信息行 -->
+    <!-- ============ 对手 ============ -->
+    <!-- 固定高度: 里面的"思考中"胶囊比同行文字高, 用 wrap_content 会让这行
+         随它出现/消失而变高变矮, 进而挤压下面 weight=1 的棋盘. -->
+    <!-- 整行可点: 点开改 AI 等级. 对局中随时能改, 所以入口要一直在手边,
+         而不是藏在设置里或只能开局前选. -->
     <LinearLayout
+        android:id="@+id/opponent_row"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/info_row_height"
         android:orientation="horizontal"
-        android:background="@color/bg_panel"
-        android:padding="@dimen/margin_small"
-        android:gravity="center_vertical">
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
+        <!-- 执子圆点. 颜色由 Activity 按当前执子方设置 —— 「翻转」会换边,
+             写死在 XML 里换完就反了. -->
         <View
-            android:layout_width="4dp"
-            android:layout_height="24dp"
-            android:background="@color/status_black"
-            android:layout_marginEnd="@dimen/margin_small" />
+            android:id="@+id/opponent_dot"
+            android:layout_width="@dimen/space_3"
+            android:layout_height="@dimen/space_3"
+            android:layout_marginEnd="@dimen/space_3"
+            android:background="@drawable/dot_side_black" />
 
         <TextView
             android:id="@+id/opponent_name"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="引擎"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium"
-            android:textStyle="bold" />
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold"
+            tools:text="引擎" />
 
         <TextView
             android:id="@+id/opponent_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:maxLines="1"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_caption"
+            tools:text="1600" />
+
+        <TextView
+            android:id="@+id/level_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:background="@drawable/bg_pill"
+            android:paddingStart="@dimen/space_3"
+            android:paddingEnd="@dimen/space_2"
+            android:paddingVertical="@dimen/space_1"
+            android:drawablePadding="2dp"
+            app:drawableEndCompat="@drawable/ic_chevron_down"
+            app:drawableTint="@color/text_tertiary"
+            android:textColor="@color/action"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            tools:text="Lv.3 中级" />
 
         <TextView
             android:id="@+id/think_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:paddingHorizontal="@dimen/margin_small"
-            android:paddingVertical="2dp"
-            android:background="@color/accent"
+            android:layout_marginStart="@dimen/space_2"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_1"
             android:text="@string/status_thinking"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/text_small"
-            android:visibility="gone" />
+            android:textColor="@color/warning"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
-    <!-- 胜率条 -->
+    <!-- 48dp 太高: 字号是按条高的比例算的, 结果 "50.0%" 有 26sp, 比棋盘上
+         的棋子还抢眼. 胜率是参考信息, 不该压过主体. -->
     <com.zhongguoxiangqi.ui.board.WinRateBarView
         android:id="@+id/winrate_bar"
         android:layout_width="match_parent"
-        android:layout_height="56dp" />
+        android:layout_height="28dp"
+        android:layout_marginHorizontal="@dimen/screen_gutter" />
 
-    <!-- 棋盘 -->
-    <com.zhongguoxiangqi.ui.board.BoardView
-        android:id="@+id/board_view"
+    <!-- 棋盘和提示条放进同一个 weight=1 的容器, 提示条**浮在**棋盘上而不是
+         挤在它下面: 按"提示"时棋盘尺寸不能变, 否则又是一次跳动.
+         棋盘按 9:10 居中留边, 底部本就有空隙, 提示条正好落在那儿. -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_margin="@dimen/margin_small" />
+        android:layout_weight="1">
 
-    <!-- 玩家信息行 -->
+        <com.zhongguoxiangqi.ui.board.BoardView
+            android:id="@+id/board_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/space_2" />
+
+    </FrameLayout>
+
+    <!-- ============ 我方 ============ -->
     <LinearLayout
+        android:id="@+id/player_row"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/info_row_height"
         android:orientation="horizontal"
-        android:background="@color/bg_panel"
-        android:padding="@dimen/margin_small"
+        android:paddingHorizontal="@dimen/screen_gutter"
         android:gravity="center_vertical">
 
         <View
-            android:layout_width="4dp"
-            android:layout_height="24dp"
-            android:background="@color/status_red"
-            android:layout_marginEnd="@dimen/margin_small" />
+            android:id="@+id/player_dot"
+            android:layout_width="@dimen/space_3"
+            android:layout_height="@dimen/space_3"
+            android:layout_marginEnd="@dimen/space_3"
+            android:background="@drawable/dot_side_red" />
 
         <TextView
             android:id="@+id/player_name"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="我"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium"
-            android:textStyle="bold" />
+            android:textSize="@dimen/text_body"
+            android:textStyle="bold"
+            tools:text="我" />
 
         <TextView
             android:id="@+id/player_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_caption"
+            tools:text="1500" />
 
         <TextView
             android:id="@+id/move_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:layout_marginStart="@dimen/space_3"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/text_caption"
+            tools:text="第 12 手" />
 
     </LinearLayout>
 
-    <!-- 控制按钮 -->
+    <!-- ============ 工具条 ============ -->
+    <!-- 一行五个图标键. 认输放最右且用危险色, 与其余四个拉开距离和色相,
+         避免"想点翻转结果认输了"这类误触. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/bg_panel"
-        android:padding="@dimen/margin_small">
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_2"
+        android:paddingBottom="@dimen/space_2"
+        android:baselineAligned="false">
 
-        <!-- 第一行：提示 / 悔棋 / 翻转 / 认输 -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_hint"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="@string/action_hint"
+            app:icon="@drawable/ic_hint" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_hint"
-                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_tiny"
-                android:text="@string/action_hint"
-                android:textSize="@dimen/text_small" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_undo"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/action_undo"
+            app:icon="@drawable/ic_undo" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_undo"
-                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_tiny"
-                android:text="@string/action_undo"
-                android:textSize="@dimen/text_small" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_flip"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/action_flip"
+            app:icon="@drawable/ic_flip" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_flip"
-                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_tiny"
-                android:text="@string/action_flip"
-                android:textSize="@dimen/text_small" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_resign"
-                style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_tiny"
-                android:text="@string/action_resign"
-                android:textSize="@dimen/text_small" />
-
-        </LinearLayout>
-
-        <!-- AI 分析按钮：始终可见，在控制按钮下方 -->
+        <!-- AI 分析用行动色描出来: 它是这个 App 的差异化功能, 值得比
+             普通工具键更显眼一档, 但仍不该抢走棋盘的注意力 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ai"
-            style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-            android:layout_width="match_parent"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_tiny"
             android:text="@string/advisor_button"
-            android:textSize="@dimen/text_medium" />
+            android:textColor="@color/action"
+            app:icon="@drawable/ic_ai"
+            app:iconTint="@color/action" />
 
-    </LinearLayout>
-
-    <!-- 提示走法提示信息 -->
-    <LinearLayout
-        android:id="@+id/hint_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/bg_card"
-        android:padding="@dimen/margin_small"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/hint_text"
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_resign"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_medium"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/hint_score"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_small" />
+            android:text="@string/action_resign"
+            android:textColor="@color/danger"
+            app:icon="@drawable/ic_flag"
+            app:iconTint="@color/danger" />
 
     </LinearLayout>
 </LinearLayout>

@@ -26,8 +26,19 @@
     <string name="difficulty_immortal">超凡入圣</string>
 
     <!-- 棋力描述 -->
-    <string name="difficulty_desc_easy">适合新手练习</string>
-    <string name="difficulty_desc_legend">可轻松击败最顶级人类棋手</string>
+    <!-- 每档一句, 说清"对手大概什么水平". 之前 10 档里有 9 档共用
+         difficulty_desc_easy, 于是 Elo 1900 的"特级大师"也写着"适合新手
+         练习" —— 用户照着描述选难度只会被带偏. -->
+    <string name="difficulty_desc_easy">会走棋, 但经常白送子</string>
+    <string name="difficulty_desc_beginner">能吃明摆着的子, 看不出陷阱</string>
+    <string name="difficulty_desc_intermediate">有基本战术, 会抓双叫将</string>
+    <string name="difficulty_desc_advanced">开局成套路, 中局能算三五步</string>
+    <string name="difficulty_desc_expert">很少走软手, 残局功底扎实</string>
+    <string name="difficulty_desc_master">接近专业棋手, 一步失误就被抓住</string>
+    <string name="difficulty_desc_champion">省级冠军强度, 需要完整计划才能抗衡</string>
+    <string name="difficulty_desc_elite">全国顶尖棋手强度</string>
+    <string name="difficulty_desc_legend">已超出人类冠军水平</string>
+    <string name="difficulty_desc_immortal">可轻松击败最顶级人类棋手</string>
 
     <!-- 游戏控制 -->
     <string name="action_hint">提示</string>
@@ -113,11 +124,40 @@
     <string name="settings_hash">哈希表(MB)</string>
     <string name="settings_sound">音效</string>
     <string name="settings_vibrate">振动</string>
+    <string name="settings_bgm">背景音乐</string>
     <string name="settings_board_flip">默认翻转</string>
     <string name="settings_show_coords">显示坐标</string>
     <string name="settings_show_winrate">显示胜率</string>
     <string name="settings_animation">走子动画</string>
     <string name="settings_theme">主题</string>
+    <!-- 开关副标题: 原来每个开关只有两个字的标题, "默认翻转"翻转什么、
+         "哈希表"调大调小有什么后果, 用户只能靠猜. -->
+    <string name="settings_desc_threads">越多算得越快, 但更耗电. 建议不超过设备核心数的一半</string>
+    <string name="settings_desc_hash">引擎的思考缓存. 调大能提升长考棋力, 内存紧张时调小</string>
+    <string name="settings_desc_sound">落子、吃子、将军时发出提示音</string>
+    <string name="settings_desc_vibrate">落子时轻微振动反馈</string>
+    <string name="settings_desc_bgm">对局时循环播放舒缓的古琴环境音, 音量已压低不影响提示音</string>
+    <string name="settings_desc_coords">在棋盘边缘显示纵线数字与横线序号</string>
+    <string name="settings_desc_winrate">棋盘上方显示实时胜率条</string>
+    <string name="settings_desc_animation">关闭后棋子瞬间到位, 低端机更流畅</string>
+    <string name="settings_desc_flip">开局即以黑方视角摆盘</string>
+    <string name="settings_section_display">界面</string>
+    <string name="settings_section_other">其他</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_clear_data">清除所有数据</string>
+    <!-- 实时支招 -->
+    <string name="live_title">实时支招</string>
+    <string name="live_entry">实时支招</string>
+    <string name="live_need_camera">需要相机权限才能实时识别棋局</string>
+    <string name="live_camera_failed">相机启动失败</string>
+    <string name="live_locking">正在对准棋盘…</string>
+    <string name="live_board_invalid">棋局还认不全, 让棋盘四角都进画面</string>
+    <string name="live_ready">已锁定 · 识别 %1$d ms</string>
+    <string name="editor_reset">重置</string>
+    <string name="editor_clear">清空</string>
+    <string name="settings_clear_data_desc">删除全部对局记录与积分, 不可恢复</string>
     <string name="settings_piece_style">棋子样式</string>
     <string name="settings_board_style">棋盘样式</string>
     <string name="settings_about">关于</string>
@@ -148,6 +188,15 @@
     <string name="advisor_context_game">对弈第 %1$d 手 · 轮到 %2$s</string>
     <string name="advisor_thinking">AI 正在分析…</string>
     <string name="advisor_button">AI 分析</string>
+    <!-- 空状态: 旧版进来是一整屏空白, 用户面对一个空输入框不知道能问什么.
+         给三个可直接点的常见问题, 省掉"想问题 + 打字"两步. -->
+    <string name="advisor_empty_title">问问 AI 这局棋</string>
+    <string name="advisor_empty_subtitle">它能看到当前局面, 可以直接问形势、问下一步、问刚才那手亏在哪</string>
+    <string name="advisor_suggest_analyze">分析一下当前形势</string>
+    <string name="advisor_suggest_next">我下一步该怎么走</string>
+    <string name="advisor_suggest_review">刚才那手有问题吗</string>
+    <string name="advisor_send_desc">发送</string>
+    <string name="advisor_move_banner">AI 演示这一步: %1$s → %2$s</string>
 
     <!-- 拍照识别棋局 -->
     <string name="title_recognize">拍照识别棋局</string>

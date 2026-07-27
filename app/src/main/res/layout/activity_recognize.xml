@@ -1,134 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  拍照识别 / 摆子.
+
+  这一屏只有一件事: 让用户核对并改正识别出来的局面, 然后求招. 所以除了
+  棋盘和托盘, 别的都让位 ——
+   · 进来就直接开相机, "拍照"按钮没必要占一行; 相册入口挪到 toolbar 菜单
+   · 没有"摆放/对弈"开关: 识别完就能直接改子, 本来也不存在第二种状态
+   · 去掉底部状态小字; 局面有硬伤时在点"支招"那一刻用 Toast 说, 不常驻占位
+  棋盘吃掉所有剩余高度, 托盘棋子按棋盘格宽算, 与盘上的子一样大.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_main">
+    android:background="@color/surface_base">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         app:title="@string/title_recognize"
-        app:titleTextColor="#FFFFFF"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="#FFFFFF" />
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary"
+        app:menu="@menu/recognize_menu" />
 
-    <ScrollView
+    <!-- ============ 黑子托盘 ============ -->
+    <LinearLayout
+        android:id="@+id/tray_black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="@dimen/space_1" />
+
+    <com.zhongguoxiangqi.ui.board.BoardView
+        android:id="@+id/board_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginHorizontal="@dimen/space_1" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+    <!-- ============ 红子托盘 ============ -->
+    <LinearLayout
+        android:id="@+id/tray_red"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="@dimen/space_1" />
+
+    <!-- ============ 走子方 + 翻转 ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/screen_gutter">
+
+        <RadioGroup
+            android:id="@+id/side_group"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <!-- 取图 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="@dimen/margin_small">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_camera"
-                    style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recognize_take_photo" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_gallery"
-                    style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_tiny"
-                    android:text="@string/recognize_pick_image" />
-            </LinearLayout>
-
-            <!-- 校正后的棋盘正视图, 让用户一眼看出四角有没有框准 -->
-            <ImageView
-                android:id="@+id/preview"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginEnd="@dimen/margin_small"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                android:contentDescription="@string/recognize_preview_desc" />
-
-            <TextView
-                android:id="@+id/status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/margin_small"
-                android:textSize="14sp"
-                android:text="@string/recognize_hint_start" />
-
-            <com.zhongguoxiangqi.ui.board.BoardView
-                android:id="@+id/board_view"
-                android:layout_width="match_parent"
-                android:layout_height="420dp"
-                android:layout_margin="@dimen/margin_small" />
-
-            <!-- 图片给不出走子方, 必须让用户指定 -->
-            <RadioGroup
-                android:id="@+id/side_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="@dimen/margin_small"
-                android:paddingEnd="@dimen/margin_small">
-
-                <RadioButton
-                    android:id="@+id/side_red"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/recognize_red_to_move" />
-
-                <RadioButton
-                    android:id="@+id/side_black"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recognize_black_to_move" />
-            </RadioGroup>
-
-            <!-- 自动按照片的上下关系摆放; 认错了可以手动翻回来 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_flip"
-                style="@style/Widget.ZhongguoXiangqi.Button.Text"
+            <RadioButton
+                android:id="@+id/side_red"
+                style="@style/Widget.Xiangqi.Radio"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_small"
-                android:text="@string/recognize_flip" />
+                android:checked="true"
+                android:text="@string/recognize_red_to_move" />
 
-            <TextView
-                android:id="@+id/advice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/margin_small"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+            <RadioButton
+                android:id="@+id/side_black"
+                style="@style/Widget.Xiangqi.Radio"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="@dimen/space_3"
+                android:text="@string/recognize_black_to_move" />
 
-        </LinearLayout>
-    </ScrollView>
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_flip"
+            style="@style/Widget.Xiangqi.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recognize_flip"
+            app:icon="@drawable/ic_flip"
+            app:iconGravity="textStart"
+            app:iconSize="@dimen/icon_sm" />
+
+    </LinearLayout>
+
+    <!-- 引擎给出的着法. 这是这一屏的产出, 不是提示文案, 所以留着. -->
+    <TextView
+        android:id="@+id/advice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginBottom="@dimen/space_2"
+        android:background="@drawable/bg_surface_card"
+        android:padding="@dimen/space_3"
+        android:textColor="@color/action"
+        android:textSize="@dimen/text_body_sm"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_advise"
+        style="@style/Widget.Xiangqi.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_small"
-        android:enabled="false"
-        android:text="@string/recognize_advise" />
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginBottom="@dimen/space_3"
+        android:text="@string/recognize_advise"
+        app:icon="@drawable/ic_ai"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm" />
 
 </LinearLayout>

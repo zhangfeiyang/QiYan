@@ -1,44 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  主菜单.
+
+  旧版是 1 个实心按钮 + 3 个一模一样的描边按钮竖着排, 除了"填充还是描边"
+  没有任何主次, 四个入口在视觉上等重. 现在分三档:
+    1. 开始对弈 —— 唯一的实心行动色, 带图标, 字号最大
+    2. 复盘 / 拍照识局 —— 并列双列, 它们本来就是平级的两个功能
+    3. 设置 / 关于 —— 底部文字按钮, 低频
+  档案卡加了胜率条: 原来"胜/负/和"是三个孤立数字, 看不出走势.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_main"
+    android:background="@color/surface_base"
     tools:context=".ui.menu.MainMenuActivity">
 
-    <!-- 顶部标题栏 -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
-        app:titleTextColor="#FFFFFF"
         app:title="@string/app_name"
+        app:titleTextColor="@color/text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 装饰: 顶部祥云 -->
-    <View
-        android:id="@+id/decor_top"
-        android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:background="@color/accent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <!-- 用户档案卡片 -->
-    <androidx.cardview.widget.CardView
+    <!-- ============ 档案卡 ============ -->
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/profile_card"
+        style="@style/Widget.Xiangqi.Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_medium"
-        android:layout_marginTop="@dimen/margin_large"
-        app:cardBackgroundColor="@color/bg_card"
-        app:cardCornerRadius="@dimen/card_radius"
-        app:cardElevation="@dimen/elevation_card"
-        app:layout_constraintTop_toBottomOf="@id/decor_top"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginTop="@dimen/space_2"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -46,121 +44,101 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/margin_medium">
+            android:padding="@dimen/space_4">
 
-            <TextView
-                android:id="@+id/nickname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="棋友"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider"
-                android:layout_marginVertical="@dimen/margin_small" />
-
+            <!-- 昵称 + 段位同一行: 段位是身份的一部分, 不该被塞进统计格子 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:gravity="center_vertical">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/nickname"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Title"
+                    tools:text="棋友" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/rating_current"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_small" />
-
-                    <TextView
-                        android:id="@+id/rating_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1500"
-                        android:textColor="@color/accent"
-                        android:textSize="@dimen/text_display"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/rank_value"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/rating_rank"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_small" />
-
-                    <TextView
-                        android:id="@+id/rank_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/rank_1"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/text_title"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/rating_total_games"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="@dimen/text_small" />
-
-                    <TextView
-                        android:id="@+id/games_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/text_primary"
-                        android:textSize="@dimen/text_title"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
+                    android:background="@drawable/bg_pill"
+                    android:paddingHorizontal="@dimen/space_3"
+                    android:paddingVertical="@dimen/space_1"
+                    android:textColor="@color/rank_gold"
+                    android:textSize="@dimen/text_caption"
+                    android:textStyle="bold"
+                    tools:text="业余三段" />
 
             </LinearLayout>
 
+            <!-- 积分是这张卡的主角: 最大字号 + 等宽数字 -->
+            <TextView
+                android:id="@+id/rating_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_2"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Numeric"
+                tools:text="1500" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rating_current"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <!-- 胜率条: 三段占比一眼可见. 权重由 Activity 按实际战绩设置 -->
+            <LinearLayout
+                android:id="@+id/winrate_bar"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="@dimen/space_4"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_pill"
+                android:clipToOutline="true">
+
+                <View
+                    android:id="@+id/winrate_win"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/action" />
+
+                <View
+                    android:id="@+id/winrate_loss"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/danger" />
+
+                <View
+                    android:id="@+id/winrate_draw"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/text_tertiary" />
+
+            </LinearLayout>
+
+            <!-- 图例, 颜色与上面的条一一对应 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/margin_small"
-                android:weightSum="3">
+                android:layout_marginTop="@dimen/space_2"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/wins_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="胜 0"
-                    android:textColor="@color/status_red" />
+                    android:textColor="@color/action"
+                    android:textSize="@dimen/text_body_sm"
+                    android:textStyle="bold"
+                    tools:text="胜 18" />
 
                 <TextView
                     android:id="@+id/losses_value"
@@ -168,90 +146,112 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="负 0"
-                    android:textColor="@color/status_black" />
+                    android:textColor="@color/danger"
+                    android:textSize="@dimen/text_body_sm"
+                    android:textStyle="bold"
+                    tools:text="负 12" />
 
                 <TextView
                     android:id="@+id/draws_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="和 0"
-                    android:textColor="@color/text_secondary" />
+                    android:gravity="end"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_body_sm"
+                    android:textStyle="bold"
+                    tools:text="和 2" />
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/games_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label"
+                tools:text="32" />
+
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- 主菜单按钮 -->
+    <!-- ============ 主行动 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_play"
-        style="@style/Widget.ZhongguoXiangqi.Button"
+        style="@style/Widget.Xiangqi.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_xlarge"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginTop="@dimen/space_6"
         android:text="@string/menu_play"
         android:textSize="@dimen/text_title"
-        app:icon="@android:drawable/ic_media_play"
+        app:icon="@drawable/ic_play"
         app:iconGravity="textStart"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_card"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profile_card" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ============ 平级功能: 双列 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_replay"
-        style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+        style="@style/Widget.Xiangqi.Button.Outlined"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/screen_gutter"
+        android:layout_marginEnd="@dimen/space_2"
+        android:layout_marginTop="@dimen/space_3"
         android:text="@string/menu_replay"
-        android:textSize="@dimen/text_large"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:icon="@drawable/ic_history"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toBottomOf="@id/btn_play"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_play" />
+        app:layout_constraintEnd_toStartOf="@id/btn_recognize" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_recognize"
-        style="@style/Widget.ZhongguoXiangqi.Button.Outline"
+        style="@style/Widget.Xiangqi.Button.Outlined"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/space_2"
+        android:layout_marginEnd="@dimen/screen_gutter"
         android:text="@string/menu_recognize"
-        android:textSize="@dimen/text_large"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_replay" />
+        app:icon="@drawable/ic_camera"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toTopOf="@id/btn_replay"
+        app:layout_constraintStart_toEndOf="@id/btn_replay"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ============ 低频入口 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_settings"
-        style="@style/Widget.ZhongguoXiangqi.Button.Outline"
-        android:layout_width="0dp"
+        style="@style/Widget.Xiangqi.Button.Text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/space_6"
         android:text="@string/menu_settings"
-        android:textSize="@dimen/text_large"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:icon="@drawable/ic_settings"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toBottomOf="@id/btn_replay"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_recognize" />
+        app:layout_constraintEnd_toStartOf="@id/btn_about"
+        app:layout_constraintHorizontal_chainStyle="packed" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_about"
-        style="@style/Widget.ZhongguoXiangqi.Button.Text"
-        android:layout_width="0dp"
+        style="@style/Widget.Xiangqi.Button.Text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/menu_about"
-        android:textSize="@dimen/text_medium"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:icon="@drawable/ic_info"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toTopOf="@id/btn_settings"
+        app:layout_constraintBottom_toBottomOf="@id/btn_settings"
+        app:layout_constraintStart_toEndOf="@id/btn_settings"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

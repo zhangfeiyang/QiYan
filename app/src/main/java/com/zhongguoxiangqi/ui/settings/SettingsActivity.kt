@@ -43,7 +43,9 @@ class SettingsActivity : AppCompatActivity() {
         val showWinrate = prefs.getBoolean(KEY_SHOW_WINRATE, true)
         val animation = prefs.getBoolean(KEY_ANIMATION, true)
         val flipped = prefs.getBoolean(KEY_FLIPPED, false)
-        val theme = prefs.getInt(KEY_THEME, 0)
+        // 默认值必须和 AppSettings.themeMode 保持一致 (1=深色), 否则设置页
+        // 勾着"跟随系统", App 实际跑的却是深色.
+        val theme = prefs.getInt(KEY_THEME, 1)
 
         binding.seekThreads.progress = threads
         binding.tvThreadsValue.text = threads.toString()
@@ -51,6 +53,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.tvHashValue.text = "${hashMb} MB"
         binding.swSound.isChecked = soundEnabled
         binding.swVibrate.isChecked = vibrateEnabled
+        binding.swBgm.isChecked = prefs.getBoolean(KEY_BGM, true)
         binding.swShowCoords.isChecked = showCoords
         binding.swShowWinrate.isChecked = showWinrate
         binding.swAnimation.isChecked = animation
@@ -88,6 +91,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         binding.swVibrate.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(KEY_VIBRATE, checked).apply()
+        }
+        binding.swBgm.setOnCheckedChangeListener { _, checked ->
+            prefs.edit().putBoolean(KEY_BGM, checked).apply()
         }
         binding.swShowCoords.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(KEY_SHOW_COORDS, checked).apply()
@@ -159,5 +165,6 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_ANIMATION = "animation"
         const val KEY_FLIPPED = "flipped"
         const val KEY_THEME = "theme"
+        const val KEY_BGM = "bgm"
     }
 }
