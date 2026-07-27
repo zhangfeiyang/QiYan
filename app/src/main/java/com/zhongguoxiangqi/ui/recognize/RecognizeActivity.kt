@@ -93,17 +93,19 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
 
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.action_live -> {
-                    startActivity(Intent(this,
-                        com.zhongguoxiangqi.ui.live.LiveAdviceActivity::class.java))
-                    true
-                }
                 R.id.action_retake -> { launchCamera(); true }
                 R.id.action_gallery -> { pickImage.launch("image/*"); true }
                 else -> false
             }
         }
         binding.btnAdvise.setOnClickListener { requestAdvice() }
+        binding.btnAdviceLevel.setOnClickListener { showAdviceLevelPicker() }
+        // 模型没加载完之前先禁用, 免得点了没反应
+        binding.btnStartCamera.isEnabled = false
+        binding.btnStartGallery.isEnabled = false
+        binding.btnStartCamera.setOnClickListener { launchCamera() }
+        binding.btnStartGallery.setOnClickListener { pickImage.launch("image/*") }
+        updateAdviceLevelLabel()
         binding.sideGroup.setOnCheckedChangeListener { _, _ -> refreshBoard() }
         binding.btnFlip.setOnClickListener {
             boardFlipped = !boardFlipped
@@ -124,11 +126,60 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
                 ).show()
                 return@launch
             }
-            // 模型就绪后自动开相机: 用户点"拍照识别棋局"进来, 想做的就是拍,
-            // 再让他多按一次"拍照"没有意义. savedInstanceState 非空说明是
-            // 旋转/重建, 那次不要再弹一遍相机.
-            if (savedInstanceState == null && !hasRecognized) launchCamera()
+            // 模型就绪后**不再自动开相机**。
+            //
+            // 原来是进来直接弹相机, 理由是"用户点进来就是想拍"。但想从相册
+            // 选的人得先退出相机再去翻 toolbar; 而且"识别准不准全看拍得正
+            // 不正"这件事没有任何地方告诉过他 —— 整盘全对只有约 83%, 拍歪了
+            // 就是白拍。现在先给一屏引导, 两条路并列, 附拍摄要点。
+            binding.btnStartCamera.isEnabled = true
+            binding.btnStartGallery.isEnabled = true
         }
+    }
+
+    /** 取到图并识别成功之后, 引导让位给棋盘 */
+    private fun showBoard() {
+        binding.startPanel.visibility = View.GONE
+        binding.contentGroup.visibility = View.VISIBLE
+    }
+
+    // ====== 支招水平 ======
+
+    /**
+     * 支招水平。用「快速/标准/深思」而不是"搜索深度""毫秒" —— 用户关心的是
+     * 想得快还是想得好, 不是内部参数。三档映射到不同的难度等级。
+     */
+    private enum class AdviceLevel(
+        val level: Int,
+        val labelRes: Int,
+        val descRes: Int,
+    ) {
+        FAST(6, R.string.advice_level_fast, R.string.advice_level_fast_desc),
+        NORMAL(10, R.string.advice_level_normal, R.string.advice_level_normal_desc),
+        DEEP(14, R.string.advice_level_deep, R.string.advice_level_deep_desc),
+    }
+
+    private var adviceLevel = AdviceLevel.NORMAL
+
+    private fun updateAdviceLevelLabel() {
+        binding.btnAdviceLevel.text =
+            getString(R.string.advice_level_current, getString(adviceLevel.labelRes))
+    }
+
+    private fun showAdviceLevelPicker() {
+        val items = AdviceLevel.values().map {
+            getString(it.labelRes) + " · " + getString(it.descRes)
+        }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.advice_level_title)
+            .setSingleChoiceItems(items, adviceLevel.ordinal) { dlg, which ->
+                adviceLevel = AdviceLevel.values()[which]
+                updateAdviceLevelLabel()
+                // 难度变了, 已建好的引擎要跟着改, 否则下一次求招还是旧档位
+                engineManager?.difficultyLevel = adviceLevel.level
+                dlg.dismiss()
+            }
+            .show()
     }
 
     // ====== 取图 ======
@@ -193,6 +244,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             layout = result.layout
             confidence = result.confidence
             hasRecognized = true
+            showBoard()
             // 按原照片的上下关系显示: 拍的时候红方在上, 屏幕上也让红方在上,
             // 用户才对得上自己拍的那张图
             boardFlipped = result.redOnTop
@@ -425,7 +477,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val mgr = engineManager ?: EngineManager(this@RecognizeActivity).also {
-                it.difficultyLevel = ADVICE_LEVEL
+                it.difficultyLevel = adviceLevel.level
                 engineManager = it
             }
             if (mgr.currentEngine == null && !mgr.start(this@RecognizeActivity)) {
@@ -485,8 +537,6 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     companion object {
         private const val TAG = "RecognizeActivity"
         private const val MAX_IMAGE_SIDE = 1920
-        /** 支招用的难度: Pikafish 全力, 但时间压到提示搜索的预算 */
-        private const val ADVICE_LEVEL = 10
         /** 选子对话框里的候选, 空格排第一 */
         private val PICKER_CHARS =
             listOf('.', 'K', 'A', 'B', 'N', 'R', 'C', 'P', 'k', 'a', 'b', 'n', 'r', 'c', 'p')

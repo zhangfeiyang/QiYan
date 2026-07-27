@@ -1,6 +1,7 @@
 package com.zhongguoxiangqi.engine
 
 import android.content.Context
+import com.zhongguoxiangqi.engine.nnue.NnueProvider
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.ui.settings.AppSettings
@@ -75,6 +76,10 @@ class EngineManager(private val context: Context) {
         val engine = SimpleEngine().also {
             it.configure(difficultyLevel)
             it.openingBook = openingBook
+            // 自研 NNUE。真机实测求值速度与手写评估持平, 所以装上它不用
+            // 拿搜索深度去换; assets 里没有网络文件时返回 null, 自动退回
+            // 手写评估。更新网络只需替换 assets/models/xiangqi.nnue。
+            it.setNnue(NnueProvider.newEvaluator(context))
         }
         simpleEngine = engine
         if (engine.start()) {

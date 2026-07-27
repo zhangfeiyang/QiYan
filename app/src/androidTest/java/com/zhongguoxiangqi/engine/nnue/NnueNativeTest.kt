@@ -125,6 +125,45 @@ class NnueNativeTest {
         }
     }
 
+    /**
+     * 随 App 一起发布的那个网络能不能真的被用起来.
+     *
+     * 前面几个测试用的是 test/resources 里的测试网络, 它只验证"算得对";
+     * 这个验证的是"发布路径通不通" —— assets 里的文件在不在、NnueProvider
+     * 找不找得到、走没走上 native。更新网络时只换那个文件, 这个测试就是
+     * 换完之后唯一要跑的验收。
+     */
+    @Test
+    fun 随包发布的网络必须能加载并走native() {
+        val app = InstrumentationRegistry.getInstrumentation().targetContext
+        val net = NnueProvider.get(app)
+        assertTrue(
+            "assets/${NnueProvider.ASSET_PATH} 没加载出来 —— " +
+                "引擎会静默退回手写评估, 界面上看不出任何异常",
+            net != null
+        )
+        val ev = NnueProvider.newEvaluator(app)!!
+        try {
+            assertTrue("随包网络没走上 native", ev.usingNative)
+            // 开局满盘应当接近均势: 离谱的数字说明权重错位或尺度不对
+            val pieces = IntArray(NnueFeatures.MAX_PIECES * 2)
+            var n = 0
+            for (idx in 0 until 14) {
+                pieces[n * 2] = idx
+                pieces[n * 2 + 1] = (n * 7) % NnueFeatures.SQUARES
+                n++
+            }
+            val score = ev.evaluatePieces(pieces, n, false)
+            android.util.Log.i(TAG, "随包网络 l1=${net!!.l1}, 样例评估 $score 厘兵")
+            assertTrue("评估值离谱 ($score), 权重多半错位了",
+                kotlin.math.abs(score) < 5000)
+            assertEquals("native 与 Kotlin 必须一致",
+                ev.evaluateKotlin(pieces, n, false), score)
+        } finally {
+            ev.close()
+        }
+    }
+
     @Test
     fun 求值速度() {
         val net = loadNet()

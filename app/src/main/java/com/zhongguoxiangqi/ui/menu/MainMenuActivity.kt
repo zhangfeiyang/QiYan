@@ -43,6 +43,9 @@ class MainMenuActivity : AppCompatActivity() {
         binding.btnPlay.setOnClickListener {
             startGame(lastDifficulty(), lastSide())
         }
+        binding.cardLive.setOnClickListener {
+            startActivity(Intent(this, com.zhongguoxiangqi.ui.live.LiveAdviceActivity::class.java))
+        }
         binding.btnReplay.setOnClickListener {
             startActivity(Intent(this, ReplayActivity::class.java))
         }

@@ -4,7 +4,10 @@
 
   这一屏只有一件事: 让用户核对并改正识别出来的局面, 然后求招. 所以除了
   棋盘和托盘, 别的都让位 ——
-   · 进来就直接开相机, "拍照"按钮没必要占一行; 相册入口挪到 toolbar 菜单
+   · 进来先给一屏引导(start_panel): 拍照和从相册选并列摆着, 各自说明什么
+     时候用, 下面附三条拍摄要点。原来是一进来就弹相机 —— 想从相册选的人
+     得先退出相机再去翻 toolbar, 而"识别准不准全看拍得正不正"这件事也
+     没有任何地方告诉过他。取到图之后这一屏让位给棋盘。
    · 没有"摆放/对弈"开关: 识别完就能直接改子, 本来也不存在第二种状态
    · 去掉底部状态小字; 局面有硬伤时在点"支招"那一刻用 Toast 说, 不常驻占位
   棋盘吃掉所有剩余高度, 托盘棋子按棋盘格宽算, 与盘上的子一样大.
@@ -26,6 +29,20 @@
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary"
         app:menu="@menu/recognize_menu" />
+
+    <!-- 引导与棋盘二选一: 没取图之前没有棋盘可看, 让引导占满整块区域 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    <LinearLayout
+        android:id="@+id/content_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
 
     <!-- ============ 黑子托盘 ============ -->
     <LinearLayout
@@ -110,6 +127,18 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <!-- 支招水平: 放在求招按钮正上方, 因为它改的就是这一次求招的行为 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_advice_level"
+        style="@style/Widget.Xiangqi.Button.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_gutter"
+        android:text="@string/advice_level_title"
+        app:icon="@drawable/ic_chevron_down"
+        app:iconGravity="textEnd"
+        app:iconSize="@dimen/icon_sm" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_advise"
         style="@style/Widget.Xiangqi.Button"
@@ -121,5 +150,109 @@
         app:icon="@drawable/ic_ai"
         app:iconGravity="textStart"
         app:iconSize="@dimen/icon_sm" />
+
+    </LinearLayout>
+
+    <!-- ============ 起始引导 ============ -->
+    <ScrollView
+        android:id="@+id/start_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/screen_gutter">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recognize_start_title"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Title" />
+
+            <!-- 两条路并列, 不分主次 —— 截图找棋局和拍实体棋盘一样常见 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_camera"
+                style="@style/Widget.Xiangqi.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_5"
+                android:text="@string/recognize_take_photo"
+                app:icon="@drawable/ic_camera"
+                app:iconGravity="textStart"
+                app:iconSize="@dimen/icon_sm" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/recognize_start_camera_desc"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_gallery"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_4"
+                android:text="@string/recognize_pick_image"
+                app:icon="@drawable/ic_image"
+                app:iconGravity="textStart"
+                app:iconSize="@dimen/icon_sm" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/recognize_start_gallery_desc"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <!-- 拍摄要点。识别整盘全对约 83%, 拍得正不正直接决定这个数,
+                 与其事后提示"识别失败", 不如事前说清楚。 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_6"
+                android:orientation="vertical"
+                android:background="@drawable/bg_surface_card"
+                android:padding="@dimen/space_4">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recognize_tips_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_body_sm"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:text="@string/recognize_tip_1"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recognize_tip_2"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recognize_tip_3"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    </FrameLayout>
 
 </LinearLayout>

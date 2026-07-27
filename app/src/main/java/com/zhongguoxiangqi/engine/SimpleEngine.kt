@@ -76,6 +76,10 @@ class SimpleEngine : ChessEngine {
     override fun shutdown() {
         stopSearch()
         ready = false
+        // NnueEvaluator 里握着 native 句柄(权重 + 缓冲, 六百多 KB), GC 管不到
+        // 它。每开一局漏一份, 反复进出对局就是稳定的原生内存泄漏。
+        nnue?.close()
+        nnue = null
     }
 
     /** 开局库(可选). 由 EngineManager 注入,因为它需要 Context 读 assets. */
@@ -586,6 +590,8 @@ class SimpleEngine : ChessEngine {
      * 好几层, 净收益是正是负得测. 见 NnueGauntletRunner.
      */
     fun setNnue(evaluator: com.zhongguoxiangqi.engine.nnue.NnueEvaluator?) {
+        if (nnue === evaluator) return
+        nnue?.close()
         nnue = evaluator
     }
 

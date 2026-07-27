@@ -5,8 +5,11 @@
   旧版是 1 个实心按钮 + 3 个一模一样的描边按钮竖着排, 除了"填充还是描边"
   没有任何主次, 四个入口在视觉上等重. 现在分三档:
     1. 开始对弈 —— 唯一的实心行动色, 带图标, 字号最大
-    2. 复盘 / 拍照识局 —— 并列双列, 它们本来就是平级的两个功能
-    3. 设置 / 关于 —— 底部文字按钮, 低频
+    2. 实时支招 —— 独占一行的卡片. 它是唯一"举着手机对着真实棋盘"的功能,
+       和另外两个"在手机里看棋"的入口不是一回事, 塞进双列会被当成同类。
+       四个字说不清它干什么, 所以配一句副标题。
+    3. 复盘 / 拍照识局 —— 并列双列, 它们本来就是平级的两个功能
+    4. 设置 / 关于 —— 底部文字按钮, 低频
   档案卡加了胜率条: 原来"胜/负/和"是三个孤立数字, 看不出走势.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -192,6 +195,61 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ============ 实时支招: 独占一行 ============ -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_live"
+        style="@style/Widget.Xiangqi.Card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginTop="@dimen/space_3"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:layout_constraintTop_toBottomOf="@id/btn_play"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/space_4">
+
+            <ImageView
+                android:layout_width="@dimen/icon_md"
+                android:layout_height="@dimen/icon_md"
+                android:src="@drawable/ic_live"
+                android:contentDescription="@string/live_entry"
+                app:tint="@color/action" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_3"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/live_entry"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Title" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:text="@string/menu_live_desc"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- ============ 平级功能: 双列 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_replay"
@@ -205,7 +263,7 @@
         app:icon="@drawable/ic_history"
         app:iconGravity="textStart"
         app:iconSize="@dimen/icon_sm"
-        app:layout_constraintTop_toBottomOf="@id/btn_play"
+        app:layout_constraintTop_toBottomOf="@id/card_live"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_recognize" />
 

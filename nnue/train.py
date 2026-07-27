@@ -76,10 +76,16 @@ def main():
     # 就在"端上表示得出来"的范围内找解. Stockfish 也是这么做的.
     W_CLIP = 127.0 / 64.0
 
+    # 输出层是 int16, 尺度 QW=64, 上限 |w*OUT_SCALE| <= 32767/64 = 512.
+    # 它会一路往上爬(实测 30 轮从 100 涨到 350+), 不钳住的话训练久了就会
+    # 撞上限, 而那时只能在导出时截断 —— 又是"练完才发现白练"。
+    OUT_CLIP = 32767.0 / 64.0 / OUT_SCALE
+
     def clamp_quantizable():
         with torch.no_grad():
             net.fc1.weight.clamp_(-W_CLIP, W_CLIP)
             net.fc2.weight.clamp_(-W_CLIP, W_CLIP)
+            net.out.weight.clamp_(-OUT_CLIP, OUT_CLIP)
 
     for ep in range(args.epochs):
         # 每个 epoch 重扫: 数据还在后台生成, 新分片要能被吃进来
