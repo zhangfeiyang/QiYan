@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 实时: 摄像头 + 波纹, 与静态"拍照"图标区分开 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24"
+    android:tint="@color/text_primary">
+    <path android:fillColor="@android:color/white"
+        android:pathData="M12,10.5m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0" />
+    <path android:fillColor="@android:color/white"
+        android:pathData="M7.05,5.55L5.64,4.14C4.02,5.76 3,8 3,10.5s1.02,4.74 2.64,6.36l1.41,-1.41C5.79,14.18 5,12.43 5,10.5S5.79,6.82 7.05,5.55zM18.36,4.14l-1.41,1.41c1.26,1.27 2.05,3.02 2.05,4.95s-0.79,3.68 -2.05,4.95l1.41,1.41C19.98,15.24 21,13 21,10.5S19.98,5.76 18.36,4.14z" />
+    <path android:fillColor="@android:color/white"
+        android:pathData="M9,21h6v-2H9z" />
+</vector>

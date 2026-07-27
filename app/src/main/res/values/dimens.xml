@@ -1,18 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  间距与字号比例尺.
+
+  旧的一套是 tiny/small/medium/large/xlarge + small/medium/large/title/display,
+  形容词命名到第六档就没词可用了 ("xxlarge"), 而且看不出彼此的倍数关系.
+  改成 4dp 基数的数字档位, space_4 一眼就知道是 16dp.
+-->
 <resources>
+
+    <!-- ============ 间距 (4dp 基数) ============ -->
+    <dimen name="space_1">4dp</dimen>
+    <dimen name="space_2">8dp</dimen>
+    <dimen name="space_3">12dp</dimen>
+    <dimen name="space_4">16dp</dimen>
+    <dimen name="space_5">20dp</dimen>
+    <dimen name="space_6">24dp</dimen>
+    <dimen name="space_8">32dp</dimen>
+    <dimen name="space_10">40dp</dimen>
+
+    <!-- 屏幕左右安全边距, 全局统一 -->
+    <dimen name="screen_gutter">16dp</dimen>
+
+    <!-- ============ 字号 ============ -->
+    <dimen name="text_caption">12sp</dimen>
+    <dimen name="text_body_sm">13sp</dimen>
+    <dimen name="text_label">14sp</dimen>
+    <dimen name="text_body">15sp</dimen>
+    <dimen name="text_title">18sp</dimen>
+    <dimen name="text_headline">22sp</dimen>
+    <dimen name="text_display">30sp</dimen>
+    <!-- 积分这类"一眼要看到的数字"单独给一档 -->
+    <dimen name="text_numeric">34sp</dimen>
+
+    <!-- ============ 圆角 ============ -->
+    <dimen name="radius_sm">6dp</dimen>
+    <dimen name="radius_md">10dp</dimen>
+    <dimen name="radius_lg">14dp</dimen>
+    <dimen name="radius_pill">999dp</dimen>
+
+    <!-- ============ 描边 ============ -->
+    <dimen name="stroke_hairline">1dp</dimen>
+    <dimen name="stroke_thick">2dp</dimen>
+
+    <!-- ============ 控件尺寸 ============ -->
+    <!-- 48dp 是 Android 可点区域下限, 主按钮给到 52dp 更好按 -->
+    <dimen name="touch_min">48dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="button_height_sm">40dp</dimen>
+    <dimen name="icon_sm">18dp</dimen>
+    <dimen name="icon_md">24dp</dimen>
+    <dimen name="icon_lg">32dp</dimen>
+
+    <!-- 对局双方信息行. 固定高度, 免得里面的"思考中"胶囊撑动整屏布局 -->
+    <dimen name="info_row_height">40dp</dimen>
+
+    <!-- ============ 棋盘 ============ -->
     <dimen name="board_padding">16dp</dimen>
     <dimen name="piece_size">40dp</dimen>
-    <dimen name="margin_tiny">4dp</dimen>
-    <dimen name="margin_small">8dp</dimen>
-    <dimen name="margin_medium">16dp</dimen>
-    <dimen name="margin_large">24dp</dimen>
-    <dimen name="margin_xlarge">32dp</dimen>
-    <dimen name="text_small">12sp</dimen>
-    <dimen name="text_medium">14sp</dimen>
-    <dimen name="text_large">16sp</dimen>
-    <dimen name="text_title">20sp</dimen>
-    <dimen name="text_display">28sp</dimen>
-    <dimen name="button_height">48dp</dimen>
-    <dimen name="card_radius">12dp</dimen>
-    <dimen name="elevation_card">4dp</dimen>
+
 </resources>

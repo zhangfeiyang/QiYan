@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 托盘里的黑子 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/piece_face" />
+            <stroke android:width="3dp" android:color="@color/action" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/piece_face" />
+            <stroke android:width="2dp" android:color="@color/piece_black" />
+        </shape>
+    </item>
+</selector>

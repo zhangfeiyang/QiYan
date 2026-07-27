@@ -1,59 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  亮色主题 (values/).
+
+  暗色是本 App 的主设计, 见 values-night/colors.xml —— 这里是选择"浅色"
+  的用户拿到的那一套. 两边**必须**保持同名 token, 缺一个就会在切主题时
+  崩成未解析资源.
+
+  命名按语义而非外观: surface_raised 而不是 bg_card, 这样棋谱卡片和对话
+  气泡共用一个 token 时不必解释"为什么卡片色叫 card 却用在气泡上".
+-->
 <resources>
-    <!-- 中国风主题 -->
-    <color name="primary">#8B4513</color>
-    <color name="primary_dark">#5D2F0E</color>
-    <color name="primary_light">#D2A56C</color>
-    <color name="accent">#C9302C</color>
 
-    <color name="board_light">#F5DEB3</color>
-    <color name="board_dark">#DEB887</color>
-    <color name="board_wood">#8B5A2B</color>
-    <color name="board_line">#3B2412</color>
-    <color name="board_palace">#7B3F00</color>
+    <!-- ============ 表面层次 ============ -->
+    <!-- 由低到高: sunken 内凹 < base 底 < raised 卡片 < overlay 浮层 -->
+    <color name="surface_sunken">#E6E2DB</color>
+    <color name="surface_base">#F4F2EE</color>
+    <color name="surface_raised">#FFFFFF</color>
+    <color name="surface_overlay">#FFFFFF</color>
 
-    <color name="piece_red">#C8102E</color>
-    <color name="piece_red_outline">#7B0A1A</color>
-    <color name="piece_black">#1A1A1A</color>
-    <color name="piece_black_outline">#000000</color>
-    <color name="piece_wood_bg">#F5E6C8</color>
+    <!-- ============ 描边 ============ -->
+    <color name="border_subtle">#DEDAD3</color>
+    <color name="border_strong">#C4BFB7</color>
 
-    <color name="bg_main">#FAEBD7</color>
-    <color name="bg_panel">#FFE8C8</color>
-    <color name="bg_card">#FFEFD5</color>
+    <!-- ============ 文字 ============ -->
+    <color name="text_primary">#23211F</color>
+    <color name="text_secondary">#5E5952</color>
+    <color name="text_tertiary">#8E8880</color>
+    <color name="text_on_action">#FFFFFF</color>
 
-    <color name="text_primary">#3B2412</color>
-    <color name="text_secondary">#6B4423</color>
-    <color name="text_hint">#9C7B5A</color>
+    <!-- ============ 行动色 ============ -->
+    <!-- #55802D 而非暗色那支 #81B64C: 白字压在浅绿上对比度不够 (约 4.1:1),
+         压深到 4.6:1 才过 WCAG AA 正文线. -->
+    <color name="action">#55802D</color>
+    <color name="action_pressed">#446725</color>
+    <color name="action_muted">#EAF1E0</color>
 
-    <color name="highlight_select">#80FFD700</color>
-    <color name="highlight_move">#8032CD32</color>
-    <color name="highlight_capture">#80DC143C</color>
-    <color name="highlight_last_move">#80FF8C00</color>
-    <color name="highlight_hint">#804169E1</color>
-    <color name="highlight_check">#80FF0000</color>
+    <!-- ============ 语义色 ============ -->
+    <color name="danger">#C4362B</color>
+    <color name="warning">#B77A16</color>
+    <color name="info">#2F6FAF</color>
+    <!-- 淡底变体: 报错气泡/提示条要有自己的底色, 否则"错误"和普通内容
+         同色, 用户根本读不出这是一条失败信息. -->
+    <color name="danger_muted">#FBEAE8</color>
 
-    <color name="winrate_red">#C8102E</color>
-    <color name="winrate_black">#2C2C2C</color>
-    <color name="winrate_draw">#808080</color>
+    <!-- ============ 对弈双方 (UI 文字/标签用) ============ -->
+    <!-- 注意与 piece_* 区分: 那是画在木色棋盘上的棋子, 这是画在界面表面上
+         的文字. 同一个"黑方"在浅色界面上是深色, 在暗色界面上必须是浅色. -->
+    <color name="side_red">#C0392B</color>
+    <color name="side_black">#2C2A28</color>
 
-    <color name="divider">#8B5A2B</color>
-    <color name="status_red">#C8102E</color>
-    <color name="status_black">#2C2C2C</color>
+    <!-- ============ 棋盘 ============ -->
+    <!-- grad_* 是木纹渐变的四个停靠点, 从左上到右下由浅到深 -->
+    <color name="board_grad_1">#EBD9B4</color>
+    <color name="board_grad_2">#DDC49A</color>
+    <color name="board_grad_3">#D2B288</color>
+    <color name="board_grad_4">#C0A272</color>
+    <color name="board_line">#4A3826</color>
+    <color name="board_palace">#6B4A2A</color>
+    <color name="board_border">#8A6E48</color>
+    <color name="board_coord">#7A5D3A</color>
+    <color name="board_grain">#80A0826D</color>
 
-    <color name="rank_bronze">#CD7F32</color>
-    <color name="rank_silver">#C0C0C0</color>
-    <color name="rank_gold">#FFD700</color>
-    <color name="rank_platinum">#E5E4E2</color>
-    <color name="rank_diamond">#B9F2FF</color>
-    <color name="rank_master">#FF4500</color>
-    <color name="rank_grandmaster">#9400D3</color>
-    <color name="rank_king">#FFD700</color>
+    <!-- ============ 棋子 ============ -->
+    <!-- 棋子面色. 摆子托盘里的棋子也用它, 与盘上的子看起来是同一副 -->
+    <color name="piece_face">#F5E9CE</color>
+    <color name="piece_red">#B4302A</color>
+    <color name="piece_red_edge">#7C1A16</color>
+    <color name="piece_black">#22201E</color>
+    <!-- 棋子面的径向高光: 左上亮 → 右下暗, 做出圆润的立体感 -->
+    <color name="piece_grad_1">#FFF8DC</color>
+    <color name="piece_grad_2">#F2E2BF</color>
+    <color name="piece_grad_3">#DEC69B</color>
+    <color name="piece_grain">#30A0826D</color>
+    <color name="piece_shadow">#40000000</color>
 
-    <!-- 暗色主题 -->
-    <color name="bg_main_dark">#2C1810</color>
-    <color name="bg_panel_dark">#3D2817</color>
-    <color name="bg_card_dark">#4A2F1F</color>
-    <color name="text_primary_dark">#F5E6C8</color>
-    <color name="text_secondary_dark">#D2A56C</color>
+    <!-- ============ 落子高亮 (画在木色上, 需带 alpha) ============ -->
+    <color name="hl_select">#99F2C94C</color>
+    <color name="hl_move">#995FA83E</color>
+    <color name="hl_capture">#99D64541</color>
+    <color name="hl_last">#80E3A13C</color>
+    <color name="hl_hint">#995B9DD9</color>
+    <color name="hl_check">#99E0574A</color>
+    <!-- 选中环: 压在棋子之上, 所以不带 alpha -->
+    <!-- 吃子特效的火星色: 红黑双方共用, 靠亮度从棋子本色里跳出来 -->
+    <color name="fx_spark">#FFB020</color>
+    <color name="sel_ring">#F2A03C</color>
+    <!-- 可走点的外圈光晕, 比实心点更淡 -->
+    <color name="hl_move_halo">#4D5FA83E</color>
+    <!-- 提示的次选点 -->
+    <color name="hl_hint_soft">#665B9DD9</color>
+    <!-- 提示箭头是不透明的: 它压在棋子上, 半透明会和棋子颜色混成脏色 -->
+    <color name="hl_arrow">#2E7D32</color>
+
+    <!-- ============ 胜率条 ============ -->
+    <!-- soft→strong 是各自那半区的渐变两端, 优势越大越往 strong 走 -->
+    <color name="winrate_red_soft">#E08B84</color>
+    <color name="winrate_red_strong">#C0392B</color>
+    <color name="winrate_black_soft">#6E6A66</color>
+    <color name="winrate_black_strong">#2C2A28</color>
+    <!-- 百分比文字压在各自半区上, 所以要分开定: 亮色主题两半都是深色底,
+         白字都能读; 暗色主题黑方那半是浅色, 见 values-night. -->
+    <color name="winrate_text_on_red">#FFFFFF</color>
+    <color name="winrate_text_on_black">#FFFFFF</color>
+
+    <!-- ============ 段位 ============ -->
+    <color name="rank_bronze">#B06D33</color>
+    <color name="rank_silver">#8C8C94</color>
+    <color name="rank_gold">#C79A1E</color>
+    <color name="rank_platinum">#6E8A96</color>
+    <color name="rank_diamond">#2E9BB8</color>
+    <color name="rank_master">#E2551F</color>
+    <color name="rank_grandmaster">#8E4EC6</color>
+    <color name="rank_king">#C79A1E</color>
+
 </resources>

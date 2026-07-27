@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 黑方执子圆点. 注意 side_black 在暗色主题下解析成浅色 —— 深底上画
+     真黑等于没画. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/side_black" />
+</shape>

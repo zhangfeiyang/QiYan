@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  暗色只需要覆盖"随明暗翻转的布尔量".
+
+  颜色一律走 @color/ token, 由 values-night/colors.xml 解析, 所以样式本身
+  不在这里重复 —— 重复一遍就等于埋下两套会各自漂移的定义.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.ZhongguoXiangqi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/action</item>
+        <item name="colorPrimaryDark">@color/surface_base</item>
+        <item name="colorOnPrimary">@color/text_on_action</item>
+        <item name="colorAccent">@color/action</item>
+        <item name="colorSurface">@color/surface_raised</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:colorBackground">@color/surface_base</item>
+        <item name="android:windowBackground">@color/surface_base</item>
+
+        <item name="android:statusBarColor">@color/surface_base</item>
+        <item name="android:navigationBarColor">@color/surface_base</item>
+        <!-- 深色底 → 浅色图标 -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+
+        <item name="materialButtonStyle">@style/Widget.Xiangqi.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Xiangqi.Card</item>
+        <item name="toolbarStyle">@style/Widget.Xiangqi.Toolbar</item>
+    </style>
+
+    <!-- 实心按钮的按压涟漪在深色上要用白色叠加, 黑色叠加等于没有反馈 -->
+    <style name="Widget.Xiangqi.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/selector_action_bg</item>
+        <item name="android:textColor">@color/text_on_action</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_md</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="elevation">0dp</item>
+        <item name="iconTint">@color/text_on_action</item>
+        <item name="iconSize">@dimen/icon_md</item>
+        <item name="rippleColor">#33FFFFFF</item>
+    </style>
+
+</resources>

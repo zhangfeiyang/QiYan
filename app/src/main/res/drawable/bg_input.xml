@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 输入框: 比页面底色再抬一层, 让"可以在这里打字"一眼可见 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/surface_raised" />
+    <stroke android:width="@dimen/stroke_hairline" android:color="@color/border_subtle" />
+    <corners android:radius="@dimen/radius_pill" />
+</shape>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 非 CardView 场合的卡片底: 表面色 + 细描边, 不用投影 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/surface_raised" />
+    <stroke android:width="@dimen/stroke_hairline" android:color="@color/border_subtle" />
+    <corners android:radius="@dimen/radius_lg" />
+</shape>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  托盘末尾的"空位". 选中棋盘上的子后点这里就是把子拿掉 —— 对应用户说的
+  "点击棋局外的空位棋子位". 用虚线圈画成"这里没有子", 与实心棋子区分.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@android:color/transparent" />
+    <stroke android:width="2dp" android:color="@color/border_strong" android:dashWidth="4dp" android:dashGap="3dp" />
+</shape>

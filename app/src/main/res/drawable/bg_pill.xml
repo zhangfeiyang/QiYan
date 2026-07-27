@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 状态胶囊: 轮到谁走/难度标签 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/surface_overlay" />
+    <corners android:radius="@dimen/radius_pill" />
+</shape>

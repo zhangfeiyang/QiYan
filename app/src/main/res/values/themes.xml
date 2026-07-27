@@ -1,62 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  主题与组件样式.
+
+  只用 values/ 一份 + values-night/ 覆盖两三个"必须随明暗翻转"的属性
+  (windowLightStatusBar 之类布尔量). 颜色本身全部走 @color/ token, 由
+  colors.xml / values-night/colors.xml 各自解析, 所以样式定义不必重复两遍.
+-->
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 基础主题 -->
     <style name="Theme.ZhongguoXiangqi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="android:windowBackground">@color/bg_main</item>
-        <item name="android:colorBackground">@color/bg_main</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
-        <item name="android:navigationBarColor">@color/primary_dark</item>
+        <!-- Material 组件的颜色角色 -->
+        <item name="colorPrimary">@color/action</item>
+        <item name="colorPrimaryDark">@color/surface_base</item>
+        <item name="colorOnPrimary">@color/text_on_action</item>
+        <item name="colorAccent">@color/action</item>
+        <item name="colorSurface">@color/surface_raised</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:colorBackground">@color/surface_base</item>
+        <item name="android:windowBackground">@color/surface_base</item>
+
+        <!-- 状态栏/导航栏与内容同色, 不再用一条深褐色横杠把屏幕切两半 -->
+        <item name="android:statusBarColor">@color/surface_base</item>
+        <item name="android:navigationBarColor">@color/surface_base</item>
+        <!-- 浅色底 → 深色图标; values-night 里翻转 -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
-        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+
+        <!-- 全局默认组件样式 -->
+        <item name="materialButtonStyle">@style/Widget.Xiangqi.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Xiangqi.Card</item>
+        <item name="toolbarStyle">@style/Widget.Xiangqi.Toolbar</item>
     </style>
 
     <style name="Theme.ZhongguoXiangqi.Game" parent="Theme.ZhongguoXiangqi">
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:statusBarColor">@color/board_wood</item>
+        <!-- 对弈时棋盘要顶到边, 状态栏跟着内容底色走 -->
+        <item name="android:statusBarColor">@color/surface_base</item>
     </style>
 
-    <!-- 按钮样式 -->
-    <style name="Widget.ZhongguoXiangqi.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/primary</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
+    <!-- ================= Toolbar ================= -->
+    <style name="Widget.Xiangqi.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/surface_base</item>
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Xiangqi.Title</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
-    <style name="Widget.ZhongguoXiangqi.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">@color/primary</item>
-        <item name="android:textColor">@color/primary</item>
-        <item name="cornerRadius">8dp</item>
+    <!-- ================= 按钮 ================= -->
+    <!--
+      三档主次, 一屏之内只允许出现一个 Primary:
+        Primary  实心行动色 —— "开始对弈"
+        Tonal    行动色淡底 —— 次要但仍是正向操作
+        Outlined 仅描边     —— 并列的平级入口
+        Text     无容器     —— 低频/破坏性以外的辅助操作
+    -->
+    <style name="Widget.Xiangqi.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/selector_action_bg</item>
+        <item name="android:textColor">@color/text_on_action</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_md</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="elevation">0dp</item>
+        <item name="iconTint">@color/text_on_action</item>
+        <item name="iconSize">@dimen/icon_md</item>
+        <item name="rippleColor">#33000000</item>
     </style>
 
-    <style name="Widget.ZhongguoXiangqi.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/primary</item>
+    <style name="Widget.Xiangqi.Button.Tonal" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/action_muted</item>
+        <item name="android:textColor">@color/action</item>
+        <item name="iconTint">@color/action</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_md</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="elevation">0dp</item>
     </style>
 
-    <!-- 卡片 -->
-    <style name="Widget.ZhongguoXiangqi.Card" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/bg_card</item>
-        <item name="cardCornerRadius">12dp</item>
-        <item name="cardElevation">4dp</item>
-    </style>
-
-    <!-- 文本样式 -->
-    <style name="TextAppearance.ZhongguoXiangqi.Title" parent="TextAppearance.MaterialComponents.Headline5">
+    <style name="Widget.Xiangqi.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/border_strong</item>
+        <item name="strokeWidth">@dimen/stroke_hairline</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_md</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="rippleColor">@color/action_muted</item>
+    </style>
+
+    <style name="Widget.Xiangqi.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+    </style>
+
+    <!-- 破坏性操作: 认输/删除. 单独一档, 免得和普通文字按钮混在一起误触 -->
+    <style name="Widget.Xiangqi.Button.Danger" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/danger</item>
+        <item name="strokeWidth">@dimen/stroke_hairline</item>
+        <item name="android:textColor">@color/danger</item>
+        <item name="iconTint">@color/danger</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_md</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- 棋盘下方那排 撤销/提示/翻转: 图标在上文字在下, 挤得下 4~5 个 -->
+    <style name="Widget.Xiangqi.Button.Tool" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="iconTint">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="iconGravity">top</item>
+        <item name="iconSize">@dimen/icon_md</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:paddingLeft">@dimen/space_1</item>
+        <item name="android:paddingRight">@dimen/space_1</item>
+    </style>
+
+    <!-- ================= 卡片 ================= -->
+    <!-- 分层靠"表面色 + 1dp 描边", 不靠投影: 深底上的灰阴影只会糊出脏边 -->
+    <style name="Widget.Xiangqi.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/surface_raised</item>
+        <item name="cardCornerRadius">@dimen/radius_lg</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/border_subtle</item>
+        <item name="strokeWidth">@dimen/stroke_hairline</item>
+    </style>
+
+    <!-- ================= 文字 ================= -->
+    <style name="TextAppearance.Xiangqi.Display" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_display</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.ZhongguoXiangqi.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textColor">@color/text_secondary</item>
+    <style name="TextAppearance.Xiangqi.Headline" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_headline</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.ZhongguoXiangqi.Body" parent="TextAppearance.MaterialComponents.Body1">
+    <style name="TextAppearance.Xiangqi.Title" parent="TextAppearance.MaterialComponents.Subtitle1">
         <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Xiangqi.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+    </style>
+
+    <style name="TextAppearance.Xiangqi.Secondary" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_body_sm</item>
+    </style>
+
+    <!-- 小标签: 统计项的"积分""段位""对局"那一行 -->
+    <style name="TextAppearance.Xiangqi.Label" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- 数字要等宽: 计时和积分跳动时不能让后面的字跟着抖 -->
+    <style name="TextAppearance.Xiangqi.Numeric" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_numeric</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">monospace</item>
+    </style>
+
+    <!-- ================= 开关 / 单选 ================= -->
+    <!-- 开关标题下面紧跟一行说明文字, 所以标题自己不留下边距, 由说明
+         那个 TextView 负责与下一项拉开距离. -->
+    <style name="Widget.Xiangqi.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:paddingTop">@dimen/space_2</item>
+    </style>
+
+    <style name="Widget.Xiangqi.Radio" parent="Widget.MaterialComponents.CompoundButton.RadioButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+    </style>
+
+    <!-- ================= 弹窗 ================= -->
+    <style name="Theme.Xiangqi.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorSurface">@color/surface_overlay</item>
+        <item name="android:colorBackground">@color/surface_overlay</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Xiangqi.Button.Text</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Xiangqi.Button.Text</item>
     </style>
 
 </resources>

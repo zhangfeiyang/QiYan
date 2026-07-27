@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:radius="12dp" />
-    <solid android:color="#C8102E" />
+<!-- 自己发的消息: 行动色实底, 右下角收紧成 4dp 指向发送方 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/action" />
+    <corners
+        android:topLeftRadius="@dimen/radius_lg"
+        android:topRightRadius="@dimen/radius_lg"
+        android:bottomLeftRadius="@dimen/radius_lg"
+        android:bottomRightRadius="@dimen/radius_sm" />
 </shape>

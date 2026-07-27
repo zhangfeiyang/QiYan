@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 列表项按压反馈: 旧界面整条列表按下去毫无反应 -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/action_muted">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFFFF" />
+            <corners android:radius="@dimen/radius_lg" />
+        </shape>
+    </item>
+</ripple>

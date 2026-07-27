@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  暗色主题 —— 本 App 的**主**设计 (现代竞技方向).
+
+  这个目录之前是空的: 主题写着 DayNight, colors.xml 里也躺着 bg_main_dark
+  一类的色值, 但没有任何 -night 资源, 所以夜间模式实际什么都没发生, 那几个
+  "_dark" 颜色是从没被解析过的死资源. 这里补齐, 顺便废掉那套命名.
+
+  中性色带一点暖褐 (#262421 而非 #242424): 纯灰配木色棋盘会显脏, 让底色和
+  棋盘落在同一个色温上, 木头才像是"放在桌上"而不是"贴在屏幕上".
+-->
+<resources>
+
+    <!-- ============ 表面层次 ============ -->
+    <color name="surface_sunken">#1D1B19</color>
+    <color name="surface_base">#262421</color>
+    <color name="surface_raised">#312E2B</color>
+    <color name="surface_overlay">#3B3835</color>
+
+    <!-- ============ 描边 ============ -->
+    <color name="border_subtle">#3D3936</color>
+    <color name="border_strong">#55504B</color>
+
+    <!-- ============ 文字 ============ -->
+    <!-- 不用纯白: #FFFFFF 压在深底上会晕开 (halation), 长时间看棋很累. -->
+    <color name="text_primary">#EFECE7</color>
+    <color name="text_secondary">#ADA79F</color>
+    <color name="text_tertiary">#7A756E</color>
+    <color name="text_on_action">#16210B</color>
+
+    <!-- ============ 行动色 ============ -->
+    <color name="action">#81B64C</color>
+    <color name="action_pressed">#6C9B3E</color>
+    <color name="action_muted">#2E3A22</color>
+
+    <!-- ============ 语义色 ============ -->
+    <color name="danger">#E0574A</color>
+    <color name="warning">#E3A13C</color>
+    <color name="info">#5B9DD9</color>
+    <!-- 暗色下的淡底是"加一点色相到表面色上", 不是把亮色版压暗 -->
+    <color name="danger_muted">#3A2320</color>
+
+    <!-- ============ 对弈双方 (UI 文字/标签用) ============ -->
+    <!-- side_black 在暗色下是**浅**色. 旧代码把 #2C2C2C 当"黑方"文字色,
+         压在 #262421 底上等于隐形 —— 主菜单那行"负 0"就是这么消失的. -->
+    <color name="side_red">#E8635C</color>
+    <color name="side_black">#CFC9C1</color>
+
+    <!-- ============ 棋盘 ============ -->
+    <!-- 比亮色那套压暗约 8%: 满屏原木在深底上会过曝, 抢走棋子的注意力. -->
+    <color name="board_grad_1">#D9C39B</color>
+    <color name="board_grad_2">#CBB489</color>
+    <color name="board_grad_3">#BFA579</color>
+    <color name="board_grad_4">#AD9163</color>
+    <color name="board_line">#4A3826</color>
+    <color name="board_palace">#6B4A2A</color>
+    <!-- 外框在暗色下反而要更深: 让棋盘从背景里"浮"出来 -->
+    <color name="board_border">#1A1613</color>
+    <color name="board_coord">#7A5D3A</color>
+    <color name="board_grain">#80A0826D</color>
+
+    <!-- ============ 棋子 ============ -->
+    <!-- 棋子面色. 摆子托盘里的棋子也用它, 与盘上的子看起来是同一副 -->
+    <color name="piece_face">#F0E2C4</color>
+    <color name="piece_red">#B4302A</color>
+    <color name="piece_red_edge">#7C1A16</color>
+    <color name="piece_black">#22201E</color>
+    <color name="piece_grad_1">#F7EBD2</color>
+    <color name="piece_grad_2">#EADAB6</color>
+    <color name="piece_grad_3">#D6BE92</color>
+    <color name="piece_grain">#30A0826D</color>
+    <!-- 暗色下阴影加重: 浅色棋子落在木盘上要有明确的离地感 -->
+    <color name="piece_shadow">#59000000</color>
+
+    <!-- ============ 落子高亮 ============ -->
+    <color name="hl_select">#99F2C94C</color>
+    <color name="hl_move">#995FA83E</color>
+    <color name="hl_capture">#99D64541</color>
+    <color name="hl_last">#80E3A13C</color>
+    <color name="hl_hint">#995B9DD9</color>
+    <color name="hl_check">#99E0574A</color>
+    <!-- 选中环: 压在棋子之上, 所以不带 alpha -->
+    <!-- 吃子特效的火星色: 红黑双方共用, 靠亮度从棋子本色里跳出来 -->
+    <color name="fx_spark">#FFD24A</color>
+    <color name="sel_ring">#FFC24D</color>
+    <color name="hl_move_halo">#4D5FA83E</color>
+    <color name="hl_hint_soft">#665B9DD9</color>
+    <color name="hl_arrow">#3F9E45</color>
+
+    <!-- ============ 胜率条 ============ -->
+    <!-- 黑方那一半必须提亮, 否则在深底上看不出条子占了多少. -->
+    <color name="winrate_red_soft">#E8918A</color>
+    <color name="winrate_red_strong">#D6483F</color>
+    <color name="winrate_black_soft">#B8B2AA</color>
+    <color name="winrate_black_strong">#E8E4DE</color>
+    <color name="winrate_text_on_red">#FFFFFF</color>
+    <!-- 黑方半区是浅色, 白字会糊掉, 必须换成深色 -->
+    <color name="winrate_text_on_black">#262421</color>
+
+    <!-- ============ 段位 ============ -->
+    <color name="rank_bronze">#C87F3F</color>
+    <color name="rank_silver">#BFBFC4</color>
+    <color name="rank_gold">#E8C04A</color>
+    <color name="rank_platinum">#D8E0E4</color>
+    <color name="rank_diamond">#7FD9EF</color>
+    <color name="rank_master">#FF7043</color>
+    <color name="rank_grandmaster">#B57BE0</color>
+    <color name="rank_king">#FFD54F</color>
+
+</resources>
