@@ -18,6 +18,19 @@ L1 = 256          # FeatureTransformer 输出 (每个视角)
 L2 = 32
 L3 = 32
 
+# 最后一层的输出乘上这个常数才是厘兵分.
+#
+# 不这么做的话, 网络要直接吐出 ±2000 的数, 而它的输入是 32 个 [0,1] 的激活,
+# 于是输出层权重必须长到 100 上下. Adam 每步最多挪 lr(1e-3), 十轮训练才三百
+# 多步 —— 实测权重从 0.2 爬到 0.4 就没了, 网络输出 std 只有 2.65 厘兵, 损失
+# 还不如"恒定输出均值". 那不是学不会, 是根本走不到.
+# 乘个固定常数之后, 权重只需要 0.1 量级就能覆盖整个分数范围, 几百步就够。
+# 顺带把损失的梯度也放正常了: tanh(cp/800) 对网络原始输出的导数原本带着
+# 1/800, 现在是 600/800, 回到 1 的量级.
+#
+# 常数是固定的, 不参与训练, 导出时直接乘进权重 —— 端上不需要知道它存在.
+OUT_SCALE = 600.0
+
 
 class ClippedReLU(nn.Module):
     """clamp(x, 0, 1). 量化友好的激活."""
@@ -48,9 +61,18 @@ class NnueNet(nn.Module):
         self.fc2 = nn.Linear(L2, L3)
         self.out = nn.Linear(L3, 1)
 
-        # FeatureTransformer 初值要小: 一个局面有 30 多个特征同时激活, 求和
-        # 之后很容易冲出 ClippedReLU 的上界, 一开始就全饱和, 梯度直接消失.
-        nn.init.uniform_(self.ft.weight, -0.01, 0.01)
+        # 初始化必须让累加器落在 ClippedReLU 的**中间**, 不是两头.
+        #
+        # 一开始只顾着躲上界: 权重取 ±0.01, 偏置取 0. 结果一个局面 32 个特征
+        # 求和之后累加器是 0 附近的对称分布, 有一半直接被下界钳成 0 —— 那些
+        # 单元梯度恒为 0, 永远学不动; 活下来的另一半均值只有 0.02, 等于整个
+        # 网络只在 [0,1] 的 2% 里工作. 实测练 8 轮后预测值 std 只有 2.65 厘兵,
+        # 而标签 std 是 1172, 损失甚至不如"恒定输出均值".
+        #
+        # 所以偏置给 0.5 把工作点顶到量程中央, 权重的尺度按"32 个特征求和后
+        # std 约 0.2"反推: 0.2/sqrt(32) ≈ 0.035, 均匀分布取 ±0.06.
+        nn.init.uniform_(self.ft.weight, -0.06, 0.06)
+        nn.init.constant_(self.ft_bias, 0.5)
         with torch.no_grad():
             self.ft.weight[FEATURES].zero_()
 
@@ -65,4 +87,4 @@ class NnueNet(nn.Module):
         x = torch.cat([acc_own, acc_opp], dim=1)
         x = self.act(self.fc1(x))
         x = self.act(self.fc2(x))
-        return self.out(x).squeeze(1)
+        return self.out(x).squeeze(1) * OUT_SCALE

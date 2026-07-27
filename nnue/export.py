@@ -33,7 +33,7 @@ import struct
 import numpy as np
 import torch
 
-from model import NnueNet, FEATURES, L1, L2, L3
+from model import NnueNet, FEATURES, L1, L2, L3, OUT_SCALE
 
 QA = 127      # 激活值尺度 (ClippedReLU 上界 1.0 对应 127)
 QW = 64       # 权重尺度
@@ -92,7 +92,10 @@ def main():
     ft_b = sd["ft_bias"]                     # (l1,)
     fc1_w, fc1_b = sd["fc1.weight"], sd["fc1.bias"]   # (32, l1*2)
     fc2_w, fc2_b = sd["fc2.weight"], sd["fc2.bias"]   # (32, 32)
-    out_w, out_b = sd["out.weight"], sd["out.bias"]   # (1, 32)
+    # OUT_SCALE 是模型 forward 里的固定乘数, 这里直接乘进权重 ——
+    # 端上不需要知道它存在, 也就不会因为两边常数不一致而出错.
+    out_w = sd["out.weight"] * OUT_SCALE              # (1, 32)
+    out_b = sd["out.bias"] * OUT_SCALE
 
     print("[export] 量化中...")
     ft_wq = q_weights(ft_w, QA, np.int16, "ft.weight")

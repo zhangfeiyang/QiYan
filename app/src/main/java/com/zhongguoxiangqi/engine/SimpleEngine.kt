@@ -496,9 +496,9 @@ class SimpleEngine : ChessEngine {
      */
     internal fun benchmarkEval(pos: Position, times: Int): Long {
         var sink = 0
-        repeat(20_000) { sink += evaluate(pos) }   // 预热 JIT
+        repeat(20_000) { sink += handcraftedEval(pos) }   // 预热 JIT
         val t0 = System.nanoTime()
-        repeat(times) { sink += evaluate(pos) }
+        repeat(times) { sink += handcraftedEval(pos) }
         val ns = System.nanoTime() - t0
         if (sink == Int.MIN_VALUE) println("")     // 防止被优化掉
         return ns
@@ -572,10 +572,27 @@ class SimpleEngine : ChessEngine {
     // ====== 评估 ======
 
     /**
-     * 局面评估(从红方角度,正值=红方优势).
-     * 包含: 子力价值 + 棋子位置分(PST).
+     * 局面评估. 返回**走子方视角**的厘兵分(正值 = 走子方占优),
+     * 与 negamax 约定一致.
      */
-    private fun evaluate(pos: Position): Int {
+    private fun evaluate(pos: Position): Int =
+        nnue?.evaluate(pos) ?: handcraftedEval(pos)
+
+    /**
+     * 装上 NNUE 之后, 求值改走网络; 传 null 退回手写评估.
+     *
+     * 做成可切换而不是直接替换, 是因为"网络到底值不值"只能靠两者实战对打
+     * 来回答 —— 网络求值比手写评估慢一到两个数量级, 准是准了, 但搜索会浅
+     * 好几层, 净收益是正是负得测. 见 NnueGauntletRunner.
+     */
+    fun setNnue(evaluator: com.zhongguoxiangqi.engine.nnue.NnueEvaluator?) {
+        nnue = evaluator
+    }
+
+    private var nnue: com.zhongguoxiangqi.engine.nnue.NnueEvaluator? = null
+
+    /** 子力价值 + 棋子位置分(PST) */
+    private fun handcraftedEval(pos: Position): Int {
         var score = 0
         for (sq in 0 until Square.COUNT) {
             val p = pos.squares[sq]

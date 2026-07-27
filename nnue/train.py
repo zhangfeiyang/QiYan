@@ -15,7 +15,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from dataset import SelfPlayDataset
-from model import NnueNet
+from model import NnueNet, OUT_SCALE
 
 
 def build_loader(data_dir, batch, workers):
@@ -102,7 +102,8 @@ def main():
         secs = time.time() - t0
         # 一并报出量化敏感的权重量级: 输出层没有钳位 (它是 int16, 范围宽),
         # 但一旦 |w| 逼近 512 导出就会截断, 得能提前看见.
-        ow = net.out.weight.abs().max().item()
+        # 报"乘进 OUT_SCALE 之后"的等效权重, 因为导出时截断的是它
+        ow = net.out.weight.abs().max().item() * OUT_SCALE
         print(f"[ep {ep+1}/{args.epochs}] loss={total/max(seen,1):.5f} "
               f"样本={seen:,} 耗时={secs:.0f}s  |out.w|max={ow:.1f}/512")
         torch.save(net.state_dict(), args.out)
