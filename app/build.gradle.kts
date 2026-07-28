@@ -148,7 +148,8 @@ android {
             // 让 -Dnnue.* 这类系统属性能透传进测试 JVM.
             // 默认 Gradle 不转发, 数据生成的参数会全部丢失退回默认值.
             it.systemProperties(System.getProperties().filterKeys { k ->
-                k.toString().startsWith("nnue.") || k.toString().startsWith("match.")
+                k.toString().startsWith("nnue.") || k.toString().startsWith("match.") ||
+                k.toString().startsWith("pika.")
             }.mapKeys { e -> e.key.toString() })
             // 桌面 JVM 加载 x86-64 版 libxqnnue.so (build_host.sh 产出).
             // 没有这行时 System.loadLibrary 找不到 .so, NNUE 退到 Kotlin 标量.

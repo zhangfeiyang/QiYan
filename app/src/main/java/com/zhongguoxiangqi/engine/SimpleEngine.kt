@@ -750,7 +750,7 @@ class SimpleEngine : ChessEngine {
         private const val MIN_SCORE = Int.MIN_VALUE + 1
 
         /** 静态搜索最大深度,防止连吃链把栈搜爆 */
-        private const val MAX_QUIESCENCE_PLY = 10
+        private const val MAX_QUIESCENCE_PLY = 6
         /** 未指定时限时的默认思考时间 */
         private const val DEFAULT_MOVETIME_MS = 3000L
         /** 停止搜索时等待工作线程退出的上限 */
