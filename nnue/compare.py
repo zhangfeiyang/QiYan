@@ -81,7 +81,8 @@ def main():
     ap.add_argument("--data", default="~/nnue-data")
     ap.add_argument("--holdout", type=int, default=1500,
                     help="每个分片取尾部多少条; 必须小于训练结束后新增的量/分片数")
-    ap.add_argument("--l1", type=int, default=256)
+    ap.add_argument("--l1", type=int, default=256, help="A 的 l1, B 未单独指定时也用这个")
+    ap.add_argument("--l1b", type=int, default=None, help="B 的 l1; 两个网络宽度不同时必须给")
     ap.add_argument("--batch", type=int, default=16384)
     ap.add_argument("--scale", type=float, default=800.0)
     args = ap.parse_args()
@@ -94,9 +95,10 @@ def main():
     print(f"[dev] {dev}")
     loader = torch.utils.data.DataLoader(ds, batch_size=args.batch, num_workers=4)
 
+    l1s = {"A": args.l1, "B": args.l1b if args.l1b is not None else args.l1}
     rows = []
     for tag, path in (("A", args.a), ("B", args.b)):
-        net = NnueNet(l1=args.l1).to(dev)
+        net = NnueNet(l1=l1s[tag]).to(dev)
         net.load_state_dict(torch.load(path, map_location=dev))
         rows.append((tag, os.path.basename(path)) + evaluate(net, loader, dev, args.scale))
         del net
