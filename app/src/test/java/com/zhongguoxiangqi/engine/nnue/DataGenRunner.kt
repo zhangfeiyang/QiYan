@@ -35,8 +35,10 @@ class DataGenRunner {
         val threads = System.getProperty("nnue.threads", "8").toInt()
         val depth = System.getProperty("nnue.depth", "4").toInt()
         val outDir = File(System.getProperty("nnue.out", "nnue-data")).apply { mkdirs() }
+        val seedBase = System.getProperty("nnue.seed", "1000").toLong()
 
-        println("[gen] 开始: games=$games threads=$threads depth=$depth out=$outDir")
+        println("[gen] 开始: games=$games threads=$threads depth=$depth " +
+            "seed=$seedBase out=$outDir")
         val perThread = maxOf(1, games / threads)
         val total = AtomicLong()
         val startedAt = System.currentTimeMillis()
@@ -47,8 +49,10 @@ class DataGenRunner {
                 val shard = File(outDir, "shard-$t.bin")
                 val gen = SelfPlayGenerator(
                     searchDepth = depth,
-                    // 每个分片换一个种子, 否则八个线程生成一模一样的八份数据
-                    seed = 1000L + t * 7919L,
+                    // 每个分片换一个种子, 否则八个线程生成一模一样的八份数据。
+                    // 再叠一个可配的偏移: 种子写死的话, 想再生成一批"训练时
+                    // 没见过"的局面(比如验证集)就只能拿到同样的棋局。
+                    seed = seedBase + t * 7919L,
                 )
                 gen.generate(perThread, shard) { g, n ->
                     if (g % 50 == 0) {
