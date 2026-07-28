@@ -68,14 +68,19 @@ class DataGenRunner {
                     seed = seedBase + t * 7919L,
                     teacherNet = teacherNet,
                 )
-                gen.generate(perThread, shard) { g, n ->
-                    if (g % 50 == 0) {
-                        val all = total.get() + n
-                        val secs = (System.currentTimeMillis() - startedAt) / 1000.0
-                        println("[gen] shard=$t 局=$g 本片样本=$n 全局约=$all " +
-                            "速率=${if (secs > 0) (all / secs).toInt() else 0}/秒")
-                    }
-                }.also { total.addAndGet(it) }
+                try {
+                    gen.generate(perThread, shard) { g, n ->
+                        if (g % 50 == 0) {
+                            val all = total.get() + n
+                            val secs = (System.currentTimeMillis() - startedAt) / 1000.0
+                            println("[gen] shard=$t 局=$g 本片样本=$n 全局约=$all " +
+                                "速率=${if (secs > 0) (all / secs).toInt() else 0}/秒")
+                        }
+                    }.also { total.addAndGet(it) }
+                } catch (e: Exception) {
+                    System.err.println("[gen] shard=$t 异常: ${e.javaClass.name}: ${e.message}")
+                    e.printStackTrace()
+                }
             }
         }
         pool.shutdown()

@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.engine
 
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
+import com.zhongguoxiangqi.game.MoveGenerator
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
@@ -60,6 +61,9 @@ class SimpleEngine : ChessEngine {
      * 和杀手表互补 —— 杀手只管本层, 历史是跨层的全局倾向.
      */
     private val history = Array(Square.COUNT) { IntArray(Square.COUNT) }
+
+    // quiescence 复用不走分配，避免每层 new ArrayList → GC 风暴
+    private val qMoves = mutableListOf<Move>()
 
     override fun isReady() = ready
 
@@ -430,15 +434,15 @@ class SimpleEngine : ChessEngine {
 
         var alphaLocal = if (standPat > alpha) standPat else alpha
 
-        val moves = mutableListOf<Move>()
-        Rules.generateAllLegal(pos, moves)
-        val captures = moves.filter { pos.pieceAt(it.to) != Piece.NONE.code }
-        if (captures.isEmpty()) return standPat
-        val ordered = captures.toMutableList()
-        sortByMvvLva(pos, ordered)
+        qMoves.clear()
+        MoveGenerator.generateCaptures(pos, qMoves)
+        if (qMoves.isEmpty()) return standPat
+        sortByMvvLva(pos, qMoves)
+        // 递归 quiescence 会清 qMoves, 必须在进入循环前拷出来
+        val caps = ArrayList(qMoves)
 
         var best = standPat
-        for (m in ordered) {
+        for (m in caps) {
             pos.doMove(m)
             val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1)
             pos.undoMove()
@@ -746,7 +750,7 @@ class SimpleEngine : ChessEngine {
         private const val MIN_SCORE = Int.MIN_VALUE + 1
 
         /** 静态搜索最大深度,防止连吃链把栈搜爆 */
-        private const val MAX_QUIESCENCE_PLY = 32
+        private const val MAX_QUIESCENCE_PLY = 10
         /** 未指定时限时的默认思考时间 */
         private const val DEFAULT_MOVETIME_MS = 3000L
         /** 停止搜索时等待工作线程退出的上限 */

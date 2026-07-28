@@ -30,6 +30,25 @@ object MoveGenerator {
     /** 黑方过河限制(只能 row <= 4) */
     private const val BLACK_RIVER = 4
 
+    /**
+     * 生成所有合法吃子走法. 只给静止搜索用 —— 比 [generateAll] 后再 filter
+     * 快得多, 因为非吃子走法在底层就跳过了, 不产生、不过滤、不进 legality check.
+     */
+    fun generateCaptures(pos: Position, moves: MutableList<Move>) {
+        val savedSize = moves.size
+        for (sq in 0 until Square.COUNT) {
+            val p = pos.squares[sq]
+            if (p == Piece.NONE.code) continue
+            if (Piece.fromCode(p).color != pos.sideToMove) continue
+            generateForSquare(pos, sq, moves, capturesOnly = true)
+        }
+        val it = moves.listIterator(savedSize)
+        while (it.hasNext()) {
+            val m = it.next()
+            if (!pos.leavesKingSafe(m)) it.remove()
+        }
+    }
+
     /** 生成所有合法走法 */
     fun generateAll(pos: Position, moves: MutableList<Move>) {
         val savedSize = moves.size
@@ -43,12 +62,12 @@ object MoveGenerator {
     }
 
     /** 生成所有伪合法走法(不检查送将) - 供引擎内部使用 */
-    fun generatePseudo(pos: Position, moves: MutableList<Move>) {
+    fun generatePseudo(pos: Position, moves: MutableList<Move>, capturesOnly: Boolean = false) {
         for (sq in 0 until Square.COUNT) {
             val p = pos.squares[sq]
             if (p == Piece.NONE.code) continue
             if (Piece.fromCode(p).color != pos.sideToMove) continue
-            generateForSquare(pos, sq, moves)
+            generateForSquare(pos, sq, moves, capturesOnly)
         }
     }
 
@@ -58,25 +77,27 @@ object MoveGenerator {
      * 这是走子规则的唯一来源: [Rules.isPseudoLegal] 也走这条路径,
      * 保证"能生成的"与"判为合法的"永远一致.
      */
-    fun generateForSquare(pos: Position, sq: Int, moves: MutableList<Move>) {
+    fun generateForSquare(pos: Position, sq: Int, moves: MutableList<Move>,
+                          capturesOnly: Boolean = false) {
         val p = pos.squares[sq]
         if (p == Piece.NONE.code) return
         val piece = Piece.fromCode(p)
         val color = piece.color
         when (piece.type) {
-            1 -> genKing(pos, sq, color, moves)
-            2 -> genAdvisor(pos, sq, color, moves)
-            3 -> genElephant(pos, sq, color, moves)
-            4 -> genHorse(pos, sq, color, moves)
-            5 -> genRook(pos, sq, color, moves)
-            6 -> genCannon(pos, sq, color, moves)
-            7 -> genPawn(pos, sq, color, moves)
+            1 -> genKing(pos, sq, color, moves, capturesOnly)
+            2 -> genAdvisor(pos, sq, color, moves, capturesOnly)
+            3 -> genElephant(pos, sq, color, moves, capturesOnly)
+            4 -> genHorse(pos, sq, color, moves, capturesOnly)
+            5 -> genRook(pos, sq, color, moves, capturesOnly)
+            6 -> genCannon(pos, sq, color, moves, capturesOnly)
+            7 -> genPawn(pos, sq, color, moves, capturesOnly)
         }
     }
 
     // ===== 帅/将 =====
 
-    private fun genKing(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genKing(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                        capturesOnly: Boolean = false) {
         val r = Square.row(from)
         val c = Square.col(from)
         val deltas = arrayOf(
@@ -95,13 +116,15 @@ object MoveGenerator {
             val to = Square.make(toR, toC)
             val tgt = pos.squares[to]
             if (tgt != Piece.NONE.code && Piece.fromCode(tgt).color == color) continue
+            if (capturesOnly && tgt == Piece.NONE.code) continue
             moves.add(Move.make(from, to))
         }
     }
 
     // ===== 仕/士 =====
 
-    private fun genAdvisor(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genAdvisor(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                           capturesOnly: Boolean = false) {
         val r = Square.row(from)
         val c = Square.col(from)
         val deltas = arrayOf(
@@ -120,13 +143,15 @@ object MoveGenerator {
             val to = Square.make(toR, toC)
             val tgt = pos.squares[to]
             if (tgt != Piece.NONE.code && Piece.fromCode(tgt).color == color) continue
+            if (capturesOnly && tgt == Piece.NONE.code) continue
             moves.add(Move.make(from, to))
         }
     }
 
     // ===== 相/象 =====
 
-    private fun genElephant(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genElephant(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                            capturesOnly: Boolean = false) {
         val r = Square.row(from)
         val c = Square.col(from)
         // 不可过河
@@ -151,25 +176,18 @@ object MoveGenerator {
             val to = Square.make(toR, toC)
             val tgt = pos.squares[to]
             if (tgt != Piece.NONE.code && Piece.fromCode(tgt).color == color) continue
+            if (capturesOnly && tgt == Piece.NONE.code) continue
             moves.add(Move.make(from, to))
         }
     }
 
     // ===== 马 =====
 
-    private fun genHorse(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genHorse(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                         capturesOnly: Boolean = false) {
         val fr = Square.row(from)
         val fc = Square.col(from)
 
-        // 8 个方向: (目标行列偏移, 马腿行列偏移)
-        // 0: 上左 (目标-2行-1列, 腿-1行0列)
-        // 1: 上右 (目标-2行+1列, 腿-1行0列)
-        // 2: 下左 (目标+2行-1列, 腿+1行0列)
-        // 3: 下右 (目标+2行+1列, 腿+1行0列)
-        // 4: 左上 (目标-1行-2列, 腿0行-1列)
-        // 5: 左下 (目标+1行-2列, 腿0行-1列)
-        // 6: 右上 (目标-1行+2列, 腿0行+1列)
-        // 7: 右下 (目标+1行+2列, 腿0行+1列)
         val dirs = arrayOf(
             intArrayOf(-2, -1, -1, 0),
             intArrayOf(-2, 1, -1, 0),
@@ -187,21 +205,21 @@ object MoveGenerator {
             if (toR !in 0 until Square.ROWS || toC !in 0 until Square.COLS) continue
             val legR = fr + d[2]
             val legC = fc + d[3]
-            // 马腿被挡则不能走
             if (pos.squares[Square.make(legR, legC)] != Piece.NONE.code) continue
             val to = Square.make(toR, toC)
             val tgt = pos.squares[to]
             if (tgt != Piece.NONE.code && Piece.fromCode(tgt).color == color) continue
+            if (capturesOnly && tgt == Piece.NONE.code) continue
             moves.add(Move.make(from, to))
         }
     }
 
     // ===== 车 =====
 
-    private fun genRook(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genRook(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                        capturesOnly: Boolean = false) {
         val fr = Square.row(from)
         val fc = Square.col(from)
-        // 4 个方向: (drow, dcol)
         val dirs = arrayOf(
             intArrayOf(-1, 0),  // 上
             intArrayOf(1, 0),   // 下
@@ -217,10 +235,10 @@ object MoveGenerator {
                 val to = Square.make(toR, toC)
                 val tgt = pos.squares[to]
                 if (tgt == Piece.NONE.code) {
-                    moves.add(Move.make(from, to))
+                    if (!capturesOnly) moves.add(Move.make(from, to))
                 } else {
                     if (Piece.fromCode(tgt).color != color) {
-                        moves.add(Move.make(from, to))
+                        moves.add(Move.make(from, to))  // capture, always keep
                     }
                     break
                 }
@@ -231,7 +249,8 @@ object MoveGenerator {
 
     // ===== 炮 =====
 
-    private fun genCannon(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genCannon(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                          capturesOnly: Boolean = false) {
         val fr = Square.row(from)
         val fc = Square.col(from)
         val dirs = arrayOf(
@@ -251,15 +270,14 @@ object MoveGenerator {
                 val tgt = pos.squares[to]
                 if (!jumped) {
                     if (tgt == Piece.NONE.code) {
-                        moves.add(Move.make(from, to))
+                        if (!capturesOnly) moves.add(Move.make(from, to))
                     } else {
                         jumped = true  // 找到炮架
                     }
                 } else {
-                    // 已跳过,寻找被吃的目标
                     if (tgt != Piece.NONE.code) {
                         if (Piece.fromCode(tgt).color != color) {
-                            moves.add(Move.make(from, to))
+                            moves.add(Move.make(from, to))  // capture over mount
                         }
                         break
                     }
@@ -271,10 +289,10 @@ object MoveGenerator {
 
     // ===== 兵/卒 =====
 
-    private fun genPawn(pos: Position, from: Int, color: Int, moves: MutableList<Move>) {
+    private fun genPawn(pos: Position, from: Int, color: Int, moves: MutableList<Move>,
+                        capturesOnly: Boolean = false) {
         val r = Square.row(from)
         val c = Square.col(from)
-        // 红方前进: row 减小; 黑方前进: row 增大
         val dForward = if (color == Color.RED) -1 else 1
 
         // 前进
@@ -283,7 +301,9 @@ object MoveGenerator {
             val to = Square.make(toR, c)
             val tgt = pos.squares[to]
             if (tgt == Piece.NONE.code || Piece.fromCode(tgt).color != color) {
-                moves.add(Move.make(from, to))
+                if (!capturesOnly || tgt != Piece.NONE.code) {
+                    moves.add(Move.make(from, to))
+                }
             }
         }
 
@@ -296,7 +316,9 @@ object MoveGenerator {
                 val to = Square.make(r, toC)
                 val tgt = pos.squares[to]
                 if (tgt == Piece.NONE.code || Piece.fromCode(tgt).color != color) {
-                    moves.add(Move.make(from, to))
+                    if (!capturesOnly || tgt != Piece.NONE.code) {
+                        moves.add(Move.make(from, to))
+                    }
                 }
             }
         }

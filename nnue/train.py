@@ -42,12 +42,18 @@ def main():
     ap.add_argument("--l1", type=int, default=256,
                     help="FeatureTransformer 宽度. 端上求值耗时基本正比于它,\n"
                          "导出时要用同样的值")
+    ap.add_argument("--init", default=None,
+                    help="从已有 .pt checkpoint 初始化权重做微调. 不设则随机初始化")
     args = ap.parse_args()
 
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"[dev] {dev}")
 
     net = NnueNet(l1=args.l1).to(dev)
+    if args.init:
+        state = torch.load(args.init, map_location=dev)
+        net.load_state_dict(state)
+        print(f"[init] 从 {args.init} 加载预训练权重, 继续微调")
     print(f"[net] l1={args.l1}")
     opt = torch.optim.AdamW(net.parameters(), lr=args.lr, weight_decay=1e-5)
     # 损失在"胜率空间"里算: 两边都过 tanh 再比.
