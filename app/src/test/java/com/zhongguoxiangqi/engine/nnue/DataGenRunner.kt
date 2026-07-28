@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.engine.nnue
 
 import org.junit.Test
 import java.io.File
+import java.io.FileInputStream
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -20,6 +21,12 @@ import java.util.concurrent.atomic.AtomicLong
  * ```
  * 默认 `nnue.run` 未设置时**直接跳过**, 免得每次跑单元测试都误触发几天的任务.
  *
+ * 加 `-Dnnue.teacherNet=/path/to/x.nnue` 就是自我引导: 打分老师从手写评估
+ * 换成这个网络自己(见 [SelfPlayGenerator] 类注释里"手写评估还是 NNUE"那段)。
+ * 桌面 JVM 加载不到 arm64 的 .so, NNUE 求值会退到纯 Kotlin 路径, 比手写
+ * 评估慢一到两个数量级——这条路线通常要配更浅的 `-Dnnue.depth`, 不然吞吐
+ * 会垮。先用小 games 数跑一轮量出实际速率, 再决定要不要放大规模。
+ *
  * 每个线程写自己的文件 (`shard-0.bin` ...), 训练时一起读即可 —— 多线程往
  * 同一个文件写会交错撕裂记录.
  */
@@ -36,9 +43,15 @@ class DataGenRunner {
         val depth = System.getProperty("nnue.depth", "4").toInt()
         val outDir = File(System.getProperty("nnue.out", "nnue-data")).apply { mkdirs() }
         val seedBase = System.getProperty("nnue.seed", "1000").toLong()
+        val teacherPath = System.getProperty("nnue.teacherNet")
+        // 网络只读, 8 个线程共用一份; 每局各自的 NnueEvaluator 才是不能共享的
+        val teacherNet = teacherPath?.let {
+            FileInputStream(it).use { f -> NnueNetwork.load(f) }
+        }
 
         println("[gen] 开始: games=$games threads=$threads depth=$depth " +
-            "seed=$seedBase out=$outDir")
+            "seed=$seedBase out=$outDir " +
+            "老师=${teacherNet?.let { "NNUE(l1=${it.l1}) $teacherPath" } ?: "手写评估"}")
         val perThread = maxOf(1, games / threads)
         val total = AtomicLong()
         val startedAt = System.currentTimeMillis()
@@ -53,6 +66,7 @@ class DataGenRunner {
                     // 再叠一个可配的偏移: 种子写死的话, 想再生成一批"训练时
                     // 没见过"的局面(比如验证集)就只能拿到同样的棋局。
                     seed = seedBase + t * 7919L,
+                    teacherNet = teacherNet,
                 )
                 gen.generate(perThread, shard) { g, n ->
                     if (g % 50 == 0) {

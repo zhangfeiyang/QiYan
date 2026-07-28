@@ -17,6 +17,9 @@ captures/
 # Pikafish 构建缓存
 third_party/
 
+# 桌面 JNI 库 (由 build_host.sh 本地编译，不提交)
+app/src/main/cpp/host_lib/
+
 # Python
 __pycache__/
 *.pyc

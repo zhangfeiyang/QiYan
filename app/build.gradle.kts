@@ -150,6 +150,9 @@ android {
             it.systemProperties(System.getProperties().filterKeys { k ->
                 k.toString().startsWith("nnue.") || k.toString().startsWith("match.")
             }.mapKeys { e -> e.key.toString() })
+            // 桌面 JVM 加载 x86-64 版 libxqnnue.so (build_host.sh 产出).
+            // 没有这行时 System.loadLibrary 找不到 .so, NNUE 退到 Kotlin 标量.
+            it.jvmArgs("-Djava.library.path=${project.file("src/main/cpp/host_lib").absolutePath}")
             it.maxHeapSize = "4g"
         }
     }

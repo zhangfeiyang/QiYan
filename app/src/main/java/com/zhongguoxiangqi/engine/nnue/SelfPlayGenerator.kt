@@ -31,6 +31,21 @@ import kotlin.random.Random
  * 3. **跳过将军局面**. 被将时的分数被战术主导, 静态评估学不到东西, 反而
  *    污染回归目标.
  * 4. **分数统一为走子方视角**. 和引擎内部 negamax 约定一致, 训练侧不用再猜。
+ *
+ * ## 打标签用手写评估还是用自己训过的 NNUE?
+ *
+ * 默认(teacherNet=null)是手写评估: 蒸馏的天花板就是"手写评估 + 搜索"能
+ * 表达的上限, 深度加到再深也只是把同一个老师的分打得更准, 不会学到手写
+ * 评估本身没有的模式。这是刻意的第一步——用一个已知靠谱的老师验证整条
+ * 流水线(特征提取/量化/训练)没有编码错误, gen0 vs 手写评估同深度打平就
+ * 是这一步的验收。
+ *
+ * 流水线验证过之后, 传入 [teacherNet] 换成用自己训出的 NNUE 打分, 就是
+ * 自我引导(bootstrap): 新数据里的分数带着网络自己学到的模式而不只是子力
+ * +PST, 才有可能突破手写评估这个天花板。代价是单元测试跑在桌面 JVM 上
+ * 加载不到 arm64 的 .so, NNUE 求值会退到纯 Kotlin 路径(~55k 次/秒, 比手写
+ * 评估在 JVM 上的 1.7~5.7M 次/秒慢一到两个数量级), 所以自我引导这条路
+ * 通常要配一个更浅的搜索深度, 不然生成速度会垮掉。
  */
 class SelfPlayGenerator(
     private val searchDepth: Int = 5,
@@ -38,6 +53,8 @@ class SelfPlayGenerator(
     private val maxPlies: Int = 200,
     private val randomMoveChance: Double = 0.05,
     private val seed: Long = System.nanoTime(),
+    /** 非空则用这个网络当打分老师, 而不是手写评估. 见上面的类注释。 */
+    private val teacherNet: NnueNetwork? = null,
 ) {
 
     private val rng = Random(seed)
@@ -68,6 +85,10 @@ class SelfPlayGenerator(
     private fun playOneGame(sink: java.io.OutputStream): Long {
         val engine = com.zhongguoxiangqi.engine.SimpleEngine()
         engine.start()
+        // 每局一个新引擎实例, 这里配一个新 evaluator: NnueEvaluator 内部有
+        // 可变缓冲, 不能跨线程/跨局共享, 但底下的权重(teacherNet)本身只读,
+        // 多局共用同一份没问题.
+        engine.setNnue(teacherNet?.let { NnueEvaluator(it) })
         val pos = Position().also { it.setupStartPosition() }
         val legal = mutableListOf<Move>()
         var samples = 0L
