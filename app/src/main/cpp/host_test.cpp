@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     if (!g) { std::fprintf(stderr, "打不开 %s\n", argv[2]); return 1; }
 
     std::string line;
-    int checked = 0, bad = 0;
+    int checked = 0, bad = 0, simd_bad = 0;
     while (std::getline(g, line)) {
         if (line.empty() || line[0] == '#') continue;
         const size_t b1 = line.find('|'), b2 = line.rfind('|');
@@ -126,10 +126,23 @@ int main(int argc, char** argv) {
                              checked + 1, expect, got, n);
             }
         }
+        // 宿主机上 SIMD 路径是真编出来的 (x86 走 AVX2), 顺手用同一批黄金
+        // 向量验它 —— 不然 SIMD 写错了要等到跑分结果莫名其妙才发现。
+        if (nnue::has_simd()) {
+            const int32_t sgot = nnue::eval_simd(L.net, pieces.data(), n, black);
+            if (sgot != expect) {
+                if (++simd_bad <= 5) {
+                    std::fprintf(stderr,
+                                 "[host] SIMD 第 %d 条不一致: 期望 %d 实得 %d (%d 子)\n",
+                                 checked + 1, expect, sgot, n);
+                }
+            }
+        }
         ++checked;
     }
 
-    std::printf("[host] 比对 %d 条, 不一致 %d 条\n", checked, bad);
+    std::printf("[host] 比对 %d 条, 标量不一致 %d 条, SIMD 不一致 %d 条\n",
+                checked, bad, simd_bad);
     if (checked < 100) {
         std::fprintf(stderr, "[host] !! 素材太少, 没验证到什么\n");
         return 1;
@@ -138,7 +151,12 @@ int main(int argc, char** argv) {
         std::fprintf(stderr, "[host] !! C++ 与 Python 参考实现对不上\n");
         return 1;
     }
-    std::printf("[host] C++ 标量路径与 Python 参考实现逐条相同\n");
+    if (simd_bad) {
+        std::fprintf(stderr, "[host] !! SIMD 路径与标量对不上\n");
+        return 1;
+    }
+    std::printf("[host] C++ %s路径与 Python 参考实现逐条相同\n",
+                nnue::has_simd() ? "标量+SIMD 两条" : "标量");
 
     // 顺带量一下标量吞吐。这不是 NEON 的速度 (宿主机是 x86), 但它能把
     // "慢在语言上"和"慢在没有 SIMD 上"这两件事分开 —— Kotlin 标量实测
@@ -156,8 +174,18 @@ int main(int argc, char** argv) {
         const auto t0 = std::chrono::steady_clock::now();
         for (int i = 0; i < iters; ++i) sink += nnue::eval_scalar(L.net, full, 32, false);
         const auto t1 = std::chrono::steady_clock::now();
-        const double secs = std::chrono::duration<double>(t1 - t0).count();
-        std::printf("[host] C++ 标量吞吐 %.0f 次/秒 (32 子满盘)\n", iters / secs);
+        const double scalar_secs = std::chrono::duration<double>(t1 - t0).count();
+        std::printf("[host] C++ 标量吞吐 %.0f 次/秒 (32 子满盘)\n", iters / scalar_secs);
+
+        if (nnue::has_simd()) {
+            for (int i = 0; i < 20000; ++i) sink += nnue::eval_simd(L.net, full, 32, false);
+            const auto s0 = std::chrono::steady_clock::now();
+            for (int i = 0; i < iters; ++i) sink += nnue::eval_simd(L.net, full, 32, false);
+            const auto s1 = std::chrono::steady_clock::now();
+            const double simd_secs = std::chrono::duration<double>(s1 - s0).count();
+            std::printf("[host] C++ SIMD 吞吐 %.0f 次/秒 (加速 %.2f 倍)\n",
+                        iters / simd_secs, scalar_secs / simd_secs);
+        }
     }
     return 0;
 }

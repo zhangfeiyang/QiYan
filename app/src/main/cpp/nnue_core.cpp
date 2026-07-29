@@ -5,6 +5,9 @@
 #if defined(__ARM_NEON) || defined(__ARM_NEON__)
 #  include <arm_neon.h>
 #  define NNUE_HAS_NEON 1
+#elif defined(__AVX2__)
+#  include <immintrin.h>
+#  define NNUE_HAS_AVX2 1
 #endif
 
 namespace nnue {
@@ -193,7 +196,113 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
     return out / (kQA * kQW);
 }
 
-#else   // 非 ARM (宿主机测试)
+// ------------------------------------------------------------------- AVX2
+//
+// 只在桌面 (数据生成 / 跑分) 上用得到, Android 侧永远走上面的 NEON。
+// 但数据生成一跑就是几个小时, 求值快一倍就等于数据多一倍, 值得写。
+#elif NNUE_HAS_AVX2
+
+bool has_simd() { return true; }
+
+namespace {
+
+// 8 路 int32 横向求和。
+inline int32_t hsum_i32(__m256i v) {
+    __m128i s = _mm_add_epi32(_mm256_castsi256_si128(v),
+                              _mm256_extracti128_si256(v, 1));
+    s = _mm_add_epi32(s, _mm_shuffle_epi32(s, 0x4E));  // [2,3,0,1]
+    s = _mm_add_epi32(s, _mm_shuffle_epi32(s, 0xB1));  // [1,0,3,2]
+    return _mm_cvtsi128_si32(s);
+}
+
+}  // namespace
+
+int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
+    const int l1 = net.l1;
+    const int in_dim = l1 * 2;
+
+    // validate() 保证 l1 % 16 == 0, 于是 in_dim % 32 == 0 —— 下面所有循环
+    // 都不需要收尾。改宽度约束前先改 validate。
+    alignas(32) int16_t acc[2 * kMaxL1];
+    for (int i = 0; i < l1; i += 16) {
+        __m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(net.ft_b + i));
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(acc + i), b);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(acc + l1 + i), b);
+    }
+
+    for (int p = 0; p < n; ++p) {
+        const int idx = pieces[p * 2];
+        const int sq = pieces[p * 2 + 1];
+        const int raw = own_feature(idx, sq);
+        const int flp = opp_feature(idx, sq);
+        const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
+        const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
+        for (int i = 0; i < l1; i += 16) {
+            __m256i a = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(acc + i));
+            __m256i o = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(own_row + i));
+            _mm256_storeu_si256(reinterpret_cast<__m256i*>(acc + i),
+                                _mm256_add_epi16(a, o));
+            __m256i a2 = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(acc + l1 + i));
+            __m256i o2 = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(opp_row + i));
+            _mm256_storeu_si256(reinterpret_cast<__m256i*>(acc + l1 + i),
+                                _mm256_add_epi16(a2, o2));
+        }
+    }
+
+    // clamp 到 [0,127] 再窄化成 int8。packs 是**每 128 位车道内**打包的,
+    // 结果会变成 [a0..7 b0..7 a8..15 b8..15], 所以要用 permute4x64(0xD8)
+    // 把 64 位块换回 [a0..7 a8..15 b0..7 b8..15]。漏掉这一步不会崩, 只会
+    // 让 fc1 的权重和激活错位相乘 —— 又是一个"能跑但棋力莫名其妙差"。
+    alignas(32) int8_t x[2 * kMaxL1];
+    const __m256i zero = _mm256_setzero_si256();
+    const __m256i qa = _mm256_set1_epi16(kQA);
+    for (int i = 0; i < in_dim; i += 32) {
+        __m256i a = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(acc + i));
+        __m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(acc + i + 16));
+        a = _mm256_min_epi16(_mm256_max_epi16(a, zero), qa);
+        b = _mm256_min_epi16(_mm256_max_epi16(b, zero), qa);
+        __m256i packed = _mm256_permute4x64_epi64(_mm256_packs_epi16(a, b), 0xD8);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(x + i), packed);
+    }
+
+    // fc1: int8 × int8 -> int32, 整个求值的大头 (l2 × l1*2 次乘加)。
+    //
+    // maddubs 的**第一个**操作数按无符号字节解释, 第二个才是有符号。
+    // 权重是有符号的 (-1 会被读成 255), 但激活刚被 ClippedReLU 夹在
+    // [0,127], 无符号解释与有符号完全一致 —— 所以激活放第一位、权重放
+    // 第二位就天然正确, 不需要 Stockfish 那套 XOR 0x80 再补偿的技巧。
+    // 顺序写反是这段代码唯一会静默算错的地方。
+    //
+    // 中间的 int16 会不会饱和: 单项最大 127*127, 相邻两项相加 32258,
+    // 仍在 int16 的 32767 以内, 不会截断。
+    const __m256i ones = _mm256_set1_epi16(1);
+    int32_t h1[kMaxL23];
+    for (int o = 0; o < net.l2; ++o) {
+        const int8_t* row = net.fc1_w + o * in_dim;
+        __m256i s = _mm256_setzero_si256();
+        for (int i = 0; i < in_dim; i += 32) {
+            __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(x + i));
+            __m256i w = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(row + i));
+            s = _mm256_add_epi32(s, _mm256_madd_epi16(_mm256_maddubs_epi16(v, w), ones));
+        }
+        h1[o] = clamp_act((net.fc1_b[o] + hsum_i32(s)) / kQW);
+    }
+
+    // fc2 与输出层只有 32×32 和 32 次乘加, 走标量就够
+    int32_t h2[kMaxL23];
+    for (int o = 0; o < net.l3; ++o) {
+        int32_t sum = net.fc2_b[o];
+        const int8_t* row = net.fc2_w + o * net.l2;
+        for (int i = 0; i < net.l2; ++i) sum += row[i] * h1[i];
+        h2[o] = clamp_act(sum / kQW);
+    }
+
+    int32_t out = net.out_b;
+    for (int i = 0; i < net.l3; ++i) out += net.out_w[i] * h2[i];
+    return out / (kQA * kQW);
+}
+
+#else   // 非 ARM、非 x86 SIMD (宿主机测试)
 
 bool has_simd() { return false; }
 

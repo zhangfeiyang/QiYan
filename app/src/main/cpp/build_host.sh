@@ -23,8 +23,11 @@ fi
 
 mkdir -p "$OUT_DIR"
 
+# -mavx2 让 nnue_core.cpp 走 AVX2 求值路径 (比标量快, 数据生成一跑几小时,
+# 值这个钱)。代价是这个 .so 只能在支持 AVX2 的 CPU 上加载 —— 只用于本机
+# 开发/跑分, 不进 APK, 可以接受。CPU 太老就把这行去掉退回标量。
 set -x
-g++ -shared -fPIC -O3 -std=c++17 \
+g++ -shared -fPIC -O3 -std=c++17 -mavx2 \
     -fno-exceptions -fno-rtti -fvisibility=hidden \
     -I"$JDK_INCLUDE" \
     -I"$JDK_INCLUDE/linux" \
