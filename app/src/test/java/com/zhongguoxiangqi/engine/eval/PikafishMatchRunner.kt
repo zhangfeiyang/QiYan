@@ -120,6 +120,17 @@ class PikafishMatchRunner {
         pool.shutdown()
         pool.awaitTermination(30, java.util.concurrent.TimeUnit.DAYS)
 
+        // 导出每个开局对的得分, 供配对分析.
+        // 两个网络下的是同一批开局且全程确定性, 所以可以逐对相减 —— 开局
+        // 难易这个最大的方差源被完全消掉, 比拿两个独立区间比重叠强得多。
+        System.getProperty("pika.dump")?.let { path ->
+            File(path).printWriter().use { pw ->
+                for (i in 0 until openings.size) {
+                    pw.println(i.toString() + "\t" + results[i * 2] + "\t" + results[i * 2 + 1])
+                }
+            }
+            println("[pika-match] 每对得分已写入 " + path)
+        }
         report(results, openings.size, System.currentTimeMillis() - t0)
     }
 
