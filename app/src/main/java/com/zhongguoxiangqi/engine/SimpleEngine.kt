@@ -538,15 +538,37 @@ class SimpleEngine : ChessEngine {
         if (moves.isEmpty()) return Move.empty() to 0
 
         val nodes = longArrayOf(0)
+        accRefreshRoot()
+
+        // 迭代加深 + 根节点重排序.
+        //
+        // 以前这里直接冲到目标深度, 而且根节点的着法就按走法生成的顺序搜
+        // (基本等于按格子编号, 也就是随机). alpha-beta 的剪枝效率全靠"最好的
+        // 着法先搜": 第一个搜的着法定下初始 alpha, 它要是平庸, 后面几乎剪不掉。
+        // 逐层加深的额外开销是等比级数(浅层加起来才占深层的几分之一), 换来的
+        // 是每层都拿上一层的最佳着法打头 —— 深度越大越划算。
+        //
+        // 这不改变返回的分数: 同一深度下 alpha-beta 的极小极大值是确定的,
+        // 变的只是到达它要走多少节点。IterativeDeepeningTest 锁住这一点。
         var best = moves[0]
         var alpha = MIN_SCORE
-        accRefreshRoot()
-        for (m in moves) {
-            if (!doMoveAcc(currentPosition, m)) continue
-            val sc = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
-            undoMoveAcc(currentPosition)
-            if (sc > alpha) { alpha = sc; best = m }
+        val firstDepth = if (useIterativeDeepening) 1 else depth
+        for (d in firstDepth..depth) {
+            var iterBest = moves[0]
+            var iterAlpha = MIN_SCORE
+            for (m in moves) {
+                if (!doMoveAcc(currentPosition, m)) continue
+                val sc = -alphaBeta(currentPosition, d - 1, MAX_SCORE.unaryMinus(), -iterAlpha, nodes, 1)
+                undoMoveAcc(currentPosition)
+                if (sc > iterAlpha) { iterAlpha = sc; iterBest = m }
+            }
+            best = iterBest
+            alpha = iterAlpha
+            // 最佳着法提到最前, 下一层第一个就搜它
+            moves.remove(iterBest)
+            moves.add(0, iterBest)
         }
+        lastSearchNodes = nodes[0]
         return best to alpha
     }
 
@@ -592,6 +614,17 @@ class SimpleEngine : ChessEngine {
      */
     internal var accVerify = false
     internal var accMismatches = 0L
+
+    /**
+     * 基准测试用: 关掉迭代加深, 直接冲到目标深度(改动前的行为).
+     *
+     * 只为了能在**同一个进程**里做 A/B —— 换进程量到的是 JIT 预热和睿频的
+     * 差别, 上一轮 SIMD 实验就被这么骗过一次.
+     */
+    internal var useIterativeDeepening = true
+
+    /** 上一次 [searchWithScore] 访问的节点数. 给基准测试看剪枝效果. */
+    internal var lastSearchNodes = 0L
 
     /**
      * 局面评估. 返回**走子方视角**的厘兵分(正值 = 走子方占优),
