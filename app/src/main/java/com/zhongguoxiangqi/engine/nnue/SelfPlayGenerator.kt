@@ -13,7 +13,9 @@ import kotlin.random.Random
 /**
  * 自对弈训练数据生成器.
  *
- * 数据全部由**本项目自己的引擎**产生, 不接触任何 GPL 引擎的输出.
+ * 默认情况下数据全部由**本项目自己的引擎**产生, 不接触任何 GPL 引擎的输出.
+ * 唯一的例外是显式传入 [uciTeacher] —— 那会让权重成为外部引擎输出的衍生物,
+ * 见 [UciTeacher] 的许可证说明。
  *
  * 核心取巧: 自对弈时每走一步**本来就要搜索**, 那个搜索分数直接就是标签,
  * 不需要再单独深搜一遍. 一局一百来步就是一百来条样本, 成本翻倍变零.
@@ -55,6 +57,14 @@ class SelfPlayGenerator(
     private val seed: Long = System.nanoTime(),
     /** 非空则用这个网络当打分老师, 而不是手写评估. 见上面的类注释。 */
     private val teacherNet: NnueNetwork? = null,
+    /**
+     * 非空则用外部 UCI 引擎打标签, 优先于 [teacherNet].
+     *
+     * **用 GPL 引擎当老师会让权重成为其输出的衍生物** —— 见 [UciTeacher] 的
+     * 许可证说明。这也是本文件开头"数据全部由本项目自己的引擎产生"那句话的
+     * 唯一例外, 由调用方显式传入才会生效。
+     */
+    private val uciTeacher: (() -> UciTeacher)? = null,
 ) {
 
     private val rng = Random(seed)
@@ -69,9 +79,13 @@ class SelfPlayGenerator(
      */
     fun generate(games: Int, out: File, onProgress: (Int, Long) -> Unit = { _, _ -> }): Long {
         var written = 0L
+        // UCI 老师是个子进程, 整批共用一个, 不要每局重启 (握手 + 加载它自己的
+        // 网络要几百毫秒, 按局摊等于把生成速度砍掉一大截)
+        val uci = uciTeacher?.invoke()
+        try {
         BufferedOutputStream(FileOutputStream(out, true), BUFFER_BYTES).use { sink ->
             repeat(games) { g ->
-                written += playOneGame(sink)
+                written += playOneGame(sink, uci)
                 // 定期落盘. 这是个跑几天的任务, 全靠缓冲区自然写满的话:
                 // 一是异常中断会丢掉整个缓冲区的数据, 二是文件大小长时间
                 // 停在 0, 没法从外部判断到底还在不在干活.
@@ -79,10 +93,18 @@ class SelfPlayGenerator(
                 onProgress(g + 1, written)
             }
         }
+        } finally {
+            uci?.let {
+                if (it.restarts > 0 || it.rejects > 0) {
+                    println("[gen] UCI 老师: 重启 ${it.restarts} 次, 局面被拒 ${it.rejects} 次")
+                }
+                it.close()
+            }
+        }
         return written
     }
 
-    private fun playOneGame(sink: java.io.OutputStream): Long {
+    private fun playOneGame(sink: java.io.OutputStream, uci: UciTeacher? = null): Long {
         val engine = com.zhongguoxiangqi.engine.SimpleEngine()
         engine.start()
         // 每局一个新引擎实例, 这里配一个新 evaluator: NnueEvaluator 内部有
@@ -98,16 +120,30 @@ class SelfPlayGenerator(
             Rules.generateAllLegal(pos, legal)
             if (legal.isEmpty()) break            // 将死或困毙, 本局结束
 
+            // 必须判和再继续. 不判的话半回合计数会一路爬过 120, 而 Pikafish
+            // 强制 60 回合规则, 超限直接报 CRITICAL ERROR 并**退出进程** ——
+            // UciTeacher 能自愈重启, 但那是白扔查询, 上游判和才是正解。
+            // 自家引擎当老师时这两条也该判: 死循环局面产出的样本本来就没价值。
+            if (pos.isFiftyMoveDraw() || pos.isThreefoldRepetition()) break
+
             val move: Move
             if (ply < randomPlies) {
                 // 开局随机: 只为把局面撒开, 这几步不产出样本(分数没意义)
                 move = legal[rng.nextInt(legal.size)]
             } else {
-                engine.setPositionDirect(pos)
-                val scored = engine.searchWithScore(searchDepth)
+                val scored = if (uci != null) {
+                    // 外部老师不接受这个局面就跳过本局, 不要拿残缺分当标签
+                    uci.evaluate(pos) ?: break
+                } else {
+                    engine.setPositionDirect(pos)
+                    engine.searchWithScore(searchDepth)
+                }
                 move = scored.first
                 // Move 没有 isEmpty(), 空着法就是 data==0 (见 Move.empty())
                 if (move.data == 0) break
+                // 外部引擎给的着法在本地规则下必须合法, 否则局面会走歪,
+                // 后面整局的标签都建立在一个错误的局面序列上
+                if (legal.none { it.data == move.data }) break
 
                 // 将军中的局面不要: 分数由战术主导, 静态评估从中学不到规律
                 if (!Rules.isInCheck(pos, pos.sideToMove)) {

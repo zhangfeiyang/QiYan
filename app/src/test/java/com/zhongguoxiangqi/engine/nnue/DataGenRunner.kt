@@ -44,6 +44,14 @@ class DataGenRunner {
         val outDir = File(System.getProperty("nnue.out", "nnue-data")).apply { mkdirs() }
         val seedBase = System.getProperty("nnue.seed", "1000").toLong()
         val teacherPath = System.getProperty("nnue.teacherNet")
+        // 外部 UCI 老师. 注意: 用 GPL 引擎当老师会让权重成为其输出的衍生物,
+        // 见 UciTeacher 的许可证说明 —— 这是刻意要显式指定才生效的。
+        val uciPath = System.getProperty("nnue.uciTeacher")
+        val uciDepth = System.getProperty("nnue.uciDepth", depth.toString()).toInt()
+        val uciExe = uciPath?.let { File(it) }
+        require(uciExe == null || uciExe.canExecute()) {
+            "nnue.uciTeacher 不可执行(注意用绝对路径): $uciPath"
+        }
         // 网络只读, 8 个线程共用一份; 每局各自的 NnueEvaluator 才是不能共享的
         val teacherNet = teacherPath?.let {
             FileInputStream(it).use { f -> NnueNetwork.load(f) }
@@ -51,7 +59,15 @@ class DataGenRunner {
 
         println("[gen] 开始: games=$games threads=$threads depth=$depth " +
             "seed=$seedBase out=$outDir " +
-            "老师=${teacherNet?.let { "NNUE(l1=${it.l1}) $teacherPath" } ?: "手写评估"}")
+            "老师=" + when {
+                uciExe != null -> "外部UCI(深度$uciDepth) ${uciExe.name}"
+                teacherNet != null -> "NNUE(l1=${teacherNet.l1}) $teacherPath"
+                else -> "手写评估"
+            })
+        if (uciExe != null) {
+            println("[gen] !! 外部老师是 GPL 引擎时, 训出的权重是其输出的衍生物, " +
+                "与本项目其余部分的 GPL 隔离不再成立")
+        }
         val perThread = maxOf(1, games / threads)
         val total = AtomicLong()
         val startedAt = System.currentTimeMillis()
@@ -67,6 +83,8 @@ class DataGenRunner {
                     // 没见过"的局面(比如验证集)就只能拿到同样的棋局。
                     seed = seedBase + t * 7919L,
                     teacherNet = teacherNet,
+                    // 每个线程一个子进程: UciTeacher 内部有可变的读写流, 不能共享
+                    uciTeacher = uciExe?.let { exe -> { UciTeacher(exe, uciDepth) } },
                 )
                 try {
                     gen.generate(perThread, shard) { g, n ->
