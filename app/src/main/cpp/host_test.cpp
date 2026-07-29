@@ -158,6 +158,77 @@ int main(int argc, char** argv) {
     std::printf("[host] C++ %s路径与 Python 参考实现逐条相同\n",
                 nnue::has_simd() ? "标量+SIMD 两条" : "标量");
 
+    // ---- 增量累加器 ----
+    //
+    // 两条不变式:
+    //   1. acc_refresh + eval_acc  ==  eval_scalar        (拼接顺序 / 视角没搞反)
+    //   2. acc_apply(父累加器, 一步棋)  ==  acc_refresh(走完之后的子力表)
+    // 第 2 条才是增量真正的风险: 错了不会崩, 只会让累加器随着搜索慢慢漂移。
+    {
+        uint32_t seed = 0xC0FFEEu;
+        auto next = [&seed]() {
+            seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return seed;
+        };
+        int bad_eq = 0, bad_apply = 0;
+        nnue::Accum a{}, b{}, c{};
+        for (int t = 0; t < 20000; ++t) {
+            // 造一批格子互不相同的子 (同格两子在真实棋盘上不存在, 而"吃子"
+            // 这一步会短暂产生两个子占同一格, 正是最容易写错的地方)
+            const int n = 2 + static_cast<int>(next() % (nnue::kMaxPieces - 1));
+            uint8_t pieces[nnue::kMaxPieces * 2];
+            bool used[nnue::kSquares] = {false};
+            for (int i = 0; i < n; ++i) {
+                int sq;
+                do { sq = static_cast<int>(next() % nnue::kSquares); } while (used[sq]);
+                used[sq] = true;
+                pieces[i * 2] = static_cast<uint8_t>(next() % 14);
+                pieces[i * 2 + 1] = static_cast<uint8_t>(sq);
+            }
+            const bool black = (next() & 1) != 0;
+
+            nnue::acc_refresh(L.net, a, pieces, n);
+            if (nnue::eval_acc(L.net, a, black) !=
+                nnue::eval_scalar(L.net, pieces, n, black)) {
+                ++bad_eq;
+            }
+
+            // 走一步: mover 从 from 到 to; to 上有子就是吃子
+            const int mv = static_cast<int>(next() % n);
+            const int from_sq = pieces[mv * 2 + 1];
+            const int to_sq = static_cast<int>(next() % nnue::kSquares);
+            if (to_sq == from_sq) continue;
+            int cap = -1, cap_slot = -1;
+            for (int i = 0; i < n; ++i) {
+                if (i != mv && pieces[i * 2 + 1] == to_sq) {
+                    cap = pieces[i * 2]; cap_slot = i; break;
+                }
+            }
+
+            uint8_t after[nnue::kMaxPieces * 2];
+            int m = 0;
+            for (int i = 0; i < n; ++i) {
+                if (i == cap_slot) continue;               // 被吃掉了
+                after[m * 2] = pieces[i * 2];
+                after[m * 2 + 1] = (i == mv) ? static_cast<uint8_t>(to_sq)
+                                             : pieces[i * 2 + 1];
+                ++m;
+            }
+
+            nnue::acc_apply(L.net, b, a, pieces[mv * 2], from_sq, to_sq, cap);
+            nnue::acc_refresh(L.net, c, after, m);
+            if (std::memcmp(b.raw, c.raw, L.net.l1 * sizeof(int16_t)) != 0 ||
+                std::memcmp(b.flip, c.flip, L.net.l1 * sizeof(int16_t)) != 0) {
+                ++bad_apply;
+            }
+        }
+        std::printf("[host] 增量累加器: 20000 局面, 与 eval_scalar 不一致 %d 条, "
+                    "acc_apply 与全量重算不一致 %d 条\n", bad_eq, bad_apply);
+        if (bad_eq || bad_apply) {
+            std::fprintf(stderr, "[host] !! 增量累加器不正确\n");
+            return 1;
+        }
+    }
+
     // 顺带量一下标量吞吐。这不是 NEON 的速度 (宿主机是 x86), 但它能把
     // "慢在语言上"和"慢在没有 SIMD 上"这两件事分开 —— Kotlin 标量实测
     // 28k 次/秒, 若 C++ 标量能到十几万, 说明相当一部分差距只是 JVM 的

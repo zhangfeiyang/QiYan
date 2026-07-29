@@ -1,5 +1,6 @@
 package com.zhongguoxiangqi.engine
 
+import com.zhongguoxiangqi.engine.nnue.NnueFeatures
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.MoveGenerator
@@ -206,6 +207,7 @@ class SimpleEngine : ChessEngine {
         val rootMoves = mutableListOf<Move>()
         Rules.generateAllLegal(currentPosition, rootMoves)
         if (rootMoves.isEmpty()) return Move.empty()
+        accRefreshRoot()
 
         val maxDepthTarget = if (params.depth > 0) params.depth else maxDepth
         val nodes = longArrayOf(0)
@@ -228,9 +230,9 @@ class SimpleEngine : ChessEngine {
             val iterScores = HashMap<Int, Int>(rootMoves.size * 2)
 
             for (m in rootMoves) {
-                currentPosition.doMove(m)
+                if (!doMoveAcc(currentPosition, m)) continue
                 val score = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
-                currentPosition.undoMove()
+                undoMoveAcc(currentPosition)
                 if (aborted(nodes[0])) break
 
                 iterScores[m.data] = score
@@ -322,7 +324,7 @@ class SimpleEngine : ChessEngine {
 
         for (m in moves) {
             val capture = pos.pieceAt(m.to) != Piece.NONE.code
-            pos.doMove(m)
+            if (!doMoveAcc(pos, m)) continue
             // PVS: 第一手用完整窗口, 后面的先用零窗口试探.
             // 排序做得好时绝大多数着法都会在零窗口下被直接否掉, 省下大量节点;
             // 万一试探失败再用完整窗口重搜一次, 那点重复成本远小于收益.
@@ -340,7 +342,7 @@ class SimpleEngine : ChessEngine {
                     score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
                 }
             }
-            pos.undoMove()
+            undoMoveAcc(pos)
             searched++
 
             if (aborted(nodes[0])) return 0
@@ -443,9 +445,9 @@ class SimpleEngine : ChessEngine {
 
         var best = standPat
         for (m in caps) {
-            pos.doMove(m)
+            if (!doMoveAcc(pos, m)) continue
             val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1)
-            pos.undoMove()
+            undoMoveAcc(pos)
             if (aborted(nodes[0])) return 0
             if (score > best) best = score
             if (score > alphaLocal) alphaLocal = score
@@ -479,11 +481,12 @@ class SimpleEngine : ChessEngine {
         val nodes = longArrayOf(0)
         val moves = mutableListOf<Move>()
         Rules.generateAllLegal(currentPosition, moves)
+        accRefreshRoot()
         var alpha = MIN_SCORE
         for (m in moves) {
-            currentPosition.doMove(m)
+            if (!doMoveAcc(currentPosition, m)) continue
             val sc = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
-            currentPosition.undoMove()
+            undoMoveAcc(currentPosition)
             if (sc > alpha) alpha = sc
         }
         return nodes[0]
@@ -537,10 +540,11 @@ class SimpleEngine : ChessEngine {
         val nodes = longArrayOf(0)
         var best = moves[0]
         var alpha = MIN_SCORE
+        accRefreshRoot()
         for (m in moves) {
-            currentPosition.doMove(m)
+            if (!doMoveAcc(currentPosition, m)) continue
             val sc = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
-            currentPosition.undoMove()
+            undoMoveAcc(currentPosition)
             if (sc > alpha) { alpha = sc; best = m }
         }
         return best to alpha
@@ -580,11 +584,67 @@ class SimpleEngine : ChessEngine {
     // ====== 评估 ======
 
     /**
+     * 测试用: 每次求值都拿增量结果和全量重算对一遍, 不一致就计数.
+     *
+     * 增量累加器一旦和 make/unmake 对不上, 症状是分数慢慢漂移 —— 不崩溃,
+     * 只是棋力莫名其妙地差. 单测在真实搜索树上打开这个开关跑一遍, 任何一处
+     * push/pop 没配对都会立刻暴露.
+     */
+    internal var accVerify = false
+    internal var accMismatches = 0L
+
+    /**
      * 局面评估. 返回**走子方视角**的厘兵分(正值 = 走子方占优),
      * 与 negamax 约定一致.
      */
-    private fun evaluate(pos: Position): Int =
-        nnue?.evaluate(pos) ?: handcraftedEval(pos)
+    private fun evaluate(pos: Position): Int {
+        val ev = nnue ?: return handcraftedEval(pos)
+        // 累加器跟着搜索的 make/unmake 一路增量维护, 到这里直接读栈顶就行,
+        // 省掉 32 个子 × 256 维 × 2 视角的全量重算.
+        if (ev.accUsable) {
+            val inc = ev.accEval(pos.sideToMove == Color.BLACK)
+            if (accVerify && inc != ev.evaluate(pos)) accMismatches++
+            return inc
+        }
+        return ev.evaluate(pos)
+    }
+
+    // ---- 增量累加器与搜索的 make/unmake 绑定 ----
+    //
+    // 只包搜索自己的走子/悔棋. **不能**下沉到 Position.doMove ——
+    // 走法生成器为每个伪合法着法都要调一次 leavesKingSafe(内部就是一次
+    // doMove/undoMove) 来试将军, 那些是纯试探, 位置原样还回来. 把累加器
+    // 更新挂到 Position 上, 等于给每个候选着法都算一遍, 比不做增量还慢.
+
+    /** 进搜索前重建累加器. 之后每一步都靠 [doMoveAcc] / [undoMoveAcc] 推进. */
+    private fun accRefreshRoot() {
+        nnue?.takeIf { it.incrementalAvailable }?.accRefresh(currentPosition)
+    }
+
+    /**
+     * 走子并同步累加器. 返回 false 表示走法非法(累加器已还原).
+     *
+     * 棋子编码必须在 `doMove` **之前**读: 走完之后起点已经空了, 落点上原本
+     * 被吃的子也被覆盖掉了.
+     */
+    private fun doMoveAcc(pos: Position, m: Move): Boolean {
+        val ev = nnue?.takeIf { it.incrementalAvailable }
+        var moverIdx = 0
+        var capIdx = -1
+        if (ev != null) {
+            moverIdx = NnueFeatures.pieceIndex(pos.pieceAt(m.from))
+            val capCode = pos.pieceAt(m.to)
+            if (capCode != Piece.NONE.code) capIdx = NnueFeatures.pieceIndex(capCode)
+        }
+        if (!pos.doMove(m)) return false
+        ev?.accPush(moverIdx, m.from, m.to, capIdx)
+        return true
+    }
+
+    private fun undoMoveAcc(pos: Position) {
+        pos.undoMove()
+        nnue?.takeIf { it.incrementalAvailable }?.accPop()
+    }
 
     /**
      * 装上 NNUE 之后, 求值改走网络; 传 null 退回手写评估.

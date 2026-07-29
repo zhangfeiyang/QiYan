@@ -31,6 +31,12 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
     private var handle: Long = 0L
     private var pieceBuf: java.nio.ByteBuffer? = null
 
+    // 增量累加器的状态. 声明必须在 init 之前 —— Kotlin 不允许初始化块引用
+    // 后面才声明的属性. 语义说明见下面的"增量累加器"一节.
+    private var accCapacity = 0
+    private var accDepth = 0
+    private var accRooted = false
+
     init {
         if (NnueNative.available) {
             val h = runCatching { NnueNative.nativeCreate(net.raw) }.getOrDefault(0L)
@@ -43,6 +49,24 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
                     if (pieceBuf == null) {
                         NnueNative.nativeDestroy(h)
                         handle = 0L
+                    } else {
+                        // 增量路径单独自检一遍. 不过就只关掉增量, 全量 native
+                        // 求值照常用 —— 慢一点总比算错强.
+                        val accBad = runCatching {
+                            NnueNative.nativeAccSelfCheck(h, SELF_CHECK_SAMPLES)
+                        }.getOrDefault(-1)
+                        if (accBad == 0) {
+                            accCapacity = runCatching { NnueNative.nativeAccCapacity() }
+                                .getOrDefault(0)
+                        } else {
+                            runCatching {
+                                android.util.Log.e(
+                                    "NnueEvaluator",
+                                    "增量累加器自检未通过 ($accBad/$SELF_CHECK_SAMPLES 条不一致), " +
+                                        "只用全量求值"
+                                )
+                            }
+                        }
                     }
                 } else {
                     runCatching {
@@ -66,7 +90,86 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
             NnueNative.nativeDestroy(handle)
             handle = 0L
             pieceBuf = null
+            accCapacity = 0
+            accRooted = false
         }
+    }
+
+    // ------------------------------------------------------------ 增量累加器
+    //
+    // 求值时间的 65% 花在累加器上 (32 子 × 256 维 × 2 视角), 而走一步棋只
+    // 改动 2~3 个特征. 搜索在 make/unmake 处调 [accPush] / [accPop], 求值
+    // 就只剩 fc1 那一半开销.
+    //
+    // **只在 native 路径上提供**. 纯 Kotlin 那条是正确性退路, 本来就慢 20 倍,
+    // 再抄一份增量实现只是多一处能写错的地方 —— 而增量写错的症状是累加器
+    // 随搜索慢慢漂移, 最难查的那一类.
+
+    // accCapacity: 累加器栈容量; 0 表示增量不可用.
+    // accDepth:    当前栈深度, 由 accPush / accPop 维护, 与 native 侧计数同步.
+    // accRooted:   栈底是不是已经用某个真实局面填过. 没有这一条的话, 忘了调
+    //              accRefresh 就会拿一整块未初始化的累加器去求值 —— 不崩, 只是
+    //              分数全是垃圾, 正是最难查的那种错.
+    // 三者都声明在文件上方(init 之前), Kotlin 不允许初始化块引用后面的属性.
+
+    /** 增量求值是否可用 (native 可用 + 自检通过). */
+    val incrementalAvailable: Boolean get() = accCapacity > 0
+
+    /**
+     * 栈顶累加器现在能不能直接用来求值.
+     *
+     * 深度超出栈容量时为 false —— 此时 native 侧只增计数不写栈, 调用方要
+     * 退回 [evaluate]. 弹回容量以内之后又会变回 true, 不需要重新 [accRefresh].
+     */
+    val accUsable: Boolean get() = accRooted && accDepth < accCapacity
+
+    /** 进搜索前调一次: 用 [pos] 全量重建累加器, 栈深度归零. */
+    fun accRefresh(pos: Position) {
+        if (accCapacity == 0) return
+        val buf = pieceBuf ?: return
+        val n = NnueFeatures.extract(pos, scratchPieces)
+        buf.clear()
+        for (i in 0 until n) {
+            buf.put(scratchPieces[i * 2].toByte())
+            buf.put(scratchPieces[i * 2 + 1].toByte())
+        }
+        accDepth = 0
+        NnueNative.nativeAccRefresh(handle, n)
+        accRooted = true
+    }
+
+    /**
+     * 走一步. 必须与搜索的 `doMove` **一一配对**, 且传的是走子**之前**读到的
+     * 棋子编码 —— 走完之后起点已经空了, 落点上的被吃子也没了.
+     *
+     * [capIdx] 传 -1 表示不吃子.
+     */
+    fun accPush(moverIdx: Int, fromSq: Int, toSq: Int, capIdx: Int) {
+        if (accCapacity == 0) return
+        NnueNative.nativeAccPush(handle, moverIdx, fromSq, toSq, capIdx)
+        accDepth++
+    }
+
+    /** 与 [accPush] 配对, 对应搜索的 `undoMove`. */
+    fun accPop() {
+        if (accCapacity == 0) return
+        NnueNative.nativeAccPop(handle)
+        if (accDepth > 0) accDepth--
+    }
+
+    /** 从栈顶累加器求值. 调用前必须先看 [accUsable]. */
+    fun accEval(blackToMove: Boolean): Int =
+        NnueNative.nativeAccEval(handle, blackToMove)
+
+    /**
+     * 基准测试用: 关掉增量, 强制退回全量重算.
+     *
+     * 增量 vs 全量的对比必须在**同一个进程、同一个网络**里做, 否则量到的是
+     * JIT 预热和睿频的差别 —— 上一轮的 SIMD 实验就是这么被假的 1.22x 骗过一次.
+     */
+    internal fun disableIncrementalForBench() {
+        accCapacity = 0
+        accRooted = false
     }
 
     /** 两个视角的累加器拼在一起, 正好是 fc1 的输入 */
@@ -77,11 +180,11 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
     /**
      * 返回**走子方视角**的评估值, 单位厘兵. 正数表示走子方占优.
      *
-     * 注意这里是每次从头重算累加器 (32 个子 × 256 维 × 2 视角). NNUE 的
-     * 惯常做法是随着走子/悔棋增量更新, 只改动到的那两三个特征, 快一个数量级.
-     * 先把正确性做对, 增量更新等接进搜索、测出实际瓶颈之后再做 ——
-     * 增量更新一旦和 make/unmake 对不上, 错的是"累加器慢慢漂移", 比现在
-     * 这种全量重算难查得多.
+     * 这条是**全量重算**路径 (32 个子 × 256 维 × 2 视角): 给搜索之外的调用方
+     * (数据生成的标注、单测、诊断) 用, 也是增量路径的正确性基准.
+     *
+     * 搜索里走的是上面那套增量累加器, 只改动到的那两三个特征. 两者必须给出
+     * **完全相同**的分数 —— `SimpleEngine.accVerify` 打开后会逐次比对.
      */
     fun evaluate(pos: Position): Int {
         val n = NnueFeatures.extract(pos, scratchPieces)

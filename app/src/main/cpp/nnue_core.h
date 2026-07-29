@@ -53,6 +53,38 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black_to_mo
 // 有没有真正的 SIMD 实现可用 (非 ARM 平台上 eval_simd 就是 scalar 的别名)
 bool has_simd();
 
+// ------------------------------------------------------------- 增量累加器
+//
+// 求值时间的 65% 花在累加器上 (32 个子 × 256 维 × 2 视角)。但走一步棋只动
+// 2~3 个特征, 从父局面的累加器加减一下就够了 —— 这就是 NNUE 里 "U" 的由来。
+//
+// 关键点: raw/flip 两个视角与**走子方无关**。
+//   raw[i]  = ft_b[i] + Σ ft_w[own_feature(子) * l1 + i]
+//   flip[i] = ft_b[i] + Σ ft_w[opp_feature(子) * l1 + i]
+// 走子方只决定求值时哪一半拼在前面, 不影响累加器本身。所以走一步棋不需要
+// 因为"轮到对方了"而重算 —— 这一点搞错的话就退化成全量重算了。
+struct Accum {
+    int16_t raw[kMaxL1];
+    int16_t flip[kMaxL1];
+};
+
+// 全量重算。进搜索前做一次, 之后靠 acc_apply 推进。
+void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n);
+
+// dst = src 走一步棋之后的累加器。src 与 dst 可以是同一个对象。
+//
+// mover_idx 从 from_sq 走到 to_sq; cap_idx >= 0 表示吃掉了原本在 to_sq 上的子。
+// 注意被吃的子在 **to_sq**, 与落点重合 —— 象棋没有吃过路兵这类例外, 所以
+// 不需要额外的被吃格参数。
+void acc_apply(const Net& net, Accum& dst, const Accum& src,
+               int mover_idx, int from_sq, int to_sq, int cap_idx);
+
+// 从累加器求值, 返回走子方视角的厘兵分。
+//
+// 不变式: acc_refresh(a, pieces, n) 之后, eval_acc(a, black) 必须与
+// eval_scalar(pieces, n, black) **逐位相同**。JNI 自检和 host_test 都验这条。
+int32_t eval_acc(const Net& net, const Accum& a, bool black_to_move);
+
 // 累加器用 int16。最坏情况是"某个输出维度上最大的 32 个权重之和 + 偏置",
 // 实测约 600, 对 int16 有 54 倍余量 —— 但那是**某一个网络**的实测值,
 // 换个训练得更久的网络可能变大。所以导出时会校验这个上界 (见 export.py),
