@@ -293,7 +293,7 @@ class SimpleEngine : ChessEngine {
         if (aborted(nodes[0])) return 0
 
         // 叶节点: 先做静态搜索消化吃子连锁, 否则会出现"地平线效应"(白送子)
-        if (depth <= 0) return quiescence(pos, alpha, beta, nodes, ply)
+        if (depth <= 0) return quiescence(pos, alpha, beta, nodes, ply, 0)
 
         // 置换表查询
         val key = pos.hash
@@ -425,14 +425,32 @@ class SimpleEngine : ChessEngine {
         tt[key] = TTEntry(depth, score, flag, moveData)
     }
 
-    /** 静态搜索: 只继续搜吃子着法,直到局面"安静"下来 */
-    private fun quiescence(pos: Position, alpha: Int, beta: Int, nodes: LongArray, ply: Int): Int {
+    /**
+     * 静态搜索: 只继续搜吃子着法,直到局面"安静"下来.
+     *
+     * [qply] 是**相对叶子节点**的层数, [ply] 是从根算起的绝对层数。这里必须
+     * 用 qply 判停 —— 以前比的是绝对 ply, 于是深度 >= MAX_QUIESCENCE_PLY 的
+     * 搜索一进来 ply 就已经到顶, 直接返回 standPat, 静止搜索等于没开。
+     *
+     * 那个写法还有个更坏的性质: LMR 每减一层, 叶子就提前一层出现, ply 越小
+     * 越不到顶, 静止搜索反而搜得越深。于是同一棵树里混着"完全没消化兑子"和
+     * "消化了三层兑子"两种尺度的分数再拿去比大小 —— 深浅取决于 LMR 恰好削了
+     * 哪几步, 与局面无关。统一不搜至少是个一致的偏差, 忽深忽浅是结构性噪声。
+     *
+     * 实测(深度 6, 300 个局面): 改过来之后 97% 的局面分数变了, 平均差 138
+     * 厘兵, 三分之二的局面差一个兵以上, 36.7% 连最佳着法都不同; 代价是节点数
+     * 1.53 倍。此前生成的深度 6 数据都带着这个噪声。
+     */
+    private fun quiescence(
+        pos: Position, alpha: Int, beta: Int, nodes: LongArray, ply: Int, qply: Int
+    ): Int {
         nodes[0]++
         if (aborted(nodes[0])) return 0
 
         val standPat = evaluate(pos)
         if (standPat >= beta) return standPat
-        if (ply >= MAX_QUIESCENCE_PLY) return standPat
+        // ply 那一条只是防跑飞的兜底: 累加器栈和杀手表都按 MAX_PLY 定长
+        if (qply >= quiescenceBudget || ply >= MAX_PLY - 1) return standPat
 
         var alphaLocal = if (standPat > alpha) standPat else alpha
 
@@ -446,7 +464,7 @@ class SimpleEngine : ChessEngine {
         var best = standPat
         for (m in caps) {
             if (!doMoveAcc(pos, m)) continue
-            val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1)
+            val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1, qply + 1)
             undoMoveAcc(pos)
             if (aborted(nodes[0])) return 0
             if (score > best) best = score
@@ -622,6 +640,15 @@ class SimpleEngine : ChessEngine {
      * 差别, 上一轮 SIMD 实验就被这么骗过一次.
      */
     internal var useIterativeDeepening = true
+
+    /**
+     * 静止搜索的层数预算, **相对叶子节点**.
+     *
+     * 做成变量是为了能扫参: 这个数直接决定"消化多少兑子"与"多花多少节点"的
+     * 取舍, 而它以前是在绝对 ply 语义下调的, 换成相对语义后含义完全变了 ——
+     * 同样写 6, 绝对语义在深度 6 上等于**不搜**, 相对语义是搜满 6 层。
+     */
+    internal var quiescenceBudget = MAX_QUIESCENCE_PLY
 
     /** 上一次 [searchWithScore] 访问的节点数. 给基准测试看剪枝效果. */
     internal var lastSearchNodes = 0L
