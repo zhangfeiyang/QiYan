@@ -16,6 +16,8 @@ import kotlin.random.Random
  */
 class NullMoveTest {
 
+    // 空着裁剪见 nullMoveCutsNodes; 下面是 delta / 静态裁剪
+
     private fun net() = NnueNetwork.load(
         javaClass.classLoader!!.getResourceAsStream("nnue/test.nnue")!!)
 
@@ -36,6 +38,43 @@ class NullMoveTest {
             out.add(p.copy())
         }
         return out
+    }
+
+    /** delta 裁剪 + 静态裁剪的节点收益与分数漂移 */
+    @Test
+    fun deltaAndRfpCutNodes() {
+        val poss = positions(50, 123123)
+        data class Cfg(val name: String, val delta: Boolean, val rfp: Boolean)
+        val cfgs = listOf(
+            Cfg("都关", false, false),
+            Cfg("只开 delta", true, false),
+            Cfg("只开 RFP", false, true),
+            Cfg("都开", true, true),
+        )
+        for (depth in intArrayOf(5, 7)) {
+            val base = SimpleEngine().apply {
+                setNnue(NnueEvaluator(net())); useDelta = false; useRfp = false
+            }
+            val refScores = poss.map { base.setPositionDirect(it); base.searchWithScore(depth).second }
+            var refNodes = 0L
+            for (p in poss) { base.setPositionDirect(p); base.searchWithScore(depth); refNodes += base.lastSearchNodes }
+            for (c in cfgs) {
+                val e = SimpleEngine().apply {
+                    setNnue(NnueEvaluator(net())); useDelta = c.delta; useRfp = c.rfp
+                }
+                var n = 0L; var changed = 0; var sum = 0L; var mx = 0
+                for ((i, p) in poss.withIndex()) {
+                    e.setPositionDirect(p)
+                    val sc = e.searchWithScore(depth).second
+                    n += e.lastSearchNodes
+                    val d = abs(sc - refScores[i])
+                    if (d != 0) { changed++; sum += d; if (d > mx) mx = d }
+                }
+                println("[prune] 深度%d %-10s 节点 %10d (%.2fx)  分数变 %2d/%d 平均|差|%.1f 最大%d"
+                    .format(depth, c.name, n, refNodes.toDouble() / n, changed, poss.size,
+                        sum.toDouble() / poss.size, mx))
+            }
+        }
     }
 
     @Test

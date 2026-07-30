@@ -326,6 +326,17 @@ class SimpleEngine : ChessEngine {
         // 以前只在 moves 为空时才算, 现在空着裁剪也要用, 分开算等于算两遍。
         val inCheck = Rules.isInCheck(pos, pos.sideToMove)
 
+        // 静态裁剪(reverse futility): 静态分已经高出 beta 一大截, 而剩余深度
+        // 有限, 对手不太可能把这么大的差距翻回来 —— 直接返回, 不展开子树。
+        // 余量按深度线性给: 深度越大, 局面还能变化的空间越大, 门槛就要越高。
+        //
+        // 被将时不裁: 那时静态分毫无意义(下一步可能就被将死)。
+        // 逼近杀棋分时也不裁: 杀棋分不是"子力优势", 拿它做线性外推没有意义。
+        if (useRfp && !inCheck && depth <= RFP_MAX_DEPTH && beta < MATE_SCORE - MAX_PLY) {
+            val staticEval = evaluate(pos)
+            if (staticEval - RFP_MARGIN_PER_DEPTH * depth >= beta) return staticEval
+        }
+
         // 空着裁剪: 把行棋权白送给对手, 用一个缩减深度的零窗口搜一下。
         // 如果连"白送一步"都还能把对手压在 beta 之下, 说明这个分支我方优势足够大,
         // 不值得细搜, 直接剪掉。这是标准引擎里单项收益最大的剪枝。
@@ -504,6 +515,7 @@ class SimpleEngine : ChessEngine {
         nodes[0]++
         if (aborted(nodes[0])) return 0
 
+        val inCheckQ = Rules.isInCheck(pos, pos.sideToMove)
         val standPat = evaluate(pos)
         if (standPat >= beta) return standPat
         // ply 那一条只是防跑飞的兜底: 累加器栈和杀手表都按 MAX_PLY 定长
@@ -520,6 +532,15 @@ class SimpleEngine : ChessEngine {
 
         var best = standPat
         for (m in caps) {
+            // delta 裁剪: 就算白吃下这个子、再补一个兵的机动余量, 还够不到 alpha,
+            // 那这一支不可能翻盘。被将时不裁 —— 那时的"吃子"往往是唯一的应将手段,
+            // 按子力算账会把救命的一手剪掉。
+            if (useDelta && !inCheckQ) {
+                val victim = pos.pieceAt(m.to)
+                if (victim != Piece.NONE.code &&
+                    standPat + captureValue(victim) + DELTA_MARGIN <= alphaLocal
+                ) continue
+            }
             if (!doMoveAcc(pos, m)) continue
             val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1, qply + 1)
             undoMoveAcc(pos)
@@ -530,6 +551,22 @@ class SimpleEngine : ChessEngine {
         }
         return best
     }
+
+    /** 被吃子的子力价值, 与 Move.mvvLva 用的是同一套 —— 两处不一致会让排序和
+     *  裁剪各说各话 */
+    private fun captureValue(pieceCode: Int): Int = when (Piece.fromCode(pieceCode).type) {
+        1 -> 10000   // 将/帅
+        2, 3 -> 200  // 仕 / 相
+        4 -> 400     // 马
+        5 -> 900     // 车
+        6 -> 450     // 炮
+        7 -> 100     // 兵
+        else -> 0
+    }
+
+    /** 基准测试用: 分别关掉两种裁剪, 以便同进程 A/B */
+    internal var useDelta = true
+    internal var useRfp = true
 
     /** 吃子优先排序 (MVV-LVA) */
     private fun sortByMvvLva(pos: Position, moves: MutableList<Move>) {
@@ -987,6 +1024,18 @@ class SimpleEngine : ChessEngine {
          * R=2 是通行取法: 再大剪得更狠但漏算风险上升, 而象棋的欠行局面本来就比
          * 国象多。深度 3 以下不做 —— 缩减之后剩不下什么, 省的节点抵不上风险。
          */
+        /**
+         * 静止搜索的 delta 裁剪余量, 以及静态裁剪的每层门槛.
+         *
+         * DELTA_MARGIN 取一个兵多一点: 吃子之后局面还可能有后续得子, 留一点
+         * 机动余量, 免得把"吃一子再叫将得子"这类两步棋剪掉。
+         * RFP 的门槛按深度线性涨 —— 深度越大局面还能变化的空间越大。
+         * 两个数都是常见取值, 没有针对本引擎调过, 要调得用节点预算口径的对战。
+         */
+        private const val DELTA_MARGIN = 150
+        private const val RFP_MAX_DEPTH = 4
+        private const val RFP_MARGIN_PER_DEPTH = 140
+
         private const val NULL_MOVE_MIN_DEPTH = 3
         private const val NULL_MOVE_REDUCTION = 2
 
