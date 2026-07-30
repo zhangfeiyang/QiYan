@@ -97,6 +97,12 @@ class PikafishMatchRunner {
                 val engine = SimpleEngine()
                 engine.start()
                 engine.setNnue(ourNet?.let { NnueEvaluator(it) })
+                // 用来验证剪枝改动: 固定深度对战只惩罚它的精度代价、不奖励
+                // 它的速度收益, 所以这里 Elo 不掉就等于真实场景净赚。
+                if (System.getProperty("pika.nullmove") == "0") engine.useNullMove = false
+                // 限定节点数而不是深度: 直接衡量"每节点的棋力", 剪枝省下的
+                // 节点会换成更深的搜索被真实奖励, 而结果仍然确定性可复现。
+                System.getProperty("pika.nodes")?.let { engine.nodeLimit = it.toLong() }
                 try {
                     var g = t
                     while (g < total) {
@@ -191,7 +197,8 @@ class PikafishMatchRunner {
             val move: Move
             if (pos.sideToMove == ourColor) {
                 engine.setPositionDirect(pos)
-                move = engine.searchWithScore(depth).first
+                // 有节点预算时把名义深度放开, 让预算成为真正的约束
+                move = engine.searchWithScore(if (engine.nodeLimit > 0) 32 else depth).first
                 if (move.data == 0) { note("我方无着法(bug)"); return 0.0 }
                 if (legal.none { it.data == move.data }) { note("我方非法着法(bug)"); return 0.0 }
             } else {

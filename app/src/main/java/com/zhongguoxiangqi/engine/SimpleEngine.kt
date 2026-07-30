@@ -288,7 +288,10 @@ class SimpleEngine : ChessEngine {
         return if (candidates.isEmpty()) bestMove else candidates[Random.nextInt(candidates.size)]
     }
 
-    private fun alphaBeta(pos: Position, depth: Int, alpha: Int, beta: Int, nodes: LongArray, ply: Int): Int {
+    private fun alphaBeta(
+        pos: Position, depth: Int, alpha: Int, beta: Int, nodes: LongArray, ply: Int,
+        allowNull: Boolean = true,
+    ): Int {
         nodes[0]++
         if (aborted(nodes[0])) return 0
 
@@ -306,12 +309,39 @@ class SimpleEngine : ChessEngine {
             }
         }
 
+        // 本节点是否被将. 提到这里算一次, 下面的空着裁剪和将死判定共用 ——
+        // 以前只在 moves 为空时才算, 现在空着裁剪也要用, 分开算等于算两遍。
+        val inCheck = Rules.isInCheck(pos, pos.sideToMove)
+
+        // 空着裁剪: 把行棋权白送给对手, 用一个缩减深度的零窗口搜一下。
+        // 如果连"白送一步"都还能把对手压在 beta 之下, 说明这个分支我方优势足够大,
+        // 不值得细搜, 直接剪掉。这是标准引擎里单项收益最大的剪枝。
+        //
+        // 三个前提缺一不可:
+        // - 不能被将: 被将时"不走"是非法的, 搜出来的分毫无意义
+        // - 不能在零窗口验证里递归用: 靠 allowNull 断掉, 否则会连续空着自欺
+        // - 子力不能太薄: 残局里"必须走"本身就是负担(欠行), "我不走反而更好"
+        //   确实会发生, 那时空着裁剪会把真实的危险剪掉
+        if (useNullMove && allowNull && !inCheck && depth >= NULL_MOVE_MIN_DEPTH &&
+            beta < MATE_SCORE - MAX_PLY && pos.hasThreateningPiece(pos.sideToMove)
+        ) {
+            pos.doNullMove()
+            val nullScore = -alphaBeta(
+                pos, depth - 1 - NULL_MOVE_REDUCTION, -beta, -beta + 1,
+                nodes, ply + 1, allowNull = false
+            )
+            pos.undoNullMove()
+            if (aborted(nodes[0])) return 0
+            // 只在非杀棋分上采信: 空着搜出来的杀是"对手不走才成立"的假杀
+            if (nullScore >= beta && nullScore < MATE_SCORE - MAX_PLY) return nullScore
+        }
+
         val moves = mutableListOf<Move>()
         Rules.generateAllLegal(pos, moves)
 
         if (moves.isEmpty()) {
             // 将死 / 困毙. 减去 ply 让"更快的杀"分数更高
-            return if (Rules.isInCheck(pos, pos.sideToMove)) -MATE_SCORE + ply else 0
+            return if (inCheck) -MATE_SCORE + ply else 0
         }
 
         orderMoves(pos, moves, ttEntry?.move ?: 0, ply)
@@ -566,20 +596,26 @@ class SimpleEngine : ChessEngine {
         // 逐层加深的额外开销是等比级数(浅层加起来才占深层的几分之一), 换来的
         // 是每层都拿上一层的最佳着法打头 —— 深度越大越划算。
         //
-        // 这不改变返回的分数: 同一深度下 alpha-beta 的极小极大值是确定的,
-        // 变的只是到达它要走多少节点。IterativeDeepeningTest 锁住这一点。
+        // 注意分数**会**变: LMR 的减层条件看着法序号, 换了排序就换了一批被减层
+        // 的着法, 而减层搜索本身不精确。实测 26.7% 的局面分数有变化, 平均 8 厘兵
+        // (IterativeDeepeningTest 量的就是这个, 并守住一条上界)。
         var best = moves[0]
         var alpha = MIN_SCORE
         val firstDepth = if (useIterativeDeepening) 1 else depth
         for (d in firstDepth..depth) {
             var iterBest = moves[0]
             var iterAlpha = MIN_SCORE
+            var completed = true
             for (m in moves) {
                 if (!doMoveAcc(currentPosition, m)) continue
                 val sc = -alphaBeta(currentPosition, d - 1, MAX_SCORE.unaryMinus(), -iterAlpha, nodes, 1)
                 undoMoveAcc(currentPosition)
+                if (aborted(nodes[0])) { completed = false; break }
                 if (sc > iterAlpha) { iterAlpha = sc; iterBest = m }
             }
+            // 只采信跑完整的那一层. 被节点/时间上限打断的一层只搜了前几个着法,
+            // 它的"最佳"是残缺的, 拿它覆盖上一层的结果会让棋力忽好忽坏。
+            if (!completed) break
             best = iterBest
             alpha = iterAlpha
             // 最佳着法提到最前, 下一层第一个就搜它
@@ -606,6 +642,7 @@ class SimpleEngine : ChessEngine {
     /** 是否该中止搜索(收到 stop 或超时). 每 1024 个节点才查一次时钟. */
     private fun aborted(nodeCount: Long): Boolean {
         if (stopRequested || timeUp) return true
+        if (nodeLimit > 0L && nodeCount >= nodeLimit) return true
         if (nodeCount and TIME_CHECK_MASK == 0L && System.currentTimeMillis() >= deadline) {
             timeUp = true
             return true
@@ -640,6 +677,19 @@ class SimpleEngine : ChessEngine {
      * 差别, 上一轮 SIMD 实验就被这么骗过一次.
      */
     internal var useIterativeDeepening = true
+
+    /** 基准测试用: 关掉空着裁剪, 以便同进程 A/B */
+    internal var useNullMove = true
+
+    /**
+     * 节点预算; 0 表示不限.
+     *
+     * 存在的理由: 固定**深度**对战只惩罚剪枝的精度代价, 不奖励它省下的节点,
+     * 所以没法回答"这个剪枝到底净赚不赚"。固定**时间**能回答, 但墙钟带随机性,
+     * 这个会话里已经被它坑过好几次。限定节点数两头都占: 与深度无关地奖励效率,
+     * 而节点数本身是确定性的 —— 同参数重跑结果逐字节相同。
+     */
+    internal var nodeLimit = 0L
 
     /**
      * 静止搜索的层数预算, **相对叶子节点**.
@@ -889,6 +939,15 @@ class SimpleEngine : ChessEngine {
         private const val ORDER_HISTORY_CAP = 70_000
 
         /** LMR: 到这个深度以上、且已经试过这么多手之后才开始减层 */
+        /**
+         * 空着裁剪的最小深度与缩减层数.
+         *
+         * R=2 是通行取法: 再大剪得更狠但漏算风险上升, 而象棋的欠行局面本来就比
+         * 国象多。深度 3 以下不做 —— 缩减之后剩不下什么, 省的节点抵不上风险。
+         */
+        private const val NULL_MOVE_MIN_DEPTH = 3
+        private const val NULL_MOVE_REDUCTION = 2
+
         private const val LMR_MIN_DEPTH = 3
         private const val LMR_MIN_MOVES = 4
         /** 每级随机性容忍的分差(厘兵) */

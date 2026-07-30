@@ -118,6 +118,52 @@ class Position {
         return cnt
     }
 
+    /**
+     * 空着: 只把行棋权交给对方, 棋子一个不动. 供搜索的空着裁剪用.
+     *
+     * 刻意**不**推 [moveStack] 和 [historyHashes]:
+     * - 空着不是真实着法, 推进 historyHashes 会污染三次重复判定
+     * - 不推 moveStack 也就不能用 [undoMove] 撤销, 必须配对调用 [undoNullMove];
+     *   而空着子树内部正常的 doMove/undoMove 仍然自己配对, 互不干扰
+     *
+     * 半回合计数和回合数也不动 —— 搜索内部用不到, 而改了反倒要多存一份来还原。
+     *
+     * NNUE 累加器**不需要更新**: 棋子没变, 只是走子方翻了, 而求值时哪一半累加器
+     * 算"我方"是由走子方参数决定的(见 nnue_core 的 eval_acc)。
+     */
+    fun doNullMove() {
+        hash = hash xor Zobrist.side
+        sideToMove = Color.opposite(sideToMove)
+    }
+
+    /** 与 [doNullMove] 配对 */
+    fun undoNullMove() {
+        sideToMove = Color.opposite(sideToMove)
+        hash = hash xor Zobrist.side
+    }
+
+    /**
+     * 走子方是否还有"能主动制造威胁"的子(车/炮/马).
+     *
+     * 空着裁剪的前提是"我不走, 对手也占不到便宜"。这个假设在子力稀薄的残局会
+     * 失效 —— 那里"必须走"本身就是负担(欠行), 不走反而更好, 于是裁剪会把真实的
+     * 危险剪掉。只剩兵士象时禁用空着裁剪。
+     */
+    fun hasThreateningPiece(color: Int): Boolean {
+        for (sq in 0 until Square.COUNT) {
+            val p = squares[sq]
+            if (p == Piece.NONE.code) continue
+            val pc = Piece.fromCode(p)
+            if (pc.color != color) continue
+            when (pc) {
+                Piece.R_ROOK, Piece.R_CANNON, Piece.R_HORSE,
+                Piece.B_ROOK, Piece.B_CANNON, Piece.B_HORSE -> return true
+                else -> {}
+            }
+        }
+        return false
+    }
+
     /** 执行走法(返回 false 表示走法非法) */
     fun doMove(move: Move): Boolean {
         val from = move.from
