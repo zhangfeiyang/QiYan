@@ -23,6 +23,24 @@ class SelfPlayDiversityTest {
      * 0 附近; 插进随机着法会走出一方明显占优的局面, 把分数摊开. 评估函数正
      * 需要见过各种失衡程度 —— 只见过均势局面的网络, 一到实战优劣分明的局面
      * 就没有分辨力.
+     *
+     * ## 为什么用 15% 而不是生产默认的 5%
+     *
+     * 这个测试原来拿"12 局, 单个种子, 0% vs 5%"比, **量到的全是噪声**: 换 10
+     * 个种子重跑, 只有 4 个方向为正。它能长期通过纯粹是种子 4242 撞对了 ——
+     * 后来改了搜索(SEE 裁剪 + LMR 查表), 走的线一变, 它就翻面了。
+     *
+     * 加大样本重测的剂量-响应(30 局 × 8 种子, 括号内是种子间标准差):
+     *
+     *     chance=0.00  std 1038 (±126)
+     *     chance=0.05  std  989 (±136)   <- 生产默认, 与 0% 无差别
+     *     chance=0.15  std 1196 (± 57)
+     *     chance=0.30  std 1220 (±119)
+     *
+     * 所以"随机化摊开分布"这件事是真的, 但 **5% 的剂量太小, 测不出来也基本
+     * 没作用**(8 个种子的均值标准误约 45, 989 与 1038 之差落在噪声里)。
+     * 测试要证明的是这个机制成立, 就得用能看见效应的剂量; 生产默认该不该从
+     * 0.05 提到 0.15 是另一件事, 需要拿训出来的网络对战来定, 不在这里决定。
      */
     private fun scoreSpread(chance: Double, games: Int, seed: Long): Double {
         val scores = collectScores(chance, games, seed)
@@ -82,16 +100,22 @@ class SelfPlayDiversityTest {
 
     @Test
     fun `中局随机化把标签分布摊开`() {
-        val without = scoreSpread(chance = 0.0, games = 12, seed = 4242)
-        val with = scoreSpread(chance = 0.05, games = 12, seed = 4242)
+        // 多个种子取平均: 单个种子的 std 在 ±130 上下晃, 而效应量约 +160,
+        // 一个种子分不开这两者.
+        val seeds = longArrayOf(11, 22, 33, 44)
+        val without = seeds.map { scoreSpread(chance = 0.0, games = 20, seed = it) }
+        val with = seeds.map { scoreSpread(chance = 0.15, games = 20, seed = it) }
+        val a = without.average()
+        val b = with.average()
         val dup0 = distinctRatio(chance = 0.0, games = 12, seed = 4242)
-        println("[diversity] 标签 std: 不随机 ${"%.0f".format(without)} 厘兵  " +
-            "随机 5% ${"%.0f".format(with)} 厘兵")
+        println("[diversity] ${seeds.size} 个种子 × 20 局, 标签 std 均值: " +
+            "不随机 ${"%.0f".format(a)} 厘兵  随机 15% ${"%.0f".format(b)} 厘兵")
         println("[diversity] (顺带: 不随机时不重复局面已占 ${"%.3f".format(dup0)}, " +
             "所以问题从来不是重复, 而是相关)")
         assertTrue(
-            "中局随机化本该让分数摊得更开, 实测 $without -> $with",
-            with > without
+            "中局随机化本该让分数摊得更开, 实测 ${"%.0f".format(a)} -> ${"%.0f".format(b)}\n" +
+                "各种子 不随机=${without.map { it.toInt() }} 随机=${with.map { it.toInt() }}",
+            b > a
         )
     }
 
