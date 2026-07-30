@@ -63,14 +63,17 @@ def main():
     ap.add_argument("--l1", type=int, default=256,
                     help="FeatureTransformer 宽度. 端上求值耗时基本正比于它,\n"
                          "导出时要用同样的值")
-    ap.add_argument("--mirror", action="store_true",
-                    help="左右镜像增强. 象棋盘左右对称(九宫/象位/兵过河/白脸将\n"
-                         "全对称), 列翻转得到的是合法局面且分数不变, 等于免费\n"
-                         "把有效数据翻倍")
-    ap.add_argument("--cache", action="store_true",
-                    help="把整份数据解码一次存成显存/内存里的张量, 之后每轮直接切片.\n"
-                         "同一份数据被反复解码 40 遍是纯浪费: 解码结果是固定的,\n"
-                         "而它恰恰是瓶颈(实测 GPU 只有 1% 利用率)")
+    # 这两个都**默认开启**: 实测纯收益零代价, 忘了加就白亏。
+    # 用 --no-mirror / --no-cache 关掉。
+    ap.add_argument("--mirror", action=argparse.BooleanOptionalAction, default=True,
+                    help="左右镜像增强(默认开). 象棋盘左右对称(九宫/象位/兵过河/\n"
+                         "白脸将全对称), 列翻转得到的是合法局面且分数不变 ——\n"
+                         "实测 +29.1 Elo (t=3.69), 零额外算力")
+    ap.add_argument("--cache", action=argparse.BooleanOptionalAction, default=True,
+                    help="解码一次存成张量, 之后每轮直接切片(默认开). 同一份数据\n"
+                         "反复解码 N 遍是纯浪费 —— 实测每轮 80 秒降到 3 秒,\n"
+                         "GPU 利用率 1%% -> 78%%。数据还在后台生成时要用\n"
+                         "--no-cache, 否则新分片进不来")
     ap.add_argument("--init", default=None,
                     help="从已有 .pt checkpoint 初始化权重做微调. 不设则随机初始化")
     args = ap.parse_args()
@@ -144,10 +147,14 @@ def main():
         del owns, opps, ys
         nbytes = (c_own.numel() + c_opp.numel()) * 2 + c_y.numel() * 4
         try:
-            c_own, c_opp, c_y = c_own.to(dev), c_opp.to(dev), c_y.to(dev)
+            # 三个必须**一起**成功: 只搬成一半的话后面会拿 GPU 张量去索引 CPU
+            # 张量, 报的是莫名其妙的设备不匹配错误
+            g_own, g_opp, g_y = c_own.to(dev), c_opp.to(dev), c_y.to(dev)
+            c_own, c_opp, c_y = g_own, g_opp, g_y
             where = "显存"
         except RuntimeError:
-            where = "内存"        # 显存不够就留在 CPU, 每批再搬
+            torch.cuda.empty_cache() if dev == "cuda" else None
+            where = "内存(显存不够, 每批再搬)"
         cache = (c_own, c_opp, c_y)
         print(f"[cache] {c_y.numel():,} 条已解码进{where}, "
               f"{nbytes/1e6:.0f}MB, 耗时 {time.time()-t0:.0f}s")
