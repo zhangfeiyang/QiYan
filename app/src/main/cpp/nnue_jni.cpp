@@ -20,7 +20,8 @@ constexpr int kAccCapacity = 64;
 
 struct Handle {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b, out_w;
+    std::vector<int16_t> ft_w, ft_b;
+    std::vector<int32_t> out_w;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
     int32_t out_b = 0;
@@ -90,7 +91,7 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
         !r.take_i32(l2) || !r.take_i32(l3) || !r.take_i32(qa) || !r.take_i32(qw)) {
         return 0;
     }
-    if (version != 1 || features != nnue::kFeatures ||
+    if (version != 2 || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         return 0;
     }

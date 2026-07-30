@@ -12,8 +12,8 @@ int8/int16 配合整数累加, 才有可能在移动端达到可用的速度.
   权重按各自的尺度放大成整数, 推理时再除回去
 
   FeatureTransformer:  w_i16 = round(w * QA)     累加器直接是"激活值尺度"
-  fc1 / fc2:           w_i8  = round(w * QW)     QW=64
-  输出层:               w_i16 = round(w * QW)     见下
+  fc1 / fc2:           w_i8  = round(w * QW)     QW=256
+  输出层:               w_i32 = round(w * QW)     见下
   偏置:                b_i32 = round(b * QA * QW) 便于和乘积直接相加
 
   隐藏层算完除以 QW 回到激活值尺度, 再 clamp(0, QA).
@@ -22,9 +22,28 @@ int8/int16 配合整数累加, 才有可能在移动端达到可用的速度.
   一步必须把它除掉.
 
 输出层为什么不能用 int8: 它要从 32 个 [0,1] 的激活值凑出 ±2000 厘兵的
-评估值, 权重量级必然在 100 上下; int8 配 QW=64 只能表示 |w| <= 1.98,
-差两个数量级. 用 int16 才装得下. 这个坑在没训练好的网络上看不出来 ——
-权重全是 0.2 量级, 怎么量化都不截断, 等网络真练出来才会突然全饱和.
+评估值, 权重量级必然在 100 上下; int8 配 QW 只能表示 |w| <= 127/QW,
+差两个数量级. 这个坑在没训练好的网络上看不出来 —— 权重全是 0.2 量级,
+怎么量化都不截断, 等网络真练出来才会突然全饱和.
+
+## QW 为什么是 256 而不是原来的 64
+
+原来 fc1/fc2 的权重实测最大只到 0.15~0.35, 乘 QW=64 之后量化值只占到
+int8 的 9~22 (满量程 127), 也就是**只有二三十个可区分的档位**, 四舍五入把
+大部分精度磨掉了。注意这不是溢出截断 —— 越界数一直是 0, 所以自检不会报错,
+它是**分辨率浪费**, 症状只体现在"浮点 vs 整数"的误差上。
+
+逐层消融(400 万条数据训出的网络, 300 个随机局面):
+    只量化 ft        平均误差  7.4 厘兵
+    只量化 fc1/fc2   平均误差 40.5 厘兵   <- 98% 的误差在这里
+    只量化 out       平均误差  0.0 厘兵
+    全部量化         平均误差 41.5 厘兵
+
+QW 提到 256 让 fc1/fc2 用到 89/127 的量程, 分辨率翻两番。没取 512 是因为
+W_CLIP = 127/QW 会降到 0.248, 而实测权重已经到 0.35, 会被训练时的钳位切掉。
+
+输出层因此改成 int32: |out_w| 最大 233, 乘 256 是 59648, int16 装不下。
+而它的量化误差本来就是 0.0, 加宽到 int32 只多 64 字节, 没有代价。
 """
 import argparse
 import os
@@ -36,9 +55,9 @@ import torch
 from model import NnueNet, FEATURES, L1, L2, L3, OUT_SCALE
 
 QA = 127      # 激活值尺度 (ClippedReLU 上界 1.0 对应 127)
-QW = 64       # 权重尺度
+QW = 256      # fc1/fc2 权重尺度. 从 64 提到 256 的理由见文件头
 MAGIC = b"XQNN"
-VERSION = 1
+VERSION = 2   # QW 64->256 且 out_w int16->int32, 与 v1 不兼容
 
 
 def q_weights(w, scale, dtype, name):
@@ -102,7 +121,7 @@ def main():
     ft_bq = q_weights(ft_b, QA, np.int16, "ft_bias")
     fc1_wq = q_weights(fc1_w, QW, np.int8, "fc1.weight")
     fc2_wq = q_weights(fc2_w, QW, np.int8, "fc2.weight")
-    out_wq = q_weights(out_w, QW, np.int16, "out.weight")
+    out_wq = q_weights(out_w, QW, np.int32, "out.weight")
     # 偏置放大到 QA*QW: 推理时它和"权重×激活"的乘积同尺度, 可以直接相加
     fc1_bq = np.round(fc1_b * QA * QW).astype(np.int32)
     fc2_bq = np.round(fc2_b * QA * QW).astype(np.int32)

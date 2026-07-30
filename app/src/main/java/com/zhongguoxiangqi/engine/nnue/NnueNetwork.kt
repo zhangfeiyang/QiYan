@@ -28,7 +28,7 @@ class NnueNetwork private constructor(
     val fc1Bias: IntArray by lazy { readAt(3) { b, n -> IntArray(n) { b.int } } }
     val fc2Weight: ByteArray by lazy { readAt(4) { b, n -> ByteArray(n).also(b::get) } }
     val fc2Bias: IntArray by lazy { readAt(5) { b, n -> IntArray(n) { b.int } } }
-    val outWeight: ShortArray by lazy { readAt(6) { b, n -> ShortArray(n) { b.short } } }
+    val outWeight: IntArray by lazy { readAt(6) { b, n -> IntArray(n) { b.int } } }
     val outBias: Int by lazy { readAt(7) { b, _ -> b.int } }
 
     /** 各段的 (元素数, 每元素字节数), 顺序即文件中的顺序 */
@@ -39,7 +39,7 @@ class NnueNetwork private constructor(
         l2 to 4,                           // fc1.bias   i32
         l3 * l2 to 1,                      // fc2.weight i8
         l3 to 4,                           // fc2.bias   i32
-        l3 to 2,                           // out.weight i16
+        l3 to 4,                           // out.weight i32
         1 to 4,                            // out.bias   i32
     )
 
@@ -58,8 +58,16 @@ class NnueNetwork private constructor(
         /** 激活值尺度: ClippedReLU 的上界 1.0 对应 QA */
         const val QA = 127
 
-        /** 权重尺度 */
-        const val QW = 64
+        /**
+         * fc1/fc2 的权重尺度. 必须与 C++ 侧 nnue_core.h 的 kQW 和
+         * nnue/export.py 的 QW 一致 —— 三处对不上就是静默算错.
+         *
+         * 从 64 提到 256 的理由: 实测 fc1/fc2 的权重最大只到 0.15~0.35,
+         * 乘 64 之后只占到 int8 的 9~22 (满量程 127), 二三十个档位, 四舍五入
+         * 把精度磨掉了。这不是溢出(越界数一直是 0), 是分辨率浪费。逐层消融
+         * 显示 98% 的量化误差出在这两层。
+         */
+        const val QW = 256
 
         /**
          * 层宽上限, 必须与 C++ 侧 nnue_core.h 的 kMaxL1 / kMaxL23 一致.
@@ -73,7 +81,7 @@ class NnueNetwork private constructor(
         /** 逐字节比对而不是拼成 int 比: 拼 int 要考虑字节序, 很容易写反 */
         private val MAGIC = byteArrayOf('X'.code.toByte(), 'Q'.code.toByte(),
             'N'.code.toByte(), 'N'.code.toByte())
-        private const val VERSION = 1
+        private const val VERSION = 2   // QW 64->256 且 out.weight i16->i32
 
         /**
          * 从流里加载. 结构对不上就抛异常, 绝不"尽力而为地读一读".

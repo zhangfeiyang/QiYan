@@ -22,7 +22,8 @@ namespace {
 
 struct Loaded {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b, out_w;
+    std::vector<int16_t> ft_w, ft_b;
+    std::vector<int32_t> out_w;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
     int32_t out_b = 0;
@@ -48,7 +49,7 @@ bool load(const char* path, Loaded& out) {
     f.read(reinterpret_cast<char*>(h), sizeof(h));
     const int version = h[0], features = h[1];
     const int l1 = h[2], l2 = h[3], l3 = h[4], qa = h[5], qw = h[6];
-    if (version != 1 || features != nnue::kFeatures ||
+    if (version != 2 || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         std::fprintf(stderr, "文件头对不上: v=%d f=%d qa=%d qw=%d\n",
                      version, features, qa, qw);

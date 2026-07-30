@@ -10,7 +10,7 @@ import com.zhongguoxiangqi.game.Position
  *
  * 尺度约定:
  *   累加器 / 各层激活值    尺度 QA   (即 1.0 对应 127)
- *   权重                  尺度 QW   (即 1.0 对应 64)
+ *   权重                  尺度 QW   (即 1.0 对应 256)
  *   乘积                  尺度 QA*QW, 除以 QW 回到 QA, 再 clamp(0, QA)
  *   输出层不 clamp, 且要除以 QA*QW 才回到厘兵分
  *
@@ -253,7 +253,7 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
         // 输出层: h2 带着 QA 的尺度, 权重带着 QW 的尺度, 所以除 QA*QW
         var out = net.outBias
         for (i in 0 until net.l3) {
-            out += outW[i].toInt() * h2[i]
+            out += outW[i] * h2[i]
         }
         return out / (NnueNetwork.QA * NnueNetwork.QW)
     }

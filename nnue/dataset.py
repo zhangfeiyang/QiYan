@@ -89,15 +89,20 @@ class SelfPlayDataset(Dataset):
 
         # 视角转换在读数据时做, 不在生成时做 —— 这样同一份数据将来换个
         # 视角约定还能重用, 不必重新生成几天的数据.
+        # 整体向量化, 不逐元素调 flip_piece/flip_square. 那两个是纯算术, 但写成
+        # 列表推导之后每条样本要跑几十次 Python 函数调用加 int() 转换 ——
+        # 552 万条 × 40 轮全压在 Python 层, 实测第一轮就要 11 分钟, 而 GPU
+        # 利用率只有 5%, 8 个 dataloader 进程各占满一个核。语义与那两个标量
+        # 函数逐位一致, 由 test_dataset_vectorized.py 锁住。
+        flip_idx = np.where(idxs < 7, idxs + 7, idxs - 7)
+        flip_sq = (9 - sqs // 9) * 9 + sqs % 9
         if stm_black:
             # 走子方是黑: "我方"要把棋盘翻过来看
-            own_idx = np.array([flip_piece(int(v)) for v in idxs], dtype=np.int64)
-            own_sq = np.array([flip_square(int(v)) for v in sqs], dtype=np.int64)
+            own_idx, own_sq = flip_idx, flip_sq
             opp_idx, opp_sq = idxs, sqs
         else:
             own_idx, own_sq = idxs, sqs
-            opp_idx = np.array([flip_piece(int(v)) for v in idxs], dtype=np.int64)
-            opp_sq = np.array([flip_square(int(v)) for v in sqs], dtype=np.int64)
+            opp_idx, opp_sq = flip_idx, flip_sq
 
         own = own_idx * SQUARES + own_sq
         opp = opp_idx * SQUARES + opp_sq

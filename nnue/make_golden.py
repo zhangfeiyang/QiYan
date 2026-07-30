@@ -26,7 +26,7 @@ from export import int_infer
 from model import FEATURES, L1, L2, L3
 
 QA = 127
-QW = 64
+QW = 256
 
 
 def load_net(path):
@@ -53,7 +53,7 @@ def load_net(path):
     fc1_b = take(L2, "<i4")
     fc2_w = take(L3 * L2, "<i1").reshape(L3, L2)
     fc2_b = take(L3, "<i4")
-    out_w = take(L3, "<i2").reshape(1, L3)
+    out_w = take(L3, "<i4").reshape(1, L3)
     out_b = take(1, "<i4")
     assert off == len(blob), f"读完还剩 {len(blob) - off} 字节"
     return ft_w, ft_b, fc1_w, fc1_b, fc2_w, fc2_b, out_w, out_b

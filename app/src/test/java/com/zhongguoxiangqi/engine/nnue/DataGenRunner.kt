@@ -48,6 +48,8 @@ class DataGenRunner {
         // 见 UciTeacher 的许可证说明 —— 这是刻意要显式指定才生效的。
         val uciPath = System.getProperty("nnue.uciTeacher")
         val uciDepth = System.getProperty("nnue.uciDepth", depth.toString()).toInt()
+        // 每个引擎实例的置换表 MB. 8 个实例就是这个数的 8 倍内存。
+        val uciHash = System.getProperty("nnue.uciHash", "16")
         val uciExe = uciPath?.let { File(it) }
         require(uciExe == null || uciExe.canExecute()) {
             "nnue.uciTeacher 不可执行(注意用绝对路径): $uciPath"
@@ -60,7 +62,7 @@ class DataGenRunner {
         println("[gen] 开始: games=$games threads=$threads depth=$depth " +
             "seed=$seedBase out=$outDir " +
             "老师=" + when {
-                uciExe != null -> "外部UCI(深度$uciDepth) ${uciExe.name}"
+                uciExe != null -> "外部UCI(深度$uciDepth Hash=${uciHash}MB) ${uciExe.name}"
                 teacherNet != null -> "NNUE(l1=${teacherNet.l1}) $teacherPath"
                 else -> "手写评估"
             })
@@ -84,7 +86,10 @@ class DataGenRunner {
                     seed = seedBase + t * 7919L,
                     teacherNet = teacherNet,
                     // 每个线程一个子进程: UciTeacher 内部有可变的读写流, 不能共享
-                    uciTeacher = uciExe?.let { exe -> { UciTeacher(exe, uciDepth) } },
+                    uciTeacher = uciExe?.let { exe ->
+                        { UciTeacher(exe, uciDepth,
+                            mapOf("Threads" to "1", "Hash" to uciHash)) }
+                    },
                 )
                 try {
                     gen.generate(perThread, shard) { g, n ->

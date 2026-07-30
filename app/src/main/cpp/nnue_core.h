@@ -15,7 +15,10 @@ namespace nnue {
 constexpr int kFeatures = 1260;   // 14 种子 × 90 格, 由数据格式定死
 constexpr int kSquares = 90;
 constexpr int kQA = 127;          // 激活值尺度 (ClippedReLU 上界 1.0)
-constexpr int kQW = 64;           // 权重尺度
+constexpr int kQW = 256;          // fc1/fc2 权重尺度
+// 从 64 提到 256 是为了让 fc1/fc2 用满 int8 量程: 实测权重最大只到 0.15~0.35,
+// 乘 64 之后只占到 9~22/127, 二三十个档位, 四舍五入把精度磨掉了。逐层消融显示
+// 98% 的量化误差出在这两层(ft 占 7.4 厘兵, fc1/fc2 占 40.5, out 占 0.0)。
 constexpr int kMaxPieces = 32;
 
 // 层宽上限。推理用的是栈上定长缓冲, 所以这个上限是**硬约束**, 不是建议值 ——
@@ -35,7 +38,9 @@ struct Net {
     const int32_t* fc1_b;   // [l2]
     const int8_t*  fc2_w;   // [l3 * l2]
     const int32_t* fc2_b;   // [l3]
-    const int16_t* out_w;   // [l3]
+    // out_w 是 int32 而非 int16: |w| 最大 233, 乘 QW=256 是 59648, int16 装不下。
+    // 它的量化误差本来就是 0, 加宽只多 l3*4 字节。
+    const int32_t* out_w;   // [l3]
     int32_t        out_b;
 };
 

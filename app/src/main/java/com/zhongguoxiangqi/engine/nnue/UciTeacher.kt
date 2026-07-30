@@ -35,7 +35,14 @@ import java.io.PrintWriter
 class UciTeacher(
     private val exe: File,
     private val depth: Int,
-    /** 传给引擎的 setoption, 如 Threads/Hash。老师是单局面查询, 单线程最省资源 */
+    /**
+     * 传给引擎的 setoption.
+     *
+     * Threads=1: 老师是单局面查询, 8 个独立实例各跑单线程比 8 线程搜一个局面
+     * 吞吐高得多(并行搜索有同步开销, 而且我们要的是吞吐不是单次延迟)。
+     * Hash: 同一局棋里连续局面高度相关, 置换表能跨着法复用。默认 16MB 偏小,
+     * 机器内存富余时调大可能有收益 —— 但要实测, 不能想当然。
+     */
     private val options: Map<String, String> = mapOf("Threads" to "1"),
 ) : AutoCloseable {
 
