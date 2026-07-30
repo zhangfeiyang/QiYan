@@ -57,7 +57,7 @@ from model import NnueNet, FEATURES, L1, L2, L3, OUT_SCALE
 QA = 127      # 激活值尺度 (ClippedReLU 上界 1.0 对应 127)
 QW = 256      # fc1/fc2 权重尺度. 从 64 提到 256 的理由见文件头
 MAGIC = b"XQNN"
-VERSION = 2   # QW 64->256 且 out_w int16->int32, 与 v1 不兼容
+VERSION = 3   # 特征加入将位桶 (1260 -> 11340), 与 v2 不兼容
 
 
 def q_weights(w, scale, dtype, name):

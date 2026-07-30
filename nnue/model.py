@@ -13,7 +13,16 @@ NNUE 网络结构. 与 FORMAT.md 一致.
 import torch
 import torch.nn as nn
 
-FEATURES = 1260
+# 特征 = (己方将所在九宫格位, 子类型, 格子)
+#
+# 只按 (子类型, 格子) 编码时, 网络无法表达"这个子的价值取决于将在哪" ——
+# 而象棋的评估极度依赖将位(士象是否成形、车炮是否对着将门)。标准 NNUE
+# (Stockfish 的 HalfKP/HalfKA) 就是把己方将的位置编进特征; 国象里这会让特征
+# 爆到几十万维, 但象棋的将被困在九宫只有 9 个位置, 所以只到 9*14*90=11340。
+KING_BUCKETS = 9
+PIECE_KINDS = 14
+SQUARES_ = 90
+FEATURES = KING_BUCKETS * PIECE_KINDS * SQUARES_   # 11340
 L1 = 256          # FeatureTransformer 输出 (每个视角)
 L2 = 32
 L3 = 32

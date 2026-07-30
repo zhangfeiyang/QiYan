@@ -146,6 +146,25 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
         accDepth++
     }
 
+    /**
+     * 走将之后用这个: 对新局面全量重算并压栈.
+     *
+     * 将位决定所有特征的桶, 将一动盘上每个子的特征都换了桶, 增量彻底失效 ——
+     * 这是把将位编进特征的固有代价(HalfKP 系都有), 不是 bug。
+     */
+    fun accPushRefresh(pos: Position) {
+        if (accCapacity == 0) return
+        val buf = pieceBuf ?: return
+        val n = NnueFeatures.extract(pos, scratchPieces)
+        buf.clear()
+        for (i in 0 until n) {
+            buf.put(scratchPieces[i * 2].toByte())
+            buf.put(scratchPieces[i * 2 + 1].toByte())
+        }
+        NnueNative.nativeAccPushRefresh(handle, n)
+        accDepth++
+    }
+
     /** 与 [accPush] 配对, 对应搜索的 `undoMove`. */
     fun accPop() {
         if (accCapacity == 0) return
@@ -271,13 +290,23 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
             acc[l1 + i] = b
         }
 
+        // 两个视角的将位桶: 原始视角用红将(idx 0), 翻转视角用黑将(idx 7)翻转后
+        // 的格子。找不到将时落到桶 0 —— 真实局面不会缺将, 但测试会造随机子力表。
+        var rawB = 0
+        var flipB = 0
+        for (p in 0 until n) {
+            when (pieces[p * 2]) {
+                0 -> rawB = NnueFeatures.kingBucket(pieces[p * 2 + 1])
+                7 -> flipB = NnueFeatures.kingBucket(NnueFeatures.flipSquare(pieces[p * 2 + 1]))
+            }
+        }
         for (p in 0 until n) {
             val idx = pieces[p * 2]
             val sq = pieces[p * 2 + 1]
 
             // 红走棋时"我方"就是原样看棋盘, 黑走棋时两个视角对调
-            val raw = NnueFeatures.ownFeature(idx, sq)
-            val flipped = NnueFeatures.oppFeature(idx, sq)
+            val raw = NnueFeatures.ownFeature(rawB, idx, sq)
+            val flipped = NnueFeatures.oppFeature(flipB, idx, sq)
             val ownRow = (if (blackToMove) flipped else raw) * l1
             val oppRow = (if (blackToMove) raw else flipped) * l1
 

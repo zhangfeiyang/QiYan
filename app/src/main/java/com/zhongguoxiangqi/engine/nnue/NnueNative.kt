@@ -64,6 +64,9 @@ internal object NnueNative {
     /** 走一步. [capIdx] < 0 表示不吃子. 被吃的子就在 [toSq] 上. */
     external fun nativeAccPush(handle: Long, moverIdx: Int, fromSq: Int, toSq: Int, capIdx: Int)
 
+    /** 走将之后用: 对当前 pieceBuffer 里的局面全量重算并压栈 */
+    external fun nativeAccPushRefresh(handle: Long, n: Int)
+
     external fun nativeAccPop(handle: Long)
 
     /** 从栈顶累加器求值. 调用前必须确认深度未超容量. */

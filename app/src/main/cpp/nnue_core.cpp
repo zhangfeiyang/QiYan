@@ -21,9 +21,40 @@ inline int flip_square(int sq) {
 }
 inline int flip_piece(int idx) { return idx < 7 ? idx + 7 : idx - 7; }
 
-inline int own_feature(int idx, int sq) { return idx * kSquares + sq; }
-inline int opp_feature(int idx, int sq) {
-    return flip_piece(idx) * kSquares + flip_square(sq);
+// 一个将位桶内的特征数
+constexpr int kPieceSq = kPieceKinds * kSquares;
+
+// 九宫桶: 经过视角变换后"己方将"必落在 row7-9 col3-5, 所以两个视角共用它。
+//
+// **必须夹紧到 0..8**: 真实局面里将一定在九宫内, 但自检和测试会造随机子力表,
+// 那里"将"可能落在棋盘任意格 —— 不夹的话桶下标会越界, 拿去索引 ft_w 就是
+// 读越界内存, 直接段错误。夹紧之后最坏也只是落到一个不相干的桶, 分数没意义
+// 但不会崩。
+inline int king_bucket(int sq) {
+    const int b = (sq / 9 - 7) * 3 + (sq % 9 - 3);
+    return b < 0 ? 0 : (b >= kKingBuckets ? kKingBuckets - 1 : b);
+}
+
+// 从子力表里取两个视角的将位桶.
+//
+// 原始视角(红方视角)用红将(idx==0); 翻转视角(黑方视角)用黑将(idx==7)翻转后的
+// 格子 —— 黑将九宫翻转之后正好落在红将九宫, 所以桶函数是同一个。
+// 找不到将时返回桶 0: 真实局面不会缺将, 但自检/测试会造随机子力表, 那里宁可
+// 落到一个固定桶, 也不要越界读权重。
+inline void king_buckets(const uint8_t* pieces, int n, int* raw_b, int* flip_b) {
+    *raw_b = 0;
+    *flip_b = 0;
+    for (int p = 0; p < n; ++p) {
+        const int idx = pieces[p * 2];
+        const int sq = pieces[p * 2 + 1];
+        if (idx == 0) *raw_b = king_bucket(sq);
+        else if (idx == 7) *flip_b = king_bucket(flip_square(sq));
+    }
+}
+
+inline int own_feature(int b, int idx, int sq) { return b * kPieceSq + idx * kSquares + sq; }
+inline int opp_feature(int b, int idx, int sq) {
+    return b * kPieceSq + flip_piece(idx) * kSquares + flip_square(sq);
 }
 
 inline int32_t clamp_act(int32_t v) {
@@ -86,11 +117,13 @@ int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black) {
         acc[l1 + i] = net.ft_b[i];
     }
 
+    int raw_b, flip_b;
+    king_buckets(pieces, n, &raw_b, &flip_b);
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
-        const int raw = own_feature(idx, sq);
-        const int flp = opp_feature(idx, sq);
+        const int raw = own_feature(raw_b, idx, sq);
+        const int flp = opp_feature(flip_b, idx, sq);
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; ++i) {
@@ -144,11 +177,13 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
         vst1q_s16(acc + l1 + i, b);
     }
 
+    int raw_b, flip_b;
+    king_buckets(pieces, n, &raw_b, &flip_b);
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
-        const int raw = own_feature(idx, sq);
-        const int flp = opp_feature(idx, sq);
+        const int raw = own_feature(raw_b, idx, sq);
+        const int flp = opp_feature(flip_b, idx, sq);
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; i += 8) {
@@ -235,11 +270,13 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(acc + l1 + i), b);
     }
 
+    int raw_b, flip_b;
+    king_buckets(pieces, n, &raw_b, &flip_b);
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
-        const int raw = own_feature(idx, sq);
-        const int flp = opp_feature(idx, sq);
+        const int raw = own_feature(raw_b, idx, sq);
+        const int flp = opp_feature(flip_b, idx, sq);
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; i += 16) {
@@ -418,6 +455,10 @@ inline int32_t dot_i8(const int8_t* w, const int8_t* x, int n) {
 
 void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n) {
     const int l1 = net.l1;
+    int raw_b, flip_b;
+    king_buckets(pieces, n, &raw_b, &flip_b);
+    a.raw_bucket = raw_b;
+    a.flip_bucket = flip_b;
     for (int i = 0; i < l1; ++i) {
         a.raw[i] = net.ft_b[i];
         a.flip[i] = net.ft_b[i];
@@ -425,27 +466,37 @@ void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n) {
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
-        row_add(a.raw, net.ft_w + own_feature(idx, sq) * l1, l1);
-        row_add(a.flip, net.ft_w + opp_feature(idx, sq) * l1, l1);
+        row_add(a.raw, net.ft_w + own_feature(raw_b, idx, sq) * l1, l1);
+        row_add(a.flip, net.ft_w + opp_feature(flip_b, idx, sq) * l1, l1);
     }
 }
 
-void acc_apply(const Net& net, Accum& dst, const Accum& src,
+bool acc_apply(const Net& net, Accum& dst, const Accum& src,
                int mover_idx, int from_sq, int to_sq, int cap_idx) {
+    // 走的是将 => 所有特征换桶, 增量无效, 只能全量重算。
+    // 吃的是将也一样: 将没了之后桶要重新确定, 旧桶算出来的累加器不再对应
+    // 任何局面。真实对局吃不到将, 但自检会造随机子力表, 而"能跑但算错"正是
+    // 最难查的一类问题 —— 宁可这里明确拒绝。
+    if (is_king_index(mover_idx)) return false;
+    if (cap_idx >= 0 && is_king_index(cap_idx)) return false;
     const int l1 = net.l1;
+    const int rb = src.raw_bucket, fb = src.flip_bucket;
     if (&dst != &src) {
         for (int i = 0; i < l1; ++i) { dst.raw[i] = src.raw[i]; dst.flip[i] = src.flip[i]; }
+        dst.raw_bucket = rb;
+        dst.flip_bucket = fb;
     }
     // 走子: 从起点拿走, 放到落点
-    row_sub(dst.raw, net.ft_w + own_feature(mover_idx, from_sq) * l1, l1);
-    row_sub(dst.flip, net.ft_w + opp_feature(mover_idx, from_sq) * l1, l1);
-    row_add(dst.raw, net.ft_w + own_feature(mover_idx, to_sq) * l1, l1);
-    row_add(dst.flip, net.ft_w + opp_feature(mover_idx, to_sq) * l1, l1);
+    row_sub(dst.raw, net.ft_w + own_feature(rb, mover_idx, from_sq) * l1, l1);
+    row_sub(dst.flip, net.ft_w + opp_feature(fb, mover_idx, from_sq) * l1, l1);
+    row_add(dst.raw, net.ft_w + own_feature(rb, mover_idx, to_sq) * l1, l1);
+    row_add(dst.flip, net.ft_w + opp_feature(fb, mover_idx, to_sq) * l1, l1);
     // 吃子: 被吃的子原本就在落点上
     if (cap_idx >= 0) {
-        row_sub(dst.raw, net.ft_w + own_feature(cap_idx, to_sq) * l1, l1);
-        row_sub(dst.flip, net.ft_w + opp_feature(cap_idx, to_sq) * l1, l1);
+        row_sub(dst.raw, net.ft_w + own_feature(rb, cap_idx, to_sq) * l1, l1);
+        row_sub(dst.flip, net.ft_w + opp_feature(fb, cap_idx, to_sq) * l1, l1);
     }
+    return true;
 }
 
 int32_t eval_acc(const Net& net, const Accum& a, bool black) {

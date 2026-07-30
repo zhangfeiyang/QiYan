@@ -49,7 +49,7 @@ bool load(const char* path, Loaded& out) {
     f.read(reinterpret_cast<char*>(h), sizeof(h));
     const int version = h[0], features = h[1];
     const int l1 = h[2], l2 = h[3], l3 = h[4], qa = h[5], qw = h[6];
-    if (version != 2 || features != nnue::kFeatures ||
+    if (version != 3 || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         std::fprintf(stderr, "文件头对不上: v=%d f=%d qa=%d qw=%d\n",
                      version, features, qa, qw);
@@ -175,14 +175,27 @@ int main(int argc, char** argv) {
         for (int t = 0; t < 20000; ++t) {
             // 造一批格子互不相同的子 (同格两子在真实棋盘上不存在, 而"吃子"
             // 这一步会短暂产生两个子占同一格, 正是最容易写错的地方)
+            // 造得像真实局面: 红黑**各恰好一个**将且都在九宫内, 其余子随机。
+            //
+            // 纯随机会造出"同色两个将"和"吃掉将"这类真实对局不存在的情况,
+            // 而将位桶恰恰由将决定 —— 那些样本会让 acc_apply 和全量重算算出
+            // 不同的桶, 报出一堆假的不一致。
             const int n = 2 + static_cast<int>(next() % (nnue::kMaxPieces - 1));
             uint8_t pieces[nnue::kMaxPieces * 2];
             bool used[nnue::kSquares] = {false};
-            for (int i = 0; i < n; ++i) {
+            // 红将九宫 row7-9 col3-5, 黑将九宫 row0-2 col3-5
+            const int rk = (7 + static_cast<int>(next() % 3)) * 9 + 3 + static_cast<int>(next() % 3);
+            const int bk = (0 + static_cast<int>(next() % 3)) * 9 + 3 + static_cast<int>(next() % 3);
+            used[rk] = true; used[bk] = true;
+            pieces[0] = 0; pieces[1] = static_cast<uint8_t>(rk);
+            pieces[2] = 7; pieces[3] = static_cast<uint8_t>(bk);
+            for (int i = 2; i < n; ++i) {
                 int sq;
                 do { sq = static_cast<int>(next() % nnue::kSquares); } while (used[sq]);
                 used[sq] = true;
-                pieces[i * 2] = static_cast<uint8_t>(next() % 14);
+                // 1..6 红方非将, 8..13 黑方非将
+                const int k = static_cast<int>(next() % 12);
+                pieces[i * 2] = static_cast<uint8_t>(k < 6 ? k + 1 : k + 2);
                 pieces[i * 2 + 1] = static_cast<uint8_t>(sq);
             }
             const bool black = (next() & 1) != 0;
@@ -215,7 +228,9 @@ int main(int argc, char** argv) {
                 ++m;
             }
 
-            nnue::acc_apply(L.net, b, a, pieces[mv * 2], from_sq, to_sq, cap);
+            // 走将时增量无效(所有特征换桶), acc_apply 会拒绝 —— 那条路径靠
+            // 全量重算覆盖, 不属于这条不变式要验的范围
+            if (!nnue::acc_apply(L.net, b, a, pieces[mv * 2], from_sq, to_sq, cap)) continue;
             nnue::acc_refresh(L.net, c, after, m);
             if (std::memcmp(b.raw, c.raw, L.net.l1 * sizeof(int16_t)) != 0 ||
                 std::memcmp(b.flip, c.flip, L.net.l1 * sizeof(int16_t)) != 0) {

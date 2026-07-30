@@ -16,7 +16,10 @@ object NnueFeatures {
 
     const val PIECE_KINDS = 14
     const val SQUARES = Square.COUNT          // 90
-    const val FEATURES = PIECE_KINDS * SQUARES // 1260
+    /** 将被困在九宫, 只有 9 个位置 —— 所以把将位编进特征只让维度涨 9 倍 */
+    const val KING_BUCKETS = 9
+    const val PIECE_SQ = PIECE_KINDS * SQUARES          // 1260, 一个桶内的特征数
+    const val FEATURES = KING_BUCKETS * PIECE_SQ        // 11340
 
     /** 棋盘上最多同时存在 32 个子 */
     const val MAX_PIECES = 32
@@ -56,12 +59,28 @@ object NnueFeatures {
         return Square.make(Square.ROWS - 1 - row, col)
     }
 
-    /** 我方视角的特征下标 */
-    fun ownFeature(pieceIdx: Int, sq: Int): Int = pieceIdx * SQUARES + sq
+    /**
+     * 九宫桶: 经过视角变换后"己方将"必落在 row7-9 col3-5, 两个视角共用这一个.
+     *
+     * 特征加入将位是因为象棋的评估极度依赖将的位置(士象是否成形、车炮是否对着
+     * 将门), 而只按 (子类型,格子) 编码的话网络表达不出这层依赖.
+     *
+     * 结果**必须夹紧**: 真实局面里将一定在九宫内, 但自检/测试会造随机子力表,
+     * 那里"将"可能在任意格 —— 不夹的话桶下标越界, 索引权重就是读越界内存.
+     */
+    fun kingBucket(sq: Int): Int =
+        ((Square.row(sq) - 7) * 3 + (Square.col(sq) - 3)).coerceIn(0, KING_BUCKETS - 1)
+
+    /** 我方视角的特征下标. [bucket] 来自我方将的位置 */
+    fun ownFeature(bucket: Int, pieceIdx: Int, sq: Int): Int =
+        bucket * PIECE_SQ + pieceIdx * SQUARES + sq
 
     /** 敌方视角: 翻棋盘 + 换颜色, 让网络学"我方/敌方"而不是"红方/黑方" */
-    fun oppFeature(pieceIdx: Int, sq: Int): Int =
-        flipPieceIndex(pieceIdx) * SQUARES + flipSquare(sq)
+    fun oppFeature(bucket: Int, pieceIdx: Int, sq: Int): Int =
+        bucket * PIECE_SQ + flipPieceIndex(pieceIdx) * SQUARES + flipSquare(sq)
+
+    /** 走的是不是将/帅 —— 将一动所有特征换桶, 增量累加器必须退回全量重算 */
+    fun isKing(pieceIdx: Int): Boolean = pieceIdx == 0 || pieceIdx == 7
 
     /**
      * 把局面摊成 (pieceIdx, sq) 列表, 写进 [outPieces] (每子 2 项), 返回子数.

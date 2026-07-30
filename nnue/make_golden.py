@@ -24,6 +24,7 @@ import numpy as np
 from dataset import RECORD_BYTES, _OFF_COUNT, _OFF_STM, _OFF_PIECES
 from export import int_infer
 from model import FEATURES, L1, L2, L3
+from dataset import encode_perspectives
 
 QA = 127
 QW = 256
@@ -96,17 +97,9 @@ def main():
         idxs = pieces[:, 0].astype(np.int64)
         sqs = pieces[:, 1].astype(np.int64)
 
-        # 视角约定与 dataset.py 完全一致
-        if stm_black:
-            own = np.array([(i + 7 if i < 7 else i - 7) * 90
-                            + (9 - s // 9) * 9 + s % 9
-                            for i, s in zip(idxs, sqs)], dtype=np.int64)
-            opp = idxs * 90 + sqs
-        else:
-            own = idxs * 90 + sqs
-            opp = np.array([(i + 7 if i < 7 else i - 7) * 90
-                            + (9 - s // 9) * 9 + s % 9
-                            for i, s in zip(idxs, sqs)], dtype=np.int64)
+        # 直接用 dataset 的编码函数, 不再手抄一份 —— 抄的那份和训练侧
+        # 悄悄漂移的话, 黄金向量就会去锁一个错误的基准
+        own, opp = encode_perspectives(idxs, sqs, stm_black)
 
         score = int_infer(*w, own, opp)
         flat = " ".join(f"{int(i)},{int(s)}" for i, s in zip(idxs, sqs))

@@ -773,8 +773,14 @@ class SimpleEngine : ChessEngine {
             val capCode = pos.pieceAt(m.to)
             if (capCode != Piece.NONE.code) capIdx = NnueFeatures.pieceIndex(capCode)
         }
+        val king = ev != null && NnueFeatures.isKing(moverIdx)
         if (!pos.doMove(m)) return false
-        ev?.accPush(moverIdx, m.from, m.to, capIdx)
+        when {
+            ev == null -> {}
+            // 走将: 所有特征换桶, 增量无效, 只能对新局面全量重算
+            king -> ev.accPushRefresh(pos)
+            else -> ev.accPush(moverIdx, m.from, m.to, capIdx)
+        }
         return true
     }
 

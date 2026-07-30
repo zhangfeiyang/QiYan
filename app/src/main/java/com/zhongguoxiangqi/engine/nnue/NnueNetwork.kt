@@ -86,7 +86,7 @@ class NnueNetwork private constructor(
          * 写死的话格式一升级, 测试就会先被版本检查拦下, 测不到它本来要测的东西
          * (v1->v2 时这两个测试就是这么假失败的).
          */
-        const val FORMAT_VERSION = 2   // QW 64->256 且 out.weight i16->i32
+        const val FORMAT_VERSION = 3   // 特征加入将位桶 (1260 -> 11340)
 
         /**
          * 从流里加载. 结构对不上就抛异常, 绝不"尽力而为地读一读".

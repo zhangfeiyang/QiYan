@@ -91,7 +91,7 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
         !r.take_i32(l2) || !r.take_i32(l3) || !r.take_i32(qa) || !r.take_i32(qw)) {
         return 0;
     }
-    if (version != 2 || features != nnue::kFeatures ||
+    if (version != 3 || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         return 0;
     }
@@ -186,8 +186,13 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccPush(
     Handle* h = reinterpret_cast<Handle*>(handle);
     if (!h) return;
     if (h->depth + 1 < kAccCapacity) {
-        nnue::acc_apply(h->net, h->stack[h->depth + 1], h->stack[h->depth],
-                        mover_idx, from_sq, to_sq, cap_idx);
+        // 走将时 acc_apply 会拒绝(所有特征换桶), 调用方本该改用 AccPushRefresh。
+        // 这里再兜一道: 万一漏了, 宁可把这一层标成"桶 -1"让求值退回全量,
+        // 也不要拿一份错桶的累加器算出看似正常的分数。
+        if (!nnue::acc_apply(h->net, h->stack[h->depth + 1], h->stack[h->depth],
+                             mover_idx, from_sq, to_sq, cap_idx)) {
+            h->stack[h->depth + 1].raw_bucket = -1;   // 标记不可用
+        }
     }
     ++h->depth;
 }
@@ -200,11 +205,25 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccPop(
 }
 
 // 调用方必须先确认 depth < capacity (Kotlin 侧自己数得到)。
+// 走将之后用这个: 直接对新局面全量重算并压栈。
+// 将位决定所有特征的桶, 将一动增量就失效 —— 这是把将位编进特征的固有代价。
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccPushRefresh(
+    JNIEnv*, jclass, jlong handle, jint n) {
+    Handle* h = reinterpret_cast<Handle*>(handle);
+    if (!h || n < 0 || n > nnue::kMaxPieces) return;
+    if (h->depth + 1 < kAccCapacity) {
+        nnue::acc_refresh(h->net, h->stack[h->depth + 1], h->pieces, n);
+    }
+    ++h->depth;
+}
+
 JNIEXPORT jint JNICALL
 Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccEval(
     JNIEnv*, jclass, jlong handle, jboolean black) {
     Handle* h = reinterpret_cast<Handle*>(handle);
     if (!h || h->depth >= kAccCapacity) return 0;
+    if (h->stack[h->depth].raw_bucket < 0) return 0;   // 见 AccPush 的兜底标记
     return nnue::eval_acc(h->net, h->stack[h->depth], black == JNI_TRUE);
 }
 
@@ -234,13 +253,22 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccSelfCheck(
     for (int s = 0; s < samples; ++s) {
         // 格子必须互不相同: "吃子"那一步会短暂让两个子占同一格, 正是最
         // 容易写错的地方, 而随机重复格会把这个信号淹掉。
+        // 造得像真实局面: 红黑各恰好一个将且都在九宫内。纯随机会造出"同色两个
+        // 将""吃掉将"这类真实对局不存在的情况, 而将位桶正由将决定 —— 那些样本
+        // 会让 acc_apply 和全量重算得出不同的桶, 报出一堆假的不一致。
         const int n = 2 + static_cast<int>(next() % (nnue::kMaxPieces - 1));
         bool used[nnue::kSquares] = {false};
-        for (int i = 0; i < n; ++i) {
+        const int rk = (7 + static_cast<int>(next() % 3)) * 9 + 3 + static_cast<int>(next() % 3);
+        const int bk = static_cast<int>(next() % 3) * 9 + 3 + static_cast<int>(next() % 3);
+        used[rk] = true; used[bk] = true;
+        pieces[0] = 0; pieces[1] = static_cast<uint8_t>(rk);
+        pieces[2] = 7; pieces[3] = static_cast<uint8_t>(bk);
+        for (int i = 2; i < n; ++i) {
             int sq;
             do { sq = static_cast<int>(next() % nnue::kSquares); } while (used[sq]);
             used[sq] = true;
-            pieces[i * 2] = static_cast<uint8_t>(next() % 14);
+            const int k = static_cast<int>(next() % 12);
+            pieces[i * 2] = static_cast<uint8_t>(k < 6 ? k + 1 : k + 2);
             pieces[i * 2 + 1] = static_cast<uint8_t>(sq);
         }
         const bool black = (next() & 1) != 0;
@@ -270,7 +298,8 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccSelfCheck(
                                          : pieces[i * 2 + 1];
             ++m;
         }
-        nnue::acc_apply(h->net, b, a, pieces[mv * 2], from_sq, to_sq, cap);
+        // 走将时 acc_apply 拒绝增量, 那条路径由 AccPushRefresh 覆盖, 不在这里验
+        if (!nnue::acc_apply(h->net, b, a, pieces[mv * 2], from_sq, to_sq, cap)) continue;
         nnue::acc_refresh(h->net, c, after, m);
         const size_t bytes = static_cast<size_t>(h->net.l1) * sizeof(int16_t);
         if (std::memcmp(b.raw, c.raw, bytes) != 0 ||

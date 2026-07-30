@@ -12,7 +12,14 @@
 
 namespace nnue {
 
-constexpr int kFeatures = 1260;   // 14 种子 × 90 格, 由数据格式定死
+// 特征 = (己方将所在九宫格位, 子类型, 格子)。
+//
+// 只按 (子类型,格子) 编码时网络无法表达"这个子的价值取决于将在哪", 而象棋的
+// 评估极度依赖将位。标准 NNUE 的做法(HalfKP/HalfKA)是把己方将编进特征; 国象里
+// 特征会爆到几十万维, 但象棋的将困在九宫只有 9 个位置, 所以只到 11340。
+constexpr int kKingBuckets = 9;
+constexpr int kPieceKinds = 14;
+constexpr int kFeatures = kKingBuckets * kPieceKinds * 90;   // 11340
 constexpr int kSquares = 90;
 constexpr int kQA = 127;          // 激活值尺度 (ClippedReLU 上界 1.0)
 constexpr int kQW = 256;          // fc1/fc2 权重尺度
@@ -71,6 +78,10 @@ bool has_simd();
 struct Accum {
     int16_t raw[kMaxL1];
     int16_t flip[kMaxL1];
+    // 这份累加器是按哪个将位桶算出来的。acc_apply 要用它去索引特征;
+    // 走将之后桶会变, 那时只能 acc_refresh 重算。
+    int raw_bucket = 0;
+    int flip_bucket = 0;
 };
 
 // 全量重算。进搜索前做一次, 之后靠 acc_apply 推进。
@@ -81,8 +92,16 @@ void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n);
 // mover_idx 从 from_sq 走到 to_sq; cap_idx >= 0 表示吃掉了原本在 to_sq 上的子。
 // 注意被吃的子在 **to_sq**, 与落点重合 —— 象棋没有吃过路兵这类例外, 所以
 // 不需要额外的被吃格参数。
-void acc_apply(const Net& net, Accum& dst, const Accum& src,
+// 返回 false 表示**无法增量更新, 调用方必须改用 acc_refresh**。
+//
+// 走的是将时会发生: 将位决定了所有特征的桶下标, 将一动, 盘上每个子的特征
+// 都换了桶 —— 这是把将位编进特征的固有代价(HalfKP 系都有), 不是 bug。
+// 象棋里将走得不算多, 但残局里比较频繁。
+bool acc_apply(const Net& net, Accum& dst, const Accum& src,
                int mover_idx, int from_sq, int to_sq, int cap_idx);
+
+// 走子方一侧的将是不是这一步的执行者 —— 供调用方提前判断要不要走 refresh
+inline bool is_king_index(int piece_idx) { return piece_idx == 0 || piece_idx == 7; }
 
 // 从累加器求值, 返回走子方视角的厘兵分。
 //

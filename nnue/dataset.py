@@ -31,6 +31,45 @@ def flip_square(sq):
     return (9 - row) * 9 + col
 
 
+PIECE_SQ = 14 * SQUARES        # 一个将位桶内的特征数
+
+
+def encode_perspectives(idxs, sqs, stm_black):
+    """把 (子类型, 格子) 列表编成两个视角的特征下标.
+
+    **唯一的编码入口** —— make_golden.py 也调这个, 免得两处各写一份然后
+    悄悄漂移。C++ (nnue_core.cpp) 和 Kotlin (NnueFeatures.kt) 必须与它逐位
+    对应, 由黄金向量锁住。
+    """
+    flip_idx = np.where(idxs < 7, idxs + 7, idxs - 7)
+    flip_sq = (9 - sqs // 9) * 9 + sqs % 9
+    if stm_black:
+        own_idx, own_sq = flip_idx, flip_sq
+        opp_idx, opp_sq = idxs, sqs
+    else:
+        own_idx, own_sq = idxs, sqs
+        opp_idx, opp_sq = flip_idx, flip_sq
+    own_b = _king_bucket(own_idx, own_sq)
+    opp_b = _king_bucket(opp_idx, opp_sq)
+    return (own_b * PIECE_SQ + own_idx * SQUARES + own_sq,
+            opp_b * PIECE_SQ + opp_idx * SQUARES + opp_sq)
+
+
+def _king_bucket(idxs, sqs):
+    """从子力表里找出己方将(pieceIdx==0)的格子, 折算成 0..8 的九宫桶.
+
+    找不到将时返回 0 —— 真实局面不会缺将, 但数据里若有异常记录, 宁可让它
+    落到一个固定桶, 也不要抛异常把整个训练打断。
+    """
+    m = idxs == 0
+    if not m.any():
+        return 0
+    sq = int(sqs[m][0])
+    # 夹紧到 0..8: 真实局面里将一定在九宫内, 但数据里若有异常记录, 越界的桶
+    # 下标会让训练去索引不存在的 embedding 行。
+    return min(max((sq // 9 - 7) * 3 + (sq % 9 - 3), 0), 8)
+
+
 def flip_piece(idx):
     """红黑互换: 0..6 <-> 7..13"""
     return idx + 7 if idx < 7 else idx - 7
@@ -104,8 +143,13 @@ class SelfPlayDataset(Dataset):
             own_idx, own_sq = idxs, sqs
             opp_idx, opp_sq = flip_idx, flip_sq
 
-        own = own_idx * SQUARES + own_sq
-        opp = opp_idx * SQUARES + opp_sq
+        # 将位桶: 经过视角变换后, "己方将"的 pieceIdx 恒为 0 (黑走棋时
+        # flip_piece 把 B_KING(7) 映成 0), 且必落在 row7-9 col3-5 的九宫里 ——
+        # 两个视角因此共用同一个桶函数。
+        own_b = _king_bucket(own_idx, own_sq)
+        opp_b = _king_bucket(opp_idx, opp_sq)
+        own = own_b * PIECE_SQ + own_idx * SQUARES + own_sq
+        opp = opp_b * PIECE_SQ + opp_idx * SQUARES + opp_sq
 
         # 定长补齐到 MAX_PIECES, 用 -1 表示空位, 训练时 mask 掉.
         # 变长会让 DataLoader 没法 batch, 而补 0 会被当成"第 0 号特征存在".

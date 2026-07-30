@@ -15,7 +15,28 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from dataset import SelfPlayDataset
-from model import NnueNet, OUT_SCALE
+from model import NnueNet, OUT_SCALE, PIECE_KINDS, SQUARES_
+
+PIECE_SQ = PIECE_KINDS * SQUARES_
+
+
+def _mirror_feat(t, flip):
+    """特征下标的左右镜像. t 里的 -1 是补位, 必须原样保留。
+
+    f = bucket*1260 + pieceIdx*90 + row*9 + col
+    镜像后:  col -> 8-col, 且 bucket 按将的新列重算。
+    桶 b = (kr-7)*3 + (kc-3), 镜像只改 kc -> 8-kc, 即 b 的列分量 (b%3) -> 2-(b%3)。
+    """
+    valid = t >= 0
+    safe = torch.where(valid, t, torch.zeros_like(t))
+    bucket = safe // PIECE_SQ
+    rest = safe % PIECE_SQ                 # pieceIdx*90 + sq
+    piece = rest // 90
+    sq = rest % 90
+    new_sq = sq + 8 - 2 * (sq % 9)         # 只翻列
+    new_bucket = bucket - (bucket % 3) + (2 - bucket % 3)
+    out = new_bucket * PIECE_SQ + piece * 90 + new_sq
+    return torch.where(valid & flip, out, t)
 
 
 def build_loader(data_dir, batch, workers):
@@ -149,16 +170,18 @@ def main():
             y = y.to(dev, non_blocking=True)
 
             if args.mirror:
-                # 特征下标 f = pieceIdx*90 + row*9 + col. 90 和 9 都被 9 整除,
-                # 所以 f % 9 就是 col, 列翻转 col->8-col 直接是 f + 8 - 2*(f%9)。
-                # 不用解码回 (子类型,格子) 再编回去。
+                # 列翻转 col -> 8-col。象棋盘左右对称, 得到的是合法局面且分数不变。
                 #
-                # 每批随机翻一半而不是把数据集拷成两份: 40 轮下来每条样本
-                # 正反两面都见过多次, 而显存占用不变。
-                # 补位是 -1, 必须排除 —— torch 的 (-1)%9 是 8, 套公式会算成 -9。
+                # 加入将位特征之后**不能**再用旧的 f + 8 - 2*(f%9) 快捷公式:
+                # 将本身也在盘上, 镜像之后它的九宫桶跟着变(桶0<->桶2), 而那个
+                # 公式只翻子的列、不动桶, 会把"将在左边"的局面标成"将还在左边"。
+                # 必须拆成 桶/子类型/格子 三个分量分别处理。
+                #
+                # 每批随机翻一半而不是把数据集拷成两份: 40 轮下来每条样本正反
+                # 两面都见过多次, 而显存占用不变。
                 flip = torch.rand(own.size(0), 1, device=own.device) < 0.5
-                own = torch.where((own >= 0) & flip, own + 8 - 2 * (own % 9), own)
-                opp = torch.where((opp >= 0) & flip, opp + 8 - 2 * (opp % 9), opp)
+                own = _mirror_feat(own, flip)
+                opp = _mirror_feat(opp, flip)
             pred = net(own, opp)
             loss = lossf(pred, y)
             opt.zero_grad(set_to_none=True)
