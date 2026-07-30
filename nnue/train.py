@@ -42,6 +42,10 @@ def main():
     ap.add_argument("--l1", type=int, default=256,
                     help="FeatureTransformer 宽度. 端上求值耗时基本正比于它,\n"
                          "导出时要用同样的值")
+    ap.add_argument("--mirror", action="store_true",
+                    help="左右镜像增强. 象棋盘左右对称(九宫/象位/兵过河/白脸将\n"
+                         "全对称), 列翻转得到的是合法局面且分数不变, 等于免费\n"
+                         "把有效数据翻倍")
     ap.add_argument("--cache", action="store_true",
                     help="把整份数据解码一次存成显存/内存里的张量, 之后每轮直接切片.\n"
                          "同一份数据被反复解码 40 遍是纯浪费: 解码结果是固定的,\n"
@@ -143,6 +147,18 @@ def main():
             own = own.to(dev, non_blocking=True).long()
             opp = opp.to(dev, non_blocking=True).long()
             y = y.to(dev, non_blocking=True)
+
+            if args.mirror:
+                # 特征下标 f = pieceIdx*90 + row*9 + col. 90 和 9 都被 9 整除,
+                # 所以 f % 9 就是 col, 列翻转 col->8-col 直接是 f + 8 - 2*(f%9)。
+                # 不用解码回 (子类型,格子) 再编回去。
+                #
+                # 每批随机翻一半而不是把数据集拷成两份: 40 轮下来每条样本
+                # 正反两面都见过多次, 而显存占用不变。
+                # 补位是 -1, 必须排除 —— torch 的 (-1)%9 是 8, 套公式会算成 -9。
+                flip = torch.rand(own.size(0), 1, device=own.device) < 0.5
+                own = torch.where((own >= 0) & flip, own + 8 - 2 * (own % 9), own)
+                opp = torch.where((opp >= 0) & flip, opp + 8 - 2 * (opp % 9), opp)
             pred = net(own, opp)
             loss = lossf(pred, y)
             opt.zero_grad(set_to_none=True)
