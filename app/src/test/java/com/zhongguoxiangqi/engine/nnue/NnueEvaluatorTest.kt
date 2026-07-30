@@ -108,7 +108,7 @@ class NnueEvaluatorTest {
         // 这正是最危险的情形: 尺寸错位之后网络照样能算出数字, 只是全是垃圾
         val head = ByteBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN)
         head.put("XQNN".toByteArray())
-        head.putInt(1)
+        head.putInt(NnueNetwork.FORMAT_VERSION)   // 版本要跟着格式走, 写死会先被版本检查拦下
         head.putInt(999)      // FEATURES 故意写错
         head.putInt(256)
         head.putInt(32)
@@ -129,7 +129,7 @@ class NnueEvaluatorTest {
         // App 在加载网络时 OOM 崩掉.
         val head = ByteBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN)
         head.put("XQNN".toByteArray())
-        head.putInt(1)
+        head.putInt(NnueNetwork.FORMAT_VERSION)   // 同上
         head.putInt(NnueFeatures.FEATURES)
         head.putInt(1 shl 20)   // L1 离谱
         head.putInt(32)

@@ -40,6 +40,7 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
     init {
         if (NnueNative.available) {
             val h = runCatching { NnueNative.nativeCreate(net.raw) }.getOrDefault(0L)
+            if (h == 0L) warnFallback("nativeCreate 返回 0 (多半是 .so 与当前权重格式版本对不上, 忘了跑 build_host.sh?)")
             if (h != 0L) {
                 val bad = runCatching { NnueNative.nativeSelfCheck(h, SELF_CHECK_SAMPLES) }
                     .getOrDefault(-1)
@@ -47,6 +48,7 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
                     handle = h
                     pieceBuf = NnueNative.nativePieceBuffer(h)
                     if (pieceBuf == null) {
+                        warnFallback("拿不到 pieceBuffer")
                         NnueNative.nativeDestroy(h)
                         handle = 0L
                     } else {
@@ -69,13 +71,7 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
                         }
                     }
                 } else {
-                    runCatching {
-                        android.util.Log.e(
-                            "NnueEvaluator",
-                            "native 自检未通过 ($bad/$SELF_CHECK_SAMPLES 条不一致), " +
-                                "退回 Kotlin 求值"
-                        )
-                    }
+                    warnFallback("native 自检未通过 ($bad/$SELF_CHECK_SAMPLES 条不一致)")
                     NnueNative.nativeDestroy(h)
                 }
             }
@@ -294,6 +290,22 @@ class NnueEvaluator(private val net: NnueNetwork) : AutoCloseable {
         for (i in acc.indices) {
             acc[i] = clipped(acc[i])
         }
+    }
+
+    /**
+     * native 不可用时必须**吵**一声.
+     *
+     * 原来只有 `runCatching { android.util.Log.e(...) }`, 而单元测试跑在桌面
+     * JVM 上, android.util.Log 是空壳 —— 日志被 runCatching 一并吞掉, 于是
+     * 悄悄退回慢 20 倍的 Kotlin 路径, 表现只是"测试变慢", 不报任何错。
+     *
+     * 改格式版本却忘了重编 .so 时就是这样: 编译通过、测试不失败, 只是全量
+     * 套件从 30 秒变成十几分钟, 而我先后归因到置换表冲突和 CPU 争抢, 两次
+     * 都错, 最后靠 jstack 看到栈里是 evaluateKotlin 才定位。
+     */
+    private fun warnFallback(why: String) {
+        System.err.println("[NnueEvaluator] !! 退回 Kotlin 求值(慢约 20 倍): $why")
+        runCatching { android.util.Log.e("NnueEvaluator", why) }
     }
 
     private companion object {

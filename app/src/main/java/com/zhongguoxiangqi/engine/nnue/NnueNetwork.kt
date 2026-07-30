@@ -81,7 +81,12 @@ class NnueNetwork private constructor(
         /** 逐字节比对而不是拼成 int 比: 拼 int 要考虑字节序, 很容易写反 */
         private val MAGIC = byteArrayOf('X'.code.toByte(), 'Q'.code.toByte(),
             'N'.code.toByte(), 'N'.code.toByte())
-        private const val VERSION = 2   // QW 64->256 且 out.weight i16->i32
+        /**
+         * 格式版本. 测试要构造文件头, 必须引用这个常量而不是写死数字 ——
+         * 写死的话格式一升级, 测试就会先被版本检查拦下, 测不到它本来要测的东西
+         * (v1->v2 时这两个测试就是这么假失败的).
+         */
+        const val FORMAT_VERSION = 2   // QW 64->256 且 out.weight i16->i32
 
         /**
          * 从流里加载. 结构对不上就抛异常, 绝不"尽力而为地读一读".
@@ -102,8 +107,8 @@ class NnueNetwork private constructor(
 
             val hb = ByteBuffer.wrap(raw, 4, 7 * 4).order(ByteOrder.LITTLE_ENDIAN)
             val version = hb.int
-            if (version != VERSION) {
-                throw IOException("NNUE 版本不支持: $version, 期望 $VERSION")
+            if (version != FORMAT_VERSION) {
+                throw IOException("NNUE 版本不支持: $version, 期望 $FORMAT_VERSION")
             }
             check(hb.int, NnueFeatures.FEATURES, "FEATURES")
             val l1 = dim(hb.int, "L1", MAX_L1)

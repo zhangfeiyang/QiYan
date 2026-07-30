@@ -46,8 +46,17 @@ class SimpleEngine : ChessEngine {
     @Volatile private var deadline = Long.MAX_VALUE
     @Volatile private var timeUp = false
 
-    // 置换表
-    private val tt = HashMap<Long, TTEntry>(8192)
+    // 置换表: 两个平行的定长数组, 不用 HashMap.
+    //
+    // HashMap<Long,TTEntry> 每次探测都要给 key 装箱、走一遍哈希桶、再解引用一个
+    // 对象; 一次深度 6 的搜索有十几万节点, 就是十几万次装箱加对象分配, GC 压力
+    // 和缓存不友好都在这里。扁平数组只有两次数组访问。
+    //
+    // 用**世代号**而不是每次搜索清表: 清 8MB 要 0.8ms, 而数据生成每秒几百次
+    // 搜索, 光清表就能吃掉一半 CPU。世代号对不上的条目直接当空的, 零成本失效。
+    private val ttKey = LongArray(TT_SIZE)
+    private val ttData = LongArray(TT_SIZE)
+    private var ttGen = 0
 
     /**
      * 杀手着法: 每一层记两个"曾经造成 beta 截断的安静着法".
@@ -198,8 +207,9 @@ class SimpleEngine : ChessEngine {
             else -> System.currentTimeMillis() + DEFAULT_MOVETIME_MS
         }
         timeUp = false
-        // 置换表按局面复用没有意义(每次搜索局面都变了),清空避免无限增长
-        tt.clear()
+        // 置换表按局面复用没有意义(每次搜索局面都变了), 世代号 +1 让旧条目
+        // 整体失效 —— 比清 8MB 数组便宜得多
+        ttGen = (ttGen + 1) and 0xFF
         // 启发表也要清: 上一盘的统计对这一盘没有参考价值, 留着反而误导排序
         for (k in killers) { k[0] = 0; k[1] = 0 }
         for (row in history) row.fill(0)
@@ -300,12 +310,15 @@ class SimpleEngine : ChessEngine {
 
         // 置换表查询
         val key = pos.hash
-        val ttEntry = tt[key]
-        if (ttEntry != null && ttEntry.depth >= depth) {
-            when (ttEntry.flag) {
-                TT_EXACT -> return ttEntry.score
-                TT_LOWER -> if (ttEntry.score >= beta) return ttEntry.score
-                TT_UPPER -> if (ttEntry.score <= alpha) return ttEntry.score
+        val slot = ttSlot(key)
+        val hit = ttKey[slot] == key && ttGenOf(ttData[slot]) == ttGen
+        val ttMove = if (hit) ttMoveOf(ttData[slot]) else 0
+        if (hit && ttDepthOf(ttData[slot]) >= depth) {
+            val sc = ttScoreOf(ttData[slot])
+            when (ttFlagOf(ttData[slot])) {
+                TT_EXACT -> return sc
+                TT_LOWER -> if (sc >= beta) return sc
+                TT_UPPER -> if (sc <= alpha) return sc
             }
         }
 
@@ -344,7 +357,7 @@ class SimpleEngine : ChessEngine {
             return if (inCheck) -MATE_SCORE + ply else 0
         }
 
-        orderMoves(pos, moves, ttEntry?.move ?: 0, ply)
+        orderMoves(pos, moves, ttMove, ply)
 
         var bestScore = Int.MIN_VALUE
         var bestFlag = TT_UPPER
@@ -444,16 +457,30 @@ class SimpleEngine : ChessEngine {
      * 还会一直被当成有效命中返回, 反过来误导搜索.
      */
     private fun storeTT(key: Long, depth: Int, score: Int, flag: Int, moveData: Int) {
-        val old = tt[key]
-        // 已有条目更深就别覆盖: 深的结果更可信
-        if (old != null && old.depth > depth) return
-        if (old == null && tt.size >= TT_MAX_ENTRIES) {
-            // 满了就整表清空重来. 比逐条淘汰简单, 而且一次搜索里通常只会发生
-            // 一两次; 真正要避免的是"满了之后永远不写".
-            tt.clear()
-        }
-        tt[key] = TTEntry(depth, score, flag, moveData)
+        // 分数超出打包范围就别存. 正常分数在 ±30000 以内, 但根节点的
+        // bestScore 初值是 Int.MIN_VALUE, 万一一个着法都没搜成会漏出来。
+        if (score < -TT_SCORE_LIMIT || score > TT_SCORE_LIMIT) return
+        val slot = ttSlot(key)
+        val old = ttData[slot]
+        // 同一局面已有更深的结果就别覆盖: 深的更可信。
+        // 槽位被**别的**局面占着时直接覆盖 —— 定长表里冲突是常态, 留着旧局面
+        // 反而让当前搜索一直命中不了。
+        if (ttKey[slot] == key && ttGenOf(old) == ttGen && ttDepthOf(old) > depth) return
+        ttKey[slot] = key
+        ttData[slot] = (moveData.toLong() and 0x3FFFFL) or
+            ((score + TT_SCORE_BIAS).toLong() shl 18) or
+            (depth.coerceIn(0, 255).toLong() shl 40) or
+            (flag.toLong() shl 48) or
+            (ttGen.toLong() shl 50)
     }
+
+    // 打包布局: move 18 位 | score 22 位(偏移存储) | depth 8 位 | flag 2 位 | gen 8 位
+    private fun ttSlot(key: Long): Int = (key.toInt() and TT_MASK)
+    private fun ttMoveOf(d: Long): Int = (d and 0x3FFFFL).toInt()
+    private fun ttScoreOf(d: Long): Int = ((d ushr 18) and 0x3FFFFFL).toInt() - TT_SCORE_BIAS
+    private fun ttDepthOf(d: Long): Int = ((d ushr 40) and 0xFFL).toInt()
+    private fun ttFlagOf(d: Long): Int = ((d ushr 48) and 0x3L).toInt()
+    private fun ttGenOf(d: Long): Int = ((d ushr 50) and 0xFFL).toInt()
 
     /**
      * 静态搜索: 只继续搜吃子着法,直到局面"安静"下来.
@@ -522,7 +549,7 @@ class SimpleEngine : ChessEngine {
         deadline = Long.MAX_VALUE
         timeUp = false
         stopRequested = false
-        tt.clear()
+        ttGen = (ttGen + 1) and 0xFF
         for (k in killers) { k[0] = 0; k[1] = 0 }
         for (row in history) row.fill(0)
 
@@ -577,7 +604,7 @@ class SimpleEngine : ChessEngine {
         deadline = Long.MAX_VALUE
         timeUp = false
         stopRequested = false
-        tt.clear()
+        ttGen = (ttGen + 1) and 0xFF
         for (k in killers) { k[0] = 0; k[1] = 0 }
         for (row in history) row.fill(0)
 
@@ -906,8 +933,6 @@ class SimpleEngine : ChessEngine {
      * 收益最大的一项: 上一层已经算出的好棋, 这一层大概率还是好棋, 先试它能
      * 立刻把 beta 截断推到最前面.
      */
-    private data class TTEntry(val depth: Int, val score: Int, val flag: Int, val move: Int)
-
     companion object {
         private const val TT_EXACT = 0
         private const val TT_LOWER = 1
@@ -926,7 +951,18 @@ class SimpleEngine : ChessEngine {
         /** 停止搜索时等待工作线程退出的上限 */
         private const val STOP_JOIN_TIMEOUT_MS = 2000L
         /** 置换表条目上限,防止长时间搜索吃光内存 */
-        private const val TT_MAX_ENTRIES = 400_000
+        /**
+         * 置换表槽位数, 必须是 2 的幂 (下标用位与取模).
+         *
+         * 2^19 = 524288 槽 × 16 字节 = 8MB。旧的 HashMap 上限是 40 万条, 但每条
+         * 还要摊上 Long 装箱、Node 对象和引用, 实际内存远不止 8MB。
+         */
+        private const val TT_SIZE = 1 shl 19
+        private const val TT_MASK = TT_SIZE - 1
+
+        /** score 用 22 位偏移存储, 覆盖 ±2097151, 而实际分数在 ±30000 以内 */
+        private const val TT_SCORE_BIAS = 1 shl 21
+        private const val TT_SCORE_LIMIT = (1 shl 21) - 1
 
         /** 杀手表按层存, 这是层数上限 */
         private const val MAX_PLY = 64
