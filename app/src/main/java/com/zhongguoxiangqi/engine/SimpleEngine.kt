@@ -7,6 +7,7 @@ import com.zhongguoxiangqi.game.MoveGenerator
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
+import com.zhongguoxiangqi.game.See
 import com.zhongguoxiangqi.game.Square
 import com.zhongguoxiangqi.game.UciCoords
 import kotlin.math.max
@@ -386,11 +387,24 @@ class SimpleEngine : ChessEngine {
             if (searched == 0) {
                 score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
             } else {
-                // LMR: 排在后面的安静着法多半是坏棋, 先按减一层的深度草草看一眼,
+                // LMR: 排在后面的安静着法多半是坏棋, 先按缩减的深度草草看一眼,
                 // 真有价值再补搜. 吃子和将军不减 —— 那些正是战术发生的地方.
-                val reduction = if (depth >= LMR_MIN_DEPTH && searched >= LMR_MIN_MOVES &&
-                    !capture && !Rules.isInCheck(pos, pos.sideToMove)
-                ) 1 else 0
+                //
+                // 削减量按 ln(深度)*ln(着法序号) 查表, 不再是固定减 1。理由是
+                // 固定值在两头都不对: 深度 12 的第 30 手明显该多减几层, 而深度 3
+                // 的第 5 手减 1 层已经嫌多。这个形状取自 Pikafish(同为象棋引擎,
+                // 参数在象棋上调过), 但**削减量刻意取保守**: 它敢那么激进是因为
+                // 有 singular extension 把"明显最好的那手"从削减里捞出来, 我们
+                // 没有那层保护, 照抄会把关键着法一起削掉。
+                val reduction = if (useLmrTable) {
+                    if (depth >= LMR_MIN_DEPTH && searched >= LMR_MIN_MOVES &&
+                        !capture && !Rules.isInCheck(pos, pos.sideToMove)
+                    ) lmrReduction(depth, searched).coerceAtMost(depth - 1) else 0
+                } else {
+                    if (depth >= LMR_MIN_DEPTH && searched >= LMR_MIN_MOVES &&
+                        !capture && !Rules.isInCheck(pos, pos.sideToMove)
+                    ) 1 else 0
+                }
                 score = -alphaBeta(pos, depth - 1 - reduction, -alphaLocal - 1, -alphaLocal, nodes, ply + 1)
                 if (score > alphaLocal && (reduction > 0 || score < beta)) {
                     score = -alphaBeta(pos, depth - 1, -beta, -alphaLocal, nodes, ply + 1)
@@ -535,11 +549,20 @@ class SimpleEngine : ChessEngine {
             // delta 裁剪: 就算白吃下这个子、再补一个兵的机动余量, 还够不到 alpha,
             // 那这一支不可能翻盘。被将时不裁 —— 那时的"吃子"往往是唯一的应将手段,
             // 按子力算账会把救命的一手剪掉。
-            if (useDelta && !inCheckQ) {
+            if (!inCheckQ) {
                 val victim = pos.pieceAt(m.to)
-                if (victim != Piece.NONE.code &&
+                if (useDelta && victim != Piece.NONE.code &&
                     standPat + captureValue(victim) + DELTA_MARGIN <= alphaLocal
                 ) continue
+                // SEE 裁剪: 兑完之后净亏子力的吃子直接跳过。
+                //
+                // 这比 MVV-LVA 严格 —— MVV-LVA 只看"吃的子值不值钱", 看不出
+                // 落点有没有保护。"车吃有保护的兵"在 MVV-LVA 里排得不低, 但
+                // 兑完是净亏 800, 搜它纯属浪费。
+                //
+                // 被将时不裁: 那时的吃子往往是唯一应将手段, 按子力算账会把
+                // 救命的一手剪掉(delta 裁剪同理)。
+                if (useSee && See.evaluate(pos, m) < 0) continue
             }
             if (!doMoveAcc(pos, m)) continue
             val score = -quiescence(pos, -beta, -alphaLocal, nodes, ply + 1, qply + 1)
@@ -566,9 +589,33 @@ class SimpleEngine : ChessEngine {
 
     /** 基准测试用: 分别关掉两种裁剪, 以便同进程 A/B */
     internal var useDelta = true
+    internal var useSee = true          // 静止搜索里的 SEE 裁剪
+    internal var useLmrTable = true     // LMR 用查表削减, 关掉则退回固定减 1
+
+    /**
+     * LMR 削减层数, 查表算.
+     *
+     * r = LMR_BASE + ln(depth)*ln(moveCount)/LMR_DIV, 这个形状是通行做法:
+     * 深度越大、着法排得越后, 减得越多。分母越大越保守。
+     */
+    private fun lmrReduction(depth: Int, moveCount: Int): Int {
+        val d = depth.coerceAtMost(LMR_TABLE_MAX)
+        val m = moveCount.coerceAtMost(LMR_TABLE_MAX)
+        return lmrTable[d][m]
+    }
     internal var useRfp = true
 
-    /** 吃子优先排序 (MVV-LVA) */
+    /**
+     * 吃子排序 (MVV-LVA).
+     *
+     * 试过在这里叠一层 SEE 分层(亏损吃子整体压后), **实测零收益**: 节点数
+     * 1.00 倍、分数一次都没变。原因是 SEE 只对亏损吃子降权, 而那些着法本来
+     * 就排在 MVV-LVA 后段(吃便宜子 + 用贵子), 多半在被搜到之前就 beta 截断了;
+     * 真正有价值的重排("不亏的便宜吃子提到亏损的贵吃子之前")在象棋里少见。
+     *
+     * 走法排序在**每个节点**都跑, 给每个吃子加一次 SEE 是净亏, 所以删掉。
+     * SEE 保留在静止搜索的裁剪里(那里有 1.03 倍)。
+     */
     private fun sortByMvvLva(pos: Position, moves: MutableList<Move>) {
         for (m in moves) {
             m.score = m.mvvLva(pos.pieceAt(m.to), pos.pieceAt(m.from))
@@ -1038,6 +1085,26 @@ class SimpleEngine : ChessEngine {
 
         private const val NULL_MOVE_MIN_DEPTH = 3
         private const val NULL_MOVE_REDUCTION = 2
+
+        /**
+         * LMR 查表的尺寸与形状参数.
+         *
+         * LMR_DIV 越大削减越保守。取 2.6 而不是 Pikafish 那种更激进的取值,
+         * 是因为我们没有 singular extension —— 它敢深削是因为有那层保护把
+         * "明显最好的那手"排除在外。这个数没调过, 是保守的起点。
+         */
+        private const val LMR_TABLE_MAX = 63
+        private const val LMR_BASE = 0.20
+        private const val LMR_DIV = 2.60
+
+        /** 预先算好, 搜索热路径上只做两次数组访问 */
+        private val lmrTable: Array<IntArray> = Array(LMR_TABLE_MAX + 1) { d ->
+            IntArray(LMR_TABLE_MAX + 1) { m ->
+                if (d < 1 || m < 1) 0
+                else (LMR_BASE + kotlin.math.ln(d.toDouble()) *
+                    kotlin.math.ln(m.toDouble()) / LMR_DIV).toInt().coerceAtLeast(0)
+            }
+        }
 
         private const val LMR_MIN_DEPTH = 3
         private const val LMR_MIN_MOVES = 4

@@ -40,6 +40,33 @@ class NullMoveTest {
         return out
     }
 
+    /** LMR 查表 vs 固定减 1 */
+    @Test
+    fun lmrTableCutsNodes() {
+        val poss = positions(50, 606060)
+        for (depth in intArrayOf(6, 8, 10)) {
+            val off = SimpleEngine().apply { setNnue(NnueEvaluator(net())); useLmrTable = false }
+            val refScores = poss.map { off.setPositionDirect(it); off.searchWithScore(depth).second }
+            var nOff = 0L
+            for (p in poss) { off.setPositionDirect(p); off.searchWithScore(depth); nOff += off.lastSearchNodes }
+
+            val on = SimpleEngine().apply { setNnue(NnueEvaluator(net())); useLmrTable = true }
+            var nOn = 0L; var changed = 0; var sum = 0L; var mx = 0
+            for ((i, p) in poss.withIndex()) {
+                on.setPositionDirect(p)
+                val sc = on.searchWithScore(depth).second
+                nOn += on.lastSearchNodes
+                val d = abs(sc - refScores[i])
+                if (d != 0) { changed++; sum += d; if (d > mx) mx = d }
+            }
+            println("[lmr] 深度%2d: %d → %d 节点 (%.2fx)  分数变 %d/%d 平均|差|%.1f 最大%d"
+                .format(depth, nOff, nOn, nOff.toDouble() / nOn, changed, poss.size,
+                    sum.toDouble() / poss.size, mx))
+        }
+    }
+
+    /** SEE 接入搜索后的节点收益与分数漂移 */
+
     /** delta 裁剪 + 静态裁剪的节点收益与分数漂移 */
     @Test
     fun deltaAndRfpCutNodes() {

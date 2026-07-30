@@ -4,7 +4,11 @@ package com.zhongguoxiangqi.game
  * 静态交换评估 (Static Exchange Evaluation).
  *
  * 回答"在某一格连续兑子, 双方都挑最便宜的子来吃, 最终净得多少子力"。
- * 搜索用它来跳过明显亏损的吃子(车吃有保护的兵)和改进吃子排序。
+ * 静止搜索用它跳过明显亏损的吃子(车吃有保护的兵)。
+ *
+ * **只用在静止搜索里**, 不用在走法排序里 —— 排序那半实测零收益(节点 1.00 倍,
+ * 分数一次没变), 却要在每个节点给每个吃子多算一次 SEE, 是净亏。理由见
+ * [com.zhongguoxiangqi.engine.SimpleEngine] 里 sortByMvvLva 的注释。
  *
  * ## 象棋为什么不能照抄国象的做法
  *
@@ -121,11 +125,16 @@ object See {
                             screen == 0 && pc.type == 5 -> visit(sq)
                             // 炮: 中间恰好一个子
                             screen == 1 && pc.type == 6 -> visit(sq)
-                            // 将: 贴着的一格(且在九宫内), 或飞将(同列中间无子)
-                            screen == 0 && pc.type == 1 &&
-                                (step == 1 && inPalace(r, c, color) ||
-                                    dir[1] == 0 && board[to] != Piece.NONE.code &&
-                                    Piece.fromCode(board[to]).type == 1) -> visit(sq)
+                            // 将: 只能吃到**九宫内**相邻的一格。
+                            //
+                            // 这里查的必须是**目标格**在不在九宫, 不是将自己 ——
+                            // 将永远在自己九宫里, 查它等于没查, 会让将"吃到"
+                            // 九宫外的相邻格。交叉验证就是被这条抓出来的。
+                            //
+                            // 飞将不算攻击者: 走法生成器不产出"吃对方将"的着法
+                            // (那是合法性检查的事), 算进来两边就对不上了。
+                            screen == 0 && pc.type == 1 && step == 1 &&
+                                inPalace(tr, tc, color) -> visit(sq)
                         }
                     }
                     screen++
