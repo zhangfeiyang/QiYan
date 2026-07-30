@@ -39,12 +39,28 @@ def _mirror_feat(t, flip):
     return torch.where(valid & flip, out, t)
 
 
-def build_loader(data_dir, batch, workers):
-    paths = sorted(glob.glob(os.path.join(data_dir, "shard-*.bin")))
-    paths = [p for p in paths if os.path.getsize(p) > 0]
-    if not paths:
-        raise RuntimeError(f"{data_dir} 里没有非空的 shard-*.bin")
+def build_loader(data_dirs, batch, workers):
+    """
+    [data_dirs] 可以给多个目录, 合成一个数据集.
+
+    数据是分几批生成的(老师深度不同 -> 目录不同), 而"数据量"是目前实测
+    最大的杠杆, 所以要能把它们并起来一起训。分片顺序按目录再按文件名排,
+    保证同一组目录每次构造出的顺序一致 —— 否则同一 seed 训不出同一个网络。
+    """
+    if isinstance(data_dirs, str):
+        data_dirs = [data_dirs]
+    paths = []
+    for d in data_dirs:
+        got = sorted(glob.glob(os.path.join(d, "shard-*.bin")))
+        got = [p for p in got if os.path.getsize(p) > 0]
+        if not got:
+            raise RuntimeError(f"{d} 里没有非空的 shard-*.bin")
+        paths.extend(got)
     ds = SelfPlayDataset(paths)
+    if len(data_dirs) > 1:
+        for d in data_dirs:
+            n = sum(os.path.getsize(p) for p in sorted(glob.glob(os.path.join(d, "shard-*.bin"))))
+            print(f"[data]   {d}: {n // 72:,} 条")
     print(f"[data] {len(paths)} 个分片, 共 {len(ds):,} 条样本")
     return DataLoader(
         ds, batch_size=batch, shuffle=True, num_workers=workers,
@@ -54,7 +70,8 @@ def build_loader(data_dir, batch, workers):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", required=True)
+    ap.add_argument("--data", required=True, nargs="+",
+                    help="一个或多个数据目录, 合并成一个数据集")
     ap.add_argument("--out", default="nnue/net.pt")
     ap.add_argument("--epochs", type=int, default=10)
     ap.add_argument("--batch", type=int, default=8192)

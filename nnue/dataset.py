@@ -12,7 +12,8 @@ from torch.utils.data import Dataset
 # ---- 必须与 Kotlin 侧一致 ----
 PIECE_KINDS = 14
 SQUARES = 90
-FEATURES = PIECE_KINDS * SQUARES      # 1260
+KING_BUCKETS = 9
+FEATURES = KING_BUCKETS * PIECE_KINDS * SQUARES      # 11340
 MAX_PIECES = 32
 RECORD_BYTES = 72
 SCORE_CLAMP = 10000
@@ -31,7 +32,7 @@ def flip_square(sq):
     return (9 - row) * 9 + col
 
 
-PIECE_SQ = 14 * SQUARES        # 一个将位桶内的特征数
+PIECE_SQ = PIECE_KINDS * SQUARES        # 一个将位桶内的特征数
 
 
 def encode_perspectives(idxs, sqs, stm_black):
@@ -133,23 +134,10 @@ class SelfPlayDataset(Dataset):
         # 552 万条 × 40 轮全压在 Python 层, 实测第一轮就要 11 分钟, 而 GPU
         # 利用率只有 5%, 8 个 dataloader 进程各占满一个核。语义与那两个标量
         # 函数逐位一致, 由 test_dataset_vectorized.py 锁住。
-        flip_idx = np.where(idxs < 7, idxs + 7, idxs - 7)
-        flip_sq = (9 - sqs // 9) * 9 + sqs % 9
-        if stm_black:
-            # 走子方是黑: "我方"要把棋盘翻过来看
-            own_idx, own_sq = flip_idx, flip_sq
-            opp_idx, opp_sq = idxs, sqs
-        else:
-            own_idx, own_sq = idxs, sqs
-            opp_idx, opp_sq = flip_idx, flip_sq
-
-        # 将位桶: 经过视角变换后, "己方将"的 pieceIdx 恒为 0 (黑走棋时
-        # flip_piece 把 B_KING(7) 映成 0), 且必落在 row7-9 col3-5 的九宫里 ——
-        # 两个视角因此共用同一个桶函数。
-        own_b = _king_bucket(own_idx, own_sq)
-        opp_b = _king_bucket(opp_idx, opp_sq)
-        own = own_b * PIECE_SQ + own_idx * SQUARES + own_sq
-        opp = opp_b * PIECE_SQ + opp_idx * SQUARES + opp_sq
+        # 编码只此一处 —— 这里原来抄了一份 encode_perspectives 的实现, 而那个
+        # 函数的注释正好写着"唯一的编码入口, 免得两处各写一份然后悄悄漂移"。
+        # 两份确实是一致的, 但没有任何机制保证它们**保持**一致。
+        own, opp = encode_perspectives(idxs, sqs, stm_black)
 
         # 定长补齐到 MAX_PIECES, 用 -1 表示空位, 训练时 mask 掉.
         # 变长会让 DataLoader 没法 batch, 而补 0 会被当成"第 0 号特征存在".
