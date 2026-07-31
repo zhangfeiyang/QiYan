@@ -10,11 +10,12 @@ import glob
 import os
 import time
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from dataset import SelfPlayDataset
+from dataset import SelfPlayDataset, decode_bulk, RECORD_BYTES, MAX_PIECES
 from model import NnueNet, OUT_SCALE, PIECE_KINDS, SQUARES_
 
 PIECE_SQ = PIECE_KINDS * SQUARES_
@@ -66,6 +67,46 @@ def build_loader(data_dirs, batch, workers):
         ds, batch_size=batch, shuffle=True, num_workers=workers,
         pin_memory=True, drop_last=True, persistent_workers=workers > 0,
     )
+
+
+def _decode_cache(data_dirs):
+    """把所有分片整块解码成三个张量.
+
+    预先按总条数一次性开好数组、按分片就地填, 而不是攒一堆小数组最后 concat ——
+    concat 那一下要同时拿着新旧两份, 五千万条就是凭空多占 7GB。
+    """
+    if isinstance(data_dirs, str):
+        data_dirs = [data_dirs]
+    paths = []
+    for d in data_dirs:
+        got = sorted(glob.glob(os.path.join(d, "shard-*.bin")))
+        paths.extend(p for p in got if os.path.getsize(p) > 0)
+    if not paths:
+        raise RuntimeError(f"{data_dirs} 里没有非空的 shard-*.bin")
+
+    sizes = [os.path.getsize(p) // RECORD_BYTES for p in paths]
+    total = sum(sizes)
+    own = np.empty((total, MAX_PIECES), dtype=np.int16)
+    opp = np.empty((total, MAX_PIECES), dtype=np.int16)
+    y = np.empty(total, dtype=np.float32)
+
+    at = 0
+    for p, n in zip(paths, sizes):
+        if n == 0:
+            continue
+        raw = np.memmap(p, dtype=np.uint8, mode="r")
+        recs = raw[: n * RECORD_BYTES].reshape(n, RECORD_BYTES)
+        # 分块处理: 一个分片可能有几百万条, 中间量按 int64 展开会很占内存
+        for lo in range(0, n, 1_000_000):
+            hi = min(lo + 1_000_000, n)
+            o, q, s = decode_bulk(recs[lo:hi])
+            own[at:at + (hi - lo)] = o
+            opp[at:at + (hi - lo)] = q
+            y[at:at + (hi - lo)] = s
+            at += hi - lo
+        del raw, recs
+    print(f"[data] {len(paths)} 个分片, 共 {total:,} 条样本")
+    return (torch.from_numpy(own), torch.from_numpy(opp), torch.from_numpy(y))
 
 
 def main():
@@ -151,17 +192,17 @@ def main():
     # 552 万条时每轮 80 秒、GPU 利用率 1%。解码一次存成张量, 之后每轮只是
     # 显存里的切片, 每轮从 80 秒降到几秒。
     #
-    # 存 int16: 特征下标最大 1260, 补位用 -1, 都在 int16 范围内。
-    # 552 万条 × 32 × 2 字节 × 2 份 = 约 700MB, 显存装得下; 装不下就退回内存。
+    # 存 int16: 特征下标最大 11339, 补位用 -1, 都在 int16 范围内。
+    # 5563 万条 × 32 × 2 字节 × 2 份 = 约 7.1GB, 显存装得下; 装不下就退回内存。
+    #
+    # 解码走 decode_bulk 整块做, 不走 DataLoader 逐条:
+    # 逐条要为每条记录跑一遍 Python + 十来个 32 元素的 numpy 调用, 再 pickle
+    # 回主进程, 实测 5563 万条要一小时; 整块做纯粹是逐行独立的算术, 实测同样
+    # 的数据快 59 倍(单进程口径), 结果由 test_decode_bulk.py 锁住逐位相同。
     cache = None
     if args.cache:
         t0 = time.time()
-        loader = build_loader(args.data, args.batch, args.workers)
-        owns, opps, ys = [], [], []
-        for own, opp, y in loader:
-            owns.append(own.to(torch.int16)); opps.append(opp.to(torch.int16)); ys.append(y)
-        c_own = torch.cat(owns); c_opp = torch.cat(opps); c_y = torch.cat(ys)
-        del owns, opps, ys
+        c_own, c_opp, c_y = _decode_cache(args.data)
         nbytes = (c_own.numel() + c_opp.numel()) * 2 + c_y.numel() * 4
         try:
             # 三个必须**一起**成功: 只搬成一半的话后面会拿 GPU 张量去索引 CPU

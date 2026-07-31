@@ -56,6 +56,65 @@ def encode_perspectives(idxs, sqs, stm_black):
             opp_b * PIECE_SQ + opp_idx * SQUARES + opp_sq)
 
 
+def decode_bulk(recs):
+    """整块解码 (N, 72) 的原始记录, 返回 (own, opp, y) 三个数组.
+
+    与逐条走 [SelfPlayDataset.__getitem__] 结果逐位相同, 但快两个数量级 ——
+    由 test_decode_bulk.py 锁住。
+
+    ## 为什么需要它
+
+    `__getitem__` 一次只处理一条记录, 里面那十来个 numpy 操作作用在 32 个
+    元素的小数组上, 全是调用开销、算术可以忽略。5563 万条就是 5563 万次
+    这样的调用, 外加 DataLoader 把结果 pickle 回主进程。实测缓存一遍要
+    **一小时**, 而这活儿本身是逐行独立的纯算术, 整块做只要一分钟。
+
+    返回 own/opp 为 int16: 特征下标最大 11339, 补位 -1, 都在 int16 范围内,
+    比 int64 省四倍内存 —— 五千万条的差别是 14GB 对 3.5GB。
+    """
+    n = len(recs)
+    counts = recs[:, _OFF_COUNT].astype(np.int64)
+    stm_black = recs[:, _OFF_STM] == 1
+    y = recs[:, _OFF_SCORE:_OFF_SCORE + 2].copy().view("<i2")[:, 0].astype(np.float32)
+
+    pieces = recs[:, _OFF_PIECES:_OFF_PIECES + MAX_PIECES * 2].reshape(n, MAX_PIECES, 2)
+    idxs = pieces[:, :, 0].astype(np.int16)
+    sqs = pieces[:, :, 1].astype(np.int16)
+
+    # 补位区的字节是上一条记录留下的垃圾, 必须先屏蔽掉 —— 否则里面偶然出现的
+    # idx==0 会被当成"将", 算出错误的九宫桶。逐条版本切片到 count*2 天然没这
+    # 个问题, 整块版本要显式处理。
+    live = np.arange(MAX_PIECES, dtype=np.int64)[None, :] < counts[:, None]
+
+    flip_idx = np.where(idxs < 7, idxs + 7, idxs - 7)
+    flip_sq = (9 - sqs // 9) * 9 + sqs % 9
+
+    b = stm_black[:, None]
+    own_idx = np.where(b, flip_idx, idxs)
+    own_sq = np.where(b, flip_sq, sqs)
+    opp_idx = np.where(b, idxs, flip_idx)
+    opp_sq = np.where(b, sqs, flip_sq)
+
+    def bucket(pi, ps):
+        # 每行找"己方将"(pieceIdx==0)所在的格. 补位区先排除。
+        is_king = (pi == 0) & live
+        has = is_king.any(axis=1)
+        first = is_king.argmax(axis=1)                 # 没有将时 argmax 给 0
+        sq = ps[np.arange(n), first].astype(np.int64)
+        bk = (sq // 9 - 7) * 3 + (sq % 9 - 3)
+        bk = np.clip(bk, 0, KING_BUCKETS - 1)
+        return np.where(has, bk, 0)                    # 找不到将时落到固定桶 0
+
+    own_b = bucket(own_idx, own_sq)[:, None]
+    opp_b = bucket(opp_idx, opp_sq)[:, None]
+
+    own = (own_b * PIECE_SQ + own_idx.astype(np.int64) * SQUARES + own_sq).astype(np.int16)
+    opp = (opp_b * PIECE_SQ + opp_idx.astype(np.int64) * SQUARES + opp_sq).astype(np.int16)
+    own[~live] = -1
+    opp[~live] = -1
+    return own, opp, y
+
+
 def _king_bucket(idxs, sqs):
     """从子力表里找出己方将(pieceIdx==0)的格子, 折算成 0..8 的九宫桶.
 
