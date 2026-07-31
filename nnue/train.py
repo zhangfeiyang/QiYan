@@ -69,11 +69,20 @@ def build_loader(data_dirs, batch, workers):
     )
 
 
-def _decode_cache(data_dirs):
-    """把所有分片整块解码成三个张量.
+def _decode_cache(data_dirs, dev="cpu"):
+    """把所有分片整块解码成三个张量, **直接落在 [dev] 上**.
 
     预先按总条数一次性开好数组、按分片就地填, 而不是攒一堆小数组最后 concat ——
     concat 那一下要同时拿着新旧两份, 五千万条就是凭空多占 7GB。
+
+    ## 为什么目标张量直接开在显存上
+
+    原来是先在主机内存里建满 own/opp/y 再整体 .to(dev)。一亿条时那三个数组
+    是 13.2GB, 加上 memmap 的页缓存, **实测把内存打爆** —— systemd 的
+    oom-kill 把整个终端 scope 连锅端了, 训练、同步、等待器一起没。
+
+    改成目标张量开在 dev 上、每块解码完立刻拷过去: 主机峰值只剩一块的量
+    (一百万条约 132MB)。显存不够时退回主机内存, 那条路和以前一样。
     """
     if isinstance(data_dirs, str):
         data_dirs = [data_dirs]
@@ -86,9 +95,21 @@ def _decode_cache(data_dirs):
 
     sizes = [os.path.getsize(p) // RECORD_BYTES for p in paths]
     total = sum(sizes)
-    own = np.empty((total, MAX_PIECES), dtype=np.int16)
-    opp = np.empty((total, MAX_PIECES), dtype=np.int16)
-    y = np.empty(total, dtype=np.float32)
+    nbytes = total * (MAX_PIECES * 2 * 2 + 4)
+    where = dev
+    try:
+        own = torch.empty((total, MAX_PIECES), dtype=torch.int16, device=dev)
+        opp = torch.empty((total, MAX_PIECES), dtype=torch.int16, device=dev)
+        y = torch.empty(total, dtype=torch.float32, device=dev)
+    except (RuntimeError, torch.cuda.OutOfMemoryError):
+        # 显存装不下就退回主机内存。这条路要 13GB+ 主机内存, 一亿条会很紧张,
+        # 但总比直接崩掉强 —— 训练会慢(每批再往显存搬), 不会失败。
+        if dev != "cpu":
+            torch.cuda.empty_cache()
+        own = torch.empty((total, MAX_PIECES), dtype=torch.int16)
+        opp = torch.empty((total, MAX_PIECES), dtype=torch.int16)
+        y = torch.empty(total, dtype=torch.float32)
+        where = "内存(显存不够)"
 
     at = 0
     for p, n in zip(paths, sizes):
@@ -99,14 +120,15 @@ def _decode_cache(data_dirs):
         # 分块处理: 一个分片可能有几百万条, 中间量按 int64 展开会很占内存
         for lo in range(0, n, 1_000_000):
             hi = min(lo + 1_000_000, n)
-            o, q, s = decode_bulk(recs[lo:hi])
-            own[at:at + (hi - lo)] = o
-            opp[at:at + (hi - lo)] = q
-            y[at:at + (hi - lo)] = s
-            at += hi - lo
+            o, q, sc = decode_bulk(recs[lo:hi])
+            k = hi - lo
+            own[at:at + k] = torch.from_numpy(o).to(own.device, non_blocking=False)
+            opp[at:at + k] = torch.from_numpy(q).to(own.device, non_blocking=False)
+            y[at:at + k] = torch.from_numpy(sc).to(own.device, non_blocking=False)
+            at += k
         del raw, recs
-    print(f"[data] {len(paths)} 个分片, 共 {total:,} 条样本")
-    return (torch.from_numpy(own), torch.from_numpy(opp), torch.from_numpy(y))
+    print(f"[data] {len(paths)} 个分片, 共 {total:,} 条样本 -> {where} ({nbytes/1e9:.1f}GB)")
+    return (own, opp, y)
 
 
 def main():
@@ -202,30 +224,29 @@ def main():
     cache = None
     if args.cache:
         t0 = time.time()
-        c_own, c_opp, c_y = _decode_cache(args.data)
-        nbytes = (c_own.numel() + c_opp.numel()) * 2 + c_y.numel() * 4
-        try:
-            # 三个必须**一起**成功: 只搬成一半的话后面会拿 GPU 张量去索引 CPU
-            # 张量, 报的是莫名其妙的设备不匹配错误
-            g_own, g_opp, g_y = c_own.to(dev), c_opp.to(dev), c_y.to(dev)
-            c_own, c_opp, c_y = g_own, g_opp, g_y
-            where = "显存"
-        except RuntimeError:
-            torch.cuda.empty_cache() if dev == "cuda" else None
-            where = "内存(显存不够, 每批再搬)"
+        # 目标张量直接开在 dev 上, 解码一块拷一块 —— 不再"主机建满再整体搬",
+        # 那种做法一亿条要 13.2GB 主机内存, 实测被 oom-kill 连锅端。
+        c_own, c_opp, c_y = _decode_cache(args.data, dev)
         cache = (c_own, c_opp, c_y)
-        print(f"[cache] {c_y.numel():,} 条已解码进{where}, "
-              f"{nbytes/1e6:.0f}MB, 耗时 {time.time()-t0:.0f}s")
+        print(f"[cache] {c_y.numel():,} 条已就绪于 {c_y.device}, 耗时 {time.time()-t0:.0f}s")
 
     for ep in range(args.epochs):
         net.train()
         total, seen, t0 = 0.0, 0, time.time()
         if cache is not None:
             c_own, c_opp, c_y = cache
-            perm = torch.randperm(c_y.numel(), device=c_y.device)
-            batches = ((c_own[perm[i:i+args.batch]], c_opp[perm[i:i+args.batch]],
-                        c_y[perm[i:i+args.batch]])
-                       for i in range(0, c_y.numel() - args.batch + 1, args.batch))
+            # 排列表**在主机内存里生成**, 每批只把那几千个下标搬到显存。
+            #
+            # 一亿条的 randperm 是 int64、足足 808MB, 而数据本身已经吃掉
+            # 14.6GB, 显存只剩 300MB —— 实测就是在这一行 CUDA OOM。放主机
+            # 内存则毫无压力(有 23GB), 每批多搬 8192×8=64KB, 可以忽略。
+            # 采样语义和原来完全一样, 不影响与之前几版的可比性。
+            n = c_y.numel()
+            perm = torch.randperm(n)                      # CPU
+            dv = c_y.device
+            batches = ((lambda ix: (c_own[ix], c_opp[ix], c_y[ix]))(
+                            perm[i:i + args.batch].to(dv))
+                       for i in range(0, n - args.batch + 1, args.batch))
         else:
             # 每个 epoch 重扫: 数据还在后台生成, 新分片要能被吃进来
             batches = build_loader(args.data, args.batch, args.workers)
