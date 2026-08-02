@@ -16,8 +16,8 @@ android {
         targetSdk = 36
         // Play 上传前必查已用过的 versionCode: 撞号会被拒("已有版本使用了版本
         // 代码"), 而这个错误只在 bundle 那一行显示为红字, 整个草稿版本会静默失效。
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
         // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上
@@ -149,7 +149,7 @@ android {
             // 默认 Gradle 不转发, 数据生成的参数会全部丢失退回默认值.
             it.systemProperties(System.getProperties().filterKeys { k ->
                 k.toString().startsWith("nnue.") || k.toString().startsWith("match.") ||
-                k.toString().startsWith("pika.")
+                k.toString().startsWith("pika.") || k.toString().startsWith("xq.")
             }.mapKeys { e -> e.key.toString() })
             // 桌面 JVM 加载 x86-64 版 libxqnnue.so (build_host.sh 产出).
             // 没有这行时 System.loadLibrary 找不到 .so, NNUE 退到 Kotlin 标量.

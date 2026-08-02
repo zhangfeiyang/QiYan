@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.advisor
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.zhongguoxiangqi.R
 import androidx.lifecycle.viewModelScope
 import com.zhongguoxiangqi.ai.AdvisorAgent
 import com.zhongguoxiangqi.ai.AdvisorConfig
@@ -65,13 +66,13 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
         if (!_configured.value) {
             _messages.update {
                 it + MessageAdapter.Message.User(text) +
-                    MessageAdapter.Message.Error("AI 功能未配置, 请联系开发者")
+                    MessageAdapter.Message.Error(getApplication<Application>().getString(R.string.advisor_no_config))
             }
             return
         }
         val ag = agent ?: run {
             _messages.update {
-                it + MessageAdapter.Message.Error("AI 暂时不可用, 请稍后再试")
+                it + MessageAdapter.Message.Error(getApplication<Application>().getString(R.string.advisor_unavailable))
             }
             return
         }
@@ -103,7 +104,7 @@ class AdvisorViewModel(app: Application) : AndroidViewModel(app) {
                         AdvisorEvent.AccountKeyRejected -> {
                             _messages.value = _messages.value.toMutableList().also {
                                 it[assistantIndex] = MessageAdapter.Message.Error(
-                                    "认证密钥无效或已被吊销。请重新配置代理令牌。"
+                                    getApplication<Application>().getString(R.string.advisor_key_rejected)
                                 )
                             }
                             _busy.value = false

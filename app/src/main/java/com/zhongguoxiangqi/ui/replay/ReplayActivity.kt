@@ -15,6 +15,7 @@ import com.zhongguoxiangqi.data.AppDatabase
 import com.zhongguoxiangqi.data.GameRecord
 import com.zhongguoxiangqi.databinding.ActivityReplayListBinding
 import com.zhongguoxiangqi.game.Color
+import com.zhongguoxiangqi.rating.UserRank
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -100,10 +101,11 @@ class GameRecordAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val r = items[position]
+        val ctx = holder.itemView.context
         holder.result.text = when (r.result) {
-            1 -> "胜"
-            -1 -> "负"
-            else -> "和"
+            1 -> ctx.getString(R.string.result_win_short)
+            -1 -> ctx.getString(R.string.result_loss_short)
+            else -> ctx.getString(R.string.result_draw_short)
         }
         // 胜负用语义色, 不是执子色. 原来"胜"取 status_red、"负"取
         // status_black —— 那两个是红方/黑方的标识色, 跟输赢无关, 结果
@@ -118,12 +120,13 @@ class GameRecordAdapter(
                 }
             )
         )
-        holder.side.text = if (r.playerSide == Color.RED) "执红" else "执黑"
+        holder.side.text = ctx.getString(if (r.playerSide == Color.RED) R.string.side_red_short else R.string.side_black_short)
         holder.difficulty.text = "Lv.${r.difficulty}"
         holder.date.text = dateFormat.format(Date(r.startTime))
-        holder.moves.text = "${r.moves.size} 手 · ${r.endReason}"
+        holder.moves.text = ctx.getString(R.string.replay_moves_summary, r.moves.size, r.endReason)
         val delta = if (r.ratingDelta >= 0) "+${r.ratingDelta}" else "${r.ratingDelta}"
-        holder.rating.text = "Elo ${r.playerRating} ($delta)"
+        val rank = ctx.getString(UserRank.fromRating(r.playerRating).nameRes)
+        holder.rating.text = ctx.getString(R.string.replay_rank_delta, rank, delta)
         holder.itemView.setOnClickListener { onClick(r) }
     }
 }

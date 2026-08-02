@@ -4,10 +4,15 @@ project(xqnnue LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# host_test.cpp 是宿主机验证用的, 有 main(), 不能进 Android 库
+# *_test.cpp 都是宿主机验证用的, 有 main(), 不能进 Android 库
 add_library(xqnnue SHARED
     nnue_core.cpp
-    nnue_jni.cpp)
+    nnue_jni.cpp
+    board.cpp
+    movegen.cpp
+    see.cpp
+    search.cpp
+    search_jni.cpp)
 
 # -O3 而不是默认的 -O2: 这个库存在的唯一意义就是求值要快。
 # 不开 -ffast-math —— 全是整数运算, 用不上, 而它会放宽浮点语义, 白担风险。

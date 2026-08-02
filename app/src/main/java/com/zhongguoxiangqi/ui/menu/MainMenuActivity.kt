@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zhongguoxiangqi.R
@@ -58,6 +60,15 @@ class MainMenuActivity : AppCompatActivity() {
         binding.btnAbout.setOnClickListener {
             showAbout()
         }
+        // 中英文切换. 按钮文字始终显示"切过去会变成的语言", 不是当前语言 ——
+        // 所以这里不用改按钮文字, strings.xml 里中英两份 menu_language 已经
+        // 各自写死了对方的名字。
+        binding.btnLanguage.setOnClickListener {
+            val current = AppCompatDelegate.getApplicationLocales()
+            val currentTag = if (current.isEmpty) "en" else current[0]?.language
+            val next = if (currentTag == "zh") "en" else "zh"
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(next))
+        }
     }
 
     override fun onResume() {
@@ -67,14 +78,13 @@ class MainMenuActivity : AppCompatActivity() {
 
     private fun updateProfile() {
         binding.nickname.text = userProfile.nickname
-        binding.ratingValue.text = userProfile.displayedRating.toString()
         val rank = userProfile.rank()
-        binding.rankValue.text = getString(rank.nameRes)
-        binding.rankValue.setTextColor(ContextCompat.getColor(this, rank.colorRes))
-        binding.gamesValue.text = "共 ${userProfile.totalGames} 局"
-        binding.winsValue.text = "胜 ${userProfile.wins}"
-        binding.lossesValue.text = "负 ${userProfile.losses}"
-        binding.drawsValue.text = "和 ${userProfile.draws}"
+        binding.ratingValue.text = getString(rank.nameRes)
+        binding.ratingValue.setTextColor(ContextCompat.getColor(this, rank.colorRes))
+        binding.gamesValue.text = getString(R.string.stat_total_games_format, userProfile.totalGames)
+        binding.winsValue.text = getString(R.string.stat_wins_format, userProfile.wins)
+        binding.lossesValue.text = getString(R.string.stat_losses_format, userProfile.losses)
+        binding.drawsValue.text = getString(R.string.stat_draws_format, userProfile.draws)
         updateWinRateBar()
     }
 
@@ -141,7 +151,11 @@ class MainMenuActivity : AppCompatActivity() {
  * 原来有 10 档、最高标 Elo 3300 —— 那是 Pikafish 的棋力。Pikafish 因 GPL-3
  * 已从包中移除, 现在对手只有自研引擎, 再挂那些数字就是虚假宣传。
  *
- * 现在是 6 档, 上限 1700。这个数**仍然是估计值**: 绝对 Elo 要有已知等级分的
+ * 上限本来是 1700, 那是 2026-07-28 换掉 Pikafish 那批数据定的, 当时评估网络
+ * 还是 all/all2 那一代。之后 NNUE 评估一路换到 net328m, 同样对 Pikafish 深度3
+ * 配对测出的分数从那时约 -100 涨到 +1 —— 大约 100 Elo 的实测进步, 而这还没算
+ * 上同期的搜索优化(SEE/LMR/AVX2 增量累加器)带来的额外增益。2026-08-01 把
+ * 6 档整体上调 100, 级差不变。**这仍然是估计值**: 绝对 Elo 要有已知等级分的
  * 对手才能标定, 我们没有。所以界面上不再显示具体分数(见 item_difficulty),
  * 只保留"对手大概什么水平"的描述; elo 字段只用于玩家自己积分的换算。
  */
@@ -152,10 +166,10 @@ enum class DifficultyLevel(
     val elo: Int,
     val color: Int
 ) {
-    EASY(1, R.string.difficulty_easy, R.string.difficulty_desc_easy, 600, R.color.rank_bronze),
-    BEGINNER(2, R.string.difficulty_beginner, R.string.difficulty_desc_beginner, 900, R.color.rank_bronze),
-    INTERMEDIATE(3, R.string.difficulty_intermediate, R.string.difficulty_desc_intermediate, 1200, R.color.rank_silver),
-    ADVANCED(4, R.string.difficulty_advanced, R.string.difficulty_desc_advanced, 1450, R.color.rank_silver),
-    EXPERT(5, R.string.difficulty_expert, R.string.difficulty_desc_expert, 1600, R.color.rank_gold),
-    MASTER(6, R.string.difficulty_master, R.string.difficulty_desc_master, 1700, R.color.rank_gold);
+    EASY(1, R.string.difficulty_easy, R.string.difficulty_desc_easy, 700, R.color.rank_bronze),
+    BEGINNER(2, R.string.difficulty_beginner, R.string.difficulty_desc_beginner, 1000, R.color.rank_bronze),
+    INTERMEDIATE(3, R.string.difficulty_intermediate, R.string.difficulty_desc_intermediate, 1300, R.color.rank_silver),
+    ADVANCED(4, R.string.difficulty_advanced, R.string.difficulty_desc_advanced, 1550, R.color.rank_silver),
+    EXPERT(5, R.string.difficulty_expert, R.string.difficulty_desc_expert, 1700, R.color.rank_gold),
+    MASTER(6, R.string.difficulty_master, R.string.difficulty_desc_master, 1800, R.color.rank_gold);
 }

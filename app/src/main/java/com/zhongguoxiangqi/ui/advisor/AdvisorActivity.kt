@@ -204,7 +204,7 @@ class AdvisorActivity : AppCompatActivity() {
             val summary = activity.getString(
                 R.string.advisor_context_game,
                 moveHistory.size,
-                if (currentPosition.sideToMove == Color.RED) "红" else "黑"
+                activity.getString(if (currentPosition.sideToMove == Color.RED) R.string.red else R.string.black)
             )
             activity.startActivity(Intent(activity, AdvisorActivity::class.java).apply {
                 putExtra(EXTRA_CONTEXT, ctx)

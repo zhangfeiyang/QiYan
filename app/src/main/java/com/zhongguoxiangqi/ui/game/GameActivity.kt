@@ -80,7 +80,7 @@ class GameActivity : AppCompatActivity() {
             // 玩家走子
             val success = viewModel.playerMove(move)
             if (!success) {
-                Toast.makeText(this, "非法走子", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.game_illegal_move, Toast.LENGTH_SHORT).show()
             }
         }
         applyDisplaySettings()
@@ -110,7 +110,7 @@ class GameActivity : AppCompatActivity() {
                 .setMessage(R.string.dialog_undo_message)
                 .setPositiveButton(R.string.dialog_yes) { _, _ ->
                     val ok = viewModel.undoMove()
-                    if (!ok) Toast.makeText(this, "无法悔棋", Toast.LENGTH_SHORT).show()
+                    if (!ok) Toast.makeText(this, R.string.game_undo_failed, Toast.LENGTH_SHORT).show()
                 }
                 .setNegativeButton(R.string.dialog_no, null)
                 .show()
@@ -126,7 +126,7 @@ class GameActivity : AppCompatActivity() {
             persistGameSetup()
             Toast.makeText(
                 this,
-                if (nowBlack) "已换为执黑" else "已换为执红",
+                if (nowBlack) R.string.game_switched_to_black else R.string.game_switched_to_red,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -224,7 +224,7 @@ class GameActivity : AppCompatActivity() {
                     if (playerRed) R.drawable.dot_side_black else R.drawable.dot_side_red
                 )
 
-                binding.opponentName.text = if (state.playerSide == Color.RED) "AI (执黑)" else "AI (执红)"
+                binding.opponentName.text = getString(if (state.playerSide == Color.RED) R.string.game_opponent_black else R.string.game_opponent_red)
                 // 显示档位名而不是分数: 那个分数是估计值, 没有已知等级分的
                 // 对手可标定, 摆出来是给用户一个并不存在的精确度。
                 binding.opponentRating.text = getString(
@@ -232,9 +232,9 @@ class GameActivity : AppCompatActivity() {
                         .firstOrNull { it.id == state.difficulty }?.nameRes
                         ?: com.zhongguoxiangqi.R.string.difficulty_intermediate
                 )
-                binding.playerName.text = if (state.playerSide == Color.RED) "我 (执红)" else "我 (执黑)"
-                binding.playerRating.text = "Elo ${state.playerRating} ${state.playerRank}"
-                binding.moveCount.text = "第${state.moveCount / 2 + 1}手"
+                binding.playerName.text = getString(if (state.playerSide == Color.RED) R.string.game_player_red else R.string.game_player_black)
+                binding.playerRating.text = state.playerRank
+                binding.moveCount.text = getString(R.string.game_move_count, state.moveCount / 2 + 1)
 
                 val level = DifficultyLevel.entries.firstOrNull { it.id == state.difficulty }
                 binding.levelChip.text = level
@@ -330,14 +330,10 @@ class GameActivity : AppCompatActivity() {
         if (gameOverDialog?.isShowing == true) return
         if (isFinishing || isDestroyed) return
         val state = viewModel.state.value
-        val message = buildString {
-            append("对局结束\n")
-            append("原因: $reason\n")
-            append("评分变化: ${if (state.ratingDelta >= 0) "+" else ""}${state.ratingDelta}\n")
-            append("当前评分: ${state.playerRating}  ${state.playerRank}")
-        }
+        val deltaText = (if (state.ratingDelta >= 0) "+" else "") + state.ratingDelta
+        val message = getString(R.string.game_over_body, reason, deltaText, state.playerRank)
         gameOverDialog = AlertDialog.Builder(this)
-            .setTitle("对局结束")
+            .setTitle(R.string.game_over_title)
             .setMessage(message)
             .setCancelable(false)
             .setPositiveButton(R.string.action_new_game) { _, _ ->

@@ -11,12 +11,15 @@ import android.content.SharedPreferences
  */
 class UserProfile(context: Context) {
 
+    private val appContext: Context = context.applicationContext
+
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("user_profile", Context.MODE_PRIVATE)
+        appContext.getSharedPreferences("user_profile", Context.MODE_PRIVATE)
 
     /** 玩家昵称 */
     var nickname: String
-        get() = prefs.getString(KEY_NICKNAME, "棋友") ?: "棋友"
+        get() = prefs.getString(KEY_NICKNAME, null)
+            ?: appContext.getString(com.zhongguoxiangqi.R.string.default_nickname)
         set(value) { prefs.edit().putString(KEY_NICKNAME, value).apply() }
 
     /** 当前 Glicko-2 评分 */
@@ -123,10 +126,10 @@ class UserProfile(context: Context) {
     }
 }
 
-enum class GameResult(val score: Double, val chinese: String) {
-    WIN(1.0, "胜"),
-    LOSS(0.0, "负"),
-    DRAW(0.5, "和");
+enum class GameResult(val score: Double) {
+    WIN(1.0),
+    LOSS(0.0),
+    DRAW(0.5);
 }
 
 /**
@@ -137,21 +140,20 @@ data class UserRank(
     val nameRes: Int,
     val colorRes: Int,
     val minRating: Int,
-    val maxRating: Int,
-    val chineseTitle: String
+    val maxRating: Int
 ) {
     companion object {
         val RANKS = listOf(
-            UserRank(1, com.zhongguoxiangqi.R.string.rank_1, com.zhongguoxiangqi.R.color.rank_bronze, 0, 999, "初学者"),
-            UserRank(2, com.zhongguoxiangqi.R.string.rank_2, com.zhongguoxiangqi.R.color.rank_bronze, 1000, 1199, "入门棋友"),
-            UserRank(3, com.zhongguoxiangqi.R.string.rank_3, com.zhongguoxiangqi.R.color.rank_silver, 1200, 1399, "业余初段"),
-            UserRank(4, com.zhongguoxiangqi.R.string.rank_4, com.zhongguoxiangqi.R.color.rank_silver, 1400, 1599, "业余三段"),
-            UserRank(5, com.zhongguoxiangqi.R.string.rank_5, com.zhongguoxiangqi.R.color.rank_gold, 1600, 1799, "业余五段"),
-            UserRank(6, com.zhongguoxiangqi.R.string.rank_6, com.zhongguoxiangqi.R.color.rank_gold, 1800, 1999, "业余七段"),
-            UserRank(7, com.zhongguoxiangqi.R.string.rank_7, com.zhongguoxiangqi.R.color.rank_platinum, 2000, 2199, "地方大师"),
-            UserRank(8, com.zhongguoxiangqi.R.string.rank_8, com.zhongguoxiangqi.R.color.rank_diamond, 2200, 2399, "国家大师"),
-            UserRank(9, com.zhongguoxiangqi.R.string.rank_9, com.zhongguoxiangqi.R.color.rank_master, 2400, 2599, "特级大师"),
-            UserRank(10, com.zhongguoxiangqi.R.string.rank_10, com.zhongguoxiangqi.R.color.rank_grandmaster, 2600, 9999, "棋王")
+            UserRank(1, com.zhongguoxiangqi.R.string.rank_1, com.zhongguoxiangqi.R.color.rank_bronze, 0, 999),
+            UserRank(2, com.zhongguoxiangqi.R.string.rank_2, com.zhongguoxiangqi.R.color.rank_bronze, 1000, 1199),
+            UserRank(3, com.zhongguoxiangqi.R.string.rank_3, com.zhongguoxiangqi.R.color.rank_silver, 1200, 1399),
+            UserRank(4, com.zhongguoxiangqi.R.string.rank_4, com.zhongguoxiangqi.R.color.rank_silver, 1400, 1599),
+            UserRank(5, com.zhongguoxiangqi.R.string.rank_5, com.zhongguoxiangqi.R.color.rank_gold, 1600, 1799),
+            UserRank(6, com.zhongguoxiangqi.R.string.rank_6, com.zhongguoxiangqi.R.color.rank_gold, 1800, 1999),
+            UserRank(7, com.zhongguoxiangqi.R.string.rank_7, com.zhongguoxiangqi.R.color.rank_platinum, 2000, 2199),
+            UserRank(8, com.zhongguoxiangqi.R.string.rank_8, com.zhongguoxiangqi.R.color.rank_diamond, 2200, 2399),
+            UserRank(9, com.zhongguoxiangqi.R.string.rank_9, com.zhongguoxiangqi.R.color.rank_master, 2400, 2599),
+            UserRank(10, com.zhongguoxiangqi.R.string.rank_10, com.zhongguoxiangqi.R.color.rank_grandmaster, 2600, 9999)
         )
 
         fun fromRating(rating: Int): UserRank = RANKS.firstOrNull { rating in it.minRating..it.maxRating } ?: RANKS.first()

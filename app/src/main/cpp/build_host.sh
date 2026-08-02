@@ -33,6 +33,11 @@ g++ -shared -fPIC -O3 -std=c++17 -mavx2 \
     -I"$JDK_INCLUDE/linux" \
     "$SCRIPT_DIR/nnue_core.cpp" \
     "$SCRIPT_DIR/nnue_jni.cpp" \
+    "$SCRIPT_DIR/board.cpp" \
+    "$SCRIPT_DIR/movegen.cpp" \
+    "$SCRIPT_DIR/see.cpp" \
+    "$SCRIPT_DIR/search.cpp" \
+    "$SCRIPT_DIR/search_jni.cpp" \
     -o "$OUT_DIR/libxqnnue.so"
 
 echo "→ $OUT_DIR/libxqnnue.so ($(du -h "$OUT_DIR/libxqnnue.so" | cut -f1))"

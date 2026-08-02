@@ -228,6 +228,7 @@ class SimpleEngine : ChessEngine {
         var bestMove = rootMoves[0]
         var bestScore = 0
 
+        var prevScore = 0
         for (depth in 1..maxDepthTarget) {
             // 剩余时间不够搜完下一层就别开了 —— 下一层通常要花上一层数倍的时间,
             // 硬开只会大幅超时,而且中途放弃的结果也用不上
@@ -235,27 +236,52 @@ class SimpleEngine : ChessEngine {
                 NEXT_ITERATION_COST_RATIO > deadline
             ) break
 
-            var iterBest = Move.empty()
-            var iterBestScore = Int.MIN_VALUE
-            var alpha = MIN_SCORE
-            val iterScores = HashMap<Int, Int>(rootMoves.size * 2)
+            // 渐进窗口, 原理同 searchWithScore 里那份(那边的注释写了为什么
+            // 只收紧下限、不做 fail-high 重搜)。这里额外多一条: 猜错要重搜时,
+            // 如果这一遍是被"没时间了"打断的(不是真的没找到超过下限的着法),
+            // 就不重搜 —— 时间都不够跑完一遍窄窗口, 再来一遍全窗口只会白费,
+            // 该用的是已经拿到的部分结果(下面 iterBestScore > MIN_VALUE 那条
+            // 老规矩), 而不是徒劳地多等一轮。
+            var seededAlpha = if (depth >= ASPIRATION_MIN_DEPTH && depth > 1) {
+                (prevScore - ASPIRATION_WINDOW).coerceAtLeast(MIN_SCORE)
+            } else {
+                MIN_SCORE
+            }
+            var iterBest: Move
+            var iterBestScore: Int
+            var iterScores: HashMap<Int, Int>
+            var completed: Boolean
+            while (true) {
+                iterBest = Move.empty()
+                iterBestScore = Int.MIN_VALUE
+                var alpha = seededAlpha
+                iterScores = HashMap(rootMoves.size * 2)
+                completed = true
 
-            for (m in rootMoves) {
-                if (!doMoveAcc(currentPosition, m)) continue
-                val score = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
-                undoMoveAcc(currentPosition)
-                if (aborted(nodes[0])) break
+                for (m in rootMoves) {
+                    if (!doMoveAcc(currentPosition, m)) continue
+                    val score = -alphaBeta(currentPosition, depth - 1, MAX_SCORE.unaryMinus(), -alpha, nodes, 1)
+                    undoMoveAcc(currentPosition)
+                    if (aborted(nodes[0])) { completed = false; break }
 
-                iterScores[m.data] = score
-                if (score > iterBestScore) {
-                    iterBestScore = score
-                    iterBest = m
+                    iterScores[m.data] = score
+                    if (score > iterBestScore) {
+                        iterBestScore = score
+                        iterBest = m
+                    }
+                    if (score > alpha) alpha = score
                 }
-                if (score > alpha) alpha = score
+
+                if (completed && iterBestScore <= seededAlpha && seededAlpha > MIN_SCORE) {
+                    seededAlpha = MIN_SCORE
+                    continue
+                }
+                break
             }
 
             // 本层至少完整评估了一个着法就采用它的结果
             if (iterBestScore > Int.MIN_VALUE) {
+                prevScore = iterBestScore
                 bestMove = iterBest
                 bestScore = iterBestScore
                 rootScores.clear()
@@ -376,6 +402,8 @@ class SimpleEngine : ChessEngine {
         var bestMoveData = 0
         var alphaLocal = alpha
         var searched = 0
+        // 本节点已试过的安静着法, 顺序记录, 用来给"没造成截断"的那些打历史惩罚
+        val quietsTried = ArrayList<Move>(8)
 
         for (m in moves) {
             val capture = pos.pieceAt(m.to) != Piece.NONE.code
@@ -412,6 +440,7 @@ class SimpleEngine : ChessEngine {
             }
             undoMoveAcc(pos)
             searched++
+            if (!capture) quietsTried.add(m)
 
             if (aborted(nodes[0])) return 0
             if (score > bestScore) {
@@ -425,7 +454,7 @@ class SimpleEngine : ChessEngine {
             if (alphaLocal >= beta) {
                 bestFlag = TT_LOWER
                 // 造成截断的安静着法记进杀手/历史表, 下次在同层优先试
-                if (!capture) recordCutoff(m, depth, ply)
+                if (!capture) recordCutoff(m, depth, ply, quietsTried)
                 break
             }
         }
@@ -434,14 +463,40 @@ class SimpleEngine : ChessEngine {
         return bestScore
     }
 
-    /** 记录造成截断的安静着法 */
-    private fun recordCutoff(m: Move, depth: Int, ply: Int) {
+    /**
+     * 记录造成截断的安静着法.
+     *
+     * 只给"造成截断的那手"加分不够: 会让"从没试过"和"试过但没用"的着法都
+     * 停在 0 分附近, 排序时区分不出谁是真被验证过的坏棋。所以本节点里排在
+     * 它前面、却没能造成截断的安静着法一起打惩罚(malus) —— 这是通行做法
+     * (Stockfish 系一直这么做), 不是抄 Pikafish 的具体实现。
+     */
+    private fun recordCutoff(m: Move, depth: Int, ply: Int, quietsTried: List<Move>) {
         if (ply < MAX_PLY) {
             val k = killers[ply]
             if (k[0] != m.data) { k[1] = k[0]; k[0] = m.data }
         }
         // depth 平方: 深处的截断比浅处更有说服力
-        history[m.from][m.to] += depth * depth
+        val bonus = depth * depth
+        updateHistory(m.from, m.to, bonus)
+        for (i in 0 until quietsTried.size - 1) {
+            val qm = quietsTried[i]
+            updateHistory(qm.from, qm.to, -bonus)
+        }
+    }
+
+    /**
+     * 历史分按"引力"公式更新, 而不是简单 +=.
+     *
+     * new = old + bonus - old * |bonus| / HISTORY_MAX
+     *
+     * 越接近上限, 同方向的分越难再涨 —— 天然有界, 不会无限增长溢出;
+     * 也让惩罚(负 bonus)真正生效, 而不是单调只加分。
+     */
+    private fun updateHistory(from: Int, to: Int, bonus: Int) {
+        val clamped = bonus.coerceIn(-HISTORY_MAX, HISTORY_MAX)
+        val current = history[from][to]
+        history[from][to] = current + clamped - current * kotlin.math.abs(clamped) / HISTORY_MAX
     }
 
     /**
@@ -466,7 +521,9 @@ class SimpleEngine : ChessEngine {
                     } else when (m.data) {
                         k0 -> ORDER_KILLER_1
                         k1 -> ORDER_KILLER_2
-                        else -> history[m.from][m.to].coerceAtMost(ORDER_HISTORY_CAP)
+                        // 引力公式已把历史分天然限制在 ±HISTORY_MAX 内, 且远小于
+                        // 杀手分档, 无需再额外 coerce
+                        else -> history[m.from][m.to]
                     }
                 }
             }
@@ -683,9 +740,21 @@ class SimpleEngine : ChessEngine {
      *
      * 自对弈数据生成用: 走这一步本来就要搜, 顺手把分数带出来当标签, 不必
      * 再单独深搜一遍 —— 这一下把数据生成的成本砍掉一半.
+     *
+     * [movetimeMs] > 0 时改成限时搜索(给"真实力对战"用, 而不是评估函数抽查):
+     * deadline 一设, aborted() 里现成的检查(每 1024 节点查一次时钟)就会在
+     * 时间到时打断当前这层, 外层循环只采信跑完整的那一层, 跟 search() 走的
+     * 是同一套机制。depth 参数此时不再是硬顶, 换成 32(与本文件另一处
+     * "nodeLimit>0 时把名义深度放开到 32"用的是同一个数) —— 迭代加深真正的
+     * 上限应该是时间, 不该是一个更早为"几分钟出一步"场景写死的小深度。
+     *
+     * 副作用: 限时搜索本质上不确定(同样种子跑两次, 搜多深取决于当时机器
+     * 有多忙), 类头注释里"同样参数跑两次结果必须逐字节相同"这条对 movetime
+     * 模式不成立——这是拿"真实力"换"可重复"的必要代价, 不是 bug。
      */
-    internal fun searchWithScore(depth: Int): Pair<Move, Int> {
-        deadline = Long.MAX_VALUE
+    internal fun searchWithScore(depth: Int, movetimeMs: Int = 0): Pair<Move, Int> {
+        deadline = if (movetimeMs > 0) System.currentTimeMillis() + movetimeMs else Long.MAX_VALUE
+        val effectiveDepth = if (movetimeMs > 0) 32 else depth
         timeUp = false
         stopRequested = false
         ttGen = (ttGen + 1) and 0xFF
@@ -712,23 +781,47 @@ class SimpleEngine : ChessEngine {
         // (IterativeDeepeningTest 量的就是这个, 并守住一条上界)。
         var best = moves[0]
         var alpha = MIN_SCORE
-        val firstDepth = if (useIterativeDeepening) 1 else depth
-        for (d in firstDepth..depth) {
-            var iterBest = moves[0]
-            var iterAlpha = MIN_SCORE
-            var completed = true
-            for (m in moves) {
-                if (!doMoveAcc(currentPosition, m)) continue
-                val sc = -alphaBeta(currentPosition, d - 1, MAX_SCORE.unaryMinus(), -iterAlpha, nodes, 1)
-                undoMoveAcc(currentPosition)
-                if (aborted(nodes[0])) { completed = false; break }
-                if (sc > iterAlpha) { iterAlpha = sc; iterBest = m }
+        var prevScore = 0
+        val firstDepth = if (useIterativeDeepening) 1 else effectiveDepth
+        for (d in firstDepth..effectiveDepth) {
+            // 渐进窗口: 有上一层的分数、且深度够了才收紧起始 alpha。
+            // 猜错(没有任何着法真正超过这个下限)就在下面的 while 里退回
+            // MIN_SCORE 整层重搜, 不会返回一个"猜出来的假结果"。
+            var seededAlpha = if (d >= ASPIRATION_MIN_DEPTH && d > firstDepth) {
+                (prevScore - ASPIRATION_WINDOW).coerceAtLeast(MIN_SCORE)
+            } else {
+                MIN_SCORE
+            }
+            var iterBest: Move
+            var iterAlpha: Int
+            var completed: Boolean
+            while (true) {
+                iterBest = moves[0]
+                iterAlpha = seededAlpha
+                completed = true
+                for (m in moves) {
+                    if (!doMoveAcc(currentPosition, m)) continue
+                    val sc = -alphaBeta(currentPosition, d - 1, MAX_SCORE.unaryMinus(), -iterAlpha, nodes, 1)
+                    undoMoveAcc(currentPosition)
+                    if (aborted(nodes[0])) { completed = false; break }
+                    if (sc > iterAlpha) { iterAlpha = sc; iterBest = m }
+                }
+                if (!completed) break
+                // fail-low: 窄口袋里没有一手能超过下限, 说明猜高了(比如对手
+                // 找到了反制), 不能拿"垫底没人达到"的 iterAlpha 当真分数,
+                // 放宽到底整层重搜。
+                if (iterAlpha <= seededAlpha && seededAlpha > MIN_SCORE) {
+                    seededAlpha = MIN_SCORE
+                    continue
+                }
+                break
             }
             // 只采信跑完整的那一层. 被节点/时间上限打断的一层只搜了前几个着法,
             // 它的"最佳"是残缺的, 拿它覆盖上一层的结果会让棋力忽好忽坏。
             if (!completed) break
             best = iterBest
             alpha = iterAlpha
+            prevScore = iterAlpha
             // 最佳着法提到最前, 下一层第一个就搜它
             moves.remove(iterBest)
             moves.add(0, iterBest)
@@ -1062,7 +1155,8 @@ class SimpleEngine : ChessEngine {
         private const val ORDER_CAPTURE = 100_000
         private const val ORDER_KILLER_1 = 90_000
         private const val ORDER_KILLER_2 = 80_000
-        private const val ORDER_HISTORY_CAP = 70_000
+        /** 历史分"引力公式"的饱和上限, 必须小于 ORDER_KILLER_2 才不会抢杀手的位置 */
+        private const val HISTORY_MAX = 16_384
 
         /** LMR: 到这个深度以上、且已经试过这么多手之后才开始减层 */
         /**
@@ -1114,6 +1208,24 @@ class SimpleEngine : ChessEngine {
         private const val BOOK_MIN_THINK_MS = 450L
         /** 预估下一层迭代相对已用时间的倍数, 用于判断还要不要再加深 */
         private const val NEXT_ITERATION_COST_RATIO = 0.6
+
+        /**
+         * 渐进窗口(aspiration window): 新一层不再从 alpha=MIN_SCORE 搜起,
+         * 而是拿上一层收敛的分数上下各留 ASPIRATION_WINDOW 厘兵开一个窄口袋。
+         * 局面通常一层比一层稳定, 大多数时候这一猜就中, 省下的是"用垫底的
+         * alpha 去搜第一手"那段几乎不剪枝的搜索。
+         *
+         * 只做了"防低估"这一半(alpha 收紧, beta 仍是 MAX_SCORE): 根节点原来
+         * 的写法是 beta 恒为 MAX_SCORE、永不 fail-high, 真要做两头都收紧的窗口
+         * 得给根节点补一条 fail-high 重搜路径, 收益未必抵得过复杂度和出错
+         * 风险。窄口袋没猜中(哪个着法都没能超过下限, 说明这层比上一层差,
+         * 对手大概率找到了反制)时退回 MIN_SCORE 整层重搜, 保正确性优先。
+         *
+         * MIN_DEPTH=3 以下不开: 那几层本来就快, 省不了多少, 却要多担一次
+         * "猜错要重搜"的开销和风险。
+         */
+        private const val ASPIRATION_MIN_DEPTH = 3
+        private const val ASPIRATION_WINDOW = 25
         /** 检查时钟的节点间隔掩码 */
         private const val TIME_CHECK_MASK = 0x1FFL
     }

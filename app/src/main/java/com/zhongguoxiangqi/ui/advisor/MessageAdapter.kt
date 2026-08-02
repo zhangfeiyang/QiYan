@@ -108,7 +108,7 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.VH>() {
     override fun onBindViewHolder(holder: VH, position: Int) {
         when (val m = items[position]) {
             is Message.User -> holder.text.text = m.text
-            is Message.Assistant -> holder.text.text = renderAssistant(m)
+            is Message.Assistant -> holder.text.text = renderAssistant(m, holder.text.context.getString(R.string.advisor_thinking))
             is Message.Error -> holder.text.text = m.text
         }
     }
@@ -116,7 +116,7 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.VH>() {
     override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
         if (payloads.contains(PAYLOAD_TEXT)) {
             val m = items[position]
-            if (m is Message.Assistant) holder.text.text = renderAssistant(m)
+            if (m is Message.Assistant) holder.text.text = renderAssistant(m, holder.text.context.getString(R.string.advisor_thinking))
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }
@@ -136,7 +136,6 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.VH>() {
          * 空的流式占位气泡会显示成一个莫名其妙的小圆块 —— 请求发出到第一个
          * token 之间有好几秒, 那几秒里用户看到的就是它. 补一句状态文案.
          */
-        private const val THINKING = "正在分析…"
 
         /**
          * 算出该怎么刷.
@@ -211,8 +210,8 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.VH>() {
             return Parsed(sb.toString(), ranges)
         }
 
-        internal fun renderAssistant(m: Message.Assistant): CharSequence =
-            if (m.streaming && m.text.isEmpty()) THINKING else markdownBold(m.text)
+        internal fun renderAssistant(m: Message.Assistant, thinkingText: String = "正在分析…"): CharSequence =
+            if (m.streaming && m.text.isEmpty()) thinkingText else markdownBold(m.text)
 
         /**
          * 只处理 `**加粗**`.

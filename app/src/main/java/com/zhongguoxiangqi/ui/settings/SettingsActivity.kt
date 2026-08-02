@@ -136,8 +136,8 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.btnClearData.setOnClickListener {
             MaterialAlertDialogBuilder(this)
-                .setTitle("清除数据")
-                .setMessage("将清除所有对局记录和评分数据,确定?")
+                .setTitle(R.string.dialog_clear_data_title)
+                .setMessage(R.string.dialog_clear_data_message)
                 .setPositiveButton(R.string.dialog_yes) { _, _ ->
                     clearAllData()
                 }

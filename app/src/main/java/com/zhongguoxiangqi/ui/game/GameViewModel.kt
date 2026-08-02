@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.game
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.zhongguoxiangqi.R
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -127,7 +128,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val playerRating: Int = 1500,
         /** 本局结束后的评分变化, 对局中为 0 */
         val ratingDelta: Int = 0,
-        val playerRank: String = "初学者",
+        val playerRank: String = "",
         val engineName: String = "",
         /** 对手实际棋力(降级时低于难度标称值) */
         val engineElo: Int = 1500,
@@ -177,7 +178,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         // 启动引擎
         engineManager.difficultyLevel = difficulty
         if (!engineManager.start(this)) {
-            _events.value = GameEvent.ShowToast("引擎启动失败")
+            _events.value = GameEvent.ShowToast(getApplication<Application>().getString(R.string.game_engine_start_failed))
         }
 
         val rank = userProfile.rank()
@@ -192,8 +193,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameOverWinner = Color.NONE,
             moveCount = 0,
             playerRating = userProfile.displayedRating,
-            playerRank = rank.chineseTitle,
-            engineName = engineManager.currentEngine?.name() ?: "未知",
+            playerRank = getApplication<Application>().getString(rank.nameRes),
+            engineName = engineManager.currentEngine?.name() ?: getApplication<Application>().getString(R.string.unknown_label),
             engineElo = engineManager.effectiveElo(),
         )
 
@@ -230,11 +231,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             engineName = engineManager.currentEngine?.name() ?: ""
         )
         _winRateSnapshot.value = snapshot
-
-        // 如果是提示搜索,累积 PV 信息
-        if (searchPurpose == SearchPurpose.HINT && info.pv.isNotEmpty()) {
-            processHintInfo(info)
-        }
     }
 
     /** 引擎返回最佳走法 */
@@ -352,7 +348,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     /** 认输 —— 认输方永远是玩家自己,与执红执黑无关 */
     fun resign(): GameResult {
         stopEngine()
-        endGame(GameResult.LOSS, "认输")
+        endGame(GameResult.LOSS, getApplication<Application>().getString(R.string.status_resign))
         return GameResult.LOSS
     }
 
@@ -503,11 +499,11 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val isOver = gameOver != Rules.GameOver.NONE
 
         val gameOverReason = when (gameOver) {
-            Rules.GameOver.CHECKMATE_RED -> "黑方将死红方"
-            Rules.GameOver.CHECKMATE_BLACK -> "红方将死黑方"
-            Rules.GameOver.STALEMATE -> "困毙"
-            Rules.GameOver.REPETITION -> "重复局面"
-            Rules.GameOver.FIFTY_MOVES -> "自然限着"
+            Rules.GameOver.CHECKMATE_RED -> getApplication<Application>().getString(R.string.game_over_checkmate_red)
+            Rules.GameOver.CHECKMATE_BLACK -> getApplication<Application>().getString(R.string.game_over_checkmate_black)
+            Rules.GameOver.STALEMATE -> getApplication<Application>().getString(R.string.status_stalemate)
+            Rules.GameOver.REPETITION -> getApplication<Application>().getString(R.string.game_over_repetition)
+            Rules.GameOver.FIFTY_MOVES -> getApplication<Application>().getString(R.string.game_over_fifty_moves)
             else -> ""
         }
         val winner = when (gameOver) {
@@ -588,7 +584,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isThinking = false,
             playerRating = userProfile.displayedRating,
             ratingDelta = userProfile.displayedRating - gameStartRating,
-            playerRank = rank.chineseTitle
+            playerRank = getApplication<Application>().getString(rank.nameRes)
         )
 
         // 保存对局记录
@@ -616,38 +612,30 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _events.value = GameEvent.GameOver
     }
 
-    /** 处理提示搜索结果(从 onInfo 累积) */
-    private fun processHintInfo(info: EngineInfo) {
-        // 从 PV 提取第一条作为主提示
-        val primaryUci = info.pv.firstOrNull() ?: return
-        val primaryMove = uciToMove(primaryUci) ?: return
-        val secondaryMoves = info.pv.drop(1).mapNotNull { uciToMove(it) }.take(2)
-
-        _hintState.value = HintState(
-            primaryMove = primaryMove,
-            secondaryMoves = secondaryMoves,
-            scoreCp = info.scoreCp,
-            scoreMate = info.scoreMate,
-            depth = info.depth,
-            pv = info.pv
-        )
-    }
-
     private fun uciToMove(uci: String): Move? = UciCoords.parse(uci)
 
     private fun moveToUci(move: Move): String = UciCoords.toUci(move)
 
-    /** 提示搜索结束: 用最终 bestmove 作为推荐着法 */
+    /**
+     * 提示搜索结束: 用最终 bestmove 作为推荐着法.
+     *
+     * 只在这里写一次 _hintState —— 以前 onInfo 每来一条 info(每加深一层)
+     * 就更新一次, 迭代加深过程中 PV 会换来换去, 棋盘上的箭头跟着连续跳动,
+     * 用户点一次"提示"却看到好几个不同的着法轮番被推荐, 像是弹出了好几种
+     * 指引。备选着法(secondaryMoves)从 _winRateSnapshot 里取 ——
+     * 那个状态本来就每条 info 都更新, 到 bestmove 这一刻已经是最深一层的 PV。
+     */
     private fun onHintBestMove(bestMove: String) {
         val move = uciToMove(bestMove)
         if (move != null) {
+            val finalPv = _winRateSnapshot.value.pv
             _hintState.value = HintState(
                 primaryMove = move,
-                secondaryMoves = emptyList(),
+                secondaryMoves = finalPv.drop(1).mapNotNull { uciToMove(it) }.take(2),
                 scoreCp = _winRateSnapshot.value.scoreCp,
                 scoreMate = _winRateSnapshot.value.scoreMate,
                 depth = _winRateSnapshot.value.depth,
-                pv = listOf(bestMove)
+                pv = finalPv.ifEmpty { listOf(bestMove) }
             )
             _state.value = _state.value.copy(isThinking = false)
         }

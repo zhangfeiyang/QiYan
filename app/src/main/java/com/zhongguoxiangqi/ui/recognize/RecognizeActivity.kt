@@ -438,7 +438,19 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             if (ch == BoardRecognizer.CHAR_EMPTY) getString(R.string.recognize_empty)
             else {
                 val piece = Piece.entries.first { it.fen == ch }
-                (if (piece.isRed) "红 " else "黑 ") + piece.chinese
+                val side = getString(if (piece.isRed) R.string.side_red_short else R.string.side_black_short)
+                val name = getString(
+                    when (piece.type) {
+                        1 -> R.string.piece_king
+                        2 -> R.string.piece_advisor
+                        3 -> R.string.piece_elephant
+                        4 -> R.string.piece_horse
+                        5 -> R.string.piece_rook
+                        6 -> R.string.piece_cannon
+                        else -> R.string.piece_pawn
+                    }
+                )
+                "$side $name"
             }
         }.toTypedArray()
 

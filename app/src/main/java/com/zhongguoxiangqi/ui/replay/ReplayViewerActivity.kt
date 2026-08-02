@@ -80,7 +80,7 @@ class ReplayViewerActivity : AppCompatActivity() {
             val dao = AppDatabase.get(this@ReplayViewerActivity).gameRecordDao()
             val record = dao.getById(recordId)
             if (record == null) {
-                Toast.makeText(this@ReplayViewerActivity, "对局记录不存在", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ReplayViewerActivity, getString(R.string.replay_record_missing), Toast.LENGTH_SHORT).show()
                 finish()
                 return@launch
             }
@@ -90,12 +90,15 @@ class ReplayViewerActivity : AppCompatActivity() {
             recordDifficulty = record.difficulty
             recordEngineElo = record.engineElo
             val resultText = when (record.result) {
-                1 -> "胜"
-                -1 -> "负"
-                else -> "和"
+                1 -> getString(R.string.result_win_short)
+                -1 -> getString(R.string.result_loss_short)
+                else -> getString(R.string.result_draw_short)
             }
             binding.titleText.text = "${dateFormat.format(Date(record.startTime))}  $resultText"
-            binding.playerInfo.text = "Lv.${record.difficulty}  Elo ${record.playerRating}  ${record.moves.size}手"
+            val rank = getString(com.zhongguoxiangqi.rating.UserRank.fromRating(record.playerRating).nameRes)
+            binding.playerInfo.text = getString(
+                R.string.replay_player_info, record.difficulty, rank, record.moves.size
+            )
 
             resetToStart()
             updateBoard()
@@ -128,7 +131,7 @@ class ReplayViewerActivity : AppCompatActivity() {
             val move = parseMove(moves[currentMoveIndex])
             if (move == null || !replayPosition.isLegalMove(move)) {
                 // 棋谱损坏: 停在能走到的最后一步,而不是继续错位地走下去
-                Toast.makeText(this, "棋谱第${currentMoveIndex + 1}手无法还原", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.replay_move_undo_failed, currentMoveIndex + 1), Toast.LENGTH_SHORT).show()
                 stopAutoPlay()
                 break
             }
