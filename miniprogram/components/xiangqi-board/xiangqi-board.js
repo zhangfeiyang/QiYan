@@ -14,8 +14,14 @@
 const { CHARS, colorOf, RED, ROWS, COLS } = require('../../core/xiangqi');
 const palette = require('../../core/palette');
 
-/** 棋盘四周为棋子半径和坐标文字预留的空间, 单位是"格" (同 BoardView.MARGIN_CELLS) */
-const MARGIN_CELLS = 1.7;
+/**
+ * 棋盘四周预留的空间, 单位是"格"。
+ *
+ * 棋子画在最外圈交点上, 会向外凸出一个半径(0.42 格), 坐标数字还要再占一档,
+ * 所以四周至少留出这么多, 否则边线上的车/兵会被裁掉、坐标会没地方放。
+ * 比 Android 的 1.7 宽一些: 那边用的是文字基线定位, 同样的余量够用。
+ */
+const MARGIN_CELLS = 2.2;
 const MOVE_ANIMATION_MS = 220;
 
 /** 将/帅被吃是终局, 值得演久一点; 兵卒频繁被吃, 拖长了会烦 */
@@ -124,13 +130,24 @@ Component({
       );
       const bw = cell * (COLS - 1);
       const bh = cell * (ROWS - 1);
+      const radius = cell * 0.42;
+
+      // 木纹边距和坐标位置都从**实际余量**推出来, 不写死成几个半径的倍数:
+      // 写死的话, 一旦 MARGIN_CELLS 变了或者容器比例变了, 木纹会被画布裁掉、
+      // 坐标数字跟着糊在棋子上或掉到木头外面 —— 正是返工前那版的样子。
+      const margin = (MARGIN_CELLS / 2) * cell;
+      const pad = margin * 0.92;                 // 留一点空隙, 木头不贴画布边
+      const coord = radius + (pad - radius) / 2; // 数字落在棋子外圈与木头边的正中
+
       this._geom = {
         cell,
+        radius,
+        pad,
+        coord,
         left: (this._width - bw) / 2,
         top: (this._height - bh) / 2,
         right: (this._width - bw) / 2 + bw,
         bottom: (this._height - bh) / 2 + bh,
-        radius: cell * 0.42,
       };
     },
 
@@ -290,7 +307,7 @@ Component({
     // ====== 棋盘本体 ======
 
     drawBoard(ctx, g, c) {
-      const pad = g.radius * 1.2;
+      const pad = g.pad;
       const rect = { x: g.left - pad, y: g.top - pad, w: g.right - g.left + pad * 2, h: g.bottom - g.top + pad * 2 };
       this._boardRect = rect;
 
@@ -375,17 +392,18 @@ Component({
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
+      const offset = g.coord;
       for (let col = 0; col < COLS; col += 1) {
         const x = g.left + col * g.cell;
         const label = String(redAtBottom ? COLS - col : col + 1);
-        ctx.fillText(label, x, g.top - g.radius * 0.9);
-        ctx.fillText(label, x, g.bottom + g.radius * 0.9);
+        ctx.fillText(label, x, g.top - offset);
+        ctx.fillText(label, x, g.bottom + offset);
       }
       for (let row = 0; row < ROWS; row += 1) {
         const y = g.top + row * g.cell;
         const label = String(this.data.flipped ? row + 1 : ROWS - row);
-        ctx.fillText(label, g.left - g.radius * 1.1, y);
-        ctx.fillText(label, g.right + g.radius * 1.1, y);
+        ctx.fillText(label, g.left - offset, y);
+        ctx.fillText(label, g.right + offset, y);
       }
     },
 

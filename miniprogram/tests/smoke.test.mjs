@@ -222,6 +222,28 @@ const style = icon.buildStyle();
 assert.match(style, /data:image\/svg\+xml/, '图标要内联成 data URI');
 assert.match(style, /%23/, '色值里的 # 必须编码, 否则会被当成 URL 片段截断');
 
+// 棋盘几何: 坐标数字必须落在"棋子外圈"和"木纹边缘"之间的空档里。
+// 之前用写死的半径倍数, 结果上下两排的列号被第一排/最后一排棋子整个盖住,
+// 左右的行号被木头边裁掉一半 —— 屏幕上看起来就是"没有坐标"。
+const boardComponent = load('../components/xiangqi-board/xiangqi-board.js');
+for (const [w, h] of [[304, 400], [304, 560], [560, 400], [750, 1200], [200, 200]]) {
+  boardComponent._width = w;
+  boardComponent._height = h;
+  boardComponent.calculateDimensions();
+  const g = boardComponent._geom;
+  const label = g.radius * 0.65; // drawCoordinates 用的字号
+  const where = `${w}x${h}`;
+
+  assert.ok(g.pad > g.radius + label, `${where}: 木纹要装得下坐标数字`);
+  assert.ok(g.coord - label / 2 > g.radius, `${where}: 坐标数字不能压在棋子上`);
+  assert.ok(g.coord + label / 2 < g.pad, `${where}: 坐标数字不能掉到木纹外`);
+  // 木纹本身也不能被画布裁掉
+  assert.ok(g.top - g.pad >= -0.5, `${where}: 木纹上边被画布裁了`);
+  assert.ok(g.left - g.pad >= -0.5, `${where}: 木纹左边被画布裁了`);
+  assert.ok(g.bottom + g.pad <= h + 0.5, `${where}: 木纹下边被画布裁了`);
+  assert.ok(g.right + g.pad <= w + 0.5, `${where}: 木纹右边被画布裁了`);
+}
+
 const picker = load('../components/difficulty-picker/difficulty-picker.js');
 picker.rebuild();
 assert.equal(picker.data.levels.length, 15, '难度选择器要列出全部 15 档');
