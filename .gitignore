@@ -30,3 +30,6 @@ __pycache__/
 
 # 微信小程序上传包（本地构建产物）
 dist/
+# 微信开发者工具自动生成的本地私有配置
+miniprogram/project.private.config.json
+
