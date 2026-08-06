@@ -61,7 +61,11 @@ void Position::setup_start_position() {
     halfmove_clock = 0;
     fullmove_number = 1;
     hash = compute_hash();
+    pawn_hash = compute_pawn_hash();
     move_stack_top_ = 0;
+    history_size_ = 1;
+    history_hashes_[0] = hash;
+    null_move_depth_ = 0;
 }
 
 int64_t Position::compute_hash() const {
@@ -71,6 +75,17 @@ int64_t Position::compute_hash() const {
         if (p != kPieceNone) h ^= kZobrist.piece_square[p][sq];
     }
     if (side_to_move == kBlack) h ^= kZobrist.side;
+    return h;
+}
+
+int64_t Position::compute_pawn_hash() const {
+    int64_t h = 0;
+    for (int sq = 0; sq < kSquareCount; ++sq) {
+        const int p = squares[sq];
+        if (p != kPieceNone && piece_type(p) == kTypePawn) {
+            h ^= kZobrist.piece_square[p][sq];
+        }
+    }
     return h;
 }
 
@@ -85,11 +100,13 @@ int Position::count_pieces_in_col(int col, int piece) const {
 void Position::do_null_move() {
     hash ^= kZobrist.side;
     side_to_move = color_opposite(side_to_move);
+    ++null_move_depth_;
 }
 
 void Position::undo_null_move() {
     side_to_move = color_opposite(side_to_move);
     hash ^= kZobrist.side;
+    --null_move_depth_;
 }
 
 bool Position::has_threatening_piece(int color) const {
@@ -118,6 +135,14 @@ bool Position::do_move(const Move& m) {
     if (captured != kPieceNone) hash ^= kZobrist.piece_square[captured][to];
     hash ^= kZobrist.side;
 
+    if (piece_type(piece) == kTypePawn) {
+        pawn_hash ^= kZobrist.piece_square[piece][from];
+        pawn_hash ^= kZobrist.piece_square[piece][to];
+    }
+    if (captured != kPieceNone && piece_type(captured) == kTypePawn) {
+        pawn_hash ^= kZobrist.piece_square[captured][to];
+    }
+
     squares[from] = kPieceNone;
     squares[to] = piece;
 
@@ -126,11 +151,13 @@ bool Position::do_move(const Move& m) {
     if (side_to_move == kBlack) fullmove_number++;
     side_to_move = color_opposite(side_to_move);
     halfmove_clock = (captured != kPieceNone) ? 0 : halfmove_clock + 1;
+    history_hashes_[history_size_++] = hash;
     return true;
 }
 
 void Position::undo_move() {
     const UndoInfo info = move_stack_[--move_stack_top_];
+    if (history_size_ > 1) --history_size_;
 
     side_to_move = color_opposite(side_to_move);
     if (side_to_move == kBlack) fullmove_number--;
@@ -143,6 +170,23 @@ void Position::undo_move() {
     hash ^= kZobrist.piece_square[info.moved][info.from];
     hash ^= kZobrist.piece_square[info.moved][info.to];
     if (info.captured != kPieceNone) hash ^= kZobrist.piece_square[info.captured][info.to];
+
+    if (piece_type(info.moved) == kTypePawn) {
+        pawn_hash ^= kZobrist.piece_square[info.moved][info.from];
+        pawn_hash ^= kZobrist.piece_square[info.moved][info.to];
+    }
+    if (info.captured != kPieceNone && piece_type(info.captured) == kTypePawn) {
+        pawn_hash ^= kZobrist.piece_square[info.captured][info.to];
+    }
+}
+
+bool Position::is_threefold_repetition() const {
+    if (history_size_ < 9) return false;
+    int count = 0;
+    for (int i = 0; i < history_size_; ++i) {
+        if (history_hashes_[i] == hash && ++count >= 3) return true;
+    }
+    return false;
 }
 
 bool Position::leaves_king_safe(const Move& m) {
@@ -233,7 +277,11 @@ bool Position::set_from_fen(const std::string& fen) {
     halfmove_clock = hmc;
     fullmove_number = fmn;
     hash = compute_hash();
+    pawn_hash = compute_pawn_hash();
     move_stack_top_ = 0;
+    history_size_ = 1;
+    history_hashes_[0] = hash;
+    null_move_depth_ = 0;
     return true;
 }
 

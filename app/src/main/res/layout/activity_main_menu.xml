@@ -58,33 +58,30 @@
 
                 <TextView
                     android:id="@+id/nickname"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:textAppearance="@style/TextAppearance.Xiangqi.Title"
                     tools:text="棋友" />
 
-                <TextView
-                    android:id="@+id/rank_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill"
-                    android:paddingHorizontal="@dimen/space_3"
-                    android:paddingVertical="@dimen/space_1"
-                    android:textColor="@color/rank_gold"
-                    android:textSize="@dimen/text_caption"
-                    android:textStyle="bold"
-                    tools:text="业余三段" />
-
             </LinearLayout>
 
-            <!-- 积分是这张卡的主角: 最大字号 + 等宽数字 -->
+            <!-- 这张卡的主角: 原来显示裸分数(如"1500"), 现在改成段位名——
+                 具体真人段位对应是否准确还没验证过, 裸分数看着像一个已经
+                 标定好的外部量表, 段位名至少不虚报精度。
+                 段位名比数字长得多(尤其英文"Amateur 3 Dan"), 用 autoSize
+                 而不是固定字号, 免得中英文切换后某一侧被裁掉或换行。 -->
             <TextView
                 android:id="@+id/rating_value"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_2"
-                android:textAppearance="@style/TextAppearance.Xiangqi.Numeric"
+                android:maxLines="1"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeMaxTextSize="@dimen/text_numeric"
+                android:autoSizeStepGranularity="1sp"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
                 tools:text="1500" />
 
             <TextView
@@ -310,6 +307,22 @@
         app:layout_constraintTop_toTopOf="@id/btn_settings"
         app:layout_constraintBottom_toBottomOf="@id/btn_settings"
         app:layout_constraintStart_toEndOf="@id/btn_settings"
+        app:layout_constraintEnd_toStartOf="@id/btn_language" />
+
+    <!-- 中英文切换. 放在首页低频入口这一排, 跟设置/关于同一优先级 ——
+         不是常用功能, 但要能一眼找到, 不该藏进设置二级菜单里. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_language"
+        style="@style/Widget.Xiangqi.Button.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_language"
+        app:icon="@drawable/ic_language"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toTopOf="@id/btn_settings"
+        app:layout_constraintBottom_toBottomOf="@id/btn_settings"
+        app:layout_constraintStart_toEndOf="@id/btn_about"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

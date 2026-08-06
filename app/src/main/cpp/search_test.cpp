@@ -27,11 +27,10 @@ namespace {
 
 struct Loaded {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b;
-    std::vector<int32_t> out_w;
+    std::vector<int16_t> ft_w, ft_b, psqt_w;
+    std::vector<int32_t> out_w, out_b;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
-    int32_t out_b = 0;
 };
 
 template <typename T>
@@ -51,19 +50,38 @@ bool load(const char* path, Loaded& out) {
     f.read(reinterpret_cast<char*>(h), sizeof(h));
     const int version = h[0], features = h[1];
     const int l1 = h[2], l2 = h[3], l3 = h[4], qa = h[5], qw = h[6];
-    if (version != 3 || features != nnue::kFeatures || qa != nnue::kQA || qw != nnue::kQW) {
+    int32_t phase_buckets = 1;
+    int32_t psqt_q = 0;
+    if (version >= 4) {
+        f.read(reinterpret_cast<char*>(&phase_buckets), 4);
+        if (f.gcount() != 4) return false;
+    }
+    if (version == 5) {
+        f.read(reinterpret_cast<char*>(&psqt_q), 4);
+        if (f.gcount() != 4 || psqt_q <= 0) return false;
+    }
+    if ((version != 3 && version != 4 && version != 5) || features != nnue::kFeatures ||
+        qa != nnue::kQA || qw != nnue::kQW ||
+        (phase_buckets != 1 && phase_buckets != nnue::kPhaseBuckets)) {
         std::fprintf(stderr, "文件头对不上\n");
         return false;
     }
     bool ok = take(f, out.ft_w, size_t(features) * l1) && take(f, out.ft_b, l1) &&
-              take(f, out.fc1_w, size_t(l2) * l1 * 2) && take(f, out.fc1_b, l2) &&
-              take(f, out.fc2_w, size_t(l3) * l2) && take(f, out.fc2_b, l3) &&
-              take(f, out.out_w, l3);
-    f.read(reinterpret_cast<char*>(&out.out_b), 4);
-    if (!ok || f.gcount() != 4) { std::fprintf(stderr, "权重读不全\n"); return false; }
+              take(f, out.fc1_w, size_t(phase_buckets) * l2 * l1 * 2) &&
+              take(f, out.fc1_b, size_t(phase_buckets) * l2) &&
+              take(f, out.fc2_w, size_t(phase_buckets) * l3 * l2) &&
+              take(f, out.fc2_b, size_t(phase_buckets) * l3) &&
+              take(f, out.out_w, size_t(phase_buckets) * l3) &&
+              take(f, out.out_b, phase_buckets) &&
+              (version != 5 || take(f, out.psqt_w, features));
+    if (!ok) { std::fprintf(stderr, "权重读不全\n"); return false; }
     out.net = nnue::Net{l1, l2, l3, out.ft_w.data(), out.ft_b.data(),
                         out.fc1_w.data(), out.fc1_b.data(),
-                        out.fc2_w.data(), out.fc2_b.data(), out.out_w.data(), out.out_b};
+                        out.fc2_w.data(), out.fc2_b.data(), out.out_w.data(), out.out_b[0]};
+    out.net.phase_buckets = phase_buckets;
+    out.net.out_buckets = out.out_b.data();
+    out.net.psqt_w = version == 5 ? out.psqt_w.data() : nullptr;
+    out.net.psqt_q = psqt_q;
     return true;
 }
 
@@ -107,14 +125,14 @@ int main(int argc, char** argv) {
     // 排序稳定性和 LMR 的着法序号敏感度反而让"精确相同"成为更强的信号:
     // 两边从排序到剪枝的每一步都在做完全一样的事。
     const std::vector<Golden> golden = {
-        {0, "b2e2", 36, 5833},
-        {1, "h7e7", -49, 5343},
-        {2, "b0c2", 50, 4143},
-        {3, "h7i7", -23, 4935},
-        {4, "b0c2", 41, 2983},
-        {5, "b9c7", -50, 4642},
-        {6, "a0b0", 66, 3077},
-        {7, "b9c7", -69, 4908},
+        {0, "b2e2", 36, 5814},
+        {1, "h7e7", -49, 5754},
+        {2, "b0c2", 50, 3968},
+        {3, "h7i7", -23, 5170},
+        {4, "b0c2", 41, 2994},
+        {5, "b9c7", -50, 4699},
+        {6, "a0b0", 66, 3090},
+        {7, "b9c7", -69, 4957},
     };
 
     const std::vector<std::string> uci_moves = {

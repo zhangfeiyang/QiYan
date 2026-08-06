@@ -20,11 +20,10 @@ constexpr int kAccCapacity = 64;
 
 struct Handle {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b;
-    std::vector<int32_t> out_w;
+    std::vector<int16_t> ft_w, ft_b, psqt_w;
+    std::vector<int32_t> out_w, out_b;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
-    int32_t out_b = 0;
     // 局面缓冲: Kotlin 侧直接往这里写 (pieceIdx, sq), 免得每次求值都
     // 拷一遍数组。JNI 调用本身才十几纳秒, 数组拷贝反而是大头。
     uint8_t pieces[nnue::kMaxPieces * 2]{};
@@ -78,7 +77,7 @@ JNIEXPORT jlong JNICALL
 Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
     JNIEnv* env, jclass, jbyteArray weights) {
     const jsize len = env->GetArrayLength(weights);
-    if (len < 36) return 0;
+    if (len < 32) return 0;
 
     std::vector<uint8_t> raw(static_cast<size_t>(len));
     env->GetByteArrayRegion(weights, 0, len, reinterpret_cast<jbyte*>(raw.data()));
@@ -91,10 +90,15 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
         !r.take_i32(l2) || !r.take_i32(l3) || !r.take_i32(qa) || !r.take_i32(qw)) {
         return 0;
     }
-    if (version != 3 || features != nnue::kFeatures ||
+    int32_t phase_buckets = 1;
+    int32_t psqt_q = 0;
+    if (version >= 4 && !r.take_i32(phase_buckets)) return 0;
+    if (version == 5 && (!r.take_i32(psqt_q) || psqt_q <= 0)) return 0;
+    if ((version != 3 && version != 4 && version != 5) || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         return 0;
     }
+    if (phase_buckets != 1 && phase_buckets != nnue::kPhaseBuckets) return 0;
     if (l1 <= 0 || l1 > nnue::kMaxL1 || l1 % 32 != 0) return 0;   // 同 validate()
     if (l2 <= 0 || l2 > nnue::kMaxL23) return 0;
     if (l3 <= 0 || l3 > nnue::kMaxL23) return 0;
@@ -105,12 +109,13 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
     const bool ok =
         r.take(h->ft_w, static_cast<size_t>(features) * l1) &&
         r.take(h->ft_b, static_cast<size_t>(l1)) &&
-        r.take(h->fc1_w, static_cast<size_t>(l2) * l1 * 2) &&
-        r.take(h->fc1_b, static_cast<size_t>(l2)) &&
-        r.take(h->fc2_w, static_cast<size_t>(l3) * l2) &&
-        r.take(h->fc2_b, static_cast<size_t>(l3)) &&
-        r.take(h->out_w, static_cast<size_t>(l3)) &&
-        r.take_i32(h->out_b);
+        r.take(h->fc1_w, static_cast<size_t>(phase_buckets) * l2 * l1 * 2) &&
+        r.take(h->fc1_b, static_cast<size_t>(phase_buckets) * l2) &&
+        r.take(h->fc2_w, static_cast<size_t>(phase_buckets) * l3 * l2) &&
+        r.take(h->fc2_b, static_cast<size_t>(phase_buckets) * l3) &&
+        r.take(h->out_w, static_cast<size_t>(phase_buckets) * l3) &&
+        r.take(h->out_b, static_cast<size_t>(phase_buckets)) &&
+        (version != 5 || r.take(h->psqt_w, static_cast<size_t>(features)));
     // 尾部还有剩余说明双方对格式的理解不一致, 前面读到的很可能已经错位
     if (!ok || r.left() != 0) {
         delete h;
@@ -120,7 +125,11 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeCreate(
     h->net = nnue::Net{l1, l2, l3, h->ft_w.data(), h->ft_b.data(),
                        h->fc1_w.data(), h->fc1_b.data(),
                        h->fc2_w.data(), h->fc2_b.data(),
-                       h->out_w.data(), h->out_b};
+                       h->out_w.data(), h->out_b[0]};
+    h->net.phase_buckets = phase_buckets;
+    h->net.out_buckets = h->out_b.data();
+    h->net.psqt_w = version == 5 ? h->psqt_w.data() : nullptr;
+    h->net.psqt_q = psqt_q;
     if (!nnue::validate(h->net)) {
         delete h;
         return 0;
@@ -303,7 +312,7 @@ Java_com_zhongguoxiangqi_engine_nnue_NnueNative_nativeAccSelfCheck(
         nnue::acc_refresh(h->net, c, after, m);
         const size_t bytes = static_cast<size_t>(h->net.l1) * sizeof(int16_t);
         if (std::memcmp(b.raw, c.raw, bytes) != 0 ||
-            std::memcmp(b.flip, c.flip, bytes) != 0) {
+            std::memcmp(b.flip, c.flip, bytes) != 0 || b.phase != c.phase) {
             ++bad;
         }
     }

@@ -16,8 +16,10 @@ android {
         targetSdk = 36
         // Play 上传前必查已用过的 versionCode: 撞号会被拒("已有版本使用了版本
         // 代码"), 而这个错误只在 bundle 那一行显示为红字, 整个草稿版本会静默失效。
-        versionCode = 4
-        versionName = "1.3.0"
+        // Play 对"上传过但未发布的版本号"也会永久保留: 4/5/6/7 都被占用,
+        // 继续顺延。versionName 随版本号走, 保持用户可见版本一致。
+        versionCode = 8
+        versionName = "1.3.4"
 
         // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
         // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上
@@ -155,6 +157,9 @@ android {
             // 没有这行时 System.loadLibrary 找不到 .so, NNUE 退到 Kotlin 标量.
             it.jvmArgs("-Djava.library.path=${project.file("src/main/cpp/host_lib").absolutePath}")
             it.maxHeapSize = "4g"
+            // PikaFish JNI 测试在 JVM 退出时卸载 .so 会崩（宿主机特有）；
+            // 每个测试类独立 JVM，把 PikafishNativeSmokeTest 与其它测试隔开。
+            it.forkEvery = 1
         }
     }
 
@@ -162,6 +167,30 @@ android {
         abortOnError = false
         checkReleaseBuilds = false
     }
+}
+
+// PikaFish 权重（GPL-3）随 App 打包。50MB 不放仓库副本，构建时从
+// third_party 复制到 assets（若已存在且同源则跳过）。
+val copyPikafishNnue by tasks.registering {
+    val src = rootProject.file("third_party/Pikafish/src/pikafish.nnue")
+    val dstDir = layout.projectDirectory.dir("src/main/assets/models")
+    val dst = dstDir.file("pikafish.nnue")
+    inputs.file(src)
+    outputs.file(dst)
+    doLast {
+        if (!src.exists()) {
+            throw GradleException("缺少 PikaFish 权重: ${src.absolutePath}")
+        }
+        dstDir.asFile.mkdirs()
+        if (!dst.asFile.exists() || dst.asFile.length() != src.length()) {
+            src.copyTo(dst.asFile, overwrite = true)
+            logger.lifecycle("已复制 PikaFish 权重到 assets (${src.length() / 1024 / 1024}MB)")
+        }
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.configureEach {
+    dependsOn(copyPikafishNnue)
 }
 
 // 固定用 JDK 17 编译: 与上面声明的 source/target 一致,

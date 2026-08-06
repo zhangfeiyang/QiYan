@@ -1,0 +1,14 @@
+中国象棋（ZhongguoXiangqi）
+
+本应用以 GNU GPL v3 开源（见 LICENSE 文件）。
+
+搜索引擎：PikaFish
+  来源：https://github.com/initdc/Pikafish
+  版权：Pikafish 作者（见 third_party/Pikafish/AUTHORS 与 Copying.txt）
+  许可：GNU General Public License v3
+
+本项目使用 PikaFish 作为完整对局引擎（走法生成、搜索、NNUE 评估均由
+PikaFish 提供），经 JNI 进程内集成。依照 GPL-3 的要求，本应用的完整
+源代码随发布提供。
+
+其余代码（Android 界面、自研 NNUE 训练工具等）同样以 GPL-3 授权。

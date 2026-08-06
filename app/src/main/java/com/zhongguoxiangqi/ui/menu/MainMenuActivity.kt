@@ -130,7 +130,7 @@ class MainMenuActivity : AppCompatActivity() {
 
     private companion object {
         /** 中级, 对新手不至于一边倒, 对老手也不至于无聊 */
-        const val DEFAULT_DIFFICULTY = 3
+        const val DEFAULT_DIFFICULTY = 4
     }
 
     private fun showAbout() {
@@ -148,28 +148,32 @@ class MainMenuActivity : AppCompatActivity() {
 /**
  * 难度档位.
  *
- * 原来有 10 档、最高标 Elo 3300 —— 那是 Pikafish 的棋力。Pikafish 因 GPL-3
- * 已从包中移除, 现在对手只有自研引擎, 再挂那些数字就是虚假宣传。
- *
- * 上限本来是 1700, 那是 2026-07-28 换掉 Pikafish 那批数据定的, 当时评估网络
- * 还是 all/all2 那一代。之后 NNUE 评估一路换到 net328m, 同样对 Pikafish 深度3
- * 配对测出的分数从那时约 -100 涨到 +1 —— 大约 100 Elo 的实测进步, 而这还没算
- * 上同期的搜索优化(SEE/LMR/AVX2 增量累加器)带来的额外增益。2026-08-01 把
- * 6 档整体上调 100, 级差不变。**这仍然是估计值**: 绝对 Elo 要有已知等级分的
- * 对手才能标定, 我们没有。所以界面上不再显示具体分数(见 item_difficulty),
- * 只保留"对手大概什么水平"的描述; elo 字段只用于玩家自己积分的换算。
+ * 15 档, 每档都有显式的"棋手段位"标签 —— `segmentRes` 给出"这档对手大概是什么水平"
+ * (新手 / 街道棋手 / 业余五段 / 棋协大师...), 描述里的"括号注"移到这一行, 不用用户读
+ * 完整段话才看得到。档位只影响引擎思考时间(搜索深度), 棋力上限由自研引擎决定, 具体
+ * Elo 是估计值, 只用于玩家积分的换算。
  */
 enum class DifficultyLevel(
     val id: Int,
     val nameRes: Int,
+    val segmentRes: Int,
     val descRes: Int,
     val elo: Int,
     val color: Int
 ) {
-    EASY(1, R.string.difficulty_easy, R.string.difficulty_desc_easy, 700, R.color.rank_bronze),
-    BEGINNER(2, R.string.difficulty_beginner, R.string.difficulty_desc_beginner, 1000, R.color.rank_bronze),
-    INTERMEDIATE(3, R.string.difficulty_intermediate, R.string.difficulty_desc_intermediate, 1300, R.color.rank_silver),
-    ADVANCED(4, R.string.difficulty_advanced, R.string.difficulty_desc_advanced, 1550, R.color.rank_silver),
-    EXPERT(5, R.string.difficulty_expert, R.string.difficulty_desc_expert, 1700, R.color.rank_gold),
-    MASTER(6, R.string.difficulty_master, R.string.difficulty_desc_master, 1800, R.color.rank_gold);
+    EASY(1, R.string.difficulty_easy, R.string.difficulty_segment_easy, R.string.difficulty_desc_easy, 700, R.color.rank_bronze),
+    BEGINNER(2, R.string.difficulty_beginner, R.string.difficulty_segment_beginner, R.string.difficulty_desc_beginner, 900, R.color.rank_bronze),
+    LOWER_INTERMEDIATE(3, R.string.difficulty_lower_intermediate, R.string.difficulty_segment_lower_intermediate, R.string.difficulty_desc_lower_intermediate, 1100, R.color.rank_silver),
+    INTERMEDIATE(4, R.string.difficulty_intermediate, R.string.difficulty_segment_intermediate, R.string.difficulty_desc_intermediate, 1300, R.color.rank_silver),
+    UPPER_INTERMEDIATE(5, R.string.difficulty_upper_intermediate, R.string.difficulty_segment_upper_intermediate, R.string.difficulty_desc_upper_intermediate, 1450, R.color.rank_gold),
+    ADVANCED(6, R.string.difficulty_advanced, R.string.difficulty_segment_advanced, R.string.difficulty_desc_advanced, 1600, R.color.rank_gold),
+    AMATEUR(7, R.string.difficulty_amateur, R.string.difficulty_segment_amateur, R.string.difficulty_desc_amateur, 1750, R.color.rank_gold),
+    DISTRICT(8, R.string.difficulty_district, R.string.difficulty_segment_district, R.string.difficulty_desc_district, 1850, R.color.rank_platinum),
+    CITY(9, R.string.difficulty_city, R.string.difficulty_segment_city, R.string.difficulty_desc_city, 1950, R.color.rank_diamond),
+    PROVINCIAL(10, R.string.difficulty_provincial, R.string.difficulty_segment_provincial, R.string.difficulty_desc_provincial, 2050, R.color.rank_master),
+    LOCAL_MASTER(11, R.string.difficulty_local_master, R.string.difficulty_segment_local_master, R.string.difficulty_desc_local_master, 2150, R.color.rank_master),
+    NATIONAL_MASTER(12, R.string.difficulty_national_master, R.string.difficulty_segment_national_master, R.string.difficulty_desc_national_master, 2250, R.color.rank_grandmaster),
+    GRANDMASTER(13, R.string.difficulty_grandmaster, R.string.difficulty_segment_grandmaster, R.string.difficulty_desc_grandmaster, 2320, R.color.rank_grandmaster),
+    INTERNATIONAL_MASTER(14, R.string.difficulty_international_master, R.string.difficulty_segment_international_master, R.string.difficulty_desc_international_master, 2400, R.color.rank_king),
+    LEGENDARY(15, R.string.difficulty_legendary, R.string.difficulty_segment_legendary, R.string.difficulty_desc_legendary, 2500, R.color.rank_king);
 }

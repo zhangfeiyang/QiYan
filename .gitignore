@@ -16,6 +16,7 @@ captures/
 .kotlin/
 # Pikafish 构建缓存
 third_party/
+app/src/main/assets/models/pikafish.nnue
 
 # 训练产物 (大文件, 不提交)
 nnue/*.pt

@@ -36,10 +36,15 @@ def load_net(path):
         blob = f.read()
     assert blob[:4] == b"XQNN", "不是 NNUE 文件"
     ver, feats, l1, l2, l3, qa, qw = struct.unpack("<7i", blob[4:32])
+    assert ver in (3, 4, 5), f"不支持的 NNUE 版本: {ver}"
+    phase_buckets = struct.unpack("<i", blob[32:36])[0] if ver >= 4 else 1
+    psqt_q = struct.unpack("<i", blob[36:40])[0] if ver == 5 else 0
+    assert phase_buckets in (1, 4), f"阶段桶数量不支持: {phase_buckets}"
+    assert (ver != 5 or psqt_q > 0), f"PSQT 量化尺度不合法: {psqt_q}"
     assert (feats, l1, l2, l3, qa, qw) == (FEATURES, L1, L2, L3, QA, QW), \
         f"结构不匹配: {(feats, l1, l2, l3, qa, qw)}"
 
-    off = 32
+    off = 40 if ver == 5 else (36 if ver == 4 else 32)
 
     def take(count, dtype):
         nonlocal off
@@ -50,14 +55,17 @@ def load_net(path):
 
     ft_w = take(FEATURES * L1, "<i2").reshape(FEATURES, L1)
     ft_b = take(L1, "<i2")
-    fc1_w = take(L2 * L1 * 2, "<i1").reshape(L2, L1 * 2)
-    fc1_b = take(L2, "<i4")
-    fc2_w = take(L3 * L2, "<i1").reshape(L3, L2)
-    fc2_b = take(L3, "<i4")
-    out_w = take(L3, "<i4").reshape(1, L3)
-    out_b = take(1, "<i4")
+    fc1_w = take(phase_buckets * L2 * L1 * 2, "<i1").reshape(
+        phase_buckets, L2, L1 * 2)
+    fc1_b = take(phase_buckets * L2, "<i4").reshape(phase_buckets, L2)
+    fc2_w = take(phase_buckets * L3 * L2, "<i1").reshape(phase_buckets, L3, L2)
+    fc2_b = take(phase_buckets * L3, "<i4").reshape(phase_buckets, L3)
+    out_w = take(phase_buckets * L3, "<i4").reshape(phase_buckets, L3)
+    out_b = take(phase_buckets, "<i4")
+    psqt_w = take(FEATURES, "<i2") if ver == 5 else None
     assert off == len(blob), f"读完还剩 {len(blob) - off} 字节"
-    return ft_w, ft_b, fc1_w, fc1_b, fc2_w, fc2_b, out_w, out_b
+    return (ft_w, ft_b, fc1_w, fc1_b, fc2_w, fc2_b, out_w, out_b,
+            psqt_w, psqt_q)
 
 
 def main():
@@ -101,7 +109,7 @@ def main():
         # 悄悄漂移的话, 黄金向量就会去锁一个错误的基准
         own, opp = encode_perspectives(idxs, sqs, stm_black)
 
-        score = int_infer(*w, own, opp)
+        score = int_infer(*w[:8], own, opp, psqt_w=w[8], psqt_q=w[9])
         flat = " ".join(f"{int(i)},{int(s)}" for i, s in zip(idxs, sqs))
         lines.append(f"{1 if stm_black else 0}|{flat}|{score}")
 

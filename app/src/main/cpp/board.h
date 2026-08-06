@@ -105,13 +105,17 @@ struct UndoInfo {
 };
 
 // 一次搜索(含迭代加深的所有深度)展开的最大层数远小于这个值, 留足余量。
-constexpr int kMaxSearchStack = 256;
+// App 会把整局历史重放进来，再在其上展开搜索树；256 在 200 ply 长局 + 64 ply
+// 搜索时可能溢出。512 仍只有十几 KB，同时覆盖完整对局历史与搜索栈。
+constexpr int kMaxSearchStack = 512;
 
 class Position {
 public:
     int squares[kSquareCount];
     int side_to_move = kRed;
     int64_t hash = 0;
+    /** 只包含红黑兵/卒位置，不含走子方；供 pawn correction history 索引。 */
+    int64_t pawn_hash = 0;
     int halfmove_clock = 0;
     int fullmove_number = 1;
 
@@ -119,6 +123,7 @@ public:
 
     void setup_start_position();
     int64_t compute_hash() const;
+    int64_t compute_pawn_hash() const;
 
     int piece_at(int sq) const { return squares[sq]; }
     void set_piece(int row, int col, int piece) { squares[sq_make(row, col)] = piece; }
@@ -139,6 +144,14 @@ public:
     bool leaves_king_safe(const Move& m);
 
     bool is_fifty_move_draw() const { return halfmove_clock >= 120; }
+    bool is_threefold_repetition() const;
+    /** 搜索专用：空着子树不是合法对局历史，不能触发重复/限着和棋。 */
+    bool is_search_rule_draw() const {
+        return null_move_depth_ == 0 &&
+               (is_fifty_move_draw() || is_threefold_repetition());
+    }
+    /** 离线评估轨迹采集时排除“空着后”的非真实局面。 */
+    bool is_after_null_move() const { return null_move_depth_ != 0; }
 
     bool set_from_fen(const std::string& fen);
     std::string to_fen() const;
@@ -146,6 +159,10 @@ public:
 private:
     UndoInfo move_stack_[kMaxSearchStack];
     int move_stack_top_ = 0;
+    // history_hashes_[0] 是起始局面；每个真实 do_move 再追加一个。空着不追加。
+    int64_t history_hashes_[kMaxSearchStack + 1] = {};
+    int history_size_ = 0;
+    int null_move_depth_ = 0;
 };
 
 }  // namespace xq

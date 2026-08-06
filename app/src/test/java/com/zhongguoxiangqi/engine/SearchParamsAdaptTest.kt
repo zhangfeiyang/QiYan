@@ -34,21 +34,27 @@ class SearchParamsAdaptTest {
     }
 
     @Test
-    fun `对局路径 难度 3 抬到 800ms`() {
+    fun `对局路径 难度 3 抬到 500ms`() {
         val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 3)
-        assertEquals(800L, p.movetime)
+        assertEquals(500L, p.movetime)
     }
 
     @Test
-    fun `对局路径 最高难度想得最久`() {
+    fun `对局路径 难度 6 抬到 2500ms`() {
         val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 6)
-        assertEquals(4000L, p.movetime)
+        assertEquals(2500L, p.movetime)
     }
 
     @Test
     fun `调用方传的值更大时不会被调低`() {
         val p = EngineManager.adaptParams(SearchParams(movetime = 9000), difficultyLevel = 6)
         assertEquals(9000L, p.movetime)
+    }
+
+    @Test
+    fun `对局路径 最高难度(15 档)至少 90 秒`() {
+        val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 15)
+        assertEquals(90000L, p.movetime)
     }
 
     @Test
@@ -64,7 +70,7 @@ class SearchParamsAdaptTest {
 
     @Test
     fun `超出范围的难度被夹紧, 不会拿到空参数`() {
-        for (bad in listOf(0, -3, 7, 99)) {
+        for (bad in listOf(0, -3, 16, 99)) {
             val p = EngineManager.adaptParams(SearchParams(movetime = 1), difficultyLevel = bad)
             assertEquals("难度 $bad 应当被夹到合法档位", true, p.movetime >= 100L)
         }

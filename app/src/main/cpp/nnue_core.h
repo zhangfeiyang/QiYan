@@ -27,6 +27,7 @@ constexpr int kQW = 256;          // fc1/fc2 权重尺度
 // 乘 64 之后只占到 9~22/127, 二三十个档位, 四舍五入把精度磨掉了。逐层消融显示
 // 98% 的量化误差出在这两层(ft 占 7.4 厘兵, fc1/fc2 占 40.5, out 占 0.0)。
 constexpr int kMaxPieces = 32;
+constexpr int kPhaseBuckets = 4;
 
 // 层宽上限。推理用的是栈上定长缓冲, 所以这个上限是**硬约束**, 不是建议值 ——
 // Kotlin 侧 NnueNetwork 必须用同样的数字拦住, 否则一个层宽 2000 的文件会在
@@ -41,14 +42,22 @@ struct Net {
     int l1, l2, l3;
     const int16_t* ft_w;    // [kFeatures * l1] 行主序
     const int16_t* ft_b;    // [l1]
-    const int8_t*  fc1_w;   // [l2 * l1*2]
-    const int32_t* fc1_b;   // [l2]
-    const int8_t*  fc2_w;   // [l3 * l2]
-    const int32_t* fc2_b;   // [l3]
+    const int8_t*  fc1_w;   // [phase_buckets * l2 * l1*2]
+    const int32_t* fc1_b;   // [phase_buckets * l2]
+    const int8_t*  fc2_w;   // [phase_buckets * l3 * l2]
+    const int32_t* fc2_b;   // [phase_buckets * l3]
     // out_w 是 int32 而非 int16: |w| 最大 233, 乘 QW=256 是 59648, int16 装不下。
     // 它的量化误差本来就是 0, 加宽只多 l3*4 字节。
-    const int32_t* out_w;   // [l3]
+    const int32_t* out_w;   // [phase_buckets * l3]
     int32_t        out_b;
+    // v3 只有一个输出栈，沿用上面的 out_b；v4 有四个按剩余子力选择的输出栈，
+    // 偏置放在 out_buckets。字段追加在末尾，旧测试里的聚合初始化仍保持兼容。
+    int             phase_buckets = 1;
+    const int32_t*  out_buckets = nullptr;  // [phase_buckets], v3 可为 null
+    // v5 可选的线性 PSQT 残差。权重是“厘兵 * psqt_q”的 int16；v3/v4
+    // 令指针为 null、尺度为 0，保持旧网络逐位兼容。
+    const int16_t*  psqt_w = nullptr;       // [kFeatures]
+    int             psqt_q = 0;
 };
 
 // 权重指针与尺寸是否自洽且在上限内。JNI 层在每次换网络时必须调一遍。
@@ -61,6 +70,11 @@ bool validate(const Net& net);
 // ARM 硬件也没有模拟器, 与其赌 NEON 写对了, 不如让它到了真机自己证明。
 int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black_to_move);
 int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black_to_move);
+
+// 强制使用指定输出栈，不按剩余子力选阶段桶。单头网络会忽略 bucket。
+// 多职责网络用 bucket0 保留 DAgger 搜索评估、bucket1 表示叶静态评估。
+int32_t eval_scalar_bucket(const Net& net, const uint8_t* pieces, int n,
+                           bool black_to_move, int bucket);
 
 // 有没有真正的 SIMD 实现可用 (非 ARM 平台上 eval_simd 就是 scalar 的别名)
 bool has_simd();
@@ -82,6 +96,12 @@ struct Accum {
     // 走将之后桶会变, 那时只能 acc_refresh 重算。
     int raw_bucket = 0;
     int flip_bucket = 0;
+    // 剩余子力阶段值: 将/兵=0, 士/象=1, 马/炮=2, 车=4，初始局面为 40。
+    // 吃子时可 O(1) 更新，用来选择四套小输出栈之一。
+    int phase = 0;
+    // PSQT 与 FT 使用完全相同的 raw/flip 特征，因此普通走子也可 O(1) 更新。
+    int32_t raw_psqt = 0;
+    int32_t flip_psqt = 0;
 };
 
 // 全量重算。进搜索前做一次, 之后靠 acc_apply 推进。
@@ -108,6 +128,7 @@ inline bool is_king_index(int piece_idx) { return piece_idx == 0 || piece_idx ==
 // 不变式: acc_refresh(a, pieces, n) 之后, eval_acc(a, black) 必须与
 // eval_scalar(pieces, n, black) **逐位相同**。JNI 自检和 host_test 都验这条。
 int32_t eval_acc(const Net& net, const Accum& a, bool black_to_move);
+int32_t eval_acc_bucket(const Net& net, const Accum& a, bool black_to_move, int bucket);
 
 // 累加器用 int16。最坏情况是"某个输出维度上最大的 32 个权重之和 + 偏置",
 // 实测约 600, 对 int16 有 54 倍余量 —— 但那是**某一个网络**的实测值,

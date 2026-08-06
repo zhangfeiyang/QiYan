@@ -51,28 +51,27 @@ class XqSelfPlayRunner {
         val depth = System.getProperty("xq.depth", "6").toInt()
         val movetimeMs = System.getProperty("xq.movetime", "0").toInt()
         val openingPlies = System.getProperty("xq.openingPlies", "6").toInt()
+        val maxPlies = System.getProperty("xq.maxPlies", "200").toInt()
         val seed = System.getProperty("xq.seed", "20260801").toLong()
 
         // 当前在测: 在已锁定的 se=1 + lmrdiv=1.2 之上, 加 LMP + futility 两个
         // 新剪枝。基准是同一组参数但两个新剪枝关掉 —— 只变这一个因素, 别的
         // 全部对齐, 否则测出来的差值归因不到具体改动上。
-        // 消融第二项: 单独隔离 IIR(内部迭代减量)。
-        //
-        // 前情: 第二批四项合起来 Elo -22 [-42,-2](显著为负); 单独隔离"置换表
-        // 跨搜索复用"得到 +5 [-20,31](无效应), 说明它不是罪魁 —— 我按"节点
-        // 减少最多所以副作用最大"排的嫌疑顺序是错的, 节点降幅和棋力损害之间
-        // 没有对应关系。
-        //
-        // 这次测 IIR: 它是四项里唯一**直接降低搜索深度**的(置换表没给着法时
-        // depth--), 机制上最可能损害准确性。
-        //
-        // "新" = 关掉 IIR(候选修复), "旧" = 当前默认。正的 Elo = IIR 是罪魁。
-        val newArgs = listOf("--se=1", "--lmrdiv=1.2",
+        // 本轮只隔离 pawn correction history：其余参数逐项相同。
+        // “新”打开 correction，“旧”关闭；正 Elo 才允许晋升默认值。
+        val defaultNewArgs = listOf("--se=1", "--lmrdiv=1.2",
             "--lmp=1", "--futility=1", "--cont=1", "--dlmr=1", "--rootpvs=1",
-            "--iir=0", "--ch=1", "--ttsamegen=0", "--ttshift=20")
-        val oldArgs = listOf("--se=1", "--lmrdiv=1.2",
+            "--iir=1", "--ch=1", "--corr=1", "--ttsamegen=0", "--ttshift=20")
+        val defaultOldArgs = listOf("--se=1", "--lmrdiv=1.2",
             "--lmp=1", "--futility=1", "--cont=1", "--dlmr=1", "--rootpvs=1",
-            "--iir=1", "--ch=1", "--ttsamegen=0", "--ttshift=20")
+            "--iir=1", "--ch=1", "--corr=0", "--ttsamegen=0", "--ttshift=20")
+        fun argsProperty(name: String, fallback: List<String>): List<String> =
+            System.getProperty(name)?.trim()?.split(Regex("\\s+"))?.filter { it.isNotEmpty() }
+                ?: fallback
+        val newArgs = argsProperty("xq.newArgs", defaultNewArgs)
+        val oldArgs = argsProperty("xq.oldArgs", defaultOldArgs)
+        val newLabel = System.getProperty("xq.newLabel", "新(corr=1)")
+        val oldSelfLabel = System.getProperty("xq.oldLabel", "旧(corr=0)")
 
         // -Dxq.oppExe 指向另一个 UCI 可执行文件时, 对手换成它(典型用途: 拿
         // 我们的 C++ 引擎直接跟 Pikafish 打)。Pikafish 不吃我们的 --xxx 参数,
@@ -85,10 +84,10 @@ class XqSelfPlayRunner {
         val newCmd = listOf(exe.absolutePath, netPath) + newArgs
         val oldCmd = if (oppExe != null) listOf(oppExe.absolutePath)
                      else listOf(exe.absolutePath, netPath) + oldArgs
-        val oldLabel = if (oppExe != null) "Pikafish(${oppExe.name})" else "旧(lmp=0,fut=0)"
+        val oldLabel = if (oppExe != null) "Pikafish(${oppExe.name})" else oldSelfLabel
 
         val modeDesc = if (movetimeMs > 0) "限时=${movetimeMs}ms/步" else "深度=$depth"
-        println("[xq-selfplay] 新(lmp=1,fut=1,se=1,lmrdiv=1.2) vs $oldLabel  $modeDesc  " +
+        println("[xq-selfplay] $newLabel vs $oldLabel  $modeDesc  " +
             "$pairs 个开局 x 2 = ${pairs * 2} 盘  seed=$seed")
 
         val openings = buildOpenings(pairs, openingPlies, seed)
@@ -107,7 +106,9 @@ class XqSelfPlayRunner {
                 val opening = openings[g / 2]
                 // 偶数盘"新参数"执红, 奇数盘"新参数"执黑 —— 配对抵消先手优势
                 val newColor = if (g % 2 == 0) Color.RED else Color.BLACK
-                results[g] = playGame(newEngine, oldEngine, opening, newColor, depth, movetimeMs)
+                results[g] = playGame(
+                    newEngine, oldEngine, opening, newColor, depth, movetimeMs, maxPlies,
+                )
 
                 // 逐盘落地进度。一场 40 开局对的限时对战要跑近一小时, 中途一行
                 // 不打的话, 既看不出还要多久, 更要命的是被超时/Ctrl-C 打断时
@@ -214,11 +215,11 @@ class XqSelfPlayRunner {
     /** @return "新参数"一方得分: 1.0 胜 / 0.5 和 / 0.0 负 */
     private fun playGame(
         newEngine: UciProc, oldEngine: UciProc, opening: Position, newColor: Int,
-        depth: Int, movetimeMs: Int
+        depth: Int, movetimeMs: Int, maxPlies: Int,
     ): Double {
         val pos = opening.copy()
         val legal = mutableListOf<Move>()
-        for (ply in 0 until 200) {
+        for (ply in 0 until maxPlies) {
             legal.clear()
             Rules.generateAllLegal(pos, legal)
             if (legal.isEmpty()) {
@@ -243,7 +244,7 @@ class XqSelfPlayRunner {
             }
             pos.doMove(parsed)
         }
-        note("200步和"); return 0.5
+        note("$maxPlies 步和"); return 0.5
     }
 
     private fun report(results: DoubleArray, nPairs: Int, ms: Long) {

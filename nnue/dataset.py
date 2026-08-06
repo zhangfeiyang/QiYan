@@ -16,6 +16,7 @@ KING_BUCKETS = 9
 FEATURES = KING_BUCKETS * PIECE_KINDS * SQUARES      # 11340
 MAX_PIECES = 32
 RECORD_BYTES = 72
+PAIR_RECORD_BYTES = RECORD_BYTES * 2
 SCORE_CLAMP = 10000
 
 # 每条记录的字段偏移 (小端)
@@ -113,6 +114,23 @@ def decode_bulk(recs):
     own[~live] = -1
     opp[~live] = -1
     return own, opp, y
+
+
+def decode_pair_bulk(recs):
+    """解码后悔值配对记录。
+
+    每对固定 144 字节：前 72 字节是教师优选着后的子局面，后 72 字节是
+    学生着后的子局面。两个分数都已经转成各自子局面的走子方视角，因此
+    `rejected_y - preferred_y` 正好等于根局面上的教师后悔值。
+    """
+    recs = np.asarray(recs, dtype=np.uint8)
+    if recs.ndim != 2 or recs.shape[1] != PAIR_RECORD_BYTES:
+        raise ValueError(
+            f"配对记录形状必须是 (N,{PAIR_RECORD_BYTES})，实际 {recs.shape}"
+        )
+    preferred = decode_bulk(recs[:, :RECORD_BYTES])
+    rejected = decode_bulk(recs[:, RECORD_BYTES:])
+    return preferred + rejected
 
 
 def _king_bucket(idxs, sqs):

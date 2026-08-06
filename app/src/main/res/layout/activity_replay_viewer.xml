@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="对局回放"
+        app:title="@string/replay_viewer_title"
         app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary" />

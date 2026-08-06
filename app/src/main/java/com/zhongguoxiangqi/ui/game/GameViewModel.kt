@@ -19,6 +19,7 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
+import com.zhongguoxiangqi.game.Tactics
 import com.zhongguoxiangqi.game.Threats
 import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.rating.GameResult
@@ -142,17 +143,19 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         /** 推送威胁光晕给 BoardView: 红方子被瞄的格子 / 黑方子被瞄的格子 */
         data class ThreatsUpdate(val redSquares: List<Int>, val blackSquares: List<Int>) : GameEvent()
         object PlayerInCheck : GameEvent()
+        /** 将军且命中战术结构(铁门栓/马后炮等), 携带战术名给语音播报 */
+        data class TacticCheck(val tactic: String) : GameEvent()
         object Checkmate : GameEvent()
         object NormalMove : GameEvent()
-        /** [square] 是被吃子所在的格子, 特效要画在那儿 */
-        data class CapturedPiece(val piece: Piece, val square: Int) : GameEvent()
+        /** [square] 是被吃子所在的格子, 特效要画在那儿; [notation] 是本步中文记谱 */
+        data class CapturedPiece(val piece: Piece, val square: Int, val notation: String? = null) : GameEvent()
     }
 
     // ====== 初始化 ======
 
     /**
      * 开始新对局.
-     * @param difficulty 难度 1-10
+     * @param difficulty 难度 1-15
      * @param playerSide 玩家执子 Color.RED / Color.BLACK
      */
     /**
@@ -262,9 +265,10 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
                 Piece.fromCode(position.pieceAt(move.to)) else null
             val captured = capturedPiece != null
+            val notation = Move.toChineseString(move, position)
             position.doMove(move)
             moveHistory.add(move)
-            updateAfterMove(captured, capturedPiece, move.to)
+            updateAfterMove(captured, capturedPiece, move.to, notation)
         }
     }
 
@@ -292,6 +296,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
             Piece.fromCode(position.pieceAt(move.to)) else null
         val captured = capturedPiece != null
+        val notation = Move.toChineseString(move, position)
         position.doMove(move)
         moveHistory.add(move)
         // 检查"我走完这一手, 是不是还吃着将军": 我(玩家)走子之后, 仍是我(玩家)
@@ -306,7 +311,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             _events.value = GameEvent.ShowToast("被将军, 必须应招或消除威胁")
             return false
         }
-        updateAfterMove(captured, capturedPiece, move.to)
+        updateAfterMove(captured, capturedPiece, move.to, notation)
 
         // 如果游戏未结束,让引擎走
         if (!_state.value.isGameOver) {
@@ -384,6 +389,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         engineManager.startSearch(engineManager.requestAnalysis())
     }
 
+    /**
+     * AI 分析入口: 主动触发一次后台分析, 让全屏分析动效拿到真实的
+     * 深度/胜率数据。只在轮到玩家思考时跑, 不抢引擎的对局搜索。
+     */
+    fun runAnalysisNow() {
+        if (_state.value.isGameOver) return
+        if (position.sideToMove != _state.value.playerSide) return
+        startAnalysis()
+    }
+
     /** 设置玩家执子 */
     fun setPlayerSide(side: Int) {
         _state.value = _state.value.copy(playerSide = side)
@@ -398,7 +413,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
      * 打断重下, 否则这一手仍按旧等级出.
      */
     fun setDifficulty(level: Int) {
-        val clamped = level.coerceIn(1, 10)
+        val clamped = level.coerceIn(1, com.zhongguoxiangqi.engine.EngineManager.MAX_LEVEL)
         if (clamped == _state.value.difficulty) return
         val wasThinking = _state.value.isThinking
         engineManager.difficultyLevel = clamped
@@ -492,6 +507,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         captured: Boolean,
         capturedPiece: Piece? = null,
         capturedSquare: Int = -1,
+        notation: String? = null,
     ) {
         // 检测将军 / 终局
         val inCheck = Rules.isInCheck(position, position.sideToMove)
@@ -525,7 +541,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         // 重新算威胁光晕 + 触发音效
         emitThreats()
-        emitFeedback(inCheck, isOver, gameOver, capturedPiece, capturedSquare)
+        emitFeedback(inCheck, isOver, gameOver, capturedPiece, capturedSquare, notation)
 
         if (isOver) {
             // 确定玩家结果
@@ -559,13 +575,17 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     /** 走子后发出音效/震动事件, 由 Activity 转发给 GameFeedback */
     private fun emitFeedback(
         inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver,
-        capturedPiece: Piece?, capturedSquare: Int,
+        capturedPiece: Piece?, capturedSquare: Int, notation: String? = null,
     ) {
         _events.value = when {
             isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) ->
                 GameEvent.Checkmate
-            inCheck -> GameEvent.PlayerInCheck
-            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece, capturedSquare)
+            inCheck -> {
+                // 将军时先看是否命中战术结构(马后炮/铁门栓), 命中就播战术名
+                val tactic = Tactics.detect(position, Color.opposite(position.sideToMove))
+                if (tactic != null) GameEvent.TacticCheck(tactic) else GameEvent.PlayerInCheck
+            }
+            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece, capturedSquare, notation)
             else -> GameEvent.NormalMove
         }
     }

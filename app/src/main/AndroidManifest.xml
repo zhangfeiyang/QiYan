@@ -18,6 +18,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- 语音指挥下棋: 把"车九进四"念出来自动走子, 需要录麦克风 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
 
     <application
@@ -53,7 +56,8 @@
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
-            android:label="@string/title_game" />
+            android:label="@string/title_game"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.replay.ReplayActivity"

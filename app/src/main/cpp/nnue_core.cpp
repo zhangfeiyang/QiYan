@@ -61,12 +61,66 @@ inline int32_t clamp_act(int32_t v) {
     return v < 0 ? 0 : (v > kQA ? kQA : v);
 }
 
+inline int piece_phase(int idx) {
+    // 红黑同种子同权重，所以只看 idx % 7。
+    switch (idx % 7) {
+        case 1: case 2: return 1;  // 士、象
+        case 3: case 5: return 2;  // 马、炮
+        case 4: return 4;          // 车
+        default: return 0;         // 将、兵
+    }
+}
+
+inline int material_phase(const uint8_t* pieces, int n) {
+    int phase = 0;
+    for (int p = 0; p < n; ++p) phase += piece_phase(pieces[p * 2]);
+    return phase;
+}
+
+inline int phase_bucket(int phase) {
+    // 来自 DAgger 语料分位数: 0..17 / 18..25 / 26..35 / 36..40。
+    return (phase >= 18) + (phase >= 26) + (phase >= 36);
+}
+
+struct DenseStack {
+    const int8_t* fc1_w;
+    const int32_t* fc1_b;
+    const int8_t* fc2_w;
+    const int32_t* fc2_b;
+    const int32_t* out_w;
+    int32_t out_b;
+};
+
+inline DenseStack dense_stack_bucket(const Net& net, int bucket) {
+    const int b = net.phase_buckets == 1
+        ? 0 : std::clamp(bucket, 0, net.phase_buckets - 1);
+    return DenseStack{
+        net.fc1_w + static_cast<size_t>(b) * net.l2 * net.l1 * 2,
+        net.fc1_b + static_cast<size_t>(b) * net.l2,
+        net.fc2_w + static_cast<size_t>(b) * net.l3 * net.l2,
+        net.fc2_b + static_cast<size_t>(b) * net.l3,
+        net.out_w + static_cast<size_t>(b) * net.l3,
+        net.out_buckets ? net.out_buckets[b] : net.out_b,
+    };
+}
+
+inline DenseStack dense_stack(const Net& net, int phase) {
+    return dense_stack_bucket(net, phase_bucket(phase));
+}
+
+inline int32_t psqt_score(const Net& net, int32_t raw, int32_t flip, bool black) {
+    if (!net.psqt_w) return 0;
+    const int32_t delta = black ? flip - raw : raw - flip;
+    return delta / net.psqt_q;  // C++ 整数除法截断向零，与 Python/Kotlin 一致
+}
+
 }  // namespace
 
 bool validate(const Net& net) {
     if (net.l1 <= 0 || net.l1 > kMaxL1) return false;
     if (net.l2 <= 0 || net.l2 > kMaxL23) return false;
     if (net.l3 <= 0 || net.l3 > kMaxL23) return false;
+    if (net.phase_buckets != 1 && net.phase_buckets != kPhaseBuckets) return false;
     // SIMD 路径按 8 / 16 / 32 个一组处理, 不写收尾循环 —— 宽度必须整除。
     //
     // 要 32 而不是 16, 是因为增量累加器的 clamp+窄化要对 raw / flip **各**跑
@@ -76,6 +130,9 @@ bool validate(const Net& net) {
     if (net.l1 % 32 != 0) return false;
     if (!net.ft_w || !net.ft_b || !net.fc1_w || !net.fc1_b) return false;
     if (!net.fc2_w || !net.fc2_b || !net.out_w) return false;
+    if (net.phase_buckets > 1 && !net.out_buckets) return false;
+    if ((net.psqt_w == nullptr) != (net.psqt_q == 0)) return false;
+    if (net.psqt_q < 0) return false;
     return true;
 }
 
@@ -106,7 +163,8 @@ int32_t worst_case_accumulator(const Net& net) {
 
 // ---------------------------------------------------------------- 标量基准
 
-int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black) {
+static int32_t eval_scalar_with_dense(const Net& net, const uint8_t* pieces, int n,
+                                      bool black, const DenseStack& dense) {
     const int l1 = net.l1;
     const int in_dim = l1 * 2;
 
@@ -119,11 +177,16 @@ int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black) {
 
     int raw_b, flip_b;
     king_buckets(pieces, n, &raw_b, &flip_b);
+    int32_t raw_psqt = 0, flip_psqt = 0;
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
         const int raw = own_feature(raw_b, idx, sq);
         const int flp = opp_feature(flip_b, idx, sq);
+        if (net.psqt_w) {
+            raw_psqt += net.psqt_w[raw];
+            flip_psqt += net.psqt_w[flp];
+        }
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; ++i) {
@@ -139,24 +202,35 @@ int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black) {
 
     int32_t h1[kMaxL23];
     for (int o = 0; o < net.l2; ++o) {
-        int32_t sum = net.fc1_b[o];
-        const int8_t* row = net.fc1_w + o * in_dim;
+        int32_t sum = dense.fc1_b[o];
+        const int8_t* row = dense.fc1_w + o * in_dim;
         for (int i = 0; i < in_dim; ++i) sum += row[i] * x[i];
         h1[o] = clamp_act(sum / kQW);   // C 的 / 截断向零, 与 Kotlin 一致
     }
 
     int32_t h2[kMaxL23];
     for (int o = 0; o < net.l3; ++o) {
-        int32_t sum = net.fc2_b[o];
-        const int8_t* row = net.fc2_w + o * net.l2;
+        int32_t sum = dense.fc2_b[o];
+        const int8_t* row = dense.fc2_w + o * net.l2;
         for (int i = 0; i < net.l2; ++i) sum += row[i] * h1[i];
         h2[o] = clamp_act(sum / kQW);
     }
 
-    int32_t out = net.out_b;
-    for (int i = 0; i < net.l3; ++i) out += net.out_w[i] * h2[i];
+    int32_t out = dense.out_b;
+    for (int i = 0; i < net.l3; ++i) out += dense.out_w[i] * h2[i];
     // h2 带着 QA 的尺度, out_w 带着 QW 的尺度, 所以除 QA*QW 才是厘兵分
-    return out / (kQA * kQW);
+    return out / (kQA * kQW) + psqt_score(net, raw_psqt, flip_psqt, black);
+}
+
+int32_t eval_scalar(const Net& net, const uint8_t* pieces, int n, bool black) {
+    return eval_scalar_with_dense(
+        net, pieces, n, black, dense_stack(net, material_phase(pieces, n)));
+}
+
+int32_t eval_scalar_bucket(const Net& net, const uint8_t* pieces, int n,
+                           bool black, int bucket) {
+    return eval_scalar_with_dense(
+        net, pieces, n, black, dense_stack_bucket(net, bucket));
 }
 
 // ------------------------------------------------------------------- NEON
@@ -168,6 +242,7 @@ bool has_simd() { return true; }
 int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
     const int l1 = net.l1;
     const int in_dim = l1 * 2;
+    const DenseStack dense = dense_stack(net, material_phase(pieces, n));
 
     int16_t acc[2 * kMaxL1];
     // 累加器一次搬 8 个 int16。l1 是 32 的倍数, 不需要收尾循环。
@@ -179,11 +254,16 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
 
     int raw_b, flip_b;
     king_buckets(pieces, n, &raw_b, &flip_b);
+    int32_t raw_psqt = 0, flip_psqt = 0;
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
         const int raw = own_feature(raw_b, idx, sq);
         const int flp = opp_feature(flip_b, idx, sq);
+        if (net.psqt_w) {
+            raw_psqt += net.psqt_w[raw];
+            flip_psqt += net.psqt_w[flp];
+        }
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; i += 8) {
@@ -205,7 +285,7 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
     // fc1: int8 × int8 -> int32。这里是整个求值的大头 (l2 × l1*2 次乘加)。
     int32_t h1[kMaxL23];
     for (int o = 0; o < net.l2; ++o) {
-        const int8_t* row = net.fc1_w + o * in_dim;
+        const int8_t* row = dense.fc1_w + o * in_dim;
         int32x4_t s = vdupq_n_s32(0);
         for (int i = 0; i < in_dim; i += 16) {
             int8x16_t w = vld1q_s8(row + i);
@@ -218,22 +298,22 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
             s = vpadalq_s16(s, p0);
             s = vpadalq_s16(s, p1);
         }
-        int32_t sum = net.fc1_b[o] + vaddvq_s32(s);
+        int32_t sum = dense.fc1_b[o] + vaddvq_s32(s);
         h1[o] = clamp_act(sum / kQW);
     }
 
     // fc2 与输出层只有 32×32 和 32 次乘加, 走标量就够, 上 SIMD 得不偿失
     int32_t h2[kMaxL23];
     for (int o = 0; o < net.l3; ++o) {
-        int32_t sum = net.fc2_b[o];
-        const int8_t* row = net.fc2_w + o * net.l2;
+        int32_t sum = dense.fc2_b[o];
+        const int8_t* row = dense.fc2_w + o * net.l2;
         for (int i = 0; i < net.l2; ++i) sum += row[i] * h1[i];
         h2[o] = clamp_act(sum / kQW);
     }
 
-    int32_t out = net.out_b;
-    for (int i = 0; i < net.l3; ++i) out += net.out_w[i] * h2[i];
-    return out / (kQA * kQW);
+    int32_t out = dense.out_b;
+    for (int i = 0; i < net.l3; ++i) out += dense.out_w[i] * h2[i];
+    return out / (kQA * kQW) + psqt_score(net, raw_psqt, flip_psqt, black);
 }
 
 // ------------------------------------------------------------------- AVX2
@@ -260,6 +340,7 @@ inline int32_t hsum_i32(__m256i v) {
 int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
     const int l1 = net.l1;
     const int in_dim = l1 * 2;
+    const DenseStack dense = dense_stack(net, material_phase(pieces, n));
 
     // validate() 保证 l1 % 16 == 0, 于是 in_dim % 32 == 0 —— 下面所有循环
     // 都不需要收尾。改宽度约束前先改 validate。
@@ -272,11 +353,16 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
 
     int raw_b, flip_b;
     king_buckets(pieces, n, &raw_b, &flip_b);
+    int32_t raw_psqt = 0, flip_psqt = 0;
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
         const int raw = own_feature(raw_b, idx, sq);
         const int flp = opp_feature(flip_b, idx, sq);
+        if (net.psqt_w) {
+            raw_psqt += net.psqt_w[raw];
+            flip_psqt += net.psqt_w[flp];
+        }
         const int16_t* own_row = net.ft_w + (black ? flp : raw) * l1;
         const int16_t* opp_row = net.ft_w + (black ? raw : flp) * l1;
         for (int i = 0; i < l1; i += 16) {
@@ -320,28 +406,28 @@ int32_t eval_simd(const Net& net, const uint8_t* pieces, int n, bool black) {
     const __m256i ones = _mm256_set1_epi16(1);
     int32_t h1[kMaxL23];
     for (int o = 0; o < net.l2; ++o) {
-        const int8_t* row = net.fc1_w + o * in_dim;
+        const int8_t* row = dense.fc1_w + o * in_dim;
         __m256i s = _mm256_setzero_si256();
         for (int i = 0; i < in_dim; i += 32) {
             __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(x + i));
             __m256i w = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(row + i));
             s = _mm256_add_epi32(s, _mm256_madd_epi16(_mm256_maddubs_epi16(v, w), ones));
         }
-        h1[o] = clamp_act((net.fc1_b[o] + hsum_i32(s)) / kQW);
+        h1[o] = clamp_act((dense.fc1_b[o] + hsum_i32(s)) / kQW);
     }
 
     // fc2 与输出层只有 32×32 和 32 次乘加, 走标量就够
     int32_t h2[kMaxL23];
     for (int o = 0; o < net.l3; ++o) {
-        int32_t sum = net.fc2_b[o];
-        const int8_t* row = net.fc2_w + o * net.l2;
+        int32_t sum = dense.fc2_b[o];
+        const int8_t* row = dense.fc2_w + o * net.l2;
         for (int i = 0; i < net.l2; ++i) sum += row[i] * h1[i];
         h2[o] = clamp_act(sum / kQW);
     }
 
-    int32_t out = net.out_b;
-    for (int i = 0; i < net.l3; ++i) out += net.out_w[i] * h2[i];
-    return out / (kQA * kQW);
+    int32_t out = dense.out_b;
+    for (int i = 0; i < net.l3; ++i) out += dense.out_w[i] * h2[i];
+    return out / (kQA * kQW) + psqt_score(net, raw_psqt, flip_psqt, black);
 }
 
 #else   // 非 ARM、非 x86 SIMD (宿主机测试)
@@ -459,6 +545,9 @@ void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n) {
     king_buckets(pieces, n, &raw_b, &flip_b);
     a.raw_bucket = raw_b;
     a.flip_bucket = flip_b;
+    a.phase = material_phase(pieces, n);
+    a.raw_psqt = 0;
+    a.flip_psqt = 0;
     for (int i = 0; i < l1; ++i) {
         a.raw[i] = net.ft_b[i];
         a.flip[i] = net.ft_b[i];
@@ -466,8 +555,14 @@ void acc_refresh(const Net& net, Accum& a, const uint8_t* pieces, int n) {
     for (int p = 0; p < n; ++p) {
         const int idx = pieces[p * 2];
         const int sq = pieces[p * 2 + 1];
-        row_add(a.raw, net.ft_w + own_feature(raw_b, idx, sq) * l1, l1);
-        row_add(a.flip, net.ft_w + opp_feature(flip_b, idx, sq) * l1, l1);
+        const int raw = own_feature(raw_b, idx, sq);
+        const int flp = opp_feature(flip_b, idx, sq);
+        row_add(a.raw, net.ft_w + raw * l1, l1);
+        row_add(a.flip, net.ft_w + flp * l1, l1);
+        if (net.psqt_w) {
+            a.raw_psqt += net.psqt_w[raw];
+            a.flip_psqt += net.psqt_w[flp];
+        }
     }
 }
 
@@ -485,21 +580,36 @@ bool acc_apply(const Net& net, Accum& dst, const Accum& src,
         for (int i = 0; i < l1; ++i) { dst.raw[i] = src.raw[i]; dst.flip[i] = src.flip[i]; }
         dst.raw_bucket = rb;
         dst.flip_bucket = fb;
+        dst.phase = src.phase;
+        dst.raw_psqt = src.raw_psqt;
+        dst.flip_psqt = src.flip_psqt;
     }
     // 走子: 从起点拿走, 放到落点
     row_sub(dst.raw, net.ft_w + own_feature(rb, mover_idx, from_sq) * l1, l1);
     row_sub(dst.flip, net.ft_w + opp_feature(fb, mover_idx, from_sq) * l1, l1);
     row_add(dst.raw, net.ft_w + own_feature(rb, mover_idx, to_sq) * l1, l1);
     row_add(dst.flip, net.ft_w + opp_feature(fb, mover_idx, to_sq) * l1, l1);
+    if (net.psqt_w) {
+        dst.raw_psqt -= net.psqt_w[own_feature(rb, mover_idx, from_sq)];
+        dst.flip_psqt -= net.psqt_w[opp_feature(fb, mover_idx, from_sq)];
+        dst.raw_psqt += net.psqt_w[own_feature(rb, mover_idx, to_sq)];
+        dst.flip_psqt += net.psqt_w[opp_feature(fb, mover_idx, to_sq)];
+    }
     // 吃子: 被吃的子原本就在落点上
     if (cap_idx >= 0) {
         row_sub(dst.raw, net.ft_w + own_feature(rb, cap_idx, to_sq) * l1, l1);
         row_sub(dst.flip, net.ft_w + opp_feature(fb, cap_idx, to_sq) * l1, l1);
+        if (net.psqt_w) {
+            dst.raw_psqt -= net.psqt_w[own_feature(rb, cap_idx, to_sq)];
+            dst.flip_psqt -= net.psqt_w[opp_feature(fb, cap_idx, to_sq)];
+        }
+        dst.phase -= piece_phase(cap_idx);
     }
     return true;
 }
 
-int32_t eval_acc(const Net& net, const Accum& a, bool black) {
+static int32_t eval_acc_with_dense(const Net& net, const Accum& a, bool black,
+                                   const DenseStack& dense) {
     const int l1 = net.l1;
     const int in_dim = l1 * 2;
 
@@ -514,21 +624,30 @@ int32_t eval_acc(const Net& net, const Accum& a, bool black) {
 
     int32_t h1[kMaxL23];
     for (int o = 0; o < net.l2; ++o) {
-        const int32_t sum = net.fc1_b[o] + dot_i8(net.fc1_w + o * in_dim, x, in_dim);
+        const int32_t sum = dense.fc1_b[o] + dot_i8(dense.fc1_w + o * in_dim, x, in_dim);
         h1[o] = clamp_act(sum / kQW);
     }
 
     int32_t h2[kMaxL23];
     for (int o = 0; o < net.l3; ++o) {
-        int32_t sum = net.fc2_b[o];
-        const int8_t* row = net.fc2_w + o * net.l2;
+        int32_t sum = dense.fc2_b[o];
+        const int8_t* row = dense.fc2_w + o * net.l2;
         for (int i = 0; i < net.l2; ++i) sum += row[i] * h1[i];
         h2[o] = clamp_act(sum / kQW);
     }
 
-    int32_t out = net.out_b;
-    for (int i = 0; i < net.l3; ++i) out += net.out_w[i] * h2[i];
-    return out / (kQA * kQW);
+    int32_t out = dense.out_b;
+    for (int i = 0; i < net.l3; ++i) out += dense.out_w[i] * h2[i];
+    return out / (kQA * kQW) + psqt_score(net, a.raw_psqt, a.flip_psqt, black);
+}
+
+
+int32_t eval_acc(const Net& net, const Accum& a, bool black) {
+    return eval_acc_with_dense(net, a, black, dense_stack(net, a.phase));
+}
+
+int32_t eval_acc_bucket(const Net& net, const Accum& a, bool black, int bucket) {
+    return eval_acc_with_dense(net, a, black, dense_stack_bucket(net, bucket));
 }
 
 }  // namespace nnue

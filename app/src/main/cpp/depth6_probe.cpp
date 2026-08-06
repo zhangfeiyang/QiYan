@@ -21,11 +21,10 @@ namespace { long g_depth_sum = 0; }
 namespace {
 struct Loaded {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b;
-    std::vector<int32_t> out_w;
+    std::vector<int16_t> ft_w, ft_b, psqt_w;
+    std::vector<int32_t> out_w, out_b;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
-    int32_t out_b = 0;
 };
 template <typename T>
 bool take(std::ifstream& f, std::vector<T>& v, size_t n) {
@@ -40,15 +39,35 @@ bool load(const char* path, Loaded& out) {
     if (std::memcmp(magic, "XQNN", 4) != 0) return false;
     int32_t h[7]; f.read(reinterpret_cast<char*>(h), sizeof(h));
     const int l1 = h[2], l2 = h[3], l3 = h[4];
+    int32_t phase_buckets = 1;
+    int32_t psqt_q = 0;
+    if (h[0] >= 4) {
+        f.read(reinterpret_cast<char*>(&phase_buckets), 4);
+        if (f.gcount() != 4) return false;
+    }
+    if (h[0] == 5) {
+        f.read(reinterpret_cast<char*>(&psqt_q), 4);
+        if (f.gcount() != 4 || psqt_q <= 0) return false;
+    }
+    if ((h[0] != 3 && h[0] != 4 && h[0] != 5) || h[1] != nnue::kFeatures ||
+        h[5] != nnue::kQA || h[6] != nnue::kQW ||
+        (phase_buckets != 1 && phase_buckets != nnue::kPhaseBuckets)) return false;
     bool ok = take(f, out.ft_w, size_t(h[1]) * l1) && take(f, out.ft_b, l1) &&
-              take(f, out.fc1_w, size_t(l2) * l1 * 2) && take(f, out.fc1_b, l2) &&
-              take(f, out.fc2_w, size_t(l3) * l2) && take(f, out.fc2_b, l3) &&
-              take(f, out.out_w, l3);
-    f.read(reinterpret_cast<char*>(&out.out_b), 4);
-    if (!ok || f.gcount() != 4) return false;
+              take(f, out.fc1_w, size_t(phase_buckets) * l2 * l1 * 2) &&
+              take(f, out.fc1_b, size_t(phase_buckets) * l2) &&
+              take(f, out.fc2_w, size_t(phase_buckets) * l3 * l2) &&
+              take(f, out.fc2_b, size_t(phase_buckets) * l3) &&
+              take(f, out.out_w, size_t(phase_buckets) * l3) &&
+              take(f, out.out_b, phase_buckets) &&
+              (h[0] != 5 || take(f, out.psqt_w, h[1]));
+    if (!ok) return false;
     out.net = nnue::Net{l1, l2, l3, out.ft_w.data(), out.ft_b.data(), out.fc1_w.data(),
                         out.fc1_b.data(), out.fc2_w.data(), out.fc2_b.data(),
-                        out.out_w.data(), out.out_b};
+                        out.out_w.data(), out.out_b[0]};
+    out.net.phase_buckets = phase_buckets;
+    out.net.out_buckets = out.out_b.data();
+    out.net.psqt_w = h[0] == 5 ? out.psqt_w.data() : nullptr;
+    out.net.psqt_q = psqt_q;
     return true;
 }
 xq::Move parse_uci(const std::string& s) {
@@ -77,7 +96,7 @@ int main(int argc, char** argv) {
     // 形如: cont=0 dlmr=0 lmp=0 fut=0
     bool f_cont = true, f_dlmr = true, f_lmp = true, f_fut = true;
     bool f_iir = true, f_seep = true, f_razor = true, f_caps4 = false;
-    bool f_ch = true; int f_cp = 2; int f_mt = 0; int f_tt = -1; bool f_samegen = false; int f_dp = -1; int f_badcap = -1; int f_bcb = -1;   // -1 = 用引擎默认   // -1 = 用引擎默认, 不覆盖
+    bool f_ch = true; int f_cp = 2; int f_mt = 0; int f_tt = -1; bool f_samegen = false; int f_dp = -1; int f_badcap = -1; int f_bcb = -1; int f_nmr = 2; int f_histdecay = 0; bool f_rootsort = false; bool f_partialroot = false; bool f_asp = false; int f_qsee = 0; bool f_leafhead = false;   // -1 = 用引擎默认   // -1 = 用引擎默认, 不覆盖
     for (int i = 3; i < argc; ++i) {
         const std::string a = argv[i];
         if (a == "cont=0") f_cont = false;
@@ -97,6 +116,13 @@ int main(int argc, char** argv) {
         else if (a == "badcap=1") f_badcap = 1;
         else if (a.rfind("bcb=", 0) == 0) { f_bcb = std::atoi(a.c_str() + 4); f_badcap = 1; }
         else if (a.rfind("dp=", 0) == 0) f_dp = std::atoi(a.c_str() + 3);
+        else if (a.rfind("nmr=", 0) == 0) f_nmr = std::atoi(a.c_str() + 4);
+        else if (a.rfind("histdecay=", 0) == 0) f_histdecay = std::atoi(a.c_str() + 10);
+        else if (a == "rootsort=1") f_rootsort = true;
+        else if (a == "partialroot=1") f_partialroot = true;
+        else if (a == "asp=1") f_asp = true;
+        else if (a.rfind("qsee=", 0) == 0) f_qsee = std::atoi(a.c_str() + 5);
+        else if (a == "leafhead=1") f_leafhead = true;
     }
 
     // Pikafish 自己在深度6下给出的着法序列(2026-08-01 用 pika_depth6_nodes.py 跑出)
@@ -113,6 +139,13 @@ int main(int argc, char** argv) {
     engine.use_see_prune = f_seep;
     engine.use_razoring = f_razor;
     engine.use_capture_hist = f_ch;
+    engine.null_move_reduction = f_nmr;
+    engine.history_decay_divisor = f_histdecay;
+    engine.use_root_score_ordering = f_rootsort;
+    engine.use_partial_root = f_partialroot;
+    engine.use_full_aspiration = f_asp;
+    engine.qsearch_see_margin = std::max(0, f_qsee);
+    engine.use_leaf_eval_head = f_leafhead;
     engine.cont_plies = f_cp;
     if (f_tt > 0) engine.set_tt_size_shift(f_tt);
     engine.tt_require_same_gen = f_samegen;
@@ -134,9 +167,11 @@ int main(int argc, char** argv) {
         const int64_t nodes = engine.last_search_nodes();
         times.push_back(dt);
         nodes_list.push_back(nodes);
-        std::printf("[d%d] 第%zu步 耗时=%.2fms nodes=%lld 到达深度=%d move=%s score=%d\n",
+        std::printf("[d%d] 第%zu步 耗时=%.2fms nodes=%lld 到达深度=%d move=%s score=%d partial=%d/%d used=%d\n",
                     probe_depth, i + 1, dt, static_cast<long long>(nodes),
-                    engine.last_search_depth(), to_uci(move).c_str(), score);
+                    engine.last_search_depth(), to_uci(move).c_str(), score,
+                    engine.last_partial_root_moves(), engine.last_partial_root_total(),
+                    engine.last_used_partial_root() ? 1 : 0);
         g_depth_sum += engine.last_search_depth();
         pos = engine.position();
         pos.do_move(parse_uci(uci_moves[i]));

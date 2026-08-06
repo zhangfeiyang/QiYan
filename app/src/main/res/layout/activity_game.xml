@@ -183,13 +183,17 @@
 
     <!-- ============ 工具条 ============ -->
     <!-- 一行五个图标键. 认输放最右且用危险色, 与其余四个拉开距离和色相,
-         避免"想点翻转结果认输了"这类误触. -->
+         避免"想点翻转结果认输了"这类误触.
+         paddingBottom 由 Activity 注入导航栏高度, 这里给的 baseBottomPad
+         留出额外的呼吸空间, 让按钮整体上抬, 不贴住系统三键. -->
     <LinearLayout
+        android:id="@+id/toolbar_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/space_2"
-        android:paddingBottom="@dimen/space_2"
+        android:paddingTop="@dimen/space_2"
+        android:paddingBottom="@dimen/space_4"
         android:baselineAligned="false">
 
         <com.google.android.material.button.MaterialButton

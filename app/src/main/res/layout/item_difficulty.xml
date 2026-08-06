@@ -13,7 +13,7 @@
     <View
         android:id="@+id/difficulty_badge"
         android:layout_width="4dp"
-        android:layout_height="36dp"
+        android:layout_height="44dp"
         android:layout_marginEnd="@dimen/space_3" />
 
     <LinearLayout
@@ -22,35 +22,42 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/difficulty_name"
-            android:layout_width="wrap_content"
+        <!-- 第一行: 档位名 + 段位标签. 把"对手大概什么水平"拉到这一行 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_body"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/difficulty_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/difficulty_segment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:background="@drawable/bg_pill"
+                android:paddingHorizontal="@dimen/space_2"
+                android:paddingVertical="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_caption" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/difficulty_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textColor="@color/text_secondary"
             android:textSize="@dimen/text_caption" />
 
     </LinearLayout>
-
-    <!-- Elo 徽标原来是 surface_raised 实色方块, 和卡片自身同色, 等于
-         没有背景; 改成胶囊 + 等宽数字, 竖着扫一列时数字能对齐. -->
-    <TextView
-        android:id="@+id/difficulty_elo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_pill"
-        android:paddingHorizontal="@dimen/space_3"
-        android:paddingVertical="@dimen/space_1"
-        android:textColor="@color/action"
-        android:textSize="@dimen/text_body_sm"
-        android:fontFamily="monospace"
-        android:textStyle="bold" />
 
 </LinearLayout>

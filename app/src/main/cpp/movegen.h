@@ -12,6 +12,9 @@
 
 namespace xq {
 
+/** 走法合法性过滤的快速路径开关（A/B 用；默认开）。 */
+extern thread_local bool g_use_fast_legal_filter;
+
 // ------------------------------------------------------------ MoveGenerator
 
 /** 生成某一格棋子的全部伪合法走法(不检查送将) */

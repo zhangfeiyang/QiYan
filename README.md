@@ -1,6 +1,7 @@
 # 棋眼 QiYan · 中国象棋 Android App
 
-> 一个完整的中国象棋 Android 应用, 对弈 AI **完全自研**: alpha-beta 搜索 + 自训练 NNUE 神经网络评估, 求值核心走 C++/NEON。
+> 一个完整的中国象棋 Android 应用, 对弈引擎基于 **PikaFish**（GPL-3 开源），
+> 经 JNI 进程内集成；整套 App 以 GPL-3 发布。
 >
 > **拍一张棋盘照片, 它就能看懂局面并告诉你这一手该怎么走。**
 
@@ -47,12 +48,9 @@
 | 5 | 大师 | 2.5s | 很少走软手, 残局功底扎实 |
 | 6 | 特级大师 | 4s | 本机最强档, 算得深, 抓得住明显失误 |
 
-> **界面上不显示具体 Elo 分数。** 绝对 Elo 需要有已知等级分的对手才能标定, 而我们没有 ——
-> 摆一个精确到十位的数字, 是给用户一个并不存在的精确度。代码里保留了估计值
-> (600/900/1200/1450/1600/1700), 仅用于玩家自己积分涨落的相对换算。
->
-> 早先版本有 10 档、最高标 Elo 3300, 那是 Pikafish 的棋力。Pikafish 因 GPL-3 已移除,
-> 那些数字随之删掉 —— 留着就是虚假宣传。
+> **界面上不显示具体 Elo 分数。** 绝对 Elo 需要有已知等级分的对手才能标定；
+> 代码里保留的估计值仅用于玩家自己积分涨落的相对换算。难度档位由思考时间
+> 区分（0.1s ~ 20s），全部档位共用同一 PikaFish 引擎。
 
 ### 📊 实时胜率分析
 - 棋盘顶部动态显示双方胜率百分比
@@ -190,32 +188,29 @@ zhongguoxiangqi/
 
 ## 🤖 AI 引擎实现
 
-对弈 AI **完全自研**, 不依赖任何外部引擎。
+App 内的对弈引擎采用 **PikaFish**（https://github.com/initdc/Pikafish），
+走法生成、搜索与 NNUE 评估全部由 PikaFish 完成，经 JNI 进程内加载
+（`PikafishNative` ↔ `pikafish_jni.cpp`）。
 
-### 为什么移除了 Pikafish
+### 为什么重新采用 Pikafish
 
-早期版本在难度 6-10 走 Pikafish (JNI 进程内加载)。它棋力很强, 但:
+经过多轮自研搜索与网络优化（见 [`nnue/RESULTS.md`](nnue/RESULTS.md)），
+自研引擎在 500ms 固定用时门槛下始终无法追上 PikaFish 的棋力（残局深度差
+46 层、中局 EBF 2.90 vs 2.21，且所有参数/排序/LMR 微调均未转化为实战
+提升）。决定整体切换到 PikaFish 并让整个应用以 GPL-3 开源。
 
-- **GPL-3**: `libpikafish.so` 经 JNI 加载构成结合作品, 一旦分发 (发给内测者也算),
-  整个应用都要按 GPL-3 开源并提供对应源码。
-- **体积**: `pikafish.nnue` 单个文件 49 MB, 占了 AAB 的一半。
+### 集成方式
 
-移除之后 AAB 从 **116.7 MB 降到 60.8 MB**, 同时不再有 GPL 义务。代价是高难度档位
-明显变弱 —— 自研网络目前的水平见 [`nnue/RESULTS.md`](nnue/RESULTS.md)。
-
-### 搜索: SimpleEngine
-
-`engine/SimpleEngine.kt` — alpha-beta + 迭代加深, 外加置换表 (Zobrist, 深度优先替换)、
-静态搜索、MVV-LVA 走法排序、杀手着法、历史启发、主变例搜索 (PVS)、后期走法削减 (LMR)。
-
-这套增强实测把**同深度的节点数降到原来的 1/7**。
-
-### 评估: 自研 NNUE
+- C++ 侧：`third_party/Pikafish/src/pikafish_jni.cpp` 提供 JNI 入口，
+  CMake 直接编译 PikaFish 源码为 `libpikafish.so`。
+- Kotlin 侧：`PikafishNative` 对接 12 个 JNI 函数，`PikafishEngine`
+  实现 `ChessEngine` 接口，`EngineManager` 统一使用 PikaFish。
+- 权重：`pikafish.nnue` 构建时从 `third_party/Pikafish/src/` 复制进 assets。
 
 ```
-输入  own[1260]  opp[1260]        稀疏, 每边最多 32 个 1
+输入 own[11340] opp[11340]        稀疏, 每边最多 32 个 1
         |          |
-   FeatureTransformer (共享权重 1260->256)
+   FeatureTransformer (共享权重 11340->256)
         |          |
       acc_own    acc_opp          各 256 维
         +----+-----+
@@ -230,8 +225,12 @@ zhongguoxiangqi/
 
 - **双视角共享权重**: 网络学的是"我方/敌方"而不是"红方/黑方", 参数量减半, 天然带上
   红黑对称的先验。
-- **训练数据全部来自本项目引擎的自对弈**, 不接触 Pikafish 或任何 GPL 引擎的输出 ——
-  蒸馏别人的网络会让权重成为衍生作品 (参见 Fat Fritz 2 案例)。
+- **轨迹与标签解耦**: 本项目引擎负责产生局面，可显式让外部 UCI 教师只打数值标签。
+  当前采用学生轨迹 + Pikafish 标签的 DAgger 流程，并记录教师二进制、教师 NNUE、
+  学生网络及参数的 SHA-256。[GNU GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html#WhatCaseIsOutputGPL)
+  说明程序输出通常不自动受 GPL 约束，但具体模型发行仍需结合训练方式、输出内容与
+  法域复核；[Pikafish 本体为 GPLv3](https://github.com/official-pikafish/Pikafish)，
+  不随 App 分发。
 - 数据/网络格式见 [`nnue/FORMAT.md`](nnue/FORMAT.md), 各代实测结果见
   [`nnue/RESULTS.md`](nnue/RESULTS.md)。
 
@@ -242,8 +241,8 @@ zhongguoxiangqi/
 | 层 | 量化 | 说明 |
 |---|---|---|
 | FeatureTransformer | i16, 尺度 QA=127 | 累加器 i16 够用, 实测最坏情况有 55 倍余量 |
-| fc1 / fc2 | **i8**, 尺度 QW=64 | 激活经 ClippedReLU 落在 [0,127], 正好装进 i8 |
-| 输出层 | **i16**, 尺度 QW=64 | 要从 32 个 [0,1] 凑出 ±2000 厘兵, i8 差两个数量级 |
+| fc1 / fc2 | **i8**, 尺度 QW=256 | 激活经 ClippedReLU 落在 [0,127] |
+| 输出层 | **i32**, 尺度 QW=256 | 避免成熟网络的百量级输出权重饱和 |
 
 fc1 是热点 (`l2 x l1 x 2` 次乘加), NEON 一条 `smull` 顶 8 路 i8 乘加。
 
@@ -609,16 +608,23 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ### 数据从哪来
 
-引擎自对弈。`SelfPlayGenerator` 在自对弈时**顺手把每步的搜索分当标签**, 不必再单独深搜
-一遍。开局随机 8 步, 中局按 5% 概率乱走 —— 后者是必要的: 开局随机之后引擎是确定性的,
+`SelfPlayGenerator` 负责产生轨迹。没有外部教师时可顺手把本地搜索分当标签；使用
+Pikafish 蒸馏时，必须让当前学生负责走棋、Pikafish 只给学生实际到达的局面评分。
+开局随机 8 步, 中局按 5% 概率乱走 —— 后者是必要的: 开局随机之后引擎是确定性的,
 一局棋会一路走在同一条最佳线上, 那一百多条样本彼此只差一步棋, 条数好看但有效信息不多。
 加了中局随机化之后标签 std 从 814 涨到 1024 厘兵。
 
 ```bash
 ./gradlew :app:testDebugUnitTest --tests "*DataGenRunner*" --info \
-    -Dnnue.run=1 -Dnnue.games=400000 -Dnnue.threads=8 -Dnnue.depth=4 \
+    -Dnnue.run=1 -Dnnue.games=400000 -Dnnue.threads=8 -Dnnue.depth=3 \
+    -Dnnue.actor=student -Dnnue.teacherNet=/path/to/current.nnue \
+    -Dnnue.uciTeacher=/path/to/pikafish -Dnnue.uciDepth=8 \
     -Dnnue.out=$HOME/nnue-data
 ```
+
+`nnue.actor=student` 是关键；旧实现一旦启用 UCI 教师就直接采用教师 bestmove，
+导致传入的学生网络没有参与轨迹生成。每个 seed 现在使用独立分片名，同一 seed
+重复运行会被拒绝，避免把完全相同的棋局静默追加多次。
 
 ### 更新网络 = 换一个文件
 
@@ -626,7 +632,8 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 权重, 都不用改一行代码**:
 
 ```bash
-python3 nnue/train.py  --data ~/nnue-data --epochs 30 --l1 256 --out net.pt
+python3 nnue/train.py --data ~/nnue-data --epochs 30 --l1 256 --out net.pt \
+        --val-data ~/nnue-val --seed 20260802
 python3 nnue/export.py --ckpt net.pt --l1 256 \
         --out app/src/main/assets/models/xiangqi.nnue
 # 把 app/build.gradle.kts 的 versionCode 加一
@@ -642,9 +649,13 @@ python3 nnue/export.py --ckpt net.pt --l1 256 \
 
 ### 判断新一代到底有没有变强
 
-只认实战 Elo, 不认 loss:
+先用**独立目录**的 PikaFish 留出集检查导出后的整数网络，再看实战 Elo：
 
 ```bash
+./gradlew :app:testDebugUnitTest --tests "*NnueValidationRunner*" \
+    -Dnnue.validate=1 -Dnnue.net=/path/to/new.nnue \
+    -Dnnue.valData=/path/to/independent-val-data
+
 ./gradlew :app:testDebugUnitTest --tests "*NnueGauntletRunner*" --info \
     -Dnnue.match=1 -Dnnue.net=/path/to/new.nnue -Dmatch.pairs=100 -Dmatch.depth=4
 ```
@@ -678,6 +689,7 @@ python3 nnue/export.py --ckpt net.pt --l1 256 \
 | `rating/` | `RatingSystemTest.kt` | Glicko-2 升降分 / Elo 期望值 |
 | `engine/nnue/` | `NnueEvaluatorTest.kt` | **与 Python 参考实现逐条比对 200 条黄金向量** / 加载器防呆 |
 | `engine/nnue/` | `SelfPlayDiversityTest.kt` | 中局随机化是否真的摊开了标签分布 |
+| `engine/` | `QuiescenceInCheckTest.kt` | 静止搜索将死分 / 安静应将不能 stand-pat |
 | `engine/` | `SearchParamsAdaptTest.kt` | 硬时限不被抬高 / 难度不倒挂 / 越界夹紧 |
 | `engine/eval/` | `MatchRunnerTest.kt` | Elo 换算与置信区间 / 配对开局可复现 |
 
@@ -693,7 +705,7 @@ python3 nnue/export.py --ckpt net.pt --l1 256 \
 ./gradlew test
 ```
 
-单元测试 **163 个用例**全部通过。
+核心单元测试与 NNUE 跨语言黄金测试均应通过。
 
 > NNUE 的跨语言一致性做过变异验证: 故意把视角对调、或让输出层少除一个 QA, 两种错都会
 > 被黄金向量测试抓到 —— 一个从没失败过的测试不能证明它有用。
@@ -704,9 +716,10 @@ python3 nnue/export.py --ckpt net.pt --l1 256 \
 
 1. **仅 arm64-v8a**: NNUE 求值核心与 ONNX Runtime 都只编了这一个 ABI。x86_64 模拟器上
    native 库加载失败, 会自动退回 Kotlin 求值 (慢 35 倍, 但能跑)。
-2. **AI 棋力仍在爬坡**: 移除 Pikafish 后对手只有自研引擎。第 0 代网络在固定深度下与手写
-   评估**打平** (Elo +6 ± 31, 不显著), 还需要更多自对弈数据才能真正拉开。进展见
-   [`nnue/RESULTS.md`](nnue/RESULTS.md)。
+2. **固定用时棋力仍落后 Pikafish**: 当前发布网络为 DAgger blend v1。其 2 秒/步
+   预验收相对 net328m 显示出明显改善，但仍未达到 PikaFish 的 50% 持平线，且完整
+   固定用时置信区间尚未收敛；后续优化以该网络的学生轨迹 + PikaFish depth 10 标签为
+   基线。进展见 [`nnue/RESULTS.md`](nnue/RESULTS.md)。
 3. **绝对 Elo 无法标定**: 没有已知等级分的对手, 所以界面上不显示分数, 只给档位名与描述。
 4. **识别不是 100% 可靠**: 整盘全对约 83%, 即每 6 张图就有 1 张至少错一个子 —— 所以
    求招前强制人工确认。
@@ -755,16 +768,19 @@ implementation("androidx.recyclerview:recyclerview:1.3.2")
 
 ## 📄 许可
 
-本项目代码采用 **MIT License**。
+本项目以 **GNU General Public License v3** 发布（见 [LICENSE](LICENSE) 与
+[NOTICE](NOTICE)）。
 
-对弈 AI (搜索、评估网络、训练流水线) 全部自研, 训练数据来自本项目引擎的自对弈,
-不含任何 GPL 代码或权重。早期版本曾内置 Pikafish (GPL-3), 已在 v1.0.0 移除。
+App 内置 **PikaFish** 引擎（GPL-3，[源码](third_party/Pikafish)），
+经 JNI 进程内加载。依据 GPL-3 的要求，本应用完整源代码随发布提供，任何人
+可按 GPL-3 条款使用、修改与再分发。
 
 ---
 
 ## 🙏 致谢
 
 - **[Stockfish](https://stockfishchess.org/)** - NNUE 技术与量化方案的思路来源
+- **[PikaFish](https://github.com/initdc/Pikafish)** - 对局引擎（GPL-3）
 - **[ONNX Runtime](https://onnxruntime.ai/)** - 端上棋盘识别推理
 - **[Material Components](https://material.io/)** - UI 组件
 - **[Glicko-2](http://www.glicko.net/glicko/glicko2.pdf)** - 评分算法

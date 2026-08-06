@@ -21,6 +21,7 @@ class DifficultyAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val badge: View = view.findViewById(R.id.difficulty_badge)
         val name: TextView = view.findViewById(R.id.difficulty_name)
+        val segment: TextView = view.findViewById(R.id.difficulty_segment)
         val desc: TextView = view.findViewById(R.id.difficulty_desc)
     }
 
@@ -35,6 +36,7 @@ class DifficultyAdapter(
         val level = levels[position]
         val ctx = holder.itemView.context
         holder.name.text = ctx.getString(level.nameRes)
+        holder.segment.text = ctx.getString(level.segmentRes)
         holder.desc.text = ctx.getString(level.descRes)
         holder.badge.setBackgroundColor(ContextCompat.getColor(ctx, level.color))
         holder.itemView.isSelected = (position == selectedPosition)

@@ -9,6 +9,8 @@
 // Kotlin 引擎已经在真实对局和既有单测里跑了很久, 拿它当 ground truth。
 #include <cstdio>
 #include <cstdint>
+#include <algorithm>
+#include <string>
 
 #include "board.h"
 #include "movegen.h"
@@ -35,6 +37,20 @@ struct Case {
     int max_depth;
     int64_t expected[5];  // expected[d] = perft(d), d 从 1 开始, 0 号不用
 };
+
+xq::Move parse_uci(const std::string& s) {
+    return xq::Move(
+        xq::sq_make(9 - (s[1] - '0'), s[0] - 'a'),
+        xq::sq_make(9 - (s[3] - '0'), s[2] - 'a'));
+}
+
+bool play_uci(xq::Position& pos, const std::string& uci) {
+    const xq::Move wanted = parse_uci(uci);
+    std::vector<xq::Move> legal;
+    xq::generate_all_legal(pos, legal);
+    const auto it = std::find(legal.begin(), legal.end(), wanted);
+    return it != legal.end() && pos.do_move(*it);
+}
 
 }  // namespace
 
@@ -65,6 +81,68 @@ int main() {
                         d, static_cast<long long>(got), static_cast<long long>(want),
                         ok ? "OK" : "!! 不一致");
             if (!ok) ++bad;
+        }
+    }
+
+    // 搜索规则状态也属于 Position 的 make/unmake 不变式。马各自回原位两轮后，
+    // 初始盘面共出现三次；撤销一步后应立即不再重复。
+    {
+        xq::Position rep;
+        const int64_t initialPawnHash = rep.pawn_hash;
+        const std::vector<std::string> cycle = {
+            "b0c2", "b9c7", "c2b0", "c7b9",
+            "b0c2", "b9c7", "c2b0", "c7b9",
+        };
+        for (const auto& uci : cycle) {
+            if (!play_uci(rep, uci)) { ++bad; break; }
+        }
+        if (!rep.is_threefold_repetition() || !rep.is_search_rule_draw()) {
+            std::fprintf(stderr, "[perft] !! C++ 三次重复历史未被识别\n");
+            ++bad;
+        }
+        if (rep.pawn_hash != initialPawnHash || rep.pawn_hash != rep.compute_pawn_hash()) {
+            std::fprintf(stderr, "[perft] !! 非兵着法污染 pawn hash\n");
+            ++bad;
+        }
+        rep.undo_move();
+        if (rep.is_threefold_repetition()) {
+            std::fprintf(stderr, "[perft] !! undo 后重复历史没有回退\n");
+            ++bad;
+        }
+    }
+
+    {
+        xq::Position pawn;
+        const int64_t before = pawn.pawn_hash;
+        if (!play_uci(pawn, "a3a4") || pawn.pawn_hash == before ||
+            pawn.pawn_hash != pawn.compute_pawn_hash()) {
+            std::fprintf(stderr, "[perft] !! 兵着法 pawn hash 增量错误\n");
+            ++bad;
+        }
+        pawn.undo_move();
+        if (pawn.pawn_hash != before || pawn.pawn_hash != pawn.compute_pawn_hash()) {
+            std::fprintf(stderr, "[perft] !! undo 后 pawn hash 未恢复\n");
+            ++bad;
+        }
+    }
+
+    {
+        xq::Position rule60;
+        if (!rule60.set_from_fen(
+                "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 120 61") ||
+            !rule60.is_search_rule_draw()) {
+            std::fprintf(stderr, "[perft] !! 60 回合规则未被识别\n");
+            ++bad;
+        }
+        rule60.do_null_move();
+        if (rule60.is_search_rule_draw()) {
+            std::fprintf(stderr, "[perft] !! 空着子树错误触发真实对局和棋\n");
+            ++bad;
+        }
+        rule60.undo_null_move();
+        if (!rule60.is_search_rule_draw()) {
+            std::fprintf(stderr, "[perft] !! undo null 后规则状态未恢复\n");
+            ++bad;
         }
     }
 

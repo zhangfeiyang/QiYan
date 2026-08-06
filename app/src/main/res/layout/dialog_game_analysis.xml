@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI 分析透明对话框: 停在对局主界面之上, 背景半透明, 能看见棋局.
+
+  结构改为 ConstraintLayout:
+    · 顶部: 当前局面摘要
+    · 中间: RecyclerView, 占据剩余所有空间
+    · 底部: 建议问题行 + 输入区
+  这样键盘弹起 adjustResize 把窗口缩小时, 中间的 RecyclerView 自动让出
+  空间, 不会把建议问题/输入框挤出可见区域. 之前用 LinearLayout + weight=1
+  在 wrap_content 父级里高度分配不稳定, 建议条容易被裁掉.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_analysis_dialog"
+    android:padding="@dimen/space_4">
+
+    <!-- 当前局面摘要胶囊 -->
+    <TextView
+        android:id="@+id/analysis_context"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_pill_translucent"
+        android:drawablePadding="@dimen/space_2"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_1"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption"
+        app:drawableStartCompat="@drawable/ic_ai"
+        app:drawableTint="@color/action"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="AI 分析 · 第 12 手 · 轮到红方" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_2"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        app:layout_constraintTop_toBottomOf="@id/analysis_context"
+        app:layout_constraintBottom_toTopOf="@id/suggestion_row"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 建议问题: 点一下直接发 -->
+    <LinearLayout
+        android:id="@+id/suggestion_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_2"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/input_row"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/suggest_analyze"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_pill_translucent"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/space_2"
+            android:paddingVertical="@dimen/space_2"
+            android:text="@string/advisor_suggest_analyze"
+            android:textColor="@color/action"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/suggest_next"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_1"
+            android:background="@drawable/bg_pill_translucent"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/space_2"
+            android:paddingVertical="@dimen/space_2"
+            android:text="@string/advisor_suggest_next"
+            android:textColor="@color/action"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/suggest_review"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_1"
+            android:background="@drawable/bg_pill_translucent"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/space_2"
+            android:paddingVertical="@dimen/space_2"
+            android:text="@string/advisor_suggest_review"
+            android:textColor="@color/action"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- 输入区 -->
+    <LinearLayout
+        android:id="@+id/input_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input"
+            android:hint="@string/advisor_input_hint"
+            android:imeOptions="actionSend"
+            android:inputType="text|textCapSentences|textMultiLine"
+            android:maxLines="3"
+            android:minHeight="@dimen/touch_min"
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_2"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_tertiary"
+            android:textSize="@dimen/text_body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_send"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="@dimen/touch_min"
+            android:layout_height="@dimen/touch_min"
+            android:layout_marginStart="@dimen/space_2"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_send"
+            app:iconGravity="textStart"
+            app:iconTint="@color/surface_base" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

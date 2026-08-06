@@ -754,7 +754,7 @@ class BoardView @JvmOverloads constructor(
         boardBottom = boardTop + bh
         pieceRadius = cell * 0.42f
 
-        coordinatePaint.textSize = pieceRadius * 0.55f
+        coordinatePaint.textSize = pieceRadius * 0.65f
         riverTextPaint.textSize = pieceRadius * 1.4f
         pieceRedPaint.textSize = pieceRadius * 1.3f
         pieceBlackPaint.textSize = pieceRadius * 1.3f
@@ -1076,20 +1076,35 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun drawCoordinates(canvas: Canvas) {
-        // 上下/左右的列号和行号
+        // 上下/左右的列号和行号.
+        // 列号用阿拉伯数字, 从**底部一方**的右侧数起, 上下底都标:
+        //   红在底部(未翻转): 屏幕右列(col 8) = 1 ... col 0 = 9
+        //   黑在底部(已翻转): 屏幕左列(col 0) = 1 ... col 8 = 9
+        // 行号同理从底部数起: 底行 = 1.
+        // 这样棋盘上标的数字和嘴里念的"车九进四""炮二平五"一一对应.
+        val redAtBottom = !flipped
+        coordinatePaint.textSize = pieceRadius * 0.65f
+        coordinatePaint.textAlign = Paint.Align.CENTER
         for (c in 0 until Square.COLS) {
             val x = boardLeft + c * cellWidth
-            val yTop = boardTop - pieceRadius * 0.4f
-            val yBottom = boardBottom + pieceRadius * 0.6f
-            val colChar = ('a' + (if (flipped) Square.COLS - 1 - c else c))
-            canvas.drawText(colChar.toString(), x, yTop, coordinatePaint)
-            canvas.drawText(colChar.toString(), x, yBottom, coordinatePaint)
+            // 上下列号必须放到棋子外圈之外: 棋子半径 0.42 格, 画在 0.17 格处
+            // 会被第一排/最后一排棋子盖住, 看起来就像"没有标注"。
+            val yTop = boardTop - pieceRadius * 0.55f
+            val yBottom = boardBottom + pieceRadius * 1.35f
+            val colChar = if (redAtBottom) {
+                ('9' - c)
+            } else {
+                '1' + c
+            }
+            val label = colChar.toString()
+            canvas.drawText(label, x, yTop, coordinatePaint)
+            canvas.drawText(label, x, yBottom, coordinatePaint)
         }
         for (r in 0 until Square.ROWS) {
             val y = boardTop + r * cellHeight
-            val xLeft = boardLeft - pieceRadius * 0.5f
-            val xRight = boardRight + pieceRadius * 0.5f
-            val rowNum = (if (flipped) Square.ROWS - r else r + 1).toString()
+            val xLeft = boardLeft - pieceRadius * 1.1f
+            val xRight = boardRight + pieceRadius * 1.1f
+            val rowNum = (Square.ROWS - r).toString()
             canvas.drawText(rowNum, xLeft, y + coordinatePaint.textSize / 3, coordinatePaint)
             canvas.drawText(rowNum, xRight, y + coordinatePaint.textSize / 3, coordinatePaint)
         }
@@ -1300,7 +1315,9 @@ class BoardView @JvmOverloads constructor(
 
     companion object {
         /** 棋盘四周为棋子半径和坐标文字预留的空间, 单位是"格" */
-        private const val MARGIN_CELLS = 1.35f
+        // 上下底标签字号比之前大了一档(0.55 -> 0.65 个 pieceRadius),
+        // 还要给行号两边让出位置, 1.35 已经压到字会被棋子盖住. 加到 1.7.
+        private const val MARGIN_CELLS = 1.7f
         /** 走子动画时长 */
         private const val MOVE_ANIMATION_MS = 220L
         private const val LONG_PRESS_MS = 600L

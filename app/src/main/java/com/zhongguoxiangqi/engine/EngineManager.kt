@@ -1,7 +1,6 @@
 package com.zhongguoxiangqi.engine
 
 import android.content.Context
-import com.zhongguoxiangqi.engine.nnue.NnueProvider
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.ui.settings.AppSettings
@@ -9,21 +8,20 @@ import com.zhongguoxiangqi.ui.settings.AppSettings
 /**
  * 引擎管理器.
  *
- * 只有一个引擎: 自研的 SimpleEngine (alpha-beta + 自研 NNUE 评估)。
- *
- * 原来 6-10 档走 Pikafish, 它因 GPL-3 已从包中移除 —— 经 JNI 加载构成
- * 结合作品, 分发就要整个应用按 GPL-3 开源。随之去掉的还有"降级"这套
- * 逻辑: 现在没有可降的对象, 标称棋力就是实际棋力。
+ * 全部难度统一使用 PikaFish（GPL-3）。整个应用因此以 GPL-3 开源，
+ * 代码与说明见仓库 LICENSE 与 README。难度只影响思考时间，棋力下限
+ * 由 movetime 限制实现。
  *
  * 负责: 引擎生命周期、难度参数映射、开局库与 NNUE 的注入。
  */
 class EngineManager(private val context: Context) {
 
-    /** 难度等级 (1-6) */
+    /** 难度等级 (1-10) */
     var difficultyLevel: Int = 3
         set(value) {
+            val old = field
             field = value.coerceIn(1, MAX_LEVEL)
-            applyDifficulty()
+            // 统一 PikaFish 引擎，难度只改 movetime，无需重启。
         }
 
     /** 当前活动的引擎 */
@@ -37,35 +35,26 @@ class EngineManager(private val context: Context) {
      */
     fun effectiveElo(): Int = nominalElo(difficultyLevel)
 
-    private var simpleEngine: SimpleEngine? = null
+    private var listener: EngineListener? = null
+    private var lastFen: String? = null
+    private var lastMoves: List<String> = emptyList()
     private val settings = AppSettings(context)
     private val openingBook = OpeningBook(context)
 
     fun start(listener: EngineListener?): Boolean {
-        val engine = SimpleEngine().also {
-            it.configure(difficultyLevel)
-            it.openingBook = openingBook
-            // 自研 NNUE。真机实测求值速度与手写评估持平, 所以装上它不用
-            // 拿搜索深度去换; assets 里没有网络文件时返回 null, 自动退回
-            // 手写评估。更新网络只需替换 assets/models/xiangqi.nnue。
-            it.setNnue(NnueProvider.newEvaluator(context))
-        }
-        simpleEngine = engine
-        if (engine.start()) {
-            engine.setListener(listener)
-            currentEngine = engine
-            applyDifficulty()
-            return true
-        }
-        return false
+        this.listener = listener
+        currentEngine?.shutdown()
+        currentEngine = null
+        return startPreferredEngine(listener)
     }
 
     fun shutdown() {
-        try { simpleEngine?.shutdown() } catch (_: Exception) {}
+        try { currentEngine?.shutdown() } catch (_: Exception) {}
         currentEngine = null
     }
 
     fun setListener(listener: EngineListener?) {
+        this.listener = listener
         currentEngine?.setListener(listener)
     }
 
@@ -80,7 +69,10 @@ class EngineManager(private val context: Context) {
      */
     fun setPosition(initialFen: String, moves: List<Move>) {
         val engine = currentEngine ?: return
-        engine.setPosition(initialFen, moves.map { moveToUci(it) })
+        val uciMoves = moves.map { moveToUci(it) }
+        lastFen = initialFen
+        lastMoves = uciMoves
+        engine.setPosition(initialFen, uciMoves)
     }
 
     fun startSearch(params: SearchParams) {
@@ -102,8 +94,14 @@ class EngineManager(private val context: Context) {
     private fun adaptParams(base: SearchParams): SearchParams =
         adaptParams(base, difficultyLevel)
 
-    private fun applyDifficulty() {
-        simpleEngine?.configure(difficultyLevel)
+    private fun startPreferredEngine(listener: EngineListener?): Boolean {
+        val pika = PikafishEngine(context).also {
+            it.openingBook = openingBook
+            it.setListener(listener)
+        }
+        if (!pika.start()) return false
+        currentEngine = pika
+        return true
     }
 
     /** 提示用快速搜索 */
@@ -132,17 +130,26 @@ class EngineManager(private val context: Context) {
             if (base.strictMovetime) return base
             return when (strength) {
                 1 -> base.copy(movetime = base.movetime.coerceAtLeast(100))
-                2 -> base.copy(movetime = base.movetime.coerceAtLeast(300))
-                3 -> base.copy(movetime = base.movetime.coerceAtLeast(800))
-                4 -> base.copy(movetime = base.movetime.coerceAtLeast(1500))
-                5 -> base.copy(movetime = base.movetime.coerceAtLeast(2500))
-                6 -> base.copy(movetime = base.movetime.coerceAtLeast(4000))
+                2 -> base.copy(movetime = base.movetime.coerceAtLeast(250))
+                3 -> base.copy(movetime = base.movetime.coerceAtLeast(500))
+                4 -> base.copy(movetime = base.movetime.coerceAtLeast(900))
+                5 -> base.copy(movetime = base.movetime.coerceAtLeast(1500))
+                6 -> base.copy(movetime = base.movetime.coerceAtLeast(2500))
+                7 -> base.copy(movetime = base.movetime.coerceAtLeast(4000))
+                8 -> base.copy(movetime = base.movetime.coerceAtLeast(6000))
+                9 -> base.copy(movetime = base.movetime.coerceAtLeast(9000))
+                10 -> base.copy(movetime = base.movetime.coerceAtLeast(14000))
+                11 -> base.copy(movetime = base.movetime.coerceAtLeast(20000))
+                12 -> base.copy(movetime = base.movetime.coerceAtLeast(30000))
+                13 -> base.copy(movetime = base.movetime.coerceAtLeast(45000))
+                14 -> base.copy(movetime = base.movetime.coerceAtLeast(60000))
+                15 -> base.copy(movetime = base.movetime.coerceAtLeast(90000))
                 else -> base
             }
         }
 
-        /** 最高难度. 原来是 10, 7-10 档靠的是已移除的 Pikafish。 */
-        const val MAX_LEVEL = 6
+        /** 最高难度: 15 档 (从绝对新手到传奇级). */
+        const val MAX_LEVEL = 15
 
         /**
          * 各难度标称棋力, 用于玩家积分换算.
@@ -152,8 +159,11 @@ class EngineManager(private val context: Context) {
          * 的描述; 这里的数字仅用于积分涨落的相对换算。
          */
         fun nominalElo(difficulty: Int): Int = when (difficulty) {
-            1 -> 600; 2 -> 900; 3 -> 1200
-            4 -> 1450; 5 -> 1600; 6 -> 1700
+            1 -> 600; 2 -> 900; 3 -> 1100
+            4 -> 1300; 5 -> 1450; 6 -> 1600
+            7 -> 1750; 8 -> 1850; 9 -> 1950; 10 -> 2050
+            11 -> 2150; 12 -> 2250; 13 -> 2320
+            14 -> 2400; 15 -> 2500
             else -> 1200
         }
     }

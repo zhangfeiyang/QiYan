@@ -6,6 +6,10 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +61,64 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
 
     private var recognizer: BoardRecognizer? = null
     private var engine: EngineManager? = null
+    /** 当前相机句柄, 供 zoom 控制 (CameraX 的 CameraControl.zoomState) */
+    private var camera: androidx.camera.core.Camera? = null
+
+    // 这两个 Detector 不能在字段初始化时建: 那时 Activity 还没挂到窗口上,
+    // ViewConfiguration.get() 会抛 IllegalStateException, 导致点击"实时支招"
+    // 一进 Activity 就闪退(Android 15 上必现)。改 by lazy, 等 onCreate 之后
+    // 真正用到了才构造。
+    private val scaleDetector by lazy {
+        ScaleGestureDetector(
+            this,
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    val cam = camera ?: return false
+                    val ratio = detector.scaleFactor
+                    val newZoom = cam.cameraInfo.zoomState.value?.let {
+                        (it.zoomRatio * ratio).coerceIn(it.minZoomRatio, it.maxZoomRatio)
+                    } ?: return false
+                    cam.cameraControl.setZoomRatio(newZoom)
+                    updateZoomBadge()
+                    return true
+                }
+            }
+        )
+    }
+    private val tapDetector by lazy {
+        GestureDetector(
+            this,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    val cam = camera ?: return false
+                    cam.cameraControl.setZoomRatio(1f)
+                    updateZoomBadge()
+                    return true
+                }
+            }
+        )
+    }
+
+    /** 预览上的捏合/双击手势交给缩放检测; 返回 true 表示已消费
+     *
+     *  用 runCatching 包住 detector 调用: tapDetector/scaleDetector 都是 by lazy,
+     *  真正第一次进 onTouchEvent 才构造 GestureDetector, 万一构造里抛了异常
+     *  (比如某些 ROM 上 ViewConfiguration.get 在 onResume 之前调), 不能让这
+     *  个事件把整个 Activity 拽下去.
+     */
+    private val previewTouchListener = View.OnTouchListener { _, event ->
+        runCatching { tapDetector.onTouchEvent(event) }
+        runCatching { scaleDetector.onTouchEvent(event) }
+        true
+    }
+
+    private fun updateZoomBadge() {
+        val z = camera?.cameraInfo?.zoomState?.value ?: return
+        runOnUiThread {
+            binding.zoomBadge.text = getString(R.string.live_zoom, z.zoomRatio)
+            binding.zoomBadge.visibility = if (z.zoomRatio > 1.01f) View.VISIBLE else View.GONE
+        }
+    }
 
     private val analysisExecutor = Executors.newSingleThreadExecutor { r ->
         Thread(r, "LiveBoardAnalysis").apply { isDaemon = true }
@@ -92,6 +154,7 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         binding = ActivityLiveAdviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        binding.preview.setOnTouchListener(previewTouchListener)
 
         // 换走子方要立刻重算: 同一个局面轮红走和轮黑走, 最佳着法完全不同
         binding.sideGroup.setOnCheckedChangeListener { _, _ ->
@@ -100,19 +163,54 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
             binding.overlay.update(lastCorners, lastSrcW, lastSrcH, null)
         }
 
+        // 启动流程用 runCatching 兜底: 之前 onCreate 任何一行抛了都会闪退
+        // (Issue: 用户点击"实时支招"后 Activity 直接崩, 没有任何错误弹窗).
+        // 现在即使模型加载失败 / 相机权限申请异常 / 相机绑定异常, 都能退回
+        // 友好的错误提示, 而不是直接闪退.
         lifecycleScope.launch {
-            recognizer = withContext(Dispatchers.IO) {
-                BoardRecognizer.create(this@LiveAdviceActivity)
-            }
-            if (recognizer == null) {
-                Toast.makeText(this@LiveAdviceActivity,
-                    R.string.recognize_model_failed, Toast.LENGTH_LONG).show()
-                finish()
+            runCatching {
+                recognizer = withContext(Dispatchers.IO) {
+                    BoardRecognizer.create(this@LiveAdviceActivity)
+                }
+            }.onFailure { t ->
+                Log.e(TAG, "识别器初始化失败", t)
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@LiveAdviceActivity,
+                        R.string.recognize_model_failed, Toast.LENGTH_LONG).show()
+                    finish()
+                }
                 return@launch
             }
+            if (recognizer == null) {
+                if (!isFinishing && !isDestroyed) {
+                    Toast.makeText(this@LiveAdviceActivity,
+                        R.string.recognize_model_failed, Toast.LENGTH_LONG).show()
+                    finish()
+                }
+                return@launch
+            }
+            // 模型加载完再问相机权限, 不然用户没看到模型加载失败就先被弹
+            // 了一次权限框, 体验上像是"App 问完就崩".
             if (ContextCompat.checkSelfPermission(this@LiveAdviceActivity, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED
-            ) startCamera() else requestCamera.launch(Manifest.permission.CAMERA)
+            ) {
+                runCatching { startCamera() }.onFailure {
+                    Log.e(TAG, "启动相机失败", it)
+                    if (!isFinishing && !isDestroyed) {
+                        Toast.makeText(this@LiveAdviceActivity, R.string.live_camera_failed, Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                }
+            } else {
+                runCatching { requestCamera.launch(Manifest.permission.CAMERA) }
+                    .onFailure {
+                        Log.e(TAG, "申请相机权限失败", it)
+                        if (!isFinishing && !isDestroyed) {
+                            Toast.makeText(this@LiveAdviceActivity, R.string.live_need_camera, Toast.LENGTH_LONG).show()
+                            finish()
+                        }
+                    }
+            }
         }
     }
 
@@ -146,7 +244,7 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
 
             runCatching {
                 provider.unbindAll()
-                provider.bindToLifecycle(
+                camera = provider.bindToLifecycle(
                     this, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis
                 )
             }.onFailure {

@@ -34,6 +34,9 @@ class Position {
     /** 历史哈希栈(用于重复检测) */
     val historyHashes: MutableList<Long> = mutableListOf()
 
+    /** 空着只存在于搜索树；它及其后代不能参与真实对局的重复/限着判定。 */
+    private var nullMoveDepth: Int = 0
+
     init {
         setupStartPosition()
     }
@@ -83,6 +86,7 @@ class Position {
         historyHashes.clear()
         historyHashes.add(hash)
         moveStack.clear()
+        nullMoveDepth = 0
     }
 
     /** 计算整个局面的 Zobrist 哈希 */
@@ -134,10 +138,12 @@ class Position {
     fun doNullMove() {
         hash = hash xor Zobrist.side
         sideToMove = Color.opposite(sideToMove)
+        nullMoveDepth++
     }
 
     /** 与 [doNullMove] 配对 */
     fun undoNullMove() {
+        if (nullMoveDepth > 0) nullMoveDepth--
         sideToMove = Color.opposite(sideToMove)
         hash = hash xor Zobrist.side
     }
@@ -257,6 +263,7 @@ class Position {
         p.moveStack.addAll(moveStack)
         p.historyHashes.clear()
         p.historyHashes.addAll(historyHashes)
+        p.nullMoveDepth = nullMoveDepth
         return p
     }
 
@@ -278,6 +285,10 @@ class Position {
 
     /** 自然限着: 连续 120 个半回合(60 回合)无吃子判和 */
     fun isFiftyMoveDraw(): Boolean = halfmoveClock >= 120
+
+    /** 与对局裁判同语义，但排除空着验证形成的伪历史。 */
+    fun isSearchRuleDraw(): Boolean = nullMoveDepth == 0 &&
+        (isFiftyMoveDraw() || isThreefoldRepetition())
 
     /**
      * 导出标准象棋 FEN.
@@ -345,6 +356,7 @@ class Position {
         historyHashes.clear()
         historyHashes.add(hash)
         moveStack.clear()
+        nullMoveDepth = 0
         return true
     }
 

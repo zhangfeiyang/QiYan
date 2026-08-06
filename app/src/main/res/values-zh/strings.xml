@@ -1,0 +1,344 @@
+<resources>
+    <string name="app_name">棋眼</string>
+
+    <!-- 主菜单 -->
+    <string name="title_game">对局</string>
+    <string name="title_replay">复盘</string>
+    <string name="title_settings">设置</string>
+    <string name="title_board_editor">编辑局面</string>
+    <string name="menu_play">开始对局</string>
+    <string name="menu_replay">对局复盘</string>
+    <string name="menu_settings">设置</string>
+    <string name="menu_about">关于</string>
+    <string name="menu_difficulty">选择难度</string>
+    <string name="menu_side">选择执子</string>
+    <string name="menu_language">English</string>
+
+    <!-- 难度等级: 15 档, 从绝对新手到传奇级. 每一档都有对应的"棋手段位"
+         标签, 让用户能直接对着自己水平挑, 而不是凭感觉. -->
+    <string name="difficulty_easy">入门</string>
+    <string name="difficulty_beginner">初级</string>
+    <string name="difficulty_lower_intermediate">中级下</string>
+    <string name="difficulty_intermediate">中级</string>
+    <string name="difficulty_upper_intermediate">中级上</string>
+    <string name="difficulty_advanced">高级</string>
+    <string name="difficulty_amateur">业余高手</string>
+    <string name="difficulty_district">区县级高手</string>
+    <string name="difficulty_city">市级高手</string>
+    <string name="difficulty_provincial">省级高手</string>
+    <string name="difficulty_local_master">棋协大师</string>
+    <string name="difficulty_national_master">国家大师</string>
+    <string name="difficulty_grandmaster">特级大师</string>
+    <string name="difficulty_international_master">国际大师</string>
+    <string name="difficulty_legendary">传奇级</string>
+
+    <!-- 棋手段位标签: 与上面 15 档一一对应, 摆一行让用户挑 -->
+    <string name="difficulty_segment_easy">新手</string>
+    <string name="difficulty_segment_beginner">初学爱好者</string>
+    <string name="difficulty_segment_lower_intermediate">普通爱好者</string>
+    <string name="difficulty_segment_intermediate">街道棋手</string>
+    <string name="difficulty_segment_upper_intermediate">资深爱好者</string>
+    <string name="difficulty_segment_advanced">业余初段</string>
+    <string name="difficulty_segment_amateur">业余三段</string>
+    <string name="difficulty_segment_district">业余五段</string>
+    <string name="difficulty_segment_city">业余六段</string>
+    <string name="difficulty_segment_provincial">地方大师</string>
+    <string name="difficulty_segment_local_master">棋协大师</string>
+    <string name="difficulty_segment_national_master">国家大师</string>
+    <string name="difficulty_segment_grandmaster">国家级特级大师</string>
+    <string name="difficulty_segment_international_master">国际大师</string>
+    <string name="difficulty_segment_legendary">国际特级大师</string>
+
+    <!-- 棋力描述 -->
+    <!-- 每档一句, 说清"对手大概什么水平", 并注明对应什么级别的棋手. -->
+    <string name="difficulty_desc_easy">刚学会走子，经常白送子（新手）</string>
+    <string name="difficulty_desc_beginner">能吃明摆着的子，看不出明显陷阱（初学爱好者）</string>
+    <string name="difficulty_desc_lower_intermediate">懂基础战术，偶尔能看穿简单叫将（普通爱好者）</string>
+    <string name="difficulty_desc_intermediate">开局成套路，中局能算三五步（街道棋手）</string>
+    <string name="difficulty_desc_upper_intermediate">走子有章法，开局不掉链子（资深爱好者）</string>
+    <string name="difficulty_desc_advanced">业余硬手，残局有章法，很少走软手（业余初段）</string>
+    <string name="difficulty_desc_amateur">战术扎实，会主动设陷阱（业余三段）</string>
+    <string name="difficulty_desc_district">攻守均衡，能抓住对手失误（业余五段）</string>
+    <string name="difficulty_desc_city">全局观强，备好陷阱，少有漏着（业余六段）</string>
+    <string name="difficulty_desc_provincial">省级比赛水准，计算精准（地方大师）</string>
+    <string name="difficulty_desc_local_master">大师级对弈，变化算得很深（棋协大师）</string>
+    <string name="difficulty_desc_national_master">攻杀犀利，几乎不失误（国家大师）</string>
+    <string name="difficulty_desc_grandmaster">国家级特级大师水准，战略深远（国家级特级大师）</string>
+    <string name="difficulty_desc_international_master">国际大师水准，三阶段都精准（国际大师）</string>
+    <string name="difficulty_desc_legendary">国际特级大师水准，本机最强算力（国际特级大师）</string>
+
+    <!-- 游戏控制 -->
+    <string name="action_hint">提示</string>
+    <string name="action_undo">悔棋</string>
+    <string name="action_new_game">新对局</string>
+    <string name="action_resign">认输</string>
+    <string name="action_draw">求和</string>
+    <string name="action_analysis">分析</string>
+    <string name="action_flip">翻转</string>
+    <string name="action_settings">设置</string>
+    <string name="action_back">返回</string>
+    <string name="action_save">保存</string>
+    <string name="action_export">导出棋谱</string>
+    <string name="action_play_red">执红先手</string>
+    <string name="action_play_black">执黑后手</string>
+    <string name="action_two_player">双人对战</string>
+    <string name="action_voice">语音走子</string>
+
+    <!-- 语音指挥 & 语音播报 -->
+    <string name="voice_listening">请说出着法，例如：车九进四</string>
+    <string name="voice_played">已走：%1$s</string>
+    <string name="voice_no_match">没有匹配到合法着法：%1$s</string>
+    <string name="voice_ambiguous">有多个走法匹配，请说得更具体</string>
+    <string name="voice_no_speech">没听清，请再说一次</string>
+    <string name="voice_error">语音识别失败</string>
+    <string name="voice_unavailable">此设备不支持语音识别</string>
+    <string name="voice_permission_denied">需要麦克风权限才能用语音走子</string>
+    <string name="voice_wait_engine">等 AI 走完再下指令</string>
+    <string name="voice_not_your_turn">还没轮到你走子</string>
+    <string name="voice_game_over">对局已结束</string>
+
+    <!-- 状态信息 -->
+    <string name="status_thinking">AI 思考中…</string>
+    <string name="status_your_turn">请走子</string>
+    <string name="status_check">将军!</string>
+    <string name="status_checkmate">将死!</string>
+    <string name="status_draw">和棋</string>
+    <string name="status_resign">认输</string>
+    <string name="status_win">胜利</string>
+    <string name="status_loss">失败</string>
+    <string name="status_stalemate">困毙</string>
+    <string name="status_engine_error">AI 出错,已切换到备用棋力</string>
+    <string name="game_over_checkmate_red">黑方将死红方</string>
+    <string name="game_over_checkmate_black">红方将死黑方</string>
+    <string name="game_over_repetition">重复局面</string>
+    <string name="game_over_fifty_moves">自然限着</string>
+
+    <!-- 胜率 -->
+    <string name="winrate_label">胜率</string>
+    <string name="winrate_red">红方胜率</string>
+    <string name="winrate_black">黑方胜率</string>
+    <string name="depth_label">深度</string>
+    <string name="nodes_label">节点数</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">用时</string>
+
+    <!-- 棋力评定 -->
+    <string name="rating_current">当前棋力</string>
+    <string name="rating_total_games">总对局</string>
+    <string name="rating_wins">胜</string>
+    <string name="rating_losses">负</string>
+    <string name="rating_draws">和</string>
+    <string name="rating_winrate">胜率</string>
+    <string name="rating_rank">等级</string>
+    <string name="rank_1">初学者</string>
+    <string name="rank_2">入门棋友</string>
+    <string name="rank_3">业余初段</string>
+    <string name="rank_4">业余三段</string>
+    <string name="rank_5">业余五段</string>
+    <string name="rank_6">业余七段</string>
+    <string name="rank_7">地方大师</string>
+    <string name="rank_8">国家大师</string>
+    <string name="rank_9">特级大师</string>
+    <string name="rank_10">棋王</string>
+
+    <!-- 提示对话框 -->
+    <string name="dialog_new_game_title">新对局</string>
+    <string name="dialog_new_game_message">确定开始新对局?</string>
+    <string name="dialog_resign_title">认输</string>
+    <string name="dialog_resign_message">确定认输?</string>
+    <string name="dialog_undo_title">悔棋</string>
+    <string name="dialog_undo_message">悔棋会扣除少量棋力分,确定悔棋?</string>
+    <string name="dialog_yes">确定</string>
+    <string name="dialog_no">取消</string>
+    <string name="dialog_ok">好的</string>
+    <string name="dialog_cancel">取消</string>
+
+    <!-- 复盘 -->
+    <string name="replay_empty">暂无对局记录</string>
+    <string name="replay_play">自动播放</string>
+    <string name="replay_pause">暂停</string>
+    <string name="replay_prev">上一步</string>
+    <string name="replay_next">下一步</string>
+    <string name="replay_first">第一步</string>
+    <string name="replay_last">最后一步</string>
+    <string name="replay_move_number">第%1$d手</string>
+    <string name="result_win_short">胜</string>
+    <string name="result_loss_short">负</string>
+    <string name="result_draw_short">和</string>
+    <string name="side_red_short">执红</string>
+    <string name="side_black_short">执黑</string>
+    <string name="replay_moves_summary">%1$d 手 · %2$s</string>
+    <string name="replay_record_missing">对局记录不存在</string>
+    <string name="replay_player_info">Lv.%1$d  %2$s  %3$d手</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">棋谱第%1$d手无法还原</string>
+    <string name="replay_viewer_title">对局回放</string>
+    <string name="stat_total_games_format">共 %1$d 局</string>
+    <string name="stat_wins_format">胜 %1$d</string>
+    <string name="stat_losses_format">负 %1$d</string>
+    <string name="stat_draws_format">和 %1$d</string>
+    <string name="game_illegal_move">非法走子</string>
+    <string name="game_undo_failed">无法悔棋</string>
+    <string name="game_switched_to_black">已换为执黑</string>
+    <string name="game_switched_to_red">已换为执红</string>
+    <string name="game_opponent_black">AI (执黑)</string>
+    <string name="game_opponent_red">AI (执红)</string>
+    <string name="game_player_red">我 (执红)</string>
+    <string name="game_player_black">我 (执黑)</string>
+    <string name="game_move_count">第%1$d手</string>
+    <string name="game_over_title">对局结束</string>
+    <string name="game_engine_start_failed">引擎启动失败</string>
+    <string name="unknown_label">未知</string>
+    <string name="default_nickname">棋友</string>
+    <string name="game_over_body">对局结束\n原因: %1$s\n评分变化: %2$s\n当前段位: %3$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine">AI 设置</string>
+    <string name="settings_threads">思考线程</string>
+    <string name="settings_hash">哈希表(MB)</string>
+    <string name="settings_sound">音效</string>
+    <string name="settings_vibrate">振动</string>
+    <string name="settings_bgm">背景音乐</string>
+    <string name="settings_board_flip">默认翻转</string>
+    <string name="settings_show_coords">显示坐标</string>
+    <string name="settings_show_winrate">显示胜率</string>
+    <string name="settings_animation">走子动画</string>
+    <string name="settings_theme">主题</string>
+    <!-- 开关副标题: 原来每个开关只有两个字的标题, "默认翻转"翻转什么、
+         "哈希表"调大调小有什么后果, 用户只能靠猜. -->
+    <string name="settings_desc_threads">越多算得越快, 但更耗电. 建议不超过设备核心数的一半</string>
+    <string name="settings_desc_hash">AI 的思考缓存. 调大能提升长考棋力, 内存紧张时调小</string>
+    <string name="settings_desc_sound">落子、吃子、将军时发出提示音</string>
+    <string name="settings_desc_vibrate">落子时轻微振动反馈</string>
+    <string name="settings_desc_bgm">对局时循环播放舒缓的古琴环境音, 音量已压低不影响提示音</string>
+    <string name="settings_desc_coords">在棋盘边缘显示纵线数字与横线序号</string>
+    <string name="settings_desc_winrate">棋盘上方显示实时胜率条</string>
+    <string name="settings_desc_animation">关闭后棋子瞬间到位, 低端机更流畅</string>
+    <string name="settings_desc_flip">开局即以黑方视角摆盘</string>
+    <string name="settings_section_display">界面</string>
+    <string name="settings_section_other">其他</string>
+    <string name="settings_theme_system">跟随系统</string>
+    <string name="settings_theme_light">浅色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_clear_data">清除所有数据</string>
+    <string name="dialog_clear_data_title">清除数据</string>
+    <string name="dialog_clear_data_message">将清除所有对局记录和评分数据,确定?</string>
+    <!-- 实时支招 -->
+    <string name="live_title">实时支招</string>
+    <string name="live_entry">实时支招</string>
+    <string name="live_need_camera">需要相机权限才能实时识别棋局</string>
+    <string name="live_camera_failed">相机启动失败</string>
+    <string name="live_locking">正在对准棋盘…</string>
+    <string name="live_board_invalid">棋局还认不全, 让棋盘四角都进画面</string>
+    <string name="live_ready">已锁定 · 识别 %1$d ms</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">重置</string>
+    <string name="editor_clear">清空</string>
+    <string name="settings_clear_data_desc">删除全部对局记录与积分, 不可恢复</string>
+    <string name="settings_piece_style">棋子样式</string>
+    <string name="settings_board_style">棋盘样式</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_engine_path">AI 模型路径</string>
+    <string name="settings_about_text">棋眼 v1.0\n\n自研对弈 AI (NNUE 神经网络评估)\n支持拍照识局、实时支招</string>
+
+    <!-- 关于 -->
+    <string name="about_engine_title">AI 信息</string>
+    <string name="about_engine_version">Pikafish NNUE</string>
+    <string name="about_engine_desc">中国象棋 AI</string>
+
+    <!-- 通用 -->
+    <string name="red">红方</string>
+    <string name="black">黑方</string>
+    <string name="move_count">%1$d手</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">拍照识别棋局</string>
+
+    <!-- AI 分析功能 -->
+    <string name="advisor_title">AI 分析</string>
+    <string name="advisor_send">发送</string>
+    <string name="advisor_input_hint">问点什么...</string>
+    <string name="advisor_error_generic">分析暂时不可用, 稍后再试</string>
+    <string name="advisor_no_config">AI 功能未配置, 请联系开发者</string>
+    <string name="advisor_unavailable">AI 暂时不可用, 请稍后再试</string>
+    <string name="advisor_waiting">AI 还在回复上一条, 稍等一下</string>
+    <string name="advisor_key_rejected">认证密钥无效或已被吊销。请重新配置代理令牌。</string>
+    <string name="advisor_clear">清空对话</string>
+    <string name="advisor_context_replay">复盘第 %1$d 手</string>
+    <string name="advisor_context_game">对弈第 %1$d 手 · 轮到 %2$s</string>
+    <string name="advisor_thinking">AI 正在分析…</string>
+    <string name="advisor_button">AI 分析</string>
+    <!-- 空状态: 旧版进来是一整屏空白, 用户面对一个空输入框不知道能问什么.
+         给三个可直接点的常见问题, 省掉"想问题 + 打字"两步. -->
+    <string name="advisor_empty_title">问问 AI 这局棋</string>
+    <string name="advisor_empty_subtitle">它能看到当前局面, 可以直接问形势、问下一步、问刚才那手亏在哪</string>
+    <string name="advisor_suggest_analyze">分析一下当前形势</string>
+    <string name="advisor_suggest_next">我下一步该怎么走</string>
+    <string name="advisor_suggest_review">刚才那手有问题吗</string>
+
+    <!-- AI 分析 (对局内) -->
+    <string name="analysis_tap_to_skip">轻触屏幕跳过</string>
+    <string name="analysis_summary_prompt">请用两三句话总结当前局面：形势如何、哪一方占优、攻防要点、当前最值得注意的一步。用中文。</string>
+    <string name="advisor_send_desc">发送</string>
+    <string name="advisor_move_banner">AI 演示这一步: %1$s → %2$s</string>
+
+    <!-- 拍照识别棋局 -->
+    <string name="title_recognize">拍照识别棋局</string>
+    <string name="recognize_take_photo">拍照</string>
+    <string name="recognize_pick_image">从相册选</string>
+    <string name="recognize_preview_desc">校正后的棋盘</string>
+    <string name="recognize_red_to_move">轮红方走</string>
+    <string name="recognize_black_to_move">轮黑方走</string>
+    <string name="recognize_advise">让 AI 支招</string>
+    <string name="recognize_hint_start">拍一张棋盘照片, 或从相册选一张. 尽量正对棋盘、拍全四个角.</string>
+    <string name="recognize_working">识别中…</string>
+    <string name="recognize_failed">识别失败, 换一张试试</string>
+    <string name="recognize_model_failed">识别模型加载失败</string>
+    <string name="recognize_no_camera">没有可用的相机</string>
+    <string name="recognize_corner_warning">棋盘四角没框准, 识别可能不对. 建议正对棋盘重拍一张.</string>
+    <string name="recognize_must_fix">下面的问题必须先改正:</string>
+    <string name="recognize_ready">识别完成. 黄圈是存疑的位置, 共 %1$d 处 —— 点格子可以改子. 确认无误后再求招.</string>
+    <string name="recognize_pick_piece">%1$c%2$d 放什么子</string>
+    <string name="recognize_empty">空</string>
+    <string name="recognize_flip">翻转</string>
+
+    <!-- 吃子提示 (车/马/炮/兵/士/象/将) -->
+    <string name="captured_piece_format">吃 %1$s</string>
+    <string name="piece_king">将帅</string>
+    <string name="piece_advisor">士</string>
+    <string name="piece_elephant">象</string>
+    <string name="piece_horse">马</string>
+    <string name="piece_rook">车</string>
+    <string name="piece_cannon">炮</string>
+    <string name="piece_pawn">卒</string>
+    <string name="recognize_thinking">AI 思考中…</string>
+    <string name="recognize_engine_failed">AI 启动失败</string>
+    <string name="recognize_engine_error">AI 出错: %1$s</string>
+    <string name="recognize_no_move">AI 没有给出着法</string>
+    <string name="recognize_advice">建议: %1$s %2$s → %3$s</string>
+
+    <!-- 首页的实时支招入口. 「实时支招」四个字本身说不清它是干什么的,
+         副标题要讲清楚"举着手机对准真实棋盘"这个用法. -->
+    <string name="menu_live_desc">摄像头对准真实棋盘, 边下边给建议</string>
+
+    <!-- 拍照识局的起始引导. 原来进来直接弹相机, 想从相册选的人得先退出
+         相机再去翻菜单; 现在两条路并列摆着, 各自说明什么时候用. -->
+    <string name="recognize_start_title">先给棋局拍张照</string>
+    <string name="recognize_start_camera_desc">对着实体棋盘拍</string>
+    <string name="recognize_start_gallery_desc">用截图或已有照片</string>
+    <string name="recognize_tips_title">拍得准, 认得才准</string>
+    <string name="recognize_tip_1">正对棋盘, 别斜着拍</string>
+    <string name="recognize_tip_2">四个角都要进画面</string>
+    <string name="recognize_tip_3">光线均匀, 避开反光和手影</string>
+
+    <!-- 支招等级. 不用「搜索深度」「毫秒」这类说法 —— 用户关心的是
+         "想得快还是想得好", 不是引擎内部参数. -->
+    <string name="advice_level_title">支招水平</string>
+    <string name="advice_level_fast">快速</string>
+    <string name="advice_level_fast_desc">立刻给出建议</string>
+    <string name="advice_level_normal">标准</string>
+    <string name="advice_level_normal_desc">想一两秒, 多数情况够用</string>
+    <string name="advice_level_deep">深思</string>
+    <string name="advice_level_deep_desc">想久一点, 关键局面更可靠</string>
+    <string name="advice_level_current">支招水平: %1$s</string>
+</resources>

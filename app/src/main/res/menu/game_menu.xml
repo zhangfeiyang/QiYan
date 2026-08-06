@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  对局页 toolbar 右侧的语音指挥入口.
+  点一下开始听一段着法, 如 "车九进四"; 识别后自动走子.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_voice"
+        android:icon="@drawable/ic_mic"
+        android:title="@string/action_voice"
+        app:showAsAction="always" />
+</menu>

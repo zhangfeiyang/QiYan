@@ -6,9 +6,11 @@
 // 复用引入一层间接, 这点重复不值得。
 #include "nnue_core.h"
 #include "search.h"
+#include "movegen.h"
 
 #include <jni.h>
 
+#include <algorithm>
 #include <cstring>
 #include <new>
 #include <string>
@@ -18,11 +20,10 @@ namespace {
 
 struct SearchHandle {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b;
-    std::vector<int32_t> out_w;
+    std::vector<int16_t> ft_w, ft_b, psqt_w;
+    std::vector<int32_t> out_w, out_b;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
-    int32_t out_b = 0;
     xq::SearchEngine* engine = nullptr;
 
     ~SearchHandle() { delete engine; }
@@ -68,7 +69,7 @@ JNIEXPORT jlong JNICALL
 Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchCreate(
     JNIEnv* env, jclass, jbyteArray weights) {
     const jsize len = env->GetArrayLength(weights);
-    if (len < 36) return 0;
+    if (len < 32) return 0;
 
     std::vector<uint8_t> raw(static_cast<size_t>(len));
     env->GetByteArrayRegion(weights, 0, len, reinterpret_cast<jbyte*>(raw.data()));
@@ -80,9 +81,15 @@ Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchCreate(
         !r.take_i32(l2) || !r.take_i32(l3) || !r.take_i32(qa) || !r.take_i32(qw)) {
         return 0;
     }
-    if (version != 3 || features != nnue::kFeatures || qa != nnue::kQA || qw != nnue::kQW) {
+    int32_t phase_buckets = 1;
+    int32_t psqt_q = 0;
+    if (version >= 4 && !r.take_i32(phase_buckets)) return 0;
+    if (version == 5 && (!r.take_i32(psqt_q) || psqt_q <= 0)) return 0;
+    if ((version != 3 && version != 4 && version != 5) || features != nnue::kFeatures ||
+        qa != nnue::kQA || qw != nnue::kQW) {
         return 0;
     }
+    if (phase_buckets != 1 && phase_buckets != nnue::kPhaseBuckets) return 0;
     if (l1 <= 0 || l1 > nnue::kMaxL1 || l1 % 32 != 0) return 0;
     if (l2 <= 0 || l2 > nnue::kMaxL23) return 0;
     if (l3 <= 0 || l3 > nnue::kMaxL23) return 0;
@@ -93,17 +100,22 @@ Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchCreate(
     const bool ok =
         r.take(h->ft_w, static_cast<size_t>(features) * l1) &&
         r.take(h->ft_b, static_cast<size_t>(l1)) &&
-        r.take(h->fc1_w, static_cast<size_t>(l2) * l1 * 2) &&
-        r.take(h->fc1_b, static_cast<size_t>(l2)) &&
-        r.take(h->fc2_w, static_cast<size_t>(l3) * l2) &&
-        r.take(h->fc2_b, static_cast<size_t>(l3)) &&
-        r.take(h->out_w, static_cast<size_t>(l3)) &&
-        r.take_i32(h->out_b);
+        r.take(h->fc1_w, static_cast<size_t>(phase_buckets) * l2 * l1 * 2) &&
+        r.take(h->fc1_b, static_cast<size_t>(phase_buckets) * l2) &&
+        r.take(h->fc2_w, static_cast<size_t>(phase_buckets) * l3 * l2) &&
+        r.take(h->fc2_b, static_cast<size_t>(phase_buckets) * l3) &&
+        r.take(h->out_w, static_cast<size_t>(phase_buckets) * l3) &&
+        r.take(h->out_b, static_cast<size_t>(phase_buckets)) &&
+        (version != 5 || r.take(h->psqt_w, static_cast<size_t>(features)));
     if (!ok || r.left() != 0) { delete h; return 0; }
 
     h->net = nnue::Net{l1, l2, l3, h->ft_w.data(), h->ft_b.data(),
                        h->fc1_w.data(), h->fc1_b.data(),
-                       h->fc2_w.data(), h->fc2_b.data(), h->out_w.data(), h->out_b};
+                       h->fc2_w.data(), h->fc2_b.data(), h->out_w.data(), h->out_b[0]};
+    h->net.phase_buckets = phase_buckets;
+    h->net.out_buckets = h->out_b.data();
+    h->net.psqt_w = version == 5 ? h->psqt_w.data() : nullptr;
+    h->net.psqt_q = psqt_q;
     if (!nnue::validate(h->net)) { delete h; return 0; }
 
     h->engine = new (std::nothrow) xq::SearchEngine(h->net);
@@ -129,7 +141,110 @@ Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetPositionFen(
     return ok ? JNI_TRUE : JNI_FALSE;
 }
 
-// 返回 [moveData, score, nodes]。整次搜索(含所有迭代加深的深度)都在这一次
+JNIEXPORT jboolean JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetPosition(
+    JNIEnv* env, jclass, jlong handle, jstring fen, jobjectArray moves) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (!h || !fen || !moves) return JNI_FALSE;
+
+    const char* cfen = env->GetStringUTFChars(fen, nullptr);
+    if (!cfen) return JNI_FALSE;
+    const std::string fen_string(cfen);
+    env->ReleaseStringUTFChars(fen, cfen);
+
+    const jsize count = env->GetArrayLength(moves);
+    std::vector<std::string> move_strings;
+    move_strings.reserve(static_cast<size_t>(count));
+    for (jsize i = 0; i < count; ++i) {
+        auto item = static_cast<jstring>(env->GetObjectArrayElement(moves, i));
+        if (!item) return JNI_FALSE;
+        const char* chars = env->GetStringUTFChars(item, nullptr);
+        if (!chars) {
+            env->DeleteLocalRef(item);
+            return JNI_FALSE;
+        }
+        move_strings.emplace_back(chars);
+        env->ReleaseStringUTFChars(item, chars);
+        env->DeleteLocalRef(item);
+    }
+    return h->engine->set_position_fen_moves(fen_string, move_strings)
+        ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchClearStop(
+    JNIEnv*, jclass, jlong handle) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->clear_stop();
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchStop(
+    JNIEnv*, jclass, jlong handle) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->request_stop();
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetPartialRoot(
+    JNIEnv*, jclass, jlong handle, jboolean enabled) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->use_partial_root = enabled == JNI_TRUE;
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetFullAspiration(
+    JNIEnv*, jclass, jlong handle, jboolean enabled) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->use_full_aspiration = enabled == JNI_TRUE;
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetNullMoveReduction(
+    JNIEnv*, jclass, jlong handle, jint reduction) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->null_move_reduction = std::clamp(static_cast<int>(reduction), 1, 8);
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetQsearchSeeMargin(
+    JNIEnv*, jclass, jlong handle, jint margin) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->qsearch_see_margin = std::clamp(static_cast<int>(margin), 0, 1000);
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetLeafEvalHead(
+    JNIEnv*, jclass, jlong handle, jboolean enabled) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->use_leaf_eval_head = enabled == JNI_TRUE;
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetLmrDiv(
+    JNIEnv*, jclass, jlong handle, jdouble div) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) {
+        h->engine->lmr_div = std::clamp(static_cast<double>(div), 0.2, 3.0);
+        h->engine->rebuild_lmr_table();
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetSeeStaticSkip(
+    JNIEnv*, jclass, jlong handle, jboolean enabled) {
+    SearchHandle* h = reinterpret_cast<SearchHandle*>(handle);
+    if (h) h->engine->use_see_static_skip = enabled == JNI_TRUE;
+}
+
+JNIEXPORT void JNICALL
+Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchSetFastLegalFilter(
+    JNIEnv*, jclass, jlong handle, jboolean enabled) {
+    (void)handle;
+    xq::g_use_fast_legal_filter = enabled == JNI_TRUE;
+}
+
+// 返回 [moveData, score, nodes, completedDepth]。整次搜索(含所有迭代加深的深度)都在这一次
 // 调用里跑完 —— 这是与 NnueNative 的求值 JNI 桥最本质的区别: 那边每个搜索
 // 节点跨一次语言边界, 这里整棵树只跨一次。
 JNIEXPORT jlongArray JNICALL
@@ -142,11 +257,16 @@ Java_com_zhongguoxiangqi_engine_nnue_NativeSearch_nativeSearchGo(
     const xq::Move& move = result.first;
     const int score = result.second;
     const int64_t nodes = h->engine->last_search_nodes();
+    const int completed_depth = h->engine->last_search_depth();
+    const int64_t completed_time_ms = h->engine->last_completed_time_ms();
+    const int64_t completed_nodes = h->engine->last_completed_nodes();
 
-    jlongArray arr = env->NewLongArray(3);
+    jlongArray arr = env->NewLongArray(6);
     if (!arr) return nullptr;
-    const jlong out[3] = {move.data, score, nodes};
-    env->SetLongArrayRegion(arr, 0, 3, out);
+    const jlong out[6] = {
+        move.data, score, nodes, completed_depth, completed_time_ms, completed_nodes,
+    };
+    env->SetLongArrayRegion(arr, 0, 6, out);
     return arr;
 }
 

@@ -22,11 +22,10 @@ namespace {
 
 struct Loaded {
     nnue::Net net{};
-    std::vector<int16_t> ft_w, ft_b;
-    std::vector<int32_t> out_w;
+    std::vector<int16_t> ft_w, ft_b, psqt_w;
+    std::vector<int32_t> out_w, out_b;
     std::vector<int8_t> fc1_w, fc2_w;
     std::vector<int32_t> fc1_b, fc2_b;
-    int32_t out_b = 0;
 };
 
 template <typename T>
@@ -49,27 +48,43 @@ bool load(const char* path, Loaded& out) {
     f.read(reinterpret_cast<char*>(h), sizeof(h));
     const int version = h[0], features = h[1];
     const int l1 = h[2], l2 = h[3], l3 = h[4], qa = h[5], qw = h[6];
-    if (version != 3 || features != nnue::kFeatures ||
+    int32_t phase_buckets = 1;
+    int32_t psqt_q = 0;
+    if (version >= 4) {
+        f.read(reinterpret_cast<char*>(&phase_buckets), 4);
+        if (f.gcount() != 4) return false;
+    }
+    if (version == 5) {
+        f.read(reinterpret_cast<char*>(&psqt_q), 4);
+        if (f.gcount() != 4 || psqt_q <= 0) return false;
+    }
+    if ((version != 3 && version != 4 && version != 5) || features != nnue::kFeatures ||
         qa != nnue::kQA || qw != nnue::kQW) {
         std::fprintf(stderr, "文件头对不上: v=%d f=%d qa=%d qw=%d\n",
                      version, features, qa, qw);
         return false;
     }
 
+    if (phase_buckets != 1 && phase_buckets != nnue::kPhaseBuckets) return false;
     bool ok = take(f, out.ft_w, size_t(features) * l1)
            && take(f, out.ft_b, l1)
-           && take(f, out.fc1_w, size_t(l2) * l1 * 2)
-           && take(f, out.fc1_b, l2)
-           && take(f, out.fc2_w, size_t(l3) * l2)
-           && take(f, out.fc2_b, l3)
-           && take(f, out.out_w, l3);
-    f.read(reinterpret_cast<char*>(&out.out_b), 4);
-    if (!ok || f.gcount() != 4) { std::fprintf(stderr, "权重读不全\n"); return false; }
+           && take(f, out.fc1_w, size_t(phase_buckets) * l2 * l1 * 2)
+           && take(f, out.fc1_b, size_t(phase_buckets) * l2)
+           && take(f, out.fc2_w, size_t(phase_buckets) * l3 * l2)
+           && take(f, out.fc2_b, size_t(phase_buckets) * l3)
+           && take(f, out.out_w, size_t(phase_buckets) * l3)
+           && take(f, out.out_b, phase_buckets)
+           && (version != 5 || take(f, out.psqt_w, features));
+    if (!ok) { std::fprintf(stderr, "权重读不全\n"); return false; }
 
     out.net = nnue::Net{l1, l2, l3, out.ft_w.data(), out.ft_b.data(),
                         out.fc1_w.data(), out.fc1_b.data(),
                         out.fc2_w.data(), out.fc2_b.data(),
-                        out.out_w.data(), out.out_b};
+                        out.out_w.data(), out.out_b[0]};
+    out.net.phase_buckets = phase_buckets;
+    out.net.out_buckets = out.out_b.data();
+    out.net.psqt_w = version == 5 ? out.psqt_w.data() : nullptr;
+    out.net.psqt_q = psqt_q;
     return true;
 }
 
@@ -205,6 +220,14 @@ int main(int argc, char** argv) {
                 nnue::eval_scalar(L.net, pieces, n, black)) {
                 ++bad_eq;
             }
+            if (L.net.phase_buckets > 1) {
+                for (int bucket = 0; bucket < L.net.phase_buckets; ++bucket) {
+                    if (nnue::eval_acc_bucket(L.net, a, black, bucket) !=
+                        nnue::eval_scalar_bucket(L.net, pieces, n, black, bucket)) {
+                        ++bad_eq;
+                    }
+                }
+            }
 
             // 走一步: mover 从 from 到 to; to 上有子就是吃子
             const int mv = static_cast<int>(next() % n);
@@ -233,7 +256,8 @@ int main(int argc, char** argv) {
             if (!nnue::acc_apply(L.net, b, a, pieces[mv * 2], from_sq, to_sq, cap)) continue;
             nnue::acc_refresh(L.net, c, after, m);
             if (std::memcmp(b.raw, c.raw, L.net.l1 * sizeof(int16_t)) != 0 ||
-                std::memcmp(b.flip, c.flip, L.net.l1 * sizeof(int16_t)) != 0) {
+                std::memcmp(b.flip, c.flip, L.net.l1 * sizeof(int16_t)) != 0 ||
+                b.phase != c.phase) {
                 ++bad_apply;
             }
         }

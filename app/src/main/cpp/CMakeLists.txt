@@ -1,27 +1,29 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(xqnnue LANGUAGES CXX)
+project(zhongguoxiangqi LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# *_test.cpp 都是宿主机验证用的, 有 main(), 不能进 Android 库
-add_library(xqnnue SHARED
-    nnue_core.cpp
-    nnue_jni.cpp
-    board.cpp
-    movegen.cpp
-    see.cpp
-    search.cpp
-    search_jni.cpp)
+# PikaFish 引擎（GPL-3，见 third_party/Pikafish/Copying.txt）。
+# 整体采用后 App 以 GPL-3 开源。pikafish_jni.cpp 提供
+# com.zhongguoxiangqi.engine.PikafishNative 的 JNI 入口。
+set(PIKA_SRC ${CMAKE_CURRENT_LIST_DIR}/../../../../third_party/Pikafish/src)
+file(GLOB PIKA_SOURCES CONFIGURE_DEPENDS
+    "${PIKA_SRC}/*.cpp"
+    "${PIKA_SRC}/nnue/*.cpp"
+    "${PIKA_SRC}/nnue/features/*.cpp"
+    "${PIKA_SRC}/external/common/*.cpp"
+    "${PIKA_SRC}/external/decompress/*.cpp"
+    "${PIKA_SRC}/external/decompress/*.S")
+list(FILTER PIKA_SOURCES EXCLUDE REGEX ".*/(main|tune)\.cpp$")
 
-# -O3 而不是默认的 -O2: 这个库存在的唯一意义就是求值要快。
-# 不开 -ffast-math —— 全是整数运算, 用不上, 而它会放宽浮点语义, 白担风险。
-target_compile_options(xqnnue PRIVATE
+add_library(pikafish SHARED ${PIKA_SOURCES})
+
+target_compile_options(pikafish PRIVATE
     -O3
     -fno-exceptions
     -fno-rtti
-    -fvisibility=hidden)
-
-# 只出 arm64-v8a (见 build.gradle.kts 的 abiFilters), 而 AArch64 一定带
-# NEON/ASIMD, 所以不需要运行时 CPU 特性探测。
-target_link_libraries(xqnnue log)
+    -fvisibility=hidden
+    -DIS_64BIT)
+target_include_directories(pikafish PRIVATE ${PIKA_SRC})
+target_link_libraries(pikafish log)

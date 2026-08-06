@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 13+ 系统"应用语言"设置页读这个来列出可选语言.
+     AppCompatDelegate.setApplicationLocales 在更早的系统版本上走自己的
+     兼容实现, 不依赖这个文件, 但声明了才能出现在系统设置里, 两条路都要有。 -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="zh" />
+</locale-config>

@@ -4,6 +4,8 @@
 
 namespace xq {
 
+thread_local bool g_use_fast_legal_filter = true;
+
 // ============================================================ MoveGenerator
 
 namespace {
@@ -202,9 +204,56 @@ void generate_pseudo(const Position& pos, std::vector<Move>& moves, bool capture
 namespace {
 // filter in-place: 去掉走完会送将的着法(要求 [begin, moves.size()) 段是新加的)
 void filter_legal(Position& pos, std::vector<Move>& moves, size_t begin) {
+    // 快速路径: 非被将局面下, 一条着法只有两种方式会暴露己方王:
+    //   1) 移动子与王同行/同列(原本挡着攻击线, 或落点成为敌方炮架);
+    //   2) 移动子原本是某个敌方马的"腿"。
+    // 其余着法(王不动、子不在王线上、不是马腿)必然安全, 无需试走验证。
+    // 王位置在循环外找一次, 避免每条着法重复全盘扫描。
+    const int mover_color = pos.side_to_move;
+    const int king_code = (mover_color == kRed) ? kRKing : kBKing;
+    int king_sq = -1;
+    for (int sq = 0; sq < kSquareCount; ++sq) {
+        if (pos.squares[sq] == king_code) { king_sq = sq; break; }
+    }
+    const bool fast_ok = g_use_fast_legal_filter && (king_sq >= 0) &&
+                         !is_in_check(pos, mover_color);
+    const int kr = fast_ok ? sq_row(king_sq) : -1;
+    const int kc = fast_ok ? sq_col(king_sq) : -1;
+
     size_t w = begin;
     for (size_t i = begin; i < moves.size(); ++i) {
-        if (pos.leaves_king_safe(moves[i])) moves[w++] = moves[i];
+        const Move& m = moves[i];
+        bool safe;
+        if (fast_ok && piece_type(pos.squares[m.from()]) != kTypeKing) {
+            const int fr = sq_row(m.from()), fc = sq_col(m.from());
+            const int tr = sq_row(m.to()), tc = sq_col(m.to());
+            bool might = (fr == kr || fc == kc) || (tr == kr || tc == kc);
+            if (!might) {
+                // 王周围的 8 个马位, 对应 8 个腿位; mover 若是某敌马的腿,
+                // 移开可能让该马将军。
+                static const int hd[8][2] = {
+                    {-2, -1}, {-2, 1}, {2, -1}, {2, 1},
+                    {-1, -2}, {1, -2}, {-1, 2}, {1, 2},
+                };
+                for (auto& e : hd) {
+                    const int tr2 = kr + e[0], tc2 = kc + e[1];
+                    if (!sq_valid_rc(tr2, tc2)) continue;
+                    const int leg_r = kr + (e[0] > 0 ? 1 : -1);
+                    const int leg_c = kc + (e[1] > 0 ? 1 : -1);
+                    if (sq_make(leg_r, leg_c) != m.from()) continue;
+                    const int p = pos.squares[sq_make(tr2, tc2)];
+                    if (p != kPieceNone && piece_color(p) != mover_color &&
+                        piece_type(p) == kTypeHorse) {
+                        might = true;
+                        break;
+                    }
+                }
+            }
+            safe = !might || pos.leaves_king_safe(m);
+        } else {
+            safe = pos.leaves_king_safe(m);
+        }
+        if (safe) moves[w++] = m;
     }
     moves.resize(w);
 }

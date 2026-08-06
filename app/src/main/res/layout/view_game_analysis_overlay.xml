@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI 分析的全屏动效层。
+
+  点「AI 分析」后铺满整个窗口: 半透明压暗棋局, 中间是带棋盘网格的扫描屏,
+  一束光带反复扫过, 同步显示引擎真实搜索深度和红方胜率。几秒后淡出,
+  换成透明对话框展示 AI 对当前局面的总结。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/analysis_overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C000000"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.zhongguoxiangqi.ui.game.AnalysisScanView
+        android:id="@+id/scan_view"
+        android:layout_width="340dp"
+        android:layout_height="420dp"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/analysis_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="56dp"
+        android:text="@string/analysis_tap_to_skip"
+        android:textColor="#99FFFFFF"
+        android:textSize="12sp" />
+
+</FrameLayout>

@@ -91,4 +91,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="已锁定 · 识别 180ms" />
 
+    <!-- 当前缩放倍率, 仅放大时显示; 双击预览可重置回 1x -->
+    <TextView
+        android:id="@+id/zoom_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#66000000"
+        android:paddingHorizontal="@dimen/space_2"
+        android:paddingVertical="@dimen/space_1"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/text_body_sm"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/space_2"
+        android:layout_marginEnd="@dimen/space_2"
+        tools:text="2.0x" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
