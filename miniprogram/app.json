@@ -3,14 +3,17 @@
     "pages/index/index",
     "pages/game/game",
     "pages/replay/replay",
+    "pages/replay-viewer/replay-viewer",
     "pages/settings/settings"
   ],
   "window": {
     "navigationBarTitleText": "棋眼",
-    "navigationBarBackgroundColor": "#241b17",
+    "navigationBarBackgroundColor": "#262421",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f3e6ca",
-    "backgroundTextStyle": "light"
+    "backgroundColor": "#262421",
+    "backgroundColorTop": "#262421",
+    "backgroundColorBottom": "#262421",
+    "backgroundTextStyle": "dark"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

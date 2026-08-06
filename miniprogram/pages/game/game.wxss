@@ -1,1 +1,254 @@
-.page{padding:20rpx 20rpx 180rpx}.topbar{padding:18rpx 24rpx;margin-bottom:18rpx;display:flex;justify-content:space-between;align-items:center}.status{font-size:30rpx;font-weight:700;display:block}.level{font-size:20rpx;color:#806e63}.turn{width:60rpx;height:60rpx;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#8e3026;color:white;font-family:serif;font-size:32rpx}.app-only-hint{padding:22rpx 26rpx;margin-bottom:18rpx;background:rgba(127,43,35,.92);color:#f3e6ca}.app-only-title{display:block;font-size:28rpx;font-weight:800;margin-bottom:8rpx}.app-only-text{display:block;font-size:22rpx;line-height:1.5;color:#f1d9b6}.actions{position:fixed;z-index:6;left:20rpx;right:20rpx;bottom:calc(env(safe-area-inset-bottom) + 20rpx);display:grid;grid-template-columns:repeat(5,1fr);padding:12rpx;gap:8rpx}.actions button{font-size:22rpx;padding:0;height:68rpx;line-height:68rpx;background:#f8f0df;color:#503f35}.actions .analysis{background:#7f2b23;color:#fff}.scanner{position:fixed;z-index:20;inset:0;background:rgba(22,17,15,.66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-size:36rpx;font-weight:700;overflow:hidden}.scan-line{position:absolute;left:5%;right:5%;height:5rpx;background:#e6bd64;box-shadow:0 0 30rpx #ffda79;animation:scan 1.25s ease-in-out infinite alternate}.scan-sub{font-size:22rpx;font-weight:400;margin-top:14rpx;color:#eadcce}@keyframes scan{from{top:15%}to{top:83%}}.analysis-panel{position:fixed;z-index:10;left:16rpx;right:16rpx;bottom:calc(env(safe-area-inset-bottom) + 102rpx);max-height:48vh;padding:20rpx;border-radius:28rpx;background:rgba(247,239,222,.82);backdrop-filter:blur(9px);border:1rpx solid rgba(91,57,38,.25);box-shadow:0 0 50rpx rgba(33,22,17,.25)}.panel-head{display:flex;justify-content:space-between;align-items:center}.panel-title{display:block;font-size:30rpx;font-weight:800}.panel-sub{display:block;font-size:20rpx;color:#76655b}.close{font-size:50rpx;line-height:1;padding:0 10rpx}.messages{height:220rpx;margin:14rpx 0}.message{max-width:82%;padding:14rpx 18rpx;margin:10rpx 0;border-radius:18rpx;font-size:24rpx;line-height:1.5;background:rgba(255,255,255,.58)}.message.user{margin-left:auto;background:rgba(137,48,37,.75);color:#fff}.prompt-row{display:flex;gap:10rpx;white-space:nowrap}.prompt{display:inline-block;background:rgba(255,255,255,.56);border:1rpx solid rgba(98,63,42,.2);border-radius:22rpx;padding:10rpx 16rpx;font-size:21rpx}.composer{display:flex;gap:10rpx;margin-top:12rpx}.composer input{flex:1;height:68rpx;background:rgba(255,255,255,.7);border-radius:16rpx;padding:0 18rpx;font-size:24rpx}.composer button{width:120rpx;height:68rpx;line-height:68rpx;padding:0;font-size:24rpx;background:#7f2b23;color:#fff}.composer button[disabled]{opacity:.45}
+.game {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============ 对局双方信息行 ============ */
+/* 固定高度: 里面的"思考中"胶囊比同行文字高, 用自适应高度会让这行随它
+   出现/消失而变高变矮, 进而挤压下面 flex:1 的棋盘 —— 每走一步棋盘就抖一下 */
+.info-row {
+  display: flex;
+  align-items: center;
+  height: var(--info-row-height);
+  padding: 0 var(--gutter);
+  flex: none;
+}
+
+/* 执子圆点: 颜色由页面按当前执子方给, 「翻转」会换边 */
+.dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  margin-right: var(--space-3);
+  flex: none;
+}
+.dot-red { background: var(--side-red); }
+.dot-black {
+  background: var(--side-black);
+  border: 1rpx solid var(--border-strong);
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-body);
+  font-weight: bold;
+  color: var(--text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  margin-left: var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
+  font-size: var(--text-caption);
+  font-weight: bold;
+  color: var(--action);
+}
+
+.thinking {
+  margin-left: var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-caption);
+  font-weight: bold;
+  color: var(--warning);
+}
+
+.moves {
+  margin-left: var(--space-3);
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+}
+
+.winrate {
+  margin: 0 var(--gutter);
+  flex: none;
+}
+
+/* 棋盘吃掉所有剩余空间, 自己按 min(宽,高) 算格子 */
+.board-area {
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-2);
+  box-sizing: border-box;
+}
+
+.app-only {
+  margin: 0 var(--gutter) var(--space-2);
+  border-color: var(--warning);
+}
+.app-only .t-secondary {
+  display: block;
+  margin-top: var(--space-2);
+}
+
+/* ============ 工具条 ============ */
+/* 图标在上、文字在下, 一行五个塞得下且都还认得出 */
+.toolbar {
+  display: flex;
+  padding: var(--space-2) var(--space-2) calc(var(--space-4) + env(safe-area-inset-bottom));
+  flex: none;
+}
+
+.tool {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-1);
+  border-radius: var(--radius-md);
+}
+.tool:active { background: var(--surface-raised); }
+
+.tool-text {
+  margin-top: 4rpx;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+.tool-action { color: var(--action); }
+.tool-danger { color: var(--danger); }
+
+/* ============ AI 分析扫描 ============ */
+.scan {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(13, 12, 11, 0.86);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg, transparent, var(--action), transparent);
+  animation: scan-sweep 1.6s linear infinite;
+}
+
+@keyframes scan-sweep {
+  0% { top: 12%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 88%; opacity: 0; }
+}
+
+.scan-title {
+  font-size: var(--text-headline);
+  font-weight: bold;
+  color: #EFECE7;
+  letter-spacing: 0.08em;
+}
+.scan-sub {
+  margin-top: var(--space-2);
+  font-size: var(--text-body-sm);
+  color: #ADA79F;
+  letter-spacing: 0.14em;
+}
+.scan-skip {
+  position: absolute;
+  bottom: calc(var(--space-8) + env(safe-area-inset-bottom));
+  font-size: var(--text-caption);
+  color: #7A756E;
+}
+
+/* ============ AI 分析抽屉 ============ */
+/* 半透明: 棋盘保持可见, 用户是"看着这盘棋问问题" */
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  max-height: 68%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-overlay);
+  opacity: 0.97;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  border-top: 1rpx solid var(--border-subtle);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+.panel-head .t-label { display: block; margin-top: 4rpx; }
+.panel-close { padding: var(--space-1); }
+
+.messages {
+  flex: 1;
+  min-height: 200rpx;
+  padding: 0 var(--space-4);
+}
+
+.msg {
+  max-width: 84%;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+  word-break: break-word;
+}
+.msg-assistant {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+.msg-user {
+  margin-left: auto;
+  background: var(--action-muted);
+  color: var(--action);
+}
+
+.prompts {
+  white-space: nowrap;
+  padding: var(--space-2) var(--space-4) 0;
+}
+.prompt-row { display: inline-flex; }
+.prompt {
+  margin-right: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1rpx solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.composer {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+.composer-input {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-sm);
+  color: var(--text-primary);
+}
+.composer-send { padding: 0 var(--space-2) 0 var(--space-3); }
+.composer-send.off { opacity: 0.5; }

@@ -1,17 +1,24 @@
 {
   "schemaVersion": 1,
-  "productVersion": "1.3.4",
+  "productVersion": "1.4.0",
   "features": [
     {"id":"play","name":"人机对局","android":true,"miniprogram":true},
+    {"id":"difficulty","name":"15 档难度选择","android":true,"miniprogram":true},
     {"id":"hint","name":"走法提示","android":true,"miniprogram":true},
     {"id":"undo","name":"悔棋","android":true,"miniprogram":true},
-    {"id":"flip","name":"翻转棋盘","android":true,"miniprogram":true},
+    {"id":"flip","name":"翻转换边","android":true,"miniprogram":true},
     {"id":"analysis","name":"AI分析对话","android":true,"miniprogram":true},
     {"id":"resign","name":"认输","android":true,"miniprogram":true},
+    {"id":"winrate","name":"实时胜率条","android":true,"miniprogram":true},
+    {"id":"notation","name":"中文记谱","android":true,"miniprogram":true},
     {"id":"replay","name":"棋谱复盘","android":true,"miniprogram":true},
-    {"id":"rating","name":"棋力档案","android":true,"miniprogram":true},
+    {"id":"rating","name":"棋力档案 (Glicko-2)","android":true,"miniprogram":true},
+    {"id":"theme","name":"深色/浅色主题","android":true,"miniprogram":true},
+    {"id":"i18n","name":"中英文切换","android":true,"miniprogram":true},
+    {"id":"feedback","name":"音效与振动","android":true,"miniprogram":true},
+    {"id":"bgm","name":"背景音乐","android":true,"miniprogram":true},
     {"id":"recognize","name":"拍照识局","android":true,"miniprogram":false,"roadmap":"云函数ONNX推理"},
     {"id":"live_advice","name":"实时支招","android":true,"miniprogram":false,"roadmap":"camera帧抽取与云端识别"},
-    {"id":"voice_move","name":"语音走子","android":true,"miniprogram":false,"roadmap":"微信录音与语音识别"}
+    {"id":"voice_move","name":"语音走子","android":true,"miniprogram":false,"roadmap":"接入微信同声传译插件"}
   ]
 }

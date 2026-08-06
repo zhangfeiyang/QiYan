@@ -34,7 +34,10 @@
   },
   "libVersion": "3.17.1",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "tests" },
+      { "type": "file", "value": "README.md" }
+    ],
     "include": []
   },
   "condition": {},

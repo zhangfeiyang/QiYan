@@ -1,78 +1,77 @@
-<view class="page">
-  <view class="hero">
-    <text class="eyebrow">QI YAN · XIANGQI LAB</text>
-    <text class="title">棋眼</text>
-    <text class="subtitle">中国象棋练习与局势分析工具</text>
-  </view>
-  <view class="profile card">
-    <view><text class="label">当前棋力</text><text class="rating">{{profile.rating}}</text></view>
-    <view class="stats"><text>{{profile.games}} 局</text><text>{{profile.wins}} 胜</text><text>{{profile.losses}} 负</text></view>
-  </view>
-  <button class="play primary" bindtap="startGame">开始对局（Lv.{{difficulty.level}} · {{difficulty.name}}）</button>
-  <view class="levels card">
-    <view class="levels-head">
-      <text class="label">AI 难度 · 端侧可达 Lv.1-{{maxLocalLevel}}</text>
-      <text class="levels-sub">10-15 需在 App 端体验云端引擎</text>
+<scroll-view class="screen {{themeClass}}" scroll-y>
+  <view class="scroll-body">
+
+    <!-- ============ 档案卡 ============ -->
+    <!-- 主角是段位名而不是裸分数: 裸分数看着像一个已经标定好的外部量表,
+         段位名至少不虚报精度。胜率条让胜/负/和从三个孤立数字变成走势。 -->
+    <view class="card profile">
+      <text class="t-title">{{nickname}}</text>
+      <text class="rank" style="color: {{rankColor}}">{{rankName}}</text>
+      <text class="t-label">{{T.rating_current}}</text>
+
+      <view class="winrate-bar">
+        <view class="seg win" style="flex-grow: {{winWeight}}" />
+        <view class="seg loss" style="flex-grow: {{lossWeight}}" />
+        <view class="seg draw" style="flex-grow: {{drawWeight}}" />
+      </view>
+
+      <view class="legend">
+        <text class="legend-win">{{winsText}}</text>
+        <text class="legend-loss">{{lossesText}}</text>
+        <text class="legend-draw">{{drawsText}}</text>
+      </view>
+      <text class="t-label games">{{gamesText}}</text>
     </view>
-    <view class="levels-grid">
-      <view wx:for="{{localDifficulties}}" wx:key="level"
-            class="level-tile {{item.level===difficulty.level?'active':''}}"
-            data-level="{{item.level}}"
-            bindtap="pickLevel">
-        <text class="level-num">Lv.{{item.level}}</text>
-        <text class="level-name">{{item.name}}</text>
-        <text class="level-rank">{{item.rank}}</text>
-        <text class="level-note">{{levelNotes[item.level] || ''}}</text>
-      </view>
-      <view class="level-tile disabled" data-level="10" bindtap="pickLevel">
-        <text class="level-num">Lv.10</text>
-        <text class="level-name">大师</text>
-        <text class="level-rank">棋协大师</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
-      </view>
-      <view class="level-tile disabled" data-level="11" bindtap="pickLevel">
-        <text class="level-num">Lv.11</text>
-        <text class="level-name">强大师</text>
-        <text class="level-rank">棋协大师强档</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
-      </view>
-      <view class="level-tile disabled" data-level="12" bindtap="pickLevel">
-        <text class="level-num">Lv.12</text>
-        <text class="level-name">地方名将</text>
-        <text class="level-rank">地方大师</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
-      </view>
-      <view class="level-tile disabled" data-level="13" bindtap="pickLevel">
-        <text class="level-num">Lv.13</text>
-        <text class="level-name">全国名将</text>
-        <text class="level-rank">国家大师</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
-      </view>
-      <view class="level-tile disabled" data-level="14" bindtap="pickLevel">
-        <text class="level-num">Lv.14</text>
-        <text class="level-name">特级大师</text>
-        <text class="level-rank">国家特级大师</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
-      </view>
-      <view class="level-tile disabled" data-level="15" bindtap="pickLevel">
-        <text class="level-num">Lv.15</text>
-        <text class="level-name">巅峰</text>
-        <text class="level-rank">国际特级大师</text>
-        <text class="level-note">云端引擎</text>
-        <text class="level-tag">App</text>
+
+    <!-- ============ 主行动 ============ -->
+    <button class="btn btn-primary play" bindtap="startGame">
+      <x-icon name="play" token="textOnAction" theme="{{theme}}" size="44" />
+      <text class="play-text">{{playText}}</text>
+    </button>
+
+    <!-- ============ 实时支招: 独占一行 ============ -->
+    <!-- 它是唯一"举着手机对着真实棋盘"的功能, 和另外两个"在手机里看棋"的
+         入口不是一回事, 塞进双列会被当成同类。四个字说不清它干什么,
+         所以配一句副标题。 -->
+    <view class="card entry-live" bindtap="appOnly">
+      <x-icon name="live" token="action" theme="{{theme}}" size="48" />
+      <view class="entry-live-body">
+        <view class="entry-live-title">
+          <text class="t-title">{{T.live_entry}}</text>
+          <text class="app-badge">App</text>
+        </view>
+        <text class="t-label">{{T.menu_live_desc}}</text>
       </view>
     </view>
+
+    <!-- ============ 平级功能: 双列 ============ -->
+    <view class="pair">
+      <button class="btn btn-outlined" bindtap="openReplay">
+        <x-icon name="history" theme="{{theme}}" size="36" />
+        <text class="pair-text">{{T.menu_replay}}</text>
+      </button>
+      <button class="btn btn-outlined" bindtap="appOnly">
+        <x-icon name="camera" theme="{{theme}}" size="36" />
+        <text class="pair-text">{{T.menu_recognize}}</text>
+        <text class="app-badge">App</text>
+      </button>
+    </view>
+
+    <!-- ============ 低频入口 ============ -->
+    <view class="low-row">
+      <button class="btn btn-text" bindtap="openSettings">
+        <x-icon name="settings" theme="{{theme}}" size="34" />
+        <text class="low-text">{{T.menu_settings}}</text>
+      </button>
+      <button class="btn btn-text" bindtap="showAbout">
+        <x-icon name="info" theme="{{theme}}" size="34" />
+        <text class="low-text">{{T.menu_about}}</text>
+      </button>
+      <button class="btn btn-text" bindtap="toggleLanguage">
+        <x-icon name="language" theme="{{theme}}" size="34" />
+        <text class="low-text">{{T.menu_language}}</text>
+      </button>
+    </view>
+
   </view>
-  <view class="grid">
-    <view class="entry card" bindtap="replay"><text class="icon">谱</text><text>棋谱复盘</text></view>
-    <view class="entry card" bindtap="pending"><text class="icon">识</text><text>拍照识局</text><text class="badge">迁移中</text></view>
-    <view class="entry card" bindtap="pending"><text class="icon">助</text><text>实时支招</text><text class="badge">迁移中</text></view>
-    <view class="entry card" bindtap="settings"><text class="icon">设</text><text>设置与同步</text></view>
-  </view>
-  <text class="sync">小程序已同步 {{available}} / {{total}} 项产品能力</text>
-</view>
+</scroll-view>

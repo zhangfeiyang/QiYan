@@ -1,21 +1,143 @@
-<view class="page">
-  <view class="topbar card"><view><text class="status">{{status}}</text><text class="level">Lv.{{difficulty.level}} · {{difficulty.rank}}</text></view><text class="turn">{{side===1?'红':'黑'}}</text></view>
-  <view wx:if="{{appOnlyHint}}" class="app-only-hint card">
-    <text class="app-only-title">Lv.{{difficulty.level}} · {{difficulty.rank}} 需在 App 端体验</text>
-    <text class="app-only-text">该段位由云引擎驱动，小程序端 AI 仅支持 Lv.1-{{maxLocalLevel}}。请在 Android/iOS 客户端开局，或先选择 Lv.1-{{maxLocalLevel}} 的本地对局。</text>
+<view class="screen game {{themeClass}}">
+
+  <!-- ============ 对手 ============ -->
+  <!-- 整行可点: 点开改 AI 等级。对局中随时能改, 所以入口要一直在手边,
+       而不是藏在设置里或只能开局前选。 -->
+  <view class="info-row" style="opacity: {{opponentRowAlpha}}" bindtap="openPicker">
+    <view class="dot {{playerSide === 1 ? 'dot-black' : 'dot-red'}}" />
+    <text class="who">{{opponentName}}</text>
+    <text class="sub">{{opponentLevelName}}</text>
+    <view class="chip">
+      <text>{{difficultyLabel}}</text>
+      <x-icon name="chevron_down" token="textTertiary" theme="{{theme}}" size="26" />
+    </view>
+    <!-- 每走一步都要出现/消失一次, 所以用 visibility 而不是条件渲染:
+         抽掉节点会让这一行时高时矮, 棋盘跟着被挤扁再弹回 -->
+    <text class="thinking" style="visibility: {{isThinking ? 'visible' : 'hidden'}}">{{T.status_thinking}}</text>
   </view>
-  <xiangqi-board board="{{board}}" selected="{{selected}}" targets="{{targets}}" flipped="{{flipped}}" disabled="{{thinking||gameOver||analysisScanning||appOnlyHint}}" bind:celltap="onCellTap" />
-  <view class="actions card">
-    <button bindtap="hint">提示</button><button bindtap="undo">悔棋</button><button bindtap="flip">翻转</button><button class="analysis" bindtap="openAnalysis">AI分析</button><button bindtap="resign">认输</button>
+
+  <win-rate-bar wx:if="{{showWinRate}}" class="winrate" red-win-rate="{{redWinRate}}" theme="{{theme}}" />
+
+  <!-- ============ 棋盘 ============ -->
+  <view class="board-area">
+    <xiangqi-board
+      id="board"
+      board="{{board}}"
+      selected="{{selected}}"
+      targets="{{targets}}"
+      last-move="{{lastMove}}"
+      checked-king="{{checkedKing}}"
+      hint-move="{{hintMove}}"
+      flipped="{{flipped}}"
+      show-coordinates="{{showCoords}}"
+      animation="{{animation}}"
+      theme="{{theme}}"
+      disabled="{{isThinking || isGameOver || analysisScanning || appOnly}}"
+      bind:celltap="onCellTap"
+    />
   </view>
-  <view wx:if="{{analysisScanning}}" class="scanner"><view class="scan-line"></view><text>AI 正在全盘计算</text><text class="scan-sub">评估子力 · 王安全 · 战术变化</text></view>
-  <view wx:if="{{analysisOpen}}" class="analysis-panel">
-    <view class="panel-head"><view><text class="panel-title">AI 局势分析</text><text class="panel-sub">棋盘保持可见，可继续对话</text></view><text class="close" bindtap="closeAnalysis">×</text></view>
-    <scroll-view class="messages" scroll-y enhanced show-scrollbar="false">
-      <view wx:for="{{messages}}" wx:key="index" class="message {{item.role}}">{{item.text}}</view>
-      <view wx:if="{{sending}}" class="message assistant">正在分析变化…</view>
+
+  <!-- Lv.10 以上端侧引擎跑不动: 给一张说明卡, 而不是一盘下不动的棋 -->
+  <view wx:if="{{appOnly}}" class="card app-only">
+    <text class="t-title">{{appOnlyTitle}}</text>
+    <text class="t-secondary">{{appOnlyBody}}</text>
+  </view>
+
+  <!-- ============ 我方 ============ -->
+  <view class="info-row" style="opacity: {{playerRowAlpha}}">
+    <view class="dot {{playerSide === 1 ? 'dot-red' : 'dot-black'}}" />
+    <text class="who">{{playerName}}</text>
+    <text class="sub">{{playerRank}}</text>
+    <text class="moves">{{moveCountText}}</text>
+  </view>
+
+  <!-- ============ 工具条 ============ -->
+  <!-- 一行五个图标键。认输放最右且用危险色, 与其余四个拉开距离和色相,
+       避免"想点翻转结果认输了"这类误触。 -->
+  <view class="toolbar">
+    <view class="tool" bindtap="onHint">
+      <x-icon name="hint" theme="{{theme}}" size="44" />
+      <text class="tool-text">{{T.action_hint}}</text>
+    </view>
+    <view class="tool" bindtap="onUndo">
+      <x-icon name="undo" theme="{{theme}}" size="44" />
+      <text class="tool-text">{{T.action_undo}}</text>
+    </view>
+    <view class="tool" bindtap="onFlip">
+      <x-icon name="flip" theme="{{theme}}" size="44" />
+      <text class="tool-text">{{T.action_flip}}</text>
+    </view>
+    <!-- AI 分析用行动色描出来: 它是这个产品的差异化功能, 值得比普通工具键
+         更显眼一档, 但仍不该抢走棋盘的注意力 -->
+    <view class="tool" bindtap="openAnalysis">
+      <x-icon name="ai" token="action" theme="{{theme}}" size="44" />
+      <text class="tool-text tool-action">{{T.advisor_button}}</text>
+    </view>
+    <view class="tool" bindtap="onResign">
+      <x-icon name="flag" token="danger" theme="{{theme}}" size="44" />
+      <text class="tool-text tool-danger">{{T.action_resign}}</text>
+    </view>
+  </view>
+
+  <difficulty-picker
+    show="{{pickerOpen}}"
+    current="{{difficulty.level}}"
+    theme="{{theme}}"
+    bind:pick="onPickLevel"
+    bind:close="closePicker"
+  />
+
+  <!-- ============ AI 分析全屏动效 ============ -->
+  <view wx:if="{{analysisScanning}}" class="scan" bindtap="skipScan">
+    <view class="scan-line" />
+    <text class="scan-title">{{T.mp_scanning_title}}</text>
+    <text class="scan-sub">{{T.mp_scanning_sub}}</text>
+    <text class="scan-skip">{{T.analysis_tap_to_skip}}</text>
+  </view>
+
+  <!-- ============ AI 分析抽屉 ============ -->
+  <!-- 半透明浮在棋盘上而不是另开一页: 用户是"看着这盘棋问问题" -->
+  <view wx:if="{{analysisOpen}}" class="panel">
+    <view class="panel-head">
+      <view>
+        <text class="t-title">{{T.advisor_title}}</text>
+        <text class="t-label">{{T.mp_analysis_panel_sub}}</text>
+      </view>
+      <view class="panel-close" bindtap="closeAnalysis">
+        <x-icon name="close" theme="{{theme}}" size="40" />
+      </view>
+    </view>
+
+    <scroll-view class="messages" scroll-y enhanced show-scrollbar="{{false}}">
+      <view wx:for="{{messages}}" wx:key="index" class="msg msg-{{item.role}}">{{item.text}}</view>
+      <view wx:if="{{sending}}" class="msg msg-assistant">{{T.advisor_thinking}}</view>
     </scroll-view>
-    <scroll-view class="prompts" scroll-x enhanced show-scrollbar="false"><view class="prompt-row"><text wx:for="{{quickPrompts}}" wx:key="*this" class="prompt" data-text="{{item}}" bindtap="usePrompt">{{item}}</text></view></scroll-view>
-    <view class="composer"><input value="{{inputText}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" placeholder="继续询问当前局势…"/><button bindtap="sendMessage" disabled="{{sending||!inputText}}">发送</button></view>
+
+    <scroll-view class="prompts" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="prompt-row">
+        <text
+          wx:for="{{quickPrompts}}"
+          wx:key="*this"
+          class="prompt"
+          data-text="{{item}}"
+          bindtap="usePrompt"
+        >{{item}}</text>
+      </view>
+    </scroll-view>
+
+    <view class="composer">
+      <input
+        class="composer-input"
+        value="{{inputText}}"
+        bindinput="onInput"
+        confirm-type="send"
+        bindconfirm="sendMessage"
+        placeholder="{{T.advisor_input_hint}}"
+      />
+      <view class="composer-send {{sending || !inputText ? 'off' : ''}}" bindtap="sendMessage">
+        <x-icon name="send" token="{{sending || !inputText ? 'textTertiary' : 'action'}}" theme="{{theme}}" size="42" />
+      </view>
+    </view>
   </view>
+
 </view>

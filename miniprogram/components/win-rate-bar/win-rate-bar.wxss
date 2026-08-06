@@ -1,0 +1,8 @@
+/* 28dp: 48dp 太高, 字号按条高算会让 "50.0%" 比棋子还抢眼。胜率是参考信息 */
+:host { display: block; }
+
+.bar-canvas {
+  width: 100%;
+  height: 56rpx;
+  display: block;
+}

@@ -1,1 +1,33 @@
-.page{padding:24rpx}.summary{padding:20rpx 24rpx;display:flex;justify-content:space-between;margin-bottom:18rpx;font-weight:700}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12rpx;padding:14rpx;margin-top:18rpx}.controls button{font-size:24rpx;background:#f8f0df}.moves{height:240rpx;margin-top:18rpx;padding:20rpx;box-sizing:border-box}.move{font-size:24rpx;padding:8rpx 12rpx}.active{color:#8c3026;font-weight:700}
+.empty {
+  padding: var(--space-10) 0;
+  text-align: center;
+}
+
+.record {
+  margin-top: var(--space-2);
+}
+
+.record-head {
+  display: flex;
+  align-items: baseline;
+}
+
+/* 胜负用语义色, 与首页胜率条图例同一套 */
+.result {
+  font-size: var(--text-title);
+  font-weight: bold;
+  margin-right: var(--space-3);
+}
+.result.win { color: var(--action); }
+.result.loss { color: var(--danger); }
+.result.draw { color: var(--text-secondary); }
+
+.level { margin-left: var(--space-3); }
+.date { margin-left: auto; }
+
+.record-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}

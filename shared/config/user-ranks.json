@@ -1,0 +1,12 @@
+[
+  {"id":1,"key":"rank_1","tone":"bronze","minRating":0,"maxRating":999},
+  {"id":2,"key":"rank_2","tone":"bronze","minRating":1000,"maxRating":1199},
+  {"id":3,"key":"rank_3","tone":"silver","minRating":1200,"maxRating":1399},
+  {"id":4,"key":"rank_4","tone":"silver","minRating":1400,"maxRating":1599},
+  {"id":5,"key":"rank_5","tone":"gold","minRating":1600,"maxRating":1799},
+  {"id":6,"key":"rank_6","tone":"gold","minRating":1800,"maxRating":1999},
+  {"id":7,"key":"rank_7","tone":"platinum","minRating":2000,"maxRating":2199},
+  {"id":8,"key":"rank_8","tone":"diamond","minRating":2200,"maxRating":2399},
+  {"id":9,"key":"rank_9","tone":"master","minRating":2400,"maxRating":2599},
+  {"id":10,"key":"rank_10","tone":"grandmaster","minRating":2600,"maxRating":9999}
+]

@@ -1,0 +1,56 @@
+<view class="screen viewer {{themeClass}}">
+
+  <view class="header">
+    <text class="t-body">{{titleText}}</text>
+    <text class="t-label">{{playerInfo}}</text>
+  </view>
+
+  <view class="main">
+    <view class="board-area">
+      <xiangqi-board
+        board="{{board}}"
+        last-move="{{lastMove}}"
+        flipped="{{flipped}}"
+        show-coordinates="{{showCoords}}"
+        animation="{{false}}"
+        theme="{{theme}}"
+        disabled="{{true}}"
+      />
+    </view>
+
+    <!-- 中文记谱一列, 点哪一手就跳到哪一手 -->
+    <scroll-view class="moves" scroll-y scroll-into-view="m{{step}}" enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{moves}}"
+        wx:key="index"
+        id="m{{item.index}}"
+        class="move {{step === item.index ? 'active' : ''}}"
+        data-index="{{item.index}}"
+        bindtap="jumpTo"
+      >
+        <text class="move-no">{{item.index}}</text>
+        <text class="move-text">{{item.text}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="controls">
+    <view class="ctrl {{step === 0 ? 'off' : ''}}" bindtap="first">
+      <x-icon name="first" theme="{{theme}}" size="44" />
+    </view>
+    <view class="ctrl {{step === 0 ? 'off' : ''}}" bindtap="prev">
+      <x-icon name="prev" theme="{{theme}}" size="44" />
+    </view>
+    <view class="ctrl auto" bindtap="toggleAutoPlay">
+      <text class="auto-text">{{autoText}}</text>
+      <text class="step-text">{{moveInfo}}</text>
+    </view>
+    <view class="ctrl {{step >= total ? 'off' : ''}}" bindtap="next">
+      <x-icon name="next" theme="{{theme}}" size="44" />
+    </view>
+    <view class="ctrl {{step >= total ? 'off' : ''}}" bindtap="last">
+      <x-icon name="last" theme="{{theme}}" size="44" />
+    </view>
+  </view>
+
+</view>

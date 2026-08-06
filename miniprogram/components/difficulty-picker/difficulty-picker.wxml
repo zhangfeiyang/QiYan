@@ -1,0 +1,32 @@
+<view wx:if="{{show}}" class="picker-root {{theme === 'light' ? 'theme-light' : ''}}">
+  <view class="mask" bindtap="onClose" />
+  <view class="sheet" catchtap="noop">
+    <view class="sheet-head">
+      <text class="t-title">{{title}}</text>
+      <text class="t-label">{{localHint}}</text>
+    </view>
+
+    <scroll-view class="list" scroll-y scroll-into-view="lv{{current}}" enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{levels}}"
+        wx:key="level"
+        id="lv{{item.level}}"
+        class="row {{item.level === current ? 'active' : ''}} {{item.appOnly ? 'app-only' : ''}}"
+        data-level="{{item.level}}"
+        bindtap="onPick"
+      >
+        <view class="tone" style="background: {{item.color}}" />
+        <view class="body">
+          <view class="line">
+            <text class="name">Lv.{{item.level}} {{item.name}}</text>
+            <text class="segment">{{item.segment}}</text>
+            <text wx:if="{{item.appOnly}}" class="badge">App</text>
+          </view>
+          <text class="desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <button class="btn btn-text cancel" bindtap="onClose">{{cancelText}}</button>
+  </view>
+</view>

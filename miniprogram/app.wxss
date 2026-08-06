@@ -1,6 +1,265 @@
-page { min-height: 100%; background: #f3e6ca; color: #2b211d; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
-button { border-radius: 16rpx; }
-button::after { border: none; }
-.card { background: rgba(255,255,255,.76); border: 1rpx solid rgba(91,55,35,.12); box-shadow: 0 12rpx 36rpx rgba(66,42,29,.10); border-radius: 28rpx; }
-.primary { color: #fff; background: linear-gradient(135deg, #a33b2d, #70231d); }
-.muted { color: #7d6d64; }
+/*
+  设计系统 —— 从 Android 端的 values/colors.xml、values-night/colors.xml、
+  dimens.xml、themes.xml 移植过来的同一套 token。
+
+  两端必须保持**同名** token: 改了 Android 那边的语义色而这里没跟, 用户看到
+  的就是两个不同的产品。命名沿用 Android 的语义命名 (surface-raised 而不是
+  bg-card), 这样两边对照时一眼能找到对应项。
+
+  暗色是主设计 (与 Android 一致, AppSettings.themeMode 默认 1=深色);
+  .theme-light 是选浅色的用户拿到的那一套, 由 pages 的根节点挂上去。
+
+  dp → rpx: 1dp = 2rpx (750rpx 基准宽度 375pt)。
+*/
+
+page {
+  /* ============ 表面层次 ============ */
+  --surface-sunken: #1D1B19;
+  --surface-base: #262421;
+  --surface-raised: #312E2B;
+  --surface-overlay: #3B3835;
+
+  /* ============ 描边 ============ */
+  --border-subtle: #3D3936;
+  --border-strong: #55504B;
+
+  /* ============ 文字 ============ */
+  /* 不用纯白: #FFFFFF 压在深底上会晕开, 长时间看棋很累 */
+  --text-primary: #EFECE7;
+  --text-secondary: #ADA79F;
+  --text-tertiary: #7A756E;
+  --text-on-action: #16210B;
+
+  /* ============ 行动色 ============ */
+  --action: #81B64C;
+  --action-pressed: #6C9B3E;
+  --action-muted: #2E3A22;
+
+  /* ============ 语义色 ============ */
+  --danger: #E0574A;
+  --warning: #E3A13C;
+  --info: #5B9DD9;
+  --danger-muted: #3A2320;
+
+  /* ============ 对弈双方 (UI 文字/标签用) ============ */
+  /* side-black 在暗色下是**浅**色, 否则"负 0"这类文字会整个消失 */
+  --side-red: #E8635C;
+  --side-black: #CFC9C1;
+
+  /* ============ 棋盘 (canvas 读这些值) ============ */
+  --board-grad-1: #D9C39B;
+  --board-grad-2: #CBB489;
+  --board-grad-3: #BFA579;
+  --board-grad-4: #AD9163;
+  --board-line: #4A3826;
+  --board-palace: #6B4A2A;
+  --board-border: #1A1613;
+  --board-coord: #7A5D3A;
+
+  /* ============ 段位 ============ */
+  --rank-bronze: #C87F3F;
+  --rank-silver: #BFBFC4;
+  --rank-gold: #E8C04A;
+  --rank-platinum: #D8E0E4;
+  --rank-diamond: #7FD9EF;
+  --rank-master: #FF7043;
+  --rank-grandmaster: #B57BE0;
+  --rank-king: #FFD54F;
+
+  /* ============ 间距 (4dp 基数 → 8rpx) ============ */
+  --space-1: 8rpx;
+  --space-2: 16rpx;
+  --space-3: 24rpx;
+  --space-4: 32rpx;
+  --space-5: 40rpx;
+  --space-6: 48rpx;
+  --space-8: 64rpx;
+  --gutter: 32rpx;
+
+  /* ============ 字号 ============ */
+  --text-caption: 24rpx;
+  --text-body-sm: 26rpx;
+  --text-label: 28rpx;
+  --text-body: 30rpx;
+  --text-title: 36rpx;
+  --text-headline: 44rpx;
+  --text-display: 60rpx;
+  --text-numeric: 68rpx;
+
+  /* ============ 圆角 ============ */
+  --radius-sm: 12rpx;
+  --radius-md: 20rpx;
+  --radius-lg: 28rpx;
+  --radius-pill: 999rpx;
+
+  /* ============ 控件 ============ */
+  --touch-min: 96rpx;
+  --button-height: 104rpx;
+  --info-row-height: 80rpx;
+
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-size: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  浅色主题。只覆盖需要翻转的 token —— 间距/圆角/字号是尺度, 不随明暗变。
+  #55802D 而非暗色那支 #81B64C: 白字压在浅绿上对比度不够 (约 4.1:1),
+  压深到 4.6:1 才过 WCAG AA 正文线。
+*/
+.theme-light {
+  --surface-sunken: #E6E2DB;
+  --surface-base: #F4F2EE;
+  --surface-raised: #FFFFFF;
+  --surface-overlay: #FFFFFF;
+
+  --border-subtle: #DEDAD3;
+  --border-strong: #C4BFB7;
+
+  --text-primary: #23211F;
+  --text-secondary: #5E5952;
+  --text-tertiary: #8E8880;
+  --text-on-action: #FFFFFF;
+
+  --action: #55802D;
+  --action-pressed: #446725;
+  --action-muted: #EAF1E0;
+
+  --danger: #C4362B;
+  --warning: #B77A16;
+  --info: #2F6FAF;
+  --danger-muted: #FBEAE8;
+
+  --side-red: #C0392B;
+  --side-black: #2C2A28;
+
+  --board-grad-1: #EBD9B4;
+  --board-grad-2: #DDC49A;
+  --board-grad-3: #D2B288;
+  --board-grad-4: #C0A272;
+  --board-border: #8A6E48;
+
+  --rank-bronze: #B06D33;
+  --rank-silver: #8C8C94;
+  --rank-gold: #C79A1E;
+  --rank-platinum: #6E8A96;
+  --rank-diamond: #2E9BB8;
+  --rank-master: #E2551F;
+  --rank-grandmaster: #8E4EC6;
+  --rank-king: #C79A1E;
+}
+
+/* ============ 页面骨架 ============ */
+
+.screen {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll-body {
+  padding: var(--space-2) var(--gutter) var(--space-8);
+}
+
+/* ============ 卡片 ============ */
+/* 分层靠"表面色 + 1px 描边", 不靠投影: 深底上的灰阴影只会糊出脏边 */
+.card {
+  background: var(--surface-raised);
+  border: 1rpx solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-sizing: border-box;
+}
+
+/* ============ 按钮 ============ */
+/*
+  三档主次, 一屏之内只允许出现一个 .btn-primary:
+    primary  实心行动色 —— "开始对弈"
+    outlined 仅描边     —— 并列的平级入口
+    text     无容器     —— 低频辅助操作
+    danger   危险描边   —— 认输/清除数据
+*/
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--button-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-label);
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  box-sizing: border-box;
+  line-height: 1.3;
+}
+.btn::after { border: none; }
+
+.btn-primary {
+  background: var(--action);
+  color: var(--text-on-action);
+}
+.btn-primary.hover, .btn-primary:active { background: var(--action-pressed); }
+
+.btn-outlined {
+  background: transparent;
+  border: 1rpx solid var(--border-strong);
+  color: var(--text-primary);
+}
+.btn-outlined.hover { background: var(--action-muted); }
+
+.btn-text {
+  background: transparent;
+  color: var(--text-secondary);
+  min-height: var(--touch-min);
+  font-weight: normal;
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1rpx solid var(--danger);
+  color: var(--danger);
+}
+
+.btn[disabled] { opacity: 0.4; }
+
+/* ============ 文字 ============ */
+.t-display { font-size: var(--text-display); font-weight: bold; color: var(--text-primary); }
+.t-headline { font-size: var(--text-headline); font-weight: bold; color: var(--text-primary); }
+.t-title { font-size: var(--text-title); font-weight: bold; color: var(--text-primary); }
+.t-body { font-size: var(--text-body); color: var(--text-primary); }
+.t-secondary { font-size: var(--text-body-sm); color: var(--text-secondary); }
+.t-label {
+  font-size: var(--text-caption);
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+}
+.t-numeric {
+  font-size: var(--text-numeric);
+  font-weight: bold;
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+/* ============ 胶囊 ============ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-caption);
+  font-weight: bold;
+}
+
+/* ============ 顶栏 ============ */
+/* 小程序自带导航栏, 这里只是页面内的分区标题条 */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}

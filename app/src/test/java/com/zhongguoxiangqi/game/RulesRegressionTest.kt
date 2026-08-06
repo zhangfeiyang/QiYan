@@ -214,4 +214,21 @@ class RulesRegressionTest {
         val text = Move.toChineseString(move, pos)
         assertEquals("卒5进1", text)
     }
+
+    // ===== 终局归属 =====
+
+    /**
+     * 曾经的 bug: [Rules.gameOver] 的两个将死分支写反了 —— 轮到红走且被将死时
+     * 返回 CHECKMATE_BLACK, 于是界面显示"红方将死黑方", GameViewModel 还把
+     * 这一局的获胜方判给红方。玩家执红被将死, 对局结束弹窗告诉他赢了。
+     */
+    @Test
+    fun `checkmated side loses`() {
+        // 黑将 (0,4) 被 (8,4) 的红车沿中路将军, 九宫顶排两侧由 (1,3)/(1,5)
+        // 的红车封死, (1,4) 同时被这两条线控住 —— 无处可逃, 也无子可挡。
+        val pos = Position()
+        assertTrue(pos.setFromFen("4k4/3R1R3/9/9/9/9/9/9/4R4/4K4 b - - 0 1"))
+        assertTrue("黑方应处于被将状态", Rules.isInCheck(pos, Color.BLACK))
+        assertEquals(Rules.GameOver.CHECKMATE_BLACK, Rules.gameOver(pos))
+    }
 }

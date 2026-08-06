@@ -1,1 +1,8 @@
-{"navigationBarTitleText":"对局","usingComponents":{"xiangqi-board":"/components/xiangqi-board/xiangqi-board"}}
+{
+  "usingComponents": {
+    "xiangqi-board": "/components/xiangqi-board/xiangqi-board",
+    "win-rate-bar": "/components/win-rate-bar/win-rate-bar",
+    "difficulty-picker": "/components/difficulty-picker/difficulty-picker",
+    "x-icon": "/components/x-icon/x-icon"
+  }
+}

@@ -1,1 +1,5 @@
-{"navigationBarTitleText":"棋眼","usingComponents":{}}
+{
+  "usingComponents": {
+    "x-icon": "/components/x-icon/x-icon"
+  }
+}

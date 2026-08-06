@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "xiangqi-board": "/components/xiangqi-board/xiangqi-board",
+    "x-icon": "/components/x-icon/x-icon"
+  }
+}

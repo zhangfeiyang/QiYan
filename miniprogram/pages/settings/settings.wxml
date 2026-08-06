@@ -1,1 +1,119 @@
-<view class="page"><view class="card section"><text class="title">云端能力</text><text class="help">正式发布时需将域名加入微信公众平台 request 合法域名。未配置时，对弈使用本地规则引擎，AI 对话提供基础规则建议。</text><text class="label">Pikafish 引擎服务</text><input value="{{engineUrl}}" bindinput="engineInput" placeholder="https://api.example.com/engine"/><text class="label">AI 分析服务</text><input value="{{advisorUrl}}" bindinput="advisorInput" placeholder="https://api.example.com/advisor"/><button class="primary" bindtap="save">保存配置</button></view><view class="card section"><text class="title">跨端功能同步</text><view wx:for="{{features}}" wx:key="id" class="feature"><view><text>{{item.name}}</text><text wx:if="{{item.roadmap}}" class="roadmap">{{item.roadmap}}</text></view><text class="state {{item.miniprogram?'done':'pending'}}">{{item.miniprogram?'已同步':'迁移中'}}</text></view><text class="fingerprint">配置指纹 {{fingerprint}}</text></view></view>
+<scroll-view class="screen {{themeClass}}" scroll-y>
+  <view class="scroll-body">
+
+    <!-- ============ 界面 ============ -->
+    <view class="card section">
+      <text class="t-label section-title">{{T.settings_section_display}}</text>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_sound}}</text>
+          <text class="t-label">{{T.settings_desc_sound}}</text>
+        </view>
+        <switch checked="{{settings.sound}}" data-key="sound" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_vibrate}}</text>
+          <text class="t-label">{{T.settings_desc_vibrate}}</text>
+        </view>
+        <switch checked="{{settings.vibrate}}" data-key="vibrate" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_bgm}}</text>
+          <text class="t-label">{{T.settings_desc_bgm}}</text>
+        </view>
+        <switch checked="{{settings.bgm}}" data-key="bgm" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_show_coords}}</text>
+          <text class="t-label">{{T.settings_desc_coords}}</text>
+        </view>
+        <switch checked="{{settings.showCoords}}" data-key="showCoords" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_show_winrate}}</text>
+          <text class="t-label">{{T.settings_desc_winrate}}</text>
+        </view>
+        <switch checked="{{settings.showWinRate}}" data-key="showWinRate" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_animation}}</text>
+          <text class="t-label">{{T.settings_desc_animation}}</text>
+        </view>
+        <switch checked="{{settings.animation}}" data-key="animation" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <view class="row">
+        <view class="row-body">
+          <text class="t-body">{{T.settings_board_flip}}</text>
+          <text class="t-label">{{T.settings_desc_flip}}</text>
+        </view>
+        <switch checked="{{settings.flipped}}" data-key="flipped" bindchange="onToggle" color="{{theme === 'light' ? '#55802D' : '#81B64C'}}" />
+      </view>
+
+      <text class="t-body theme-title">{{T.settings_theme}}</text>
+      <view class="theme-group">
+        <view
+          wx:for="{{themeOptions}}"
+          wx:key="value"
+          class="theme-option {{settings.theme === item.value ? 'active' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="onPickTheme"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <!-- ============ 云端能力 (小程序特有) ============ -->
+    <view class="card section">
+      <text class="t-label section-title">{{T.mp_cloud_section}}</text>
+      <text class="t-secondary help">{{T.mp_cloud_help}}</text>
+
+      <text class="t-label field-label">{{T.mp_engine_url}}</text>
+      <input class="field" value="{{settings.engineApiBaseUrl}}" bindinput="onEngineUrl" placeholder="https://api.example.com/engine" />
+
+      <text class="t-label field-label">{{T.mp_advisor_url}}</text>
+      <input class="field" value="{{settings.advisorApiBaseUrl}}" bindinput="onAdvisorUrl" placeholder="https://api.example.com/advisor" />
+
+      <button class="btn btn-outlined save" bindtap="saveUrls">{{T.mp_save_config}}</button>
+    </view>
+
+    <!-- ============ 跨端功能同步 ============ -->
+    <!-- 平台受限的功能明确列出来并写清 roadmap, 不用不可运行的假入口冒充已完成 -->
+    <view class="card section">
+      <text class="t-label section-title">{{T.mp_feature_matrix}}</text>
+      <view wx:for="{{featureRows}}" wx:key="id" class="feature">
+        <view class="feature-body">
+          <text class="t-body">{{item.name}}</text>
+          <text wx:if="{{item.roadmap}}" class="t-label">{{item.roadmap}}</text>
+        </view>
+        <text class="state {{item.ready ? 'ready' : 'pending'}}">{{item.stateText}}</text>
+      </view>
+      <text class="t-label fingerprint">{{fingerprintText}}</text>
+    </view>
+
+    <!-- ============ 其他 ============ -->
+    <view class="card section">
+      <text class="t-label section-title">{{T.settings_section_other}}</text>
+      <view class="row" bindtap="showAbout">
+        <view class="row-body"><text class="t-body">{{T.settings_about}}</text></view>
+      </view>
+      <view class="row" bindtap="clearData">
+        <view class="row-body">
+          <text class="t-body danger-text">{{T.settings_clear_data}}</text>
+          <text class="t-label">{{T.settings_clear_data_desc}}</text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+</scroll-view>

@@ -185,8 +185,13 @@ object Rules {
         generateAllLegal(pos, moves)
         if (moves.isEmpty()) {
             return if (isInCheck(pos, pos.sideToMove)) {
-                if (pos.sideToMove == Color.RED) GameOver.CHECKMATE_BLACK
-                else GameOver.CHECKMATE_RED
+                // 走不动的一方**输**. CHECKMATE_RED 读作"红方被将死"
+                // (game_over_checkmate_red = "黑方将死红方", GameViewModel 也把
+                // 它的 winner 判给黑方), 所以轮到红走却无棋可走时是 CHECKMATE_RED。
+                // 这两个分支原来是反的: 玩家执红被将死, 界面显示"红方将死黑方"
+                // 并且把这局记成玩家胜。
+                if (pos.sideToMove == Color.RED) GameOver.CHECKMATE_RED
+                else GameOver.CHECKMATE_BLACK
             } else {
                 GameOver.STALEMATE
             }
