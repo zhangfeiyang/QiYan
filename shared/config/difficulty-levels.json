@@ -1,0 +1,17 @@
+[
+  {"level":1,"name":"启蒙","rank":"象棋入门","thinkTimeMs":100},
+  {"level":2,"name":"初学","rank":"新手棋手","thinkTimeMs":200},
+  {"level":3,"name":"入门","rank":"街道棋手","thinkTimeMs":350},
+  {"level":4,"name":"进阶","rank":"业余一级","thinkTimeMs":500},
+  {"level":5,"name":"熟练","rank":"业余二级","thinkTimeMs":800},
+  {"level":6,"name":"好手","rank":"业余三级","thinkTimeMs":1200},
+  {"level":7,"name":"强手","rank":"业余四级","thinkTimeMs":2000},
+  {"level":8,"name":"高手","rank":"业余五级","thinkTimeMs":3500},
+  {"level":9,"name":"名手","rank":"业余六级","thinkTimeMs":5000},
+  {"level":10,"name":"大师","rank":"棋协大师","thinkTimeMs":8000},
+  {"level":11,"name":"强大师","rank":"棋协大师强档","thinkTimeMs":12000},
+  {"level":12,"name":"地方名将","rank":"地方大师","thinkTimeMs":20000},
+  {"level":13,"name":"全国名将","rank":"国家大师","thinkTimeMs":35000},
+  {"level":14,"name":"特级大师","rank":"国家特级大师","thinkTimeMs":60000},
+  {"level":15,"name":"巅峰","rank":"国际特级大师","thinkTimeMs":90000}
+]

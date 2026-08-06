@@ -1,0 +1,14 @@
+{
+  "appid": "touristappid",
+  "projectname": "QiYanMiniProgram",
+  "description": "棋眼中国象棋学习工具",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false
+  }
+}

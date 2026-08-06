@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/game/game",
+    "pages/replay/replay",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarTitleText": "棋眼",
+    "navigationBarBackgroundColor": "#241b17",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f3e6ca",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

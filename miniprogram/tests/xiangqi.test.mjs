@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const require=createRequire(import.meta.url);
+const game=require('../core/xiangqi.js');
+const board=game.cloneBoard(game.INITIAL_BOARD);
+assert.equal(game.legalMoves(board,game.RED).length,44,'初始局面红方应有44个合法着法');
+const pawnMoves=game.legalMoves(board,game.RED,{row:6,col:0});
+assert.deepEqual(pawnMoves.map((move)=>move.to),[{row:5,col:0}]);
+const horseMoves=game.legalMoves(board,game.RED,{row:9,col:1});
+assert.equal(horseMoves.length,2);
+const move=game.localBestMove(board,game.RED);
+assert.ok(move&&game.legalMoves(board,game.RED).some((item)=>JSON.stringify(item)===JSON.stringify(move)));
+assert.match(game.toFen(board,game.RED),/^rnbakabnr/);
+console.log('xiangqi core tests passed');

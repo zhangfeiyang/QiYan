@@ -1,0 +1,12 @@
+<view class="board-shell">
+  <view class="files"><text wx:for="{{topFiles}}" wx:key="*this">{{item}}</text></view>
+  <view class="board">
+    <view class="row" wx:for="{{rows}}" wx:key="key">
+      <view class="cell {{item2.selected?'selected':''}} {{item2.target?'target':''}}" wx:for="{{item.cells}}" wx:for-item="item2" wx:key="col" data-row="{{item2.row}}" data-col="{{item2.col}}" bindtap="tapCell">
+        <view wx:if="{{item2.piece}}" class="piece {{item2.red?'red':'black'}}">{{item2.char}}</view>
+      </view>
+    </view>
+    <view class="river">楚 河　　汉 界</view>
+  </view>
+  <view class="files"><text wx:for="{{bottomFiles}}" wx:key="*this">{{item}}</text></view>
+</view>

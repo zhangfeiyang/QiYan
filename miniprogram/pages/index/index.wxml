@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">QI YAN · XIANGQI LAB</text>
+    <text class="title">棋眼</text>
+    <text class="subtitle">中国象棋练习与局势分析工具</text>
+  </view>
+  <view class="profile card">
+    <view><text class="label">当前棋力</text><text class="rating">{{profile.rating}}</text></view>
+    <view class="stats"><text>{{profile.games}} 局</text><text>{{profile.wins}} 胜</text><text>{{profile.losses}} 负</text></view>
+  </view>
+  <button class="play primary" bindtap="startGame">开始对局</button>
+  <view class="difficulty card" bindtap="openDifficulty">
+    <view><text class="label">AI 难度</text><text class="difficulty-name">{{difficulty.level}} · {{difficulty.name}}</text></view>
+    <text class="rank">{{difficulty.rank}}  ›</text>
+  </view>
+  <view class="grid">
+    <view class="entry card" bindtap="replay"><text class="icon">谱</text><text>棋谱复盘</text></view>
+    <view class="entry card" bindtap="pending"><text class="icon">识</text><text>拍照识局</text><text class="badge">迁移中</text></view>
+    <view class="entry card" bindtap="pending"><text class="icon">助</text><text>实时支招</text><text class="badge">迁移中</text></view>
+    <view class="entry card" bindtap="settings"><text class="icon">设</text><text>设置与同步</text></view>
+  </view>
+  <text class="sync">小程序已同步 {{available}} / {{total}} 项产品能力</text>
+</view>

@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="topbar card"><view><text class="status">{{status}}</text><text class="level">Lv.{{difficulty.level}} · {{difficulty.rank}}</text></view><text class="turn">{{side===1?'红':'黑'}}</text></view>
+  <xiangqi-board board="{{board}}" selected="{{selected}}" targets="{{targets}}" flipped="{{flipped}}" disabled="{{thinking||gameOver||analysisScanning}}" bind:celltap="onCellTap" />
+  <view class="actions card">
+    <button bindtap="hint">提示</button><button bindtap="undo">悔棋</button><button bindtap="flip">翻转</button><button class="analysis" bindtap="openAnalysis">AI分析</button><button bindtap="resign">认输</button>
+  </view>
+  <view wx:if="{{analysisScanning}}" class="scanner"><view class="scan-line"></view><text>AI 正在全盘计算</text><text class="scan-sub">评估子力 · 王安全 · 战术变化</text></view>
+  <view wx:if="{{analysisOpen}}" class="analysis-panel">
+    <view class="panel-head"><view><text class="panel-title">AI 局势分析</text><text class="panel-sub">棋盘保持可见，可继续对话</text></view><text class="close" bindtap="closeAnalysis">×</text></view>
+    <scroll-view class="messages" scroll-y enhanced show-scrollbar="false">
+      <view wx:for="{{messages}}" wx:key="index" class="message {{item.role}}">{{item.text}}</view>
+      <view wx:if="{{sending}}" class="message assistant">正在分析变化…</view>
+    </scroll-view>
+    <scroll-view class="prompts" scroll-x enhanced show-scrollbar="false"><view class="prompt-row"><text wx:for="{{quickPrompts}}" wx:key="*this" class="prompt" data-text="{{item}}" bindtap="usePrompt">{{item}}</text></view></scroll-view>
+    <view class="composer"><input value="{{inputText}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" placeholder="继续询问当前局势…"/><button bindtap="sendMessage" disabled="{{sending||!inputText}}">发送</button></view>
+  </view>
+</view>
