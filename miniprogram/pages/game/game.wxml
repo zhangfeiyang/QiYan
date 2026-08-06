@@ -1,6 +1,10 @@
 <view class="page">
   <view class="topbar card"><view><text class="status">{{status}}</text><text class="level">Lv.{{difficulty.level}} · {{difficulty.rank}}</text></view><text class="turn">{{side===1?'红':'黑'}}</text></view>
-  <xiangqi-board board="{{board}}" selected="{{selected}}" targets="{{targets}}" flipped="{{flipped}}" disabled="{{thinking||gameOver||analysisScanning}}" bind:celltap="onCellTap" />
+  <view wx:if="{{appOnlyHint}}" class="app-only-hint card">
+    <text class="app-only-title">Lv.{{difficulty.level}} · {{difficulty.rank}} 需在 App 端体验</text>
+    <text class="app-only-text">该段位由云引擎驱动，小程序端 AI 仅支持 Lv.1-{{maxLocalLevel}}。请在 Android/iOS 客户端开局，或先选择 Lv.1-{{maxLocalLevel}} 的本地对局。</text>
+  </view>
+  <xiangqi-board board="{{board}}" selected="{{selected}}" targets="{{targets}}" flipped="{{flipped}}" disabled="{{thinking||gameOver||analysisScanning||appOnlyHint}}" bind:celltap="onCellTap" />
   <view class="actions card">
     <button bindtap="hint">提示</button><button bindtap="undo">悔棋</button><button bindtap="flip">翻转</button><button class="analysis" bindtap="openAnalysis">AI分析</button><button bindtap="resign">认输</button>
   </view>

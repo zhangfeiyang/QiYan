@@ -8,10 +8,65 @@
     <view><text class="label">当前棋力</text><text class="rating">{{profile.rating}}</text></view>
     <view class="stats"><text>{{profile.games}} 局</text><text>{{profile.wins}} 胜</text><text>{{profile.losses}} 负</text></view>
   </view>
-  <button class="play primary" bindtap="startGame">开始对局</button>
-  <view class="difficulty card" bindtap="openDifficulty">
-    <view><text class="label">AI 难度</text><text class="difficulty-name">{{difficulty.level}} · {{difficulty.name}}</text></view>
-    <text class="rank">{{difficulty.rank}}  ›</text>
+  <button class="play primary" bindtap="startGame">开始对局（Lv.{{difficulty.level}} · {{difficulty.name}}）</button>
+  <view class="levels card">
+    <view class="levels-head">
+      <text class="label">AI 难度 · 端侧可达 Lv.1-{{maxLocalLevel}}</text>
+      <text class="levels-sub">10-15 需在 App 端体验云端引擎</text>
+    </view>
+    <view class="levels-grid">
+      <view wx:for="{{localDifficulties}}" wx:key="level"
+            class="level-tile {{item.level===difficulty.level?'active':''}}"
+            data-level="{{item.level}}"
+            bindtap="pickLevel">
+        <text class="level-num">Lv.{{item.level}}</text>
+        <text class="level-name">{{item.name}}</text>
+        <text class="level-rank">{{item.rank}}</text>
+        <text class="level-note">{{levelNotes[item.level] || ''}}</text>
+      </view>
+      <view class="level-tile disabled" data-level="10" bindtap="pickLevel">
+        <text class="level-num">Lv.10</text>
+        <text class="level-name">大师</text>
+        <text class="level-rank">棋协大师</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+      <view class="level-tile disabled" data-level="11" bindtap="pickLevel">
+        <text class="level-num">Lv.11</text>
+        <text class="level-name">强大师</text>
+        <text class="level-rank">棋协大师强档</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+      <view class="level-tile disabled" data-level="12" bindtap="pickLevel">
+        <text class="level-num">Lv.12</text>
+        <text class="level-name">地方名将</text>
+        <text class="level-rank">地方大师</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+      <view class="level-tile disabled" data-level="13" bindtap="pickLevel">
+        <text class="level-num">Lv.13</text>
+        <text class="level-name">全国名将</text>
+        <text class="level-rank">国家大师</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+      <view class="level-tile disabled" data-level="14" bindtap="pickLevel">
+        <text class="level-num">Lv.14</text>
+        <text class="level-name">特级大师</text>
+        <text class="level-rank">国家特级大师</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+      <view class="level-tile disabled" data-level="15" bindtap="pickLevel">
+        <text class="level-num">Lv.15</text>
+        <text class="level-name">巅峰</text>
+        <text class="level-rank">国际特级大师</text>
+        <text class="level-note">云端引擎</text>
+        <text class="level-tag">App</text>
+      </view>
+    </view>
   </view>
   <view class="grid">
     <view class="entry card" bindtap="replay"><text class="icon">谱</text><text>棋谱复盘</text></view>
