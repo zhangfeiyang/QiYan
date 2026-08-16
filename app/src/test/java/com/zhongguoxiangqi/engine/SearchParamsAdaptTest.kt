@@ -34,15 +34,15 @@ class SearchParamsAdaptTest {
     }
 
     @Test
-    fun `对局路径 难度 3 抬到 500ms`() {
+    fun `对局路径 难度 3 抬到 350ms`() {
         val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 3)
-        assertEquals(500L, p.movetime)
+        assertEquals(350L, p.movetime)
     }
 
     @Test
-    fun `对局路径 难度 6 抬到 2500ms`() {
+    fun `对局路径 难度 6 抬到 1200ms`() {
         val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 6)
-        assertEquals(2500L, p.movetime)
+        assertEquals(1200L, p.movetime)
     }
 
     @Test
@@ -52,9 +52,19 @@ class SearchParamsAdaptTest {
     }
 
     @Test
-    fun `对局路径 最高难度(15 档)至少 90 秒`() {
+    fun `对局路径 最高难度(15 档)封顶 12 秒`() {
+        // 上限是**产品约束**而不是引擎能力: 一手棋等 90 秒没人受得了, 顶档的棋力
+        // 靠线程和哈希补(见 adaptParams), 不靠把时间拖长. 这条断言就是那个封顶.
         val p = EngineManager.adaptParams(SearchParams(movetime = 100), difficultyLevel = 15)
-        assertEquals(90000L, p.movetime)
+        assertEquals(12_000L, p.movetime)
+    }
+
+    @Test
+    fun `任何难度都不会让玩家等过 12 秒`() {
+        for (level in 1..EngineManager.MAX_LEVEL) {
+            val t = EngineManager.adaptParams(SearchParams(movetime = 1), difficultyLevel = level).movetime
+            assertEquals("难度 $level 的时限超过了 12 秒上限", true, t <= 12_000L)
+        }
     }
 
     @Test

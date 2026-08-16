@@ -13,10 +13,17 @@ import com.zhongguoxiangqi.R
  */
 class DifficultyAdapter(
     private val levels: List<DifficultyLevel>,
+    selectedId: Int,
     private val onClick: (DifficultyLevel) -> Unit
 ) : RecyclerView.Adapter<DifficultyAdapter.VH>() {
 
-    private var selectedPosition = 4  // 默认选中级
+    /**
+     * 高亮的是**当前这盘用的那一档**.
+     *
+     * 原来这里写死 4 —— 不管你在下 Lv.1 还是 Lv.15, 打开选择器都指着第 5 档,
+     * 看上去就像"我上次选的没存住"。
+     */
+    private var selectedPosition = levels.indexOfFirst { it.id == selectedId }
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val badge: View = view.findViewById(R.id.difficulty_badge)
@@ -43,7 +50,7 @@ class DifficultyAdapter(
         holder.itemView.setOnClickListener {
             val oldPos = selectedPosition
             selectedPosition = holder.bindingAdapterPosition
-            notifyItemChanged(oldPos)
+            if (oldPos >= 0) notifyItemChanged(oldPos)
             notifyItemChanged(selectedPosition)
             onClick(level)
         }

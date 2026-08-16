@@ -149,6 +149,7 @@ class PikafishEngine(private val context: Context) : ChessEngine {
                     PikafishNative.setoption("MultiPV", multiPv.toString())
                     PikafishNative.go(movetime, depth, if (params.infinite) 1 else 0)
                 }
+                streamInfoWhileSearching(listenerSnap)
                 PikafishNative.waitForSearch()
 
                 val mvBuf = ByteArray(8)
@@ -187,6 +188,33 @@ class PikafishEngine(private val context: Context) : ChessEngine {
 
     override fun setListener(listener: EngineListener?) {
         this.listener = listener
+    }
+
+    /**
+     * 搜索**过程中**把 native 侧的即时评估喂给监听器.
+     *
+     * C++ 每加深一层就刷新 g_lastInfo(pikafish_jni.cpp 的 set_on_update_full),
+     * 但 Kotlin 侧原来只在搜索结束后 readLastInfo() 一次 —— 于是高难度那十几秒
+     * 里胜率条一直冻在上一手的数字上, 玩家除了"AI thinking…"看不到任何进展,
+     * 等待感被放大了好几倍。
+     *
+     * 只在深度真的推进时回调: 同一层重复上报只会让 UI 空转.
+     */
+    private fun streamInfoWhileSearching(listener: EngineListener?) {
+        if (listener == null) return
+        var reportedDepth = 0
+        while (!stopRequested && PikafishNative.isSearching() != 0) {
+            try {
+                Thread.sleep(INFO_POLL_MS)
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return
+            }
+            val info = readLastInfo() ?: continue
+            if (info.depth <= reportedDepth) continue
+            reportedDepth = info.depth
+            listener.onInfo(info)
+        }
     }
 
     private fun readLastInfo(): EngineInfo? {
@@ -249,5 +277,7 @@ class PikafishEngine(private val context: Context) : ChessEngine {
     private companion object {
         const val MAX_DEPTH = 64
         const val BOOK_MIN_THINK_MS = 450L
+        /** 搜索途中读 g_lastInfo 的间隔. 深度推进本身就有几百毫秒, 再密没意义 */
+        const val INFO_POLL_MS = 200L
     }
 }

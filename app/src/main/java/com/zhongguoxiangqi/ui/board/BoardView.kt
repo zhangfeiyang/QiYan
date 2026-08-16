@@ -792,9 +792,12 @@ class BoardView @JvmOverloads constructor(
     private fun rebuildShaders() {
         if (pieceRadius <= 0f) return
 
+        // 木纹要一直铺到坐标标签外面 —— 边框收在 pieceRadius*1.2(0.5 格)时,
+        // 标签只能画在木纹之外的页面底色上, 看着像掉出棋盘.
+        val wood = cellWidth * WOOD_MARGIN_CELLS
         boardRect.set(
-            boardLeft - pieceRadius * 1.2f, boardTop - pieceRadius * 1.2f,
-            boardRight + pieceRadius * 1.2f, boardBottom + pieceRadius * 1.2f
+            boardLeft - wood, boardTop - wood,
+            boardRight + wood, boardBottom + wood
         )
         boardBgPaint.shader = LinearGradient(
             boardRect.left, boardRect.top, boardRect.right, boardRect.bottom,
@@ -1105,37 +1108,43 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawCoordinates(canvas: Canvas) {
         // 上下/左右的列号和行号.
-        // 列号用阿拉伯数字, 从**底部一方**的右侧数起, 上下底都标:
-        //   红在底部(未翻转): 屏幕右列(col 8) = 1 ... col 0 = 9
-        //   黑在底部(已翻转): 屏幕左列(col 0) = 1 ... col 8 = 9
-        // 行号同理从底部数起: 底行 = 1.
-        // 这样棋盘上标的数字和嘴里念的"车九进四""炮二平五"一一对应.
-        val redAtBottom = !flipped
-        coordinatePaint.textSize = pieceRadius * 0.65f
+        // 列号用阿拉伯数字, 每一方都从**自己的右手边**数起 —— 真棋盘就是这么标的,
+        // 所以上下两排互为镜像. 关键是这一号数跟着**棋盘上的那一列**走, 不跟着
+        // 屏幕位置走: setFlipped 是把棋盘转 180°(行列都反), 转完红的"一路"从屏幕
+        // 右边跑到了左边, 号数必须跟着过去, 否则翻一次棋盘"炮二平五"就指错列了.
+        // 行号从屏幕底部数起: 底行 = 1.
+        coordinatePaint.textSize = pieceRadius * 0.62f
+        val fm = coordinatePaint.fontMetrics
+        // 基线偏移: 把文字的视觉中心落在给定的 y 上
+        val baseline = -(fm.ascent + fm.descent) / 2f
+        // 标签放进"棋子外沿 → 木纹边框"这条空带的正中.
+        // 以前是按 pieceRadius 的倍数硬编码落点(0.23~0.57 格), 正好压在最外圈
+        // 棋子(半径 0.42 格)身上 —— 上下两排列号被车马象整个盖住, 行号"10"也有
+        // 一半钻到车底下, 等于没标. 小程序那边(59bf6b4)已经按同样思路修过.
+        val bandCenter = (pieceRadius + cellWidth * WOOD_MARGIN_CELLS) / 2f
+
         coordinatePaint.textAlign = Paint.Align.CENTER
+        val yTop = boardTop - bandCenter + baseline
+        val yBottom = boardBottom + bandCenter + baseline
         for (c in 0 until Square.COLS) {
             val x = boardLeft + c * cellWidth
-            // 上下列号必须放到棋子外圈之外: 棋子半径 0.42 格, 画在 0.17 格处
-            // 会被第一排/最后一排棋子盖住, 看起来就像"没有标注"。
-            val yTop = boardTop - pieceRadius * 0.55f
-            val yBottom = boardBottom + pieceRadius * 1.35f
-            val colChar = if (redAtBottom) {
-                ('9' - c)
-            } else {
-                '1' + c
-            }
-            val label = colChar.toString()
-            canvas.drawText(label, x, yTop, coordinatePaint)
-            canvas.drawText(label, x, yBottom, coordinatePaint)
+            canvas.drawText(fileLabel(c, flipped, top = true), x, yTop, coordinatePaint)
+            canvas.drawText(fileLabel(c, flipped, top = false), x, yBottom, coordinatePaint)
         }
+
+        // 行号贴着棋子外沿往外排(左侧右对齐, 右侧左对齐)而不是"整体居中":
+        // "10" 是两位数, 居中放会有一位压回棋子上, 对齐方式才能保证不管几位数
+        // 都从棋子边上起步.
+        val gap = pieceRadius * 0.12f
         for (r in 0 until Square.ROWS) {
-            val y = boardTop + r * cellHeight
-            val xLeft = boardLeft - pieceRadius * 1.1f
-            val xRight = boardRight + pieceRadius * 1.1f
+            val y = boardTop + r * cellHeight + baseline
             val rowNum = (Square.ROWS - r).toString()
-            canvas.drawText(rowNum, xLeft, y + coordinatePaint.textSize / 3, coordinatePaint)
-            canvas.drawText(rowNum, xRight, y + coordinatePaint.textSize / 3, coordinatePaint)
+            coordinatePaint.textAlign = Paint.Align.RIGHT
+            canvas.drawText(rowNum, boardLeft - pieceRadius - gap, y, coordinatePaint)
+            coordinatePaint.textAlign = Paint.Align.LEFT
+            canvas.drawText(rowNum, boardRight + pieceRadius + gap, y, coordinatePaint)
         }
+        coordinatePaint.textAlign = Paint.Align.CENTER
     }
 
     /**
@@ -1394,6 +1403,31 @@ class BoardView @JvmOverloads constructor(
         // 上下底标签字号比之前大了一档(0.55 -> 0.65 个 pieceRadius),
         // 还要给行号两边让出位置, 1.35 已经压到字会被棋子盖住. 加到 1.7.
         private const val MARGIN_CELLS = 1.7f
+        /**
+         * 木纹边框相对最外圈交点再往外铺多少格.
+         *
+         * 必须 < MARGIN_CELLS/2 (= 0.85), 否则边框描边会被 View 边缘切掉;
+         * 又必须 > 棋子半径 0.42, 坐标标签才有地方落. 0.78 两头都留了余量.
+         */
+        private const val WOOD_MARGIN_CELLS = 0.78f
+
+        /**
+         * 棋盘上下两排该标的列号.
+         *
+         * @param screenCol 屏幕从左往右第几列 (0..8)
+         * @param flipped 棋盘是否已转 180°(黑在下)
+         * @param top true=上边那排, false=下边那排
+         *
+         * 每一方从**自己的右手边**数起: 红的"一路"永远是棋盘 col 8, 黑的"1路"
+         * 永远是 col 0 —— 认的是棋盘上的列, 不是屏幕上的位置. 翻面后红那一路
+         * 从屏幕右边跑到左边, 号数要跟着走, 否则"炮二平五"会指到错的列.
+         */
+        internal fun fileLabel(screenCol: Int, flipped: Boolean, top: Boolean): String {
+            val physCol = if (flipped) Square.COLS - 1 - screenCol else screenCol
+            val redSideOnTop = flipped
+            return if (top == redSideOnTop) ('9' - physCol).toString()
+            else ('1' + physCol).toString()
+        }
         /** 走子动画时长 */
         private const val MOVE_ANIMATION_MS = 220L
         private const val LONG_PRESS_MS = 600L

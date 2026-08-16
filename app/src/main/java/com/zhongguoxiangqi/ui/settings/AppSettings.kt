@@ -13,8 +13,41 @@ class AppSettings(context: Context) {
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    val threads: Int get() = prefs.getInt(SettingsActivity.KEY_THREADS, 2).coerceIn(1, 8)
-    val hashMb: Int get() = prefs.getInt(SettingsActivity.KEY_HASH, 64).coerceIn(16, 1024)
+    private val appContext = context.applicationContext
+
+    /**
+     * 线程数/置换表.
+     *
+     * 这两项是**上限**: EngineManager.applyUserLimits 用 coerceAtMost 把难度
+     * 要的参数往下夹. 所以默认值定低了会悄悄把高难度废掉 —— 之前写死 2 线程
+     * 64MB, 而难度梯子在 Lv.9 以上要的是 4 线程 128~256MB, 等于顶档棋力从来
+     * 没兑现过, 界面上还照样写着"传奇". 默认值必须至少够得着梯子的顶.
+     */
+    val threads: Int get() = prefs.getInt(SettingsActivity.KEY_THREADS, defaultThreads()).coerceIn(1, 8)
+    val hashMb: Int get() = prefs.getInt(SettingsActivity.KEY_HASH, defaultHashMb()).coerceIn(16, 1024)
+
+    /** 一半核心, 夹在 2..4 —— 就是设置页那句"不超过设备核心数的一半" */
+    private fun defaultThreads(): Int =
+        (Runtime.getRuntime().availableProcessors() / 2).coerceIn(2, 4)
+
+    /**
+     * 置换表默认值按整机内存分档.
+     *
+     * 这块是 native 分配, 不占 Java 堆, 但也不能不管设备就要 256MB ——
+     * NNUE 本身已经吃掉 50MB 上下.
+     */
+    private fun defaultHashMb(): Int {
+        val am = appContext.getSystemService(Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+            ?: return 128
+        val info = android.app.ActivityManager.MemoryInfo()
+        am.getMemoryInfo(info)
+        val totalGb = info.totalMem / (1024.0 * 1024 * 1024)
+        return when {
+            totalGb >= 6 -> 256
+            totalGb >= 3 -> 128
+            else -> 64
+        }
+    }
     val soundEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_SOUND, true)
     val vibrateEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_VIBRATE, true)
     val showCoordinates: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_SHOW_COORDS, true)

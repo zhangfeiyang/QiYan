@@ -51,21 +51,21 @@
 
     <!-- 棋力描述 -->
     <!-- 每档一句, 说清"对手大概什么水平", 并注明对应什么级别的棋手. -->
-    <string name="difficulty_desc_easy">刚学会走子，经常白送子（新手）</string>
-    <string name="difficulty_desc_beginner">能吃明摆着的子，看不出明显陷阱（初学爱好者）</string>
-    <string name="difficulty_desc_lower_intermediate">懂基础战术，偶尔能看穿简单叫将（普通爱好者）</string>
-    <string name="difficulty_desc_intermediate">开局成套路，中局能算三五步（街道棋手）</string>
-    <string name="difficulty_desc_upper_intermediate">走子有章法，开局不掉链子（资深爱好者）</string>
-    <string name="difficulty_desc_advanced">业余硬手，残局有章法，很少走软手（业余初段）</string>
-    <string name="difficulty_desc_amateur">战术扎实，会主动设陷阱（业余三段）</string>
-    <string name="difficulty_desc_district">攻守均衡，能抓住对手失误（业余五段）</string>
-    <string name="difficulty_desc_city">全局观强，备好陷阱，少有漏着（业余六段）</string>
-    <string name="difficulty_desc_provincial">省级比赛水准，计算精准（地方大师）</string>
-    <string name="difficulty_desc_local_master">大师级对弈，变化算得很深（棋协大师）</string>
-    <string name="difficulty_desc_national_master">攻杀犀利，几乎不失误（国家大师）</string>
-    <string name="difficulty_desc_grandmaster">国家级特级大师水准，战略深远（国家级特级大师）</string>
-    <string name="difficulty_desc_international_master">国际大师水准，三阶段都精准（国际大师）</string>
-    <string name="difficulty_desc_legendary">国际特级大师水准，本机最强算力（国际特级大师）</string>
+    <string name="difficulty_desc_easy">刚学会走子，经常白送子</string>
+    <string name="difficulty_desc_beginner">能吃明摆着的子，看不出明显陷阱</string>
+    <string name="difficulty_desc_lower_intermediate">懂基础战术，偶尔能看穿简单叫将</string>
+    <string name="difficulty_desc_intermediate">开局成套路，中局能算三五步</string>
+    <string name="difficulty_desc_upper_intermediate">走子有章法，开局不掉链子</string>
+    <string name="difficulty_desc_advanced">业余硬手，残局有章法，很少走软手</string>
+    <string name="difficulty_desc_amateur">战术扎实，会主动设陷阱</string>
+    <string name="difficulty_desc_district">攻守均衡，能抓住对手失误</string>
+    <string name="difficulty_desc_city">全局观强，备好陷阱，少有漏着</string>
+    <string name="difficulty_desc_provincial">省级比赛水准，计算精准</string>
+    <string name="difficulty_desc_local_master">大师级对弈，变化算得很深</string>
+    <string name="difficulty_desc_national_master">攻杀犀利，几乎不失误</string>
+    <string name="difficulty_desc_grandmaster">国家级特级大师水准，战略深远</string>
+    <string name="difficulty_desc_international_master">国际大师水准，三阶段都精准</string>
+    <string name="difficulty_desc_legendary">国际特级大师水准，本机最强算力</string>
 
     <!-- 游戏控制 -->
     <string name="action_hint">提示</string>

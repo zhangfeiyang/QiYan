@@ -38,8 +38,12 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadSettings() {
-        val threads = prefs.getInt(KEY_THREADS, 2)
-        val hashMb = prefs.getInt(KEY_HASH, 64)
+        // 这两项的默认值跟设备走(核心数/内存), 只有 AppSettings 知道怎么算 ——
+        // 在这里再写一份字面量, 就会重演 KEY_THEME 那个坑: 滑块显示 2 线程,
+        // 引擎实际按 4 线程在跑.
+        val appSettings = AppSettings(this)
+        val threads = appSettings.threads
+        val hashMb = appSettings.hashMb
         val soundEnabled = prefs.getBoolean(KEY_SOUND, true)
         val vibrateEnabled = prefs.getBoolean(KEY_VIBRATE, true)
         val showCoords = prefs.getBoolean(KEY_SHOW_COORDS, true)

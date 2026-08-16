@@ -54,21 +54,21 @@
     <string name="difficulty_segment_legendary">International Grandmaster</string>
 
     <!-- Difficulty descriptions -->
-    <string name="difficulty_desc_easy">Just learned the rules, often gives pieces away (new player)</string>
-    <string name="difficulty_desc_beginner">Takes obvious free pieces, misses simple traps (casual beginner)</string>
-    <string name="difficulty_desc_lower_intermediate">Knows basic tactics, occasionally sees forks (average hobbyist)</string>
-    <string name="difficulty_desc_intermediate">Solid openings, calculates 3-5 moves ahead (street player)</string>
-    <string name="difficulty_desc_upper_intermediate">Plays principled moves, handles openings (strong hobbyist)</string>
-    <string name="difficulty_desc_advanced">Solid amateur, sound endgames, few weak moves (amateur 1 dan)</string>
-    <string name="difficulty_desc_amateur">Reliable tactics, sets basic traps (amateur 3 dan)</string>
-    <string name="difficulty_desc_district">Balanced attack and defense, punishes mistakes (amateur 5 dan)</string>
-    <string name="difficulty_desc_city">Strong overview, prepares traps, rarely blunders (amateur 6 dan)</string>
-    <string name="difficulty_desc_provincial">Provincial tournament level, precise calculation (local master)</string>
-    <string name="difficulty_desc_local_master">Master-level play, deeply calculated lines (chess association master)</string>
-    <string name="difficulty_desc_national_master">Sharp attacking play, almost no mistakes (national master)</string>
-    <string name="difficulty_desc_grandmaster">National grandmaster level, deep strategic play (national grandmaster)</string>
-    <string name="difficulty_desc_international_master">International master level, precise in every phase (international master)</string>
-    <string name="difficulty_desc_legendary">International grandmaster level, the strongest on this device (international grandmaster)</string>
+    <string name="difficulty_desc_easy">Just learned the rules, often gives pieces away</string>
+    <string name="difficulty_desc_beginner">Takes obvious free pieces, misses simple traps</string>
+    <string name="difficulty_desc_lower_intermediate">Knows basic tactics, occasionally sees forks</string>
+    <string name="difficulty_desc_intermediate">Solid openings, calculates 3-5 moves ahead</string>
+    <string name="difficulty_desc_upper_intermediate">Plays principled moves, handles openings</string>
+    <string name="difficulty_desc_advanced">Solid amateur, sound endgames, few weak moves</string>
+    <string name="difficulty_desc_amateur">Reliable tactics, sets basic traps</string>
+    <string name="difficulty_desc_district">Balanced attack and defense, punishes mistakes</string>
+    <string name="difficulty_desc_city">Strong overview, prepares traps, rarely blunders</string>
+    <string name="difficulty_desc_provincial">Provincial tournament level, precise calculation</string>
+    <string name="difficulty_desc_local_master">Master-level play, deeply calculated lines</string>
+    <string name="difficulty_desc_national_master">Sharp attacking play, almost no mistakes</string>
+    <string name="difficulty_desc_grandmaster">National grandmaster level, deep strategic play</string>
+    <string name="difficulty_desc_international_master">International master level, precise in every phase</string>
+    <string name="difficulty_desc_legendary">International grandmaster level, the strongest on this device</string>
 
     <!-- Game controls -->
     <string name="action_hint">Hint</string>

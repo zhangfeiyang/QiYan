@@ -610,7 +610,7 @@ class GameActivity : AppCompatActivity() {
             .create()
 
         val levels = DifficultyLevel.entries.toList()
-        rv.adapter = DifficultyAdapter(levels) { level ->
+        rv.adapter = DifficultyAdapter(levels, viewModel.state.value.difficulty) { level ->
             dialog.dismiss()
             viewModel.setDifficulty(level.id)
             lastDifficulty = level.id
