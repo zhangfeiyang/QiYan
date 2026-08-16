@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.settings
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +29,7 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.scroll, extraBottomDp = 0f)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
@@ -43,9 +46,9 @@ class SettingsActivity : AppCompatActivity() {
         val showWinrate = prefs.getBoolean(KEY_SHOW_WINRATE, true)
         val animation = prefs.getBoolean(KEY_ANIMATION, true)
         val flipped = prefs.getBoolean(KEY_FLIPPED, false)
-        // 默认值必须和 AppSettings.themeMode 保持一致 (1=深色), 否则设置页
+        // 默认值必须和 AppSettings.themeMode 保持一致 (2=浅色), 否则设置页
         // 勾着"跟随系统", App 实际跑的却是深色.
-        val theme = prefs.getInt(KEY_THEME, 1)
+        val theme = prefs.getInt(KEY_THEME, 2)
 
         binding.seekThreads.progress = threads
         binding.tvThreadsValue.text = threads.toString()
@@ -62,6 +65,16 @@ class SettingsActivity : AppCompatActivity() {
             1 -> R.id.theme_dark
             2 -> R.id.theme_light
             else -> R.id.theme_system
+        })
+        binding.pieceSetGroup.check(when (prefs.getInt(KEY_PIECE_SET, 0)) {
+            1 -> R.id.piece_set_hanzi
+            2 -> R.id.piece_set_latin
+            else -> R.id.piece_set_auto
+        })
+        binding.notationGroup.check(when (prefs.getInt(KEY_NOTATION, 0)) {
+            1 -> R.id.notation_chinese
+            2 -> R.id.notation_wxf
+            else -> R.id.notation_auto
         })
     }
 
@@ -126,6 +139,25 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().putInt(KEY_THEME, mode).apply()
         }
 
+        // 棋子字符集只影响 BoardView 的绘制, 而 BoardView 是在各界面 onCreate
+        // 时读一次设置. 这里存完即可, 下次进对局/复盘就生效 —— 设置页本身
+        // 没有棋盘可看, 不需要即时重绘.
+        binding.pieceSetGroup.setOnCheckedChangeListener { _, checkedId ->
+            prefs.edit().putInt(KEY_PIECE_SET, when (checkedId) {
+                R.id.piece_set_hanzi -> 1
+                R.id.piece_set_latin -> 2
+                else -> 0
+            }).apply()
+        }
+
+        binding.notationGroup.setOnCheckedChangeListener { _, checkedId ->
+            prefs.edit().putInt(KEY_NOTATION, when (checkedId) {
+                R.id.notation_chinese -> 1
+                R.id.notation_wxf -> 2
+                else -> 0
+            }).apply()
+        }
+
         binding.btnAbout.setOnClickListener {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.menu_about)
@@ -166,5 +198,7 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_FLIPPED = "flipped"
         const val KEY_THEME = "theme"
         const val KEY_BGM = "bgm"
+        const val KEY_PIECE_SET = "piece_set"
+        const val KEY_NOTATION = "notation"
     }
 }

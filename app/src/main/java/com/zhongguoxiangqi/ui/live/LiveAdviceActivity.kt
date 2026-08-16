@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.live
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -153,6 +155,7 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         super.onCreate(savedInstanceState)
         binding = ActivityLiveAdviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Insets.apply(binding.root, top = binding.toolbar)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.preview.setOnTouchListener(previewTouchListener)
 

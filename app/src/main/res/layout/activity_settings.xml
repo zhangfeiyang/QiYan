@@ -26,6 +26,7 @@
         app:navigationIconTint="@color/text_primary" />
 
     <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false">
@@ -254,8 +255,95 @@
 
             </LinearLayout>
 
+            <!-- ========== 语言相关的显示 ========== -->
+            <!-- 棋子字符集和记谱法放在一起, 并且紧挨着主题之前 —— 它们和
+                 "界面语言"是同一件事的两半: 界面翻成英文而盘上仍是七种汉字、
+                 棋谱仍写"炮二平五", 等于只翻译了外壳.
+                 两项默认都跟随界面语言, 所以第一项是"自动". -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_piece_set"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <TextView
+                style="@style/TextAppearance.Xiangqi.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_piece_set_desc" />
+
+            <RadioGroup
+                android:id="@+id/piece_set_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_surface_card"
+                android:paddingHorizontal="@dimen/space_4"
+                android:paddingVertical="@dimen/space_2"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/piece_set_auto"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_follow_language" />
+
+                <RadioButton
+                    android:id="@+id/piece_set_hanzi"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/piece_set_hanzi" />
+
+                <RadioButton
+                    android:id="@+id/piece_set_latin"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/piece_set_latin" />
+
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_notation"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <TextView
+                style="@style/TextAppearance.Xiangqi.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_notation_desc" />
+
+            <RadioGroup
+                android:id="@+id/notation_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_surface_card"
+                android:paddingHorizontal="@dimen/space_4"
+                android:paddingVertical="@dimen/space_2"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/notation_auto"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_follow_language" />
+
+                <RadioButton
+                    android:id="@+id/notation_chinese"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/notation_chinese" />
+
+                <RadioButton
+                    android:id="@+id/notation_wxf"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/notation_wxf" />
+
+            </RadioGroup>
+
             <!-- ========== 主题 ========== -->
-            <!-- 深色排第一: 它是默认, 选项顺序应该反映这一点 -->
+            <!-- 浅色排第一: 它是默认, 选项顺序应该反映这一点 -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -274,14 +362,14 @@
                 android:orientation="vertical">
 
                 <RadioButton
-                    android:id="@+id/theme_dark"
-                    style="@style/Widget.Xiangqi.Radio"
-                    android:text="@string/settings_theme_dark" />
-
-                <RadioButton
                     android:id="@+id/theme_light"
                     style="@style/Widget.Xiangqi.Radio"
                     android:text="@string/settings_theme_light" />
+
+                <RadioButton
+                    android:id="@+id/theme_dark"
+                    style="@style/Widget.Xiangqi.Radio"
+                    android:text="@string/settings_theme_dark" />
 
                 <RadioButton
                     android:id="@+id/theme_system"

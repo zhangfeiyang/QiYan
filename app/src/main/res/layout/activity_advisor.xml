@@ -154,6 +154,7 @@
 
     <!-- ============ 输入区 ============ -->
     <LinearLayout
+        android:id="@+id/input_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

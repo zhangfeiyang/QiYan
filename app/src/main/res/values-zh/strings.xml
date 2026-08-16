@@ -341,4 +341,42 @@
     <string name="advice_level_deep">深思</string>
     <string name="advice_level_deep_desc">想久一点, 关键局面更可靠</string>
     <string name="advice_level_current">支招水平: %1$s</string>
+
+    <!-- 棋盘河界题字 -->
+    <string name="board_river_text">楚 河          汉 界</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">棋子字符</string>
+    <string name="settings_piece_set_desc">汉字是象棋本来的样子；拉丁字母 (K/A/B/N/R/C/P) 与英文记谱同源</string>
+    <string name="piece_set_hanzi">汉字</string>
+    <string name="piece_set_latin">字母 K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">记谱法</string>
+    <string name="settings_notation_desc">中文记谱写作“炮二平五”，WXF 写作“C2.5”</string>
+    <string name="notation_chinese">中文记谱</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">引擎给出非法着法: %1$s</string>
+    <string name="engine_error">引擎错误: %1$s</string>
+    <string name="must_answer_check">被将军, 必须应招或消除威胁</string>
+
+    <!-- 开局加载 -->
+    <string name="loading_engine">正在摆棋…</string>
+    <string name="settings_follow_language">跟随界面语言</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">新对局</string>
+    <string name="new_game_pick_opponent">挑一位对手</string>
+    <string name="new_game_side">我执</string>
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">红</string>
+    <string name="side_black">黑</string>
+    <string name="side_random">随机</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">当前对手</string>
+    <string name="menu_change_opponent">更换</string>
+    <string name="brand_seal_char">棋</string>
 </resources>

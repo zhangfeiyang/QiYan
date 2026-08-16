@@ -66,6 +66,7 @@
          工具键: 首/上一手/播放/下一手/末 + AI 分析, 播放键用行动色实心
          标出来 —— 它是这一排里唯一会改变播放状态的键. -->
     <LinearLayout
+        android:id="@+id/control_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -127,9 +128,9 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/advisor_button"
-            android:textColor="@color/action"
+            android:textColor="@color/affirm"
             app:icon="@drawable/ic_ai"
-            app:iconTint="@color/action" />
+            app:iconTint="@color/affirm" />
 
     </LinearLayout>
 

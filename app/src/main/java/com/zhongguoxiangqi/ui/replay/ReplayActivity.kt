@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.replay
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -37,6 +39,7 @@ class ReplayActivity : AppCompatActivity() {
         binding = ActivityReplayListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.list, extraBottomDp = 0f)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
@@ -110,11 +113,13 @@ class GameRecordAdapter(
         // 胜负用语义色, 不是执子色. 原来"胜"取 status_red、"负"取
         // status_black —— 那两个是红方/黑方的标识色, 跟输赢无关, 结果
         // 就是赢和输染成了同一族的颜色, 扫一眼列表分不出战绩.
-        // 这里与主菜单胜率条的图例保持同一套: 胜=行动色, 负=危险色.
+        // 这里与主菜单胜率条的图例保持同一套: 胜=正向色, 负=危险色.
+        // 注意胜必须用 affirm 而不是 action —— 品牌色本身就是朱红,
+        // 用它标"胜"会和标"负"的 danger 变成同一族红, 又回到旧毛病.
         holder.result.setTextColor(
             holder.itemView.context.getColor(
                 when (r.result) {
-                    1 -> R.color.action
+                    1 -> R.color.affirm
                     -1 -> R.color.danger
                     else -> R.color.text_secondary
                 }

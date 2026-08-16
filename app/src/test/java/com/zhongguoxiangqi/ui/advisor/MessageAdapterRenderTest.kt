@@ -94,22 +94,26 @@ class MessageAdapterRenderTest {
         assertEquals("• 形势判断: 均势", text(bullets("* **形势判断**: 均势")))
     }
 
+    // 等待文案现在由调用方从 strings.xml 取(英文界面要出英文), 测试里给一份
+    // 固定的替身就行 —— 这里验的是"什么时候用它", 不是它长什么样.
+    private val thinking = "正在分析…"
+
     @Test
     fun `流式中且尚无内容时显示等待文案`() {
         val m = MessageAdapter.Message.Assistant("", streaming = true)
-        assertEquals("正在分析…", MessageAdapter.renderAssistant(m).toString())
+        assertEquals(thinking, MessageAdapter.renderAssistant(m, thinking).toString())
     }
 
     @Test
     fun `流式中已有内容时显示内容而非等待文案`() {
         val m = MessageAdapter.Message.Assistant("红方", streaming = true)
-        assertEquals("红方", MessageAdapter.renderAssistant(m).toString())
+        assertEquals("红方", MessageAdapter.renderAssistant(m, thinking).toString())
     }
 
     @Test
     fun `已完成的空回复不显示等待文案`() {
         val m = MessageAdapter.Message.Assistant("", streaming = false)
-        assertEquals("", MessageAdapter.renderAssistant(m).toString())
+        assertEquals("", MessageAdapter.renderAssistant(m, thinking).toString())
     }
 }
 

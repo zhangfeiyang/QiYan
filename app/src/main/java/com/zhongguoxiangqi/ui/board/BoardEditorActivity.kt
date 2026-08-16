@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.board
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +26,7 @@ class BoardEditorActivity : AppCompatActivity() {
         binding = ActivityBoardEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.editorActions, extraBottomDp = 8f)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 

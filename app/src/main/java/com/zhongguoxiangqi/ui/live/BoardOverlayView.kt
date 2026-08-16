@@ -49,7 +49,7 @@ class BoardOverlayView @JvmOverloads constructor(
     private val quadPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 4f
-        color = themeColor(R.color.action)
+        color = themeColor(R.color.affirm)
         alpha = 150
     }
     private val arrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

@@ -346,6 +346,9 @@ class BoardView @JvmOverloads constructor(
 
     // 棋子绘制用的常驻画笔(onDraw 中不再分配对象)
     private val pieceInnerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pieceFacePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
     private val pieceWoodLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = themeColor(R.color.piece_grain)
         strokeWidth = 0.8f
@@ -365,6 +368,22 @@ class BoardView @JvmOverloads constructor(
 
     private val redPieceColor = themeColor(R.color.piece_red)
     private val blackPieceColor = themeColor(R.color.piece_black)
+    private val pieceTextColor = themeColor(R.color.piece_text)
+
+    /** 棋子上印汉字还是拉丁字母. 见 [pieceLabel] */
+    enum class PieceSet { HANZI, LATIN }
+
+    /**
+     * 当前棋子字符集. 改动会重排字号并立刻重绘 ——
+     * 拉丁字母比汉字窄, 沿用汉字的字号会在圆面里显得空一圈。
+     */
+    var pieceSet: PieceSet = PieceSet.HANZI
+        set(value) {
+            if (field == value) return
+            field = value
+            applyPieceTextSize()
+            invalidate()
+        }
 
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
@@ -382,6 +401,11 @@ class BoardView @JvmOverloads constructor(
         }
         pieceRedPaint.typeface = tf
         pieceBlackPaint.typeface = tf
+
+        // 字符集在这里自己读, 不由各个 Activity 分别设置: 全 App 有 5 处
+        // 用到 BoardView (对局/复盘/支招/摆子/识局), 靠调用方记得设置就等于
+        // 迟早会漏掉一两处, 出现"对局界面是字母、复盘界面是汉字"这种分裂。
+        pieceSet = com.zhongguoxiangqi.ui.common.Notation.pieceSetFor(context)
     }
 
     // ====== 公共 API ======
@@ -756,8 +780,7 @@ class BoardView @JvmOverloads constructor(
 
         coordinatePaint.textSize = pieceRadius * 0.65f
         riverTextPaint.textSize = pieceRadius * 1.4f
-        pieceRedPaint.textSize = pieceRadius * 1.3f
-        pieceBlackPaint.textSize = pieceRadius * 1.3f
+        applyPieceTextSize()
 
         rebuildShaders()
     }
@@ -1070,8 +1093,13 @@ class BoardView @JvmOverloads constructor(
         val midY1 = boardTop + 4 * cellHeight
         val midY2 = boardTop + 5 * cellHeight
         val centerY = (midY1 + midY2) / 2
-        // 文字背景留白
-        val text = "楚 河          汉 界"
+        // 河界题字随界面语言走: 英文界面上一行汉字读不出来, 也就传达不了
+        // "这里是楚汉的分界"这层意思, 那正是它存在的全部理由.
+        // 字号也要跟着降 —— 英文那句比四个汉字长得多, 沿用汉字字号会顶到
+        // 两侧的棋子上.
+        val text = context.getString(R.string.board_river_text)
+        val isLatin = text.none { it.code in 0x4E00..0x9FFF }
+        riverTextPaint.textSize = pieceRadius * if (isLatin) 0.72f else 1.4f
         canvas.drawText(text, (boardLeft + boardRight) / 2, centerY + riverTextPaint.textSize / 3, riverTextPaint)
     }
 
@@ -1275,6 +1303,21 @@ class BoardView @JvmOverloads constructor(
         drawPieceAt(canvas, center.x, center.y, pieceCode)
     }
 
+    /**
+     * 画一枚棋子: 实心色底 + 白字.
+     *
+     * 旧版是"米白木纹面 + 彩色字": 红子 #B4302A 的字压在 #F5E9CE 的面上只有
+     * 3.2:1 的对比度, 低于正文线, 而棋子上的字恰恰是全 App 最需要一眼读准的
+     * 东西; 更糟的是红黑两方**整枚子长得一样**, 只有中间那个字的颜色不同,
+     * 扫一眼盘面根本分不出敌我。
+     *
+     * 现在整枚子按方着色, 字统一用白色 —— 红子 5.0:1、黑子 15.6:1, 并且
+     * "这是哪一方的子"在余光里就能判断, 不必逐个去读字。
+     *
+     * 分层(由下到上): 投影 → 描边环 → 实心面 → 高光 → 内刻环 → 字.
+     * 内刻环替代了旧版那几条木纹横线: 横线画在实心底上像划痕, 而一圈内环
+     * 正是实物棋子被车出来的那道边, 也顺便把字框住。
+     */
     private fun drawPieceAt(canvas: Canvas, cx: Float, cy: Float, pieceCode: Int) {
         val piece = Piece.fromCode(pieceCode)
         if (piece == Piece.NONE) return
@@ -1288,27 +1331,60 @@ class BoardView @JvmOverloads constructor(
         // 阴影
         canvas.drawCircle(3f, 4f, radius * 1.05f, pieceShadowPaint)
 
-        // 棋子外圈
-        pieceBorderPaint.color = if (isRed) themeColor(R.color.piece_red_edge) else blackPieceColor
+        // 描边环: 比面色更深一档, 让子的轮廓在木色上咬得住
+        pieceBorderPaint.color =
+            if (isRed) themeColor(R.color.piece_red_edge) else themeColor(R.color.piece_black_edge)
         canvas.drawCircle(0f, 0f, radius, pieceBorderPaint)
 
-        // 棋子内圈(木纹底色)
-        canvas.drawCircle(0f, 0f, radius * 0.92f, pieceInnerPaint)
+        // 实心面
+        pieceFacePaint.color = if (isRed) redPieceColor else blackPieceColor
+        canvas.drawCircle(0f, 0f, radius * 0.93f, pieceFacePaint)
 
-        // 木纹细节
-        for (i in -2..2) {
-            val y = i * radius * 0.25f
-            canvas.drawLine(-radius, y, radius, y, pieceWoodLinePaint)
-        }
+        // 高光: 左上偏亮的一层白色渐变, 做出圆润感(shader 已带 alpha)
+        canvas.drawCircle(0f, 0f, radius * 0.93f, pieceInnerPaint)
 
-        // 字符
+        // 内刻环
+        pieceWoodLinePaint.strokeWidth = radius * 0.05f
+        canvas.drawCircle(0f, 0f, radius * 0.78f, pieceWoodLinePaint)
+
+        // 字符. 红黑共用白字, 所以两支画笔的颜色是一样的 ——
+        // 仍然分开两支是因为字体大小要按字符集各自调(拉丁字母比汉字窄).
         val charPaint = if (isRed) pieceRedPaint else pieceBlackPaint
-        charPaint.color = if (isRed) redPieceColor else blackPieceColor
-        val text = if (isRed) piece.redChar else piece.blackChar
+        charPaint.color = pieceTextColor
+        val text = pieceLabel(piece, isRed)
         val fm = charPaint.fontMetrics
         canvas.drawText(text, 0f, -(fm.ascent + fm.descent) / 2, charPaint)
 
         canvas.restoreToCount(save)
+    }
+
+    /**
+     * 按当前字符集定棋子的字号.
+     *
+     * 汉字是方的, 1.3 倍半径正好填满内刻环; 拉丁字母是窄的, 同样字号只占掉
+     * 中间一条, 圆面上下各空一圈, 看起来像字掉进了井里 —— 所以放大到 1.55 倍
+     * 并让它按字母的实际高度居中。
+     */
+    private fun applyPieceTextSize() {
+        val scale = if (pieceSet == PieceSet.LATIN) 1.55f else 1.3f
+        pieceRedPaint.textSize = pieceRadius * scale
+        pieceBlackPaint.textSize = pieceRadius * scale
+    }
+
+    /**
+     * 棋子上印什么.
+     *
+     * 汉字是象棋的本来面目, 但对读不了汉字的人来说, 七个兵种在盘上就是七团
+     * 一样的墨 —— 界面翻成英文并不能让他认出哪个是"炮". 所以提供拉丁字母
+     * 一档, 用的是 FEN 里那套标准缩写 (K/A/B/N/R/C/P), 与英文记谱同源,
+     * 记谱里读到 "C2.5" 时能直接对上盘面那枚 C。
+     *
+     * 字母两方都用大写: 旧的 FEN 约定靠大小写区分红黑, 而这里颜色已经由
+     * 整枚子的底色说清楚了, 再用小写只会让黑方的字看起来矮一截。
+     */
+    private fun pieceLabel(piece: Piece, isRed: Boolean): String = when (pieceSet) {
+        PieceSet.LATIN -> piece.fen.uppercaseChar().toString()
+        else -> if (isRed) piece.redChar else piece.blackChar
     }
 
     // ====== 工具 ======

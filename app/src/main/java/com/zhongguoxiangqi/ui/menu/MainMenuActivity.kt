@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.menu
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.LinearLayout
@@ -36,6 +38,11 @@ class MainMenuActivity : AppCompatActivity() {
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        // Toolbar 里已经放了"印章 + 字标"那组自定义视图, 系统标题必须关掉 ——
+        // 否则 ActionBar 会把 activity label 再画一遍, 首页顶上会出现两个
+        // "QiYan" 一左一右夹着印章.
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.root, extraBottomDp = 8f)
 
         userProfile = UserProfile(this)
         updateProfile()
@@ -44,6 +51,9 @@ class MainMenuActivity : AppCompatActivity() {
         // 挡在中间只是让"下盘棋"这件事多两次点击.
         binding.btnPlay.setOnClickListener {
             startGame(lastDifficulty(), lastSide())
+        }
+        binding.cardOpponent.setOnClickListener {
+            startActivity(Intent(this, NewGameActivity::class.java))
         }
         binding.cardLive.setOnClickListener {
             startActivity(Intent(this, com.zhongguoxiangqi.ui.live.LiveAdviceActivity::class.java))
@@ -74,6 +84,19 @@ class MainMenuActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateProfile()
+        // 从 NewGameActivity 换完对手回来要立刻反映到卡上, 所以放 onResume
+        // 而不是 onCreate
+        updateOpponentCard()
+    }
+
+    /** 首页那张"当前对手"卡. 数据源就是"直接开局"会用的那一档, 两者必须一致 */
+    private fun updateOpponentCard() {
+        val level = DifficultyLevel.entries.firstOrNull { it.id == lastDifficulty() }
+            ?: DifficultyLevel.entries.first()
+        OpponentAvatar.bind(binding.opponentAvatar, level)
+        binding.opponentName.text =
+            getString(R.string.new_game_level_format, level.id, getString(level.nameRes))
+        binding.opponentSegment.text = getString(level.segmentRes)
     }
 
     private fun updateProfile() {

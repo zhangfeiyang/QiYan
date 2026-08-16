@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.replay
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -49,6 +51,7 @@ class ReplayViewerActivity : AppCompatActivity() {
         binding = ActivityReplayViewerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.controlRow, extraBottomDp = 8f)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 

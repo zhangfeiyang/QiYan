@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.advisor
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -44,6 +46,7 @@ class AdvisorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAdvisorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Insets.apply(binding.root, top = binding.toolbar, bottom = binding.inputBar, extraBottomDp = 4f)
         // 不设 setSupportActionBar: 一旦交给 ActionBar 管, XML 里 app:menu
         // 声明的菜单项就不会渲染到 Toolbar 上. 返回键这里是自己接的.
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }

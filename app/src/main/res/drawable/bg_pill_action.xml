@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  可点的行动胶囊: 对局界面右上角那颗"Lv.4 中级".
+
+  与 bg_pill 的区别是它**可点**. bg_pill 用的是 surface_overlay, 压在同样
+  很淡的界面底色上几乎看不出胶囊的边界, 于是那颗改难度的入口看起来只是
+  一段变了色的文字, 没人知道能按。这里给淡行动色底 + 同色描边, 让它明确
+  长成一个控件。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/action_muted" />
+    <stroke android:width="@dimen/stroke_hairline" android:color="@color/action" />
+    <corners android:radius="@dimen/radius_pill" />
+</shape>

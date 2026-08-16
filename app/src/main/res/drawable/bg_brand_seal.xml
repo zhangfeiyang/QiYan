@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 品牌印章: 朱红方章, 圆角很小 —— 中国印是方的, 做成圆角矩形而不是圆形
+     才不会和盘上的棋子混为一谈. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/action" />
+    <corners android:radius="4dp" />
+</shape>

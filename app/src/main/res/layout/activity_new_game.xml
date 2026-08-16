@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  新对局: 挑对手 + 选执子.
+
+  旧版是首页弹一个 15 行的滚动对话框, 每行"名字 + 段位 + 一句描述"。问题是
+  挑对手这件事的前提是能把候选**互相比较**, 而滚动列表里永远只看得到三四
+  行; 而且执子完全没得选, 只能开局后再翻转.
+
+  现在: 上半屏是选中那位对手的"档案"(棋子头像 + 档位名 + 段位 + 描述),
+  下半屏是 15 枚棋子摆成的网格 —— 兵在左上、帥在右下, 强弱是一条看得见的
+  阶梯。执子和开局按钮固定在底部, 不随网格滚走。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface_base">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/new_game_title"
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_gutter"
+            android:paddingBottom="@dimen/space_4">
+
+            <!-- ========== 选中对手的档案 ========== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_surface_card"
+                android:padding="@dimen/space_4"
+                android:layout_marginTop="@dimen/space_2">
+
+                <TextView
+                    android:id="@+id/sel_avatar"
+                    android:layout_width="@dimen/opponent_avatar_lg"
+                    android:layout_height="@dimen/opponent_avatar_lg"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:textSize="@dimen/text_display"
+                    android:textStyle="bold"
+                    tools:text="马" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_4"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/sel_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Xiangqi.Title"
+                        tools:text="Lv.7 Amateur Expert" />
+
+                    <TextView
+                        android:id="@+id/sel_segment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_1"
+                        android:background="@drawable/bg_pill"
+                        android:paddingHorizontal="@dimen/space_2"
+                        android:paddingVertical="2dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_caption"
+                        tools:text="Amateur 3 Dan" />
+
+                    <TextView
+                        android:id="@+id/sel_desc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:textAppearance="@style/TextAppearance.Xiangqi.Secondary"
+                        tools:text="Solid openings, calculates 3-5 moves ahead" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ========== 15 档网格 ========== -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_5"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/new_game_pick_opponent"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/opponent_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- ========== 执子 + 开局 ========== -->
+    <!-- 固定在底部而不是跟着上面滚: 选完对手就要开局, 让人再往回滚去找
+         按钮是没有道理的. -->
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/surface_raised"
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:paddingTop="@dimen/space_3"
+        android:paddingBottom="@dimen/space_3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_2"
+            android:text="@string/new_game_side"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/side_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/side_red"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/side_red" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/side_random"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/side_random" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/side_black"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/side_black" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start"
+            style="@style/Widget.Xiangqi.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/menu_play"
+            android:textSize="@dimen/text_title"
+            app:icon="@drawable/ic_play"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+
+</LinearLayout>

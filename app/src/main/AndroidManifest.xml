@@ -52,6 +52,11 @@
         </activity>
 
         <activity
+            android:name=".ui.menu.NewGameActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ZhongguoXiangqi" />
+
+        <activity
             android:name=".ui.game.GameActivity"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden"

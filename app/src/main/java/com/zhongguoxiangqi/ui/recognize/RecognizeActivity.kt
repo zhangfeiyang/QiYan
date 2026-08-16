@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.recognize
 
+import com.zhongguoxiangqi.ui.common.Insets
+
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -84,6 +86,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         super.onCreate(savedInstanceState)
         binding = ActivityRecognizeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Insets.apply(binding.root, top = binding.toolbar)
         // 不设 setSupportActionBar: 一旦交给 ActionBar 管, XML 里 app:menu
         // 声明的菜单项就不会渲染到 Toolbar 上. 返回键这里是自己接的.
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }

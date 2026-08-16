@@ -210,7 +210,7 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.VH>() {
             return Parsed(sb.toString(), ranges)
         }
 
-        internal fun renderAssistant(m: Message.Assistant, thinkingText: String = "正在分析…"): CharSequence =
+        internal fun renderAssistant(m: Message.Assistant, thinkingText: String): CharSequence =
             if (m.streaming && m.text.isEmpty()) thinkingText else markdownBold(m.text)
 
         /**

@@ -58,4 +58,9 @@
     <dimen name="board_padding">16dp</dimen>
     <dimen name="piece_size">40dp</dimen>
 
+    <!-- 对手选择网格里那枚棋子头像的直径. 5 列 × 15 档 = 3 行, 56dp 时
+         整屏刚好摆得下且每枚子仍认得出上面的字. -->
+    <dimen name="opponent_avatar">56dp</dimen>
+    <!-- 首页当前对手卡里的头像, 比网格里的大一档 -->
+    <dimen name="opponent_avatar_lg">64dp</dimen>
 </resources>

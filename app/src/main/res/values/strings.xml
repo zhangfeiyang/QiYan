@@ -337,4 +337,45 @@
     <string name="advice_level_deep">Deep</string>
     <string name="advice_level_deep_desc">Thinks longer, more reliable in critical positions</string>
     <string name="advice_level_current">Hint strength: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <string name="board_river_text">CHU RIVER          HAN BORDER</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Piece Labels</string>
+    <string name="settings_piece_set_desc">Chinese characters are the traditional look; Latin letters (K/A/B/N/R/C/P) match the English move notation</string>
+    <string name="piece_set_hanzi">Chinese 漢字</string>
+    <string name="piece_set_latin">Letters K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Move Notation</string>
+    <string name="settings_notation_desc">Chinese notation reads 炮二平五; WXF writes the same move as C2.5</string>
+    <string name="notation_chinese">Chinese 中文记谱</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Engine returned an illegal move: %1$s</string>
+    <string name="engine_error">Engine error: %1$s</string>
+    <string name="must_answer_check">You are in check — you must answer it</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Setting up the board…</string>
+    <string name="settings_follow_language">Follow app language</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">New Game</string>
+    <string name="new_game_pick_opponent">Choose your opponent</string>
+    <string name="new_game_side">Play as</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">Red</string>
+    <string name="side_black">Black</string>
+    <string name="side_random">Random</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Opponent</string>
+    <string name="menu_change_opponent">Change</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
 </resources>

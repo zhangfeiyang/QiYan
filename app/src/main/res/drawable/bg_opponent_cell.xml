@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 对手网格的格子: 选中时描出行动色边框, 未选中时完全透明.
+     选中态只用描边不用填充 —— 填充会盖住头像本身的段位色, 而那正是
+     用户在这一屏里比较的东西. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/action_muted" />
+            <stroke android:width="@dimen/stroke_thick" android:color="@color/action" />
+            <corners android:radius="@dimen/radius_md" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <corners android:radius="@dimen/radius_md" />
+        </shape>
+    </item>
+</selector>

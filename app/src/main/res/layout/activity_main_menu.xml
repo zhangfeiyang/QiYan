@@ -21,15 +21,47 @@
     android:background="@color/surface_base"
     tools:context=".ui.menu.MainMenuActivity">
 
+    <!-- 品牌头: 一枚印章 + 字标.
+         原来这里只有一个 Toolbar 标题"QiYan", 和任何一个安卓应用的标题栏
+         没有区别 —— 打开首页看不出这是一个象棋应用. 印章里的「棋」和红黑
+         配色是这个 App 唯一需要的身份标记, 不必再画图标. -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/brand_seal"
+                android:layout_width="@dimen/icon_lg"
+                android:layout_height="@dimen/icon_lg"
+                android:background="@drawable/bg_brand_seal"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/brand_seal_char"
+                android:textColor="@color/piece_text"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Headline"
+                android:textColor="@color/action" />
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- ============ 档案卡 ============ -->
     <com.google.android.material.card.MaterialCardView
@@ -105,7 +137,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/action" />
+                    android:background="@color/affirm" />
 
                 <View
                     android:id="@+id/winrate_loss"
@@ -135,7 +167,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/action"
+                    android:textColor="@color/affirm"
                     android:textSize="@dimen/text_body_sm"
                     android:textStyle="bold"
                     tools:text="胜 18" />
@@ -176,6 +208,91 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- ============ 当前对手 ============ -->
+    <!-- 原来"开始对弈"直接用上次的难度开局, 但首页上完全看不出上次是谁 ——
+         按下去才知道自己要跟 Lv.2 还是 Lv.14 下。把对手摆到按钮正上方, 既
+         回答了"我这一局要跟谁下", 又顺手做成换对手的入口。
+         注意仍然保留"一键直接开局": 换对手是低频动作, 不该挡在每局前面。 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_opponent"
+        style="@style/Widget.Xiangqi.Card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_gutter"
+        android:layout_marginTop="@dimen/space_5"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:layout_constraintTop_toBottomOf="@id/profile_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/space_4">
+
+            <TextView
+                android:id="@+id/opponent_avatar"
+                android:layout_width="@dimen/opponent_avatar"
+                android:layout_height="@dimen/opponent_avatar"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textSize="@dimen/text_headline"
+                android:textStyle="bold"
+                tools:text="马" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_3"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/menu_current_opponent"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+                <TextView
+                    android:id="@+id/opponent_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Title"
+                    tools:text="Lv.4 Intermediate" />
+
+                <TextView
+                    android:id="@+id/opponent_segment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Secondary"
+                    tools:text="Street Player" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:text="@string/menu_change_opponent"
+                android:textColor="@color/action"
+                android:textSize="@dimen/text_caption"
+                android:textStyle="bold"
+                android:drawablePadding="2dp"
+                app:drawableEndCompat="@drawable/ic_chevron_down"
+                app:drawableTint="@color/action" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- ============ 主行动 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_play"
@@ -183,12 +300,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/screen_gutter"
-        android:layout_marginTop="@dimen/space_6"
+        android:layout_marginTop="@dimen/space_3"
         android:text="@string/menu_play"
         android:textSize="@dimen/text_title"
         app:icon="@drawable/ic_play"
         app:iconGravity="textStart"
-        app:layout_constraintTop_toBottomOf="@id/profile_card"
+        app:layout_constraintTop_toBottomOf="@id/card_opponent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

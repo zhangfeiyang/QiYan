@@ -25,6 +25,7 @@
     <!-- 重置=恢复标准开局(可预期), 清空=抹掉整盘(破坏性), 两者后果差得远,
          所以不再用两个一模一样的描边键并排. -->
     <LinearLayout
+        android:id="@+id/editor_actions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

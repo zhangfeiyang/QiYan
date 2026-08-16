@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  对手选择网格里的一格: 一枚棋子 + 档位名.
+
+  网格而不是竖排列表: 15 档竖着排要滚三屏才能看完, 而"挑一个对手"这件事
+  的前提是能把候选**互相比较** —— 滚动列表里永远只看得到三四个。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingVertical="@dimen/space_2"
+    android:background="@drawable/bg_opponent_cell"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/avatar"
+        android:layout_width="@dimen/opponent_avatar"
+        android:layout_height="@dimen/opponent_avatar"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:textSize="@dimen/text_headline"
+        android:textStyle="bold"
+        tools:text="马" />
+
+    <TextView
+        android:id="@+id/level_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption"
+        android:textStyle="bold"
+        tools:text="Lv.7" />
+
+</LinearLayout>
