@@ -18,8 +18,9 @@ android {
         // 代码"), 而这个错误只在 bundle 那一行显示为红字, 整个草稿版本会静默失效。
         // Play 对"上传过但未发布的版本号"也会永久保留: 4/5/6/7 都被占用,
         // 继续顺延。versionName 随版本号走, 保持用户可见版本一致。
-        versionCode = 8
-        versionName = "1.3.4"
+        // 8 已在 2026-08-05 传过(bundle 列表共 8 行), 本次顺延到 9。
+        versionCode = 9
+        versionName = "1.3.5"
 
         // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
         // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上
