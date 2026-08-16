@@ -499,42 +499,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         stopEngine()
         // 设置局面,启动引擎
         engineManager.setPosition(initialFen, moveHistory)
-        val params = SearchParams(
-            movetime = estimateThinkTime(_state.value.difficulty),
-            threads = estimateThreads(_state.value.difficulty),
-            hashMb = estimateHash(_state.value.difficulty),
-            multiPv = 3
-        )
+        // 思考时长/线程/哈希**全部由 EngineManager.adaptParams 按难度算**.
+        // 之前这里另起一套 estimateThinkTime/Threads/Hash, 但 adaptParams 会
+        // 用 coerceAtLeast 静默抬高 —— 结果是 ViewModel 的 8000ms 在 Lv.10
+        // 被抬到 14s, 在 Lv.15 被抬到 90s. 现在只传 multiPv, 别的留给唯一来源.
+        val params = SearchParams(multiPv = 3)
         searchSideToMove = position.sideToMove
         searchPurpose = SearchPurpose.ENGINE_MOVE
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
-    }
-
-    private fun estimateThinkTime(difficulty: Int): Long = when (difficulty) {
-        in 1..3 -> 500L
-        in 4..5 -> 1500L
-        6 -> 2000L
-        7 -> 3000L
-        8 -> 4000L
-        9 -> 6000L
-        10 -> 8000L
-        else -> 3000L
-    }
-
-    private fun estimateThreads(difficulty: Int): Int = when (difficulty) {
-        in 1..5 -> 1
-        in 6..7 -> 2
-        in 8..10 -> 4
-        else -> 1
-    }
-
-    private fun estimateHash(difficulty: Int): Int = when (difficulty) {
-        in 1..5 -> 16
-        in 6..7 -> 64
-        in 8..9 -> 128
-        10 -> 256
-        else -> 32
     }
 
     private fun stopEngine() {

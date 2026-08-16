@@ -77,7 +77,12 @@ class EngineManager(private val context: Context) {
 
     fun startSearch(params: SearchParams) {
         // 用户上限必须最后套用: adaptParams 里用的是 coerceAtLeast, 先限制会被它顶回去
-        currentEngine?.startSearch(applyUserLimits(adaptParams(params)))
+        val effective = applyUserLimits(adaptParams(params))
+        android.util.Log.i(
+            "QiYan.Engine",
+            "startSearch diff=$difficultyLevel movetime=${effective.movetime}ms threads=${effective.threads} hash=${effective.hashMb}MB strict=${params.strictMovetime}"
+        )
+        currentEngine?.startSearch(effective)
     }
 
     /** 用设置界面里的线程/哈希上限收敛搜索参数 */
@@ -104,23 +109,30 @@ class EngineManager(private val context: Context) {
         return true
     }
 
-    /** 提示用快速搜索 */
+    /** 提示用快速搜索 —— strictMovetime=true, 延迟是硬约束, 不许被 adaptParams 按难度抬高 */
     fun requestHint(): SearchParams =
-        SearchParams(movetime = 800, threads = 1, hashMb = 16, multiPv = 1)
+        SearchParams(movetime = 800, threads = 1, hashMb = 16, multiPv = 1, strictMovetime = true)
 
-    /** 实时分析用 */
+    /** 实时分析用 —— 同样: 玩家按下去就要看到数字跳动, 不能按 Lv.15 等 12s */
     fun requestAnalysis(): SearchParams =
-        SearchParams(depth = 6, threads = 1, hashMb = 16, multiPv = 1)
+        SearchParams(depth = 6, threads = 1, hashMb = 16, multiPv = 1, strictMovetime = true)
 
     companion object {
 
         /**
-         * 按难度调整搜索参数. 纯函数, 便于测试.
+         * 按难度调整搜索参数. 唯一来源 —— GameViewModel 不再各自起一套.
          *
-         * 注意 movetime 用的是 **coerceAtLeast** —— 难度越高想得越久, 这对
-         * 对局是对的. 但它会静默抬高调用方传的值: 实时支招传 600ms, 难度 8
-         * 会被抬成 4000ms, "实时"直接名存实亡. [SearchParams.strictMovetime]
-         * 就是给这种"延迟是硬约束"的调用方留的出口.
+         * 三件事一起调: 思考时长 + 线程数 + 哈希. 三者都要随难度递增, 否则
+         * "难度高 = 棋力强"这件事对不上 —— NNUE 网络给的是评估质量, 搜索
+         * 时长和资源才决定"看多远", 任何一项掉链子都会让 Lv.15 的真实棋力
+         * 反而不如 Lv.10.
+         *
+         * 旧版 Lv.10 = 14s / Lv.15 = 90s 是真有人等了再骂的, 收回到顶档 12s.
+         * 顶档仍然是 12s(配合 4 线程 + 256MB 哈希, 引擎实际能下到的深度远超
+         * Lv.10), 不是简单砍时间, 是把曲线压扁在"玩家等得起"的范围内.
+         *
+         * [SearchParams.strictMovetime] 仍是给"延迟是硬约束"的调用方(支招/分
+         * 析)的出口, 这种场景必须原样放行.
          */
         internal fun adaptParams(
             base: SearchParams,
@@ -129,21 +141,21 @@ class EngineManager(private val context: Context) {
             val strength = difficultyLevel.coerceIn(1, MAX_LEVEL)
             if (base.strictMovetime) return base
             return when (strength) {
-                1 -> base.copy(movetime = base.movetime.coerceAtLeast(100))
-                2 -> base.copy(movetime = base.movetime.coerceAtLeast(250))
-                3 -> base.copy(movetime = base.movetime.coerceAtLeast(500))
-                4 -> base.copy(movetime = base.movetime.coerceAtLeast(900))
-                5 -> base.copy(movetime = base.movetime.coerceAtLeast(1500))
-                6 -> base.copy(movetime = base.movetime.coerceAtLeast(2500))
-                7 -> base.copy(movetime = base.movetime.coerceAtLeast(4000))
-                8 -> base.copy(movetime = base.movetime.coerceAtLeast(6000))
-                9 -> base.copy(movetime = base.movetime.coerceAtLeast(9000))
-                10 -> base.copy(movetime = base.movetime.coerceAtLeast(14000))
-                11 -> base.copy(movetime = base.movetime.coerceAtLeast(20000))
-                12 -> base.copy(movetime = base.movetime.coerceAtLeast(30000))
-                13 -> base.copy(movetime = base.movetime.coerceAtLeast(45000))
-                14 -> base.copy(movetime = base.movetime.coerceAtLeast(60000))
-                15 -> base.copy(movetime = base.movetime.coerceAtLeast(90000))
+                1 -> base.copy(movetime = maxOf(base.movetime, 100L),   threads = maxOf(base.threads, 1), hashMb = maxOf(base.hashMb, 16))
+                2 -> base.copy(movetime = maxOf(base.movetime, 200L),   threads = maxOf(base.threads, 1), hashMb = maxOf(base.hashMb, 16))
+                3 -> base.copy(movetime = maxOf(base.movetime, 350L),   threads = maxOf(base.threads, 1), hashMb = maxOf(base.hashMb, 16))
+                4 -> base.copy(movetime = maxOf(base.movetime, 500L),   threads = maxOf(base.threads, 1), hashMb = maxOf(base.hashMb, 16))
+                5 -> base.copy(movetime = maxOf(base.movetime, 800L),   threads = maxOf(base.threads, 1), hashMb = maxOf(base.hashMb, 16))
+                6 -> base.copy(movetime = maxOf(base.movetime, 1200L),  threads = maxOf(base.threads, 2), hashMb = maxOf(base.hashMb, 32))
+                7 -> base.copy(movetime = maxOf(base.movetime, 1800L),  threads = maxOf(base.threads, 2), hashMb = maxOf(base.hashMb, 64))
+                8 -> base.copy(movetime = maxOf(base.movetime, 2500L),  threads = maxOf(base.threads, 2), hashMb = maxOf(base.hashMb, 64))
+                9 -> base.copy(movetime = maxOf(base.movetime, 3500L),  threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 128))
+                10 -> base.copy(movetime = maxOf(base.movetime, 5000L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 128))
+                11 -> base.copy(movetime = maxOf(base.movetime, 7000L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 256))
+                12 -> base.copy(movetime = maxOf(base.movetime, 9000L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 256))
+                13 -> base.copy(movetime = maxOf(base.movetime, 10500L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 256))
+                14 -> base.copy(movetime = maxOf(base.movetime, 11500L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 256))
+                15 -> base.copy(movetime = maxOf(base.movetime, 12000L), threads = maxOf(base.threads, 4), hashMb = maxOf(base.hashMb, 256))
                 else -> base
             }
         }
