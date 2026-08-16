@@ -1,6 +1,7 @@
 package com.zhongguoxiangqi.ui.common
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.ui.board.BoardView
@@ -25,14 +26,32 @@ object Notation {
     /**
      * 界面语言是不是中文.
      *
-     * 读 resources.configuration 而不是 Locale.getDefault(): 用户可能在
-     * App 内单独切过语言 (AppCompatDelegate.setApplicationLocales), 那时
-     * 系统默认语言并没有变, 只有 Configuration 反映了实际显示的语言。
+     * 先问 AppCompatDelegate, 再退回 configuration —— 顺序不能反。
+     *
+     * 本 App 的语言一律走 per-app locale (Application.onCreate 里默认设成
+     * "en"), 而 AppCompat 的这套回退实现在 API 33 以下只改写 **Activity**
+     * 的 Configuration, Application 的 Configuration 仍然是系统语言。
+     * 于是只看 configuration 的话, 同一次对局里 GameViewModel(拿的是
+     * getApplication())和 GameActivity(拿的是自己)会得出两种语言 ——
+     * 界面是英文、棋谱却记成"炮二平五"。getApplicationLocales() 记的就是
+     * "这个 App 显示成哪种语言", 各版本上都准。
      */
     private fun isChineseUi(context: Context): Boolean {
-        val locales = context.resources.configuration.locales
-        return !locales.isEmpty && locales[0].language == "zh"
+        val appLocales = AppCompatDelegate.getApplicationLocales()
+        return isChineseUi(
+            perAppLanguage = if (appLocales.isEmpty) null else appLocales[0]?.language,
+            configLanguage = context.resources.configuration.locales
+                .takeIf { !it.isEmpty }?.get(0)?.language
+        )
     }
+
+    /**
+     * 上面那条判断里不依赖 Android 的部分, 单独拆出来是为了能直接测 ——
+     * "per-app locale 优先于 configuration"正是这个 bug 的全部内容,
+     * 而它只在 API 33 以下才显形, 靠跑 App 很难看见。
+     */
+    internal fun isChineseUi(perAppLanguage: String?, configLanguage: String?): Boolean =
+        (perAppLanguage ?: configLanguage) == "zh"
 
     fun styleFor(context: Context): Style = when (AppSettings(context).notationMode) {
         1 -> Style.CHINESE

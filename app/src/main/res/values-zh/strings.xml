@@ -342,8 +342,9 @@
     <string name="advice_level_deep_desc">想久一点, 关键局面更可靠</string>
     <string name="advice_level_current">支招水平: %1$s</string>
 
-    <!-- 棋盘河界题字 -->
-    <string name="board_river_text">楚 河          汉 界</string>
+    <!-- 棋盘河界题字. 整串加引号: Android 会把资源里连续的空格压成一个,
+         不加引号"楚河汉界"就挤成居中的一句, 而它本该分列河的两侧. -->
+    <string name="board_river_text">"楚 河          汉 界"</string>
 
     <!-- 棋子字符集 -->
     <string name="settings_piece_set">棋子字符</string>

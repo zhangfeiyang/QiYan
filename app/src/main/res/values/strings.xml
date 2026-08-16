@@ -340,7 +340,9 @@
 
     <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
          不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
-    <string name="board_river_text">CHU RIVER          HAN BORDER</string>
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
 
     <!-- 棋子字符集 -->
     <string name="settings_piece_set">Piece Labels</string>

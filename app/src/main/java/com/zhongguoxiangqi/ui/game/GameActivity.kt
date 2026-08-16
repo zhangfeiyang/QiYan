@@ -137,6 +137,10 @@ class GameActivity : AppCompatActivity() {
         // 启动新对局. startFen 非空时是从拍照识别摆好的局面接着下
         startFen = intent.getStringExtra(EXTRA_START_FEN)
         viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen)
+        // 开局这一刻就要记住设定, 而不是等用户去改难度或翻转才记.
+        // 否则从「新对局」页挑完对手打进来, 退回首页会发现对手卡还是上一档,
+        // 按"开始对局"也照旧用老档位 —— 挑对手这件事等于没发生.
+        persistGameSetup(lastDifficulty, lastPlayerSide)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -623,11 +627,20 @@ class GameActivity : AppCompatActivity() {
             ?.let { rv.scrollToPosition(it) }
     }
 
-    /** 记住当前设定, 让主菜单的"直接开局"接着用 */
-    private fun persistGameSetup() {
+    /**
+     * 记住当前设定, 让主菜单的"直接开局"和对手卡接着用.
+     *
+     * 参数默认取 viewModel 的当前状态(改难度、换边之后调用就是这个语义);
+     * onCreate 里要显式传 intent 带来的那一组 —— 那时 startNewGame 还没把
+     * 状态推到 state 里, 读 state 会拿到上一局的值.
+     */
+    private fun persistGameSetup(
+        difficulty: Int = viewModel.state.value.difficulty,
+        side: Int = viewModel.state.value.playerSide
+    ) {
         getSharedPreferences(PREFS_GAME, MODE_PRIVATE).edit()
-            .putInt(KEY_LAST_DIFFICULTY, viewModel.state.value.difficulty)
-            .putInt(KEY_LAST_SIDE, viewModel.state.value.playerSide)
+            .putInt(KEY_LAST_DIFFICULTY, difficulty)
+            .putInt(KEY_LAST_SIDE, side)
             .apply()
     }
 
