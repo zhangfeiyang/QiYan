@@ -16,6 +16,7 @@ import com.zhongguoxiangqi.engine.EngineManager
 import com.zhongguoxiangqi.engine.SearchParams
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
+import com.zhongguoxiangqi.ui.common.Notation
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Rules
@@ -58,6 +59,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     private val _hintState = MutableStateFlow<HintState?>(null)
     val hintState: StateFlow<HintState?> = _hintState.asStateFlow()
+
+    /**
+     * 引擎是否还在准备(读 50MB 权重).
+     *
+     * 为真时界面要挡住落子: 这段时间棋盘已经画出来了, 看上去完全可以下,
+     * 但引擎还没起来 —— 玩家走完一步会发现对方"不动", 那比等一个明确的
+     * 进度提示更让人困惑。
+     */
+    private val _enginePreparing = MutableStateFlow(false)
+    val enginePreparing: StateFlow<Boolean> = _enginePreparing.asStateFlow()
 
     private val _events = MutableLiveData<GameEvent?>()
     /** 一次性事件(Toast/对话框). 只读暴露给 UI, 消费后调用 [consumeEvent] */
@@ -178,11 +189,17 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _winRateSnapshot.value = WinRateSnapshot(redWinRate = 50.0)
         _hintState.value = null
 
-        // 启动引擎
+        // 引擎启动放到后台线程.
+        //
+        // PikafishEngine.start() 要把 50MB 的 NNUE 权重从 assets 拷到 cache
+        // (首次), 再把网络读进内存. 这件事原来是在 GameActivity.onCreate 里
+        // 同步做的 —— 实测点"开始对弈"后主线程被占住 9.2 秒, 系统直接弹了
+        // "QiYan isn't responding" 的 ANR 框, 而这段时间里屏幕上没有任何提示。
+        //
+        // 现在: 立刻把 GameState 发出去(棋盘先画出来), 引擎在 IO 线程起,
+        // 起好之前 isEnginePreparing=true, 界面据此显示"正在摆棋…"并挡住落子。
         engineManager.difficultyLevel = difficulty
-        if (!engineManager.start(this)) {
-            _events.value = GameEvent.ShowToast(getApplication<Application>().getString(R.string.game_engine_start_failed))
-        }
+        _enginePreparing.value = true
 
         val rank = userProfile.rank()
         _state.value = GameState(
@@ -201,9 +218,27 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             engineElo = engineManager.effectiveElo(),
         )
 
-        // 如果玩家执黑,引擎先走
-        if (playerSide == Color.BLACK) {
-            makeEngineMove()
+        viewModelScope.launch {
+            val started = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                engineManager.start(this@GameViewModel)
+            }
+            _enginePreparing.value = false
+            if (!started) {
+                _events.value = GameEvent.ShowToast(
+                    getApplication<Application>().getString(R.string.game_engine_start_failed)
+                )
+                return@launch
+            }
+            // engineName/engineElo 要等引擎真的起来才知道, 所以这里补一次.
+            _state.value = _state.value.copy(
+                engineName = engineManager.currentEngine?.name()
+                    ?: getApplication<Application>().getString(R.string.unknown_label),
+                engineElo = engineManager.effectiveElo(),
+            )
+            // 玩家执黑时引擎先走 —— 必须等引擎起来之后才发得出这一步
+            if (playerSide == Color.BLACK) {
+                makeEngineMove()
+            }
         }
     }
 
@@ -256,7 +291,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
             val move = uciToMove(bestMove)
             if (move == null || !position.isLegalMove(move)) {
-                _events.value = GameEvent.ShowToast("引擎给出非法着法: $bestMove")
+                _events.value = GameEvent.ShowToast(
+                    getApplication<Application>().getString(R.string.engine_illegal_move, bestMove)
+                )
                 _state.value = _state.value.copy(isThinking = false)
                 return@launch
             }
@@ -265,7 +302,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
                 Piece.fromCode(position.pieceAt(move.to)) else null
             val captured = capturedPiece != null
-            val notation = Move.toChineseString(move, position)
+            val notation = Notation.format(getApplication(), move, position)
             position.doMove(move)
             moveHistory.add(move)
             updateAfterMove(captured, capturedPiece, move.to, notation)
@@ -274,7 +311,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     override fun onError(message: String) {
         viewModelScope.launch(Dispatchers.Main) {
-            _events.value = GameEvent.ShowToast("引擎错误: $message")
+            _events.value = GameEvent.ShowToast(
+                getApplication<Application>().getString(R.string.engine_error, message)
+            )
         }
     }
 
@@ -296,7 +335,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
             Piece.fromCode(position.pieceAt(move.to)) else null
         val captured = capturedPiece != null
-        val notation = Move.toChineseString(move, position)
+        val notation = Notation.format(getApplication(), move, position)
         position.doMove(move)
         moveHistory.add(move)
         // 检查"我走完这一手, 是不是还吃着将军": 我(玩家)走子之后, 仍是我(玩家)
@@ -308,7 +347,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             // 结果 Toast 都不显示.
             position.undoMove()
             moveHistory.removeAt(moveHistory.size - 1)
-            _events.value = GameEvent.ShowToast("被将军, 必须应招或消除威胁")
+            _events.value = GameEvent.ShowToast(
+                getApplication<Application>().getString(R.string.must_answer_check)
+            )
             return false
         }
         updateAfterMove(captured, capturedPiece, move.to, notation)

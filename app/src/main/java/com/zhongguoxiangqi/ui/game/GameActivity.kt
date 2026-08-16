@@ -1,5 +1,7 @@
 package com.zhongguoxiangqi.ui.game
 
+import com.zhongguoxiangqi.ui.common.Notation
+
 import android.Manifest
 import android.os.Bundle
 import android.content.pm.PackageManager
@@ -182,7 +184,7 @@ class GameActivity : AppCompatActivity() {
             else -> {
                 val move = moves[0]
                 // 记谱要按"走之前"的局面算, 执行完棋盘就变了
-                val notation = Move.toChineseString(move, position)
+                val notation = Notation.format(this, move, position)
                 if (viewModel.playerMove(move)) {
                     Toast.makeText(this, getString(R.string.voice_played, notation), Toast.LENGTH_SHORT).show()
                 } else {
@@ -428,8 +430,19 @@ class GameActivity : AppCompatActivity() {
                 // 轮到谁走谁就亮起来. 在此之前, 玩家判断"是不是该我了"只能靠
                 // 那个转瞬即逝的"引擎思考中"胶囊 —— 它消失之后两行长得一模一样.
                 val myTurn = state.sideToMove == state.playerSide && !state.isGameOver
-                binding.playerRow.alpha = if (myTurn) 1f else DIMMED
-                binding.opponentRow.alpha = if (myTurn) DIMMED else 1f
+                // 变暗只施加在"身份"上(执子圆点 + 名字), 不施加在整行 ——
+                // 难度胶囊是对局中随时可点的入口, 跟着整行淡到 50% 会让它
+                // 看起来是个禁用控件, 而它恰恰是这一行里唯一能按的东西.
+                // (子 View 的 alpha 与父级相乘且被夹在 [0,1], 所以父级一旦
+                // 变暗就没法在子级把它抬回来, 只能从一开始就不暗父级.)
+                val myDim = if (myTurn) 1f else DIMMED
+                val oppDim = if (myTurn) DIMMED else 1f
+                binding.playerDot.alpha = myDim
+                binding.playerName.alpha = myDim
+                binding.playerRating.alpha = myDim
+                binding.moveCount.alpha = myDim
+                binding.opponentDot.alpha = oppDim
+                binding.opponentName.alpha = oppDim
 
                 // 换边后两边的执子圆点必须跟着换, 否则颜色和文字对不上
                 val playerRed = state.playerSide == Color.RED
@@ -441,13 +454,9 @@ class GameActivity : AppCompatActivity() {
                 )
 
                 binding.opponentName.text = getString(if (state.playerSide == Color.RED) R.string.game_opponent_black else R.string.game_opponent_red)
-                // 显示档位名而不是分数: 那个分数是估计值, 没有已知等级分的
-                // 对手可标定, 摆出来是给用户一个并不存在的精确度。
-                binding.opponentRating.text = getString(
-                    com.zhongguoxiangqi.ui.menu.DifficultyLevel.values()
-                        .firstOrNull { it.id == state.difficulty }?.nameRes
-                        ?: com.zhongguoxiangqi.R.string.difficulty_intermediate
-                )
+                // 对手这一行原来同时摆了"档位名"和"Lv.N 档位名"两处, 说的是
+                // 同一件事, 却挤掉了名字的宽度 —— 结果 "AI (Black)" 被截成
+                // "AI (B…"。档位只由右边那颗可点的胶囊负责, 这里不再重复。
                 binding.playerName.text = getString(if (state.playerSide == Color.RED) R.string.game_player_red else R.string.game_player_black)
                 binding.playerRating.text = state.playerRank
                 binding.moveCount.text = getString(R.string.game_move_count, state.moveCount / 2 + 1)
@@ -488,6 +497,16 @@ class GameActivity : AppCompatActivity() {
                 (analysisOverlay?.findViewById<AnalysisScanView>(R.id.scan_view))?.let { scan ->
                     scan.updateInfo(snapshot.depth, snapshot.redWinRate)
                 }
+            }
+        }
+
+        // 引擎启动遮罩: enginePreparing=true 时挡住棋盘, 防止玩家走子后
+        // 引擎还没起来对方不回招. 用 GONE 而不是 INVISIBLE 是因为棋盘本来
+        // 就铺满整个 weight=1 的 FrameLayout, 看不见 overlay 和看不见
+        // 棋盘在视觉上无差 —— 但 GONE 不占 hit-test, 棋盘立刻就能点.
+        lifecycleScope.launch {
+            viewModel.enginePreparing.collect { preparing ->
+                binding.engineLoading.visibility = if (preparing) View.VISIBLE else View.GONE
             }
         }
 
@@ -548,8 +567,9 @@ class GameActivity : AppCompatActivity() {
         return -1
     }
 
+    /** 按当前记谱设置把一步棋写成字符串 (中文记谱 / WXF) */
     private fun moveToChinese(move: Move): String =
-        Move.toChineseString(move, viewModel.currentPosition)
+        Notation.format(this, move, viewModel.currentPosition)
 
     private fun showGameOverDialog(reason: String) {
         if (gameOverDialog?.isShowing == true) return

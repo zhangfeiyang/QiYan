@@ -1,46 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  亮色主题 (values/).
+  浅色主题 (values/) —— 本 App 的**主**设计.
 
-  暗色是本 App 的主设计, 见 values-night/colors.xml —— 这里是选择"浅色"
-  的用户拿到的那一套. 两边**必须**保持同名 token, 缺一个就会在切主题时
-  崩成未解析资源.
+  之前主设计是暗色, 结果是: 满屏近黑底上摆一块木纹棋盘, 木色被压到发灰,
+  红子(暗红字压米白面)和黑子(近黑字压米白面)在一米开外几乎分不出来。
+  象棋本身是"木盘 + 漆字"的暖色物件, 主设计改回浅色暖木, 暗色作为可选。
 
-  命名按语义而非外观: surface_raised 而不是 bg_card, 这样棋谱卡片和对话
-  气泡共用一个 token 时不必解释"为什么卡片色叫 card 却用在气泡上".
+  两套**必须**保持同名 token, 缺一个就会在切主题时崩成未解析资源。
+  命名按语义而非外观: surface_raised 而不是 bg_card。
+
+  三个动作色是分开的, 不要合并:
+    action  #C0392B 朱红 —— 品牌与主行动. 全 App 的身份色, 一屏只填充一次
+    affirm  #4E7A2F 竹绿 —— 对局中的正向提示(提示箭头/可走点/AI 分析)
+    danger  #B3261E 绛红 —— 认输/删除, 只描边不填充
+  如果让 action 和 affirm 共用朱红, 工具条上"AI 分析"就会和它右边的"认输"
+  同色同形, 那是最容易误触的一对键。
 -->
 <resources>
 
     <!-- ============ 表面层次 ============ -->
     <!-- 由低到高: sunken 内凹 < base 底 < raised 卡片 < overlay 浮层 -->
-    <color name="surface_sunken">#E6E2DB</color>
-    <color name="surface_base">#F4F2EE</color>
-    <color name="surface_raised">#FFFFFF</color>
+    <color name="surface_sunken">#EDE7DE</color>
+    <color name="surface_base">#F7F3EE</color>
+    <color name="surface_raised">#FFFDFA</color>
     <color name="surface_overlay">#FFFFFF</color>
 
     <!-- ============ 描边 ============ -->
-    <color name="border_subtle">#DEDAD3</color>
-    <color name="border_strong">#C4BFB7</color>
+    <color name="border_subtle">#E3DBCF</color>
+    <color name="border_strong">#CFC3B2</color>
 
     <!-- ============ 文字 ============ -->
-    <color name="text_primary">#23211F</color>
-    <color name="text_secondary">#5E5952</color>
-    <color name="text_tertiary">#8E8880</color>
+    <!-- 中性色带暖调 (#23201C 而非 #202020): 纯灰文字压在米白底上会显得发青,
+         和木色棋盘不在同一个色温上. -->
+    <color name="text_primary">#23201C</color>
+    <color name="text_secondary">#5E564C</color>
+    <color name="text_tertiary">#8C8272</color>
     <color name="text_on_action">#FFFFFF</color>
 
-    <!-- ============ 行动色 ============ -->
-    <!-- #55802D 而非暗色那支 #81B64C: 白字压在浅绿上对比度不够 (约 4.1:1),
-         压深到 4.6:1 才过 WCAG AA 正文线. -->
-    <color name="action">#55802D</color>
-    <color name="action_pressed">#446725</color>
-    <color name="action_muted">#EAF1E0</color>
+    <!-- ============ 品牌 / 主行动 ============ -->
+    <!-- 朱红: 印章、对联、红方棋子共用的那支红, 是象棋最直接的身份符号.
+         白字压 #C0392B 对比度 5.0:1, 过 WCAG AA 正文线. -->
+    <color name="action">#C0392B</color>
+    <color name="action_pressed">#A32E22</color>
+    <color name="action_muted">#FAEBE8</color>
+
+    <!-- ============ 对局内的正向色 ============ -->
+    <!-- 与 action 分开: 见文件头的说明. 竹绿压米白 4.8:1. -->
+    <color name="affirm">#4E7A2F</color>
+    <color name="affirm_muted">#EDF3E5</color>
 
     <!-- ============ 语义色 ============ -->
-    <color name="danger">#C4362B</color>
-    <color name="warning">#B77A16</color>
+    <!-- danger 比 action 更深更暗: 两者都是红, 靠明度而不是色相区分,
+         再加上"描边 vs 填充"的形状差异, 才不会看成同一个键. -->
+    <color name="danger">#B3261E</color>
+    <color name="warning">#9A6510</color>
     <color name="info">#2F6FAF</color>
-    <!-- 淡底变体: 报错气泡/提示条要有自己的底色, 否则"错误"和普通内容
-         同色, 用户根本读不出这是一条失败信息. -->
     <color name="danger_muted">#FBEAE8</color>
 
     <!-- ============ 对弈双方 (UI 文字/标签用) ============ -->
@@ -50,67 +64,90 @@
     <color name="side_black">#2C2A28</color>
 
     <!-- ============ 棋盘 ============ -->
-    <!-- grad_* 是木纹渐变的四个停靠点, 从左上到右下由浅到深 -->
-    <color name="board_grad_1">#EBD9B4</color>
-    <color name="board_grad_2">#DDC49A</color>
-    <color name="board_grad_3">#D2B288</color>
-    <color name="board_grad_4">#C0A272</color>
-    <color name="board_line">#4A3826</color>
-    <color name="board_palace">#6B4A2A</color>
-    <color name="board_border">#8A6E48</color>
-    <color name="board_coord">#7A5D3A</color>
-    <color name="board_grain">#80A0826D</color>
+    <!-- grad_* 是木纹渐变的四个停靠点, 从左上到右下由浅到深.
+         整体比旧版提亮约 12%: 棋子改成实心色底之后, 盘面越浅棋子越跳. -->
+    <color name="board_grad_1">#F7E9CE</color>
+    <color name="board_grad_2">#F0DFC0</color>
+    <color name="board_grad_3">#E8D3AE</color>
+    <color name="board_grad_4">#DEC69B</color>
+    <!-- 格线用赭石而不是深褐: 深褐线在浅木上重得像铁丝网, 会和棋子抢注意力 -->
+    <color name="board_line">#A9743F</color>
+    <color name="board_palace">#8A5A2B</color>
+    <color name="board_border">#C9A87A</color>
+    <color name="board_coord">#A08256</color>
+    <color name="board_grain">#40B08A5E</color>
 
     <!-- ============ 棋子 ============ -->
-    <!-- 棋子面色. 摆子托盘里的棋子也用它, 与盘上的子看起来是同一副 -->
-    <color name="piece_face">#F5E9CE</color>
-    <color name="piece_red">#B4302A</color>
-    <color name="piece_red_edge">#7C1A16</color>
+    <!--
+      实心色底 + 白字, 而不是旧版的"米白面 + 彩色字".
+
+      旧版红子是 #B4302A 的字压在 #F5E9CE 的面上, 对比度 3.2:1 —— 低于正文
+      线, 而棋子上的字恰恰是全 App 最需要一眼读准的东西. 换成白字压实心底
+      之后红子 5.0:1、黑子 15.6:1, 并且红黑两方从"字的颜色不同"变成"整枚子
+      的颜色不同", 扫一眼盘面就能分清敌我。
+    -->
+    <color name="piece_red">#C0392B</color>
+    <color name="piece_red_edge">#8E2A20</color>
     <color name="piece_black">#22201E</color>
-    <!-- 棋子面的径向高光: 左上亮 → 右下暗, 做出圆润的立体感 -->
-    <color name="piece_grad_1">#FFF8DC</color>
-    <color name="piece_grad_2">#F2E2BF</color>
-    <color name="piece_grad_3">#DEC69B</color>
-    <color name="piece_grain">#30A0826D</color>
-    <color name="piece_shadow">#40000000</color>
+    <color name="piece_black_edge">#000000</color>
+    <!-- 棋子上的字: 红黑两方共用白字 -->
+    <color name="piece_text">#FFFFFF</color>
+    <!-- 面色: 实心棋子不再用它作底, 只留给摆子托盘的空槽 -->
+    <color name="piece_face">#F5E9CE</color>
+    <!-- 棋子面的径向高光: 左上亮 → 右下暗, 做出圆润的立体感.
+         实心底上改为叠一层很淡的白色渐变, 所以这三个停靠点带 alpha. -->
+    <color name="piece_grad_1">#38FFFFFF</color>
+    <color name="piece_grad_2">#14FFFFFF</color>
+    <color name="piece_grad_3">#00FFFFFF</color>
+    <color name="piece_grain">#18FFFFFF</color>
+    <color name="piece_shadow">#33000000</color>
 
     <!-- ============ 落子高亮 (画在木色上, 需带 alpha) ============ -->
-    <color name="hl_select">#99F2C94C</color>
-    <color name="hl_move">#995FA83E</color>
-    <color name="hl_capture">#99D64541</color>
-    <color name="hl_last">#80E3A13C</color>
-    <color name="hl_hint">#995B9DD9</color>
-    <color name="hl_check">#99E0574A</color>
-    <!-- 选中环: 压在棋子之上, 所以不带 alpha -->
+    <color name="hl_select">#99E0A61F</color>
+    <color name="hl_move">#994E7A2F</color>
+    <color name="hl_capture">#99C0392B</color>
+    <color name="hl_last">#66E0A61F</color>
+    <color name="hl_hint">#992F6FAF</color>
+    <color name="hl_check">#99C0392B</color>
     <!-- 吃子特效的火星色: 红黑双方共用, 靠亮度从棋子本色里跳出来 -->
     <color name="fx_spark">#FFB020</color>
-    <color name="sel_ring">#F2A03C</color>
+    <!-- 选中环: 压在棋子之上, 所以不带 alpha -->
+    <color name="sel_ring">#E0A61F</color>
     <!-- 可走点的外圈光晕, 比实心点更淡 -->
-    <color name="hl_move_halo">#4D5FA83E</color>
+    <color name="hl_move_halo">#404E7A2F</color>
     <!-- 提示的次选点 -->
-    <color name="hl_hint_soft">#665B9DD9</color>
+    <color name="hl_hint_soft">#552F6FAF</color>
     <!-- 提示箭头是不透明的: 它压在棋子上, 半透明会和棋子颜色混成脏色 -->
-    <color name="hl_arrow">#2E7D32</color>
+    <color name="hl_arrow">#4E7A2F</color>
 
     <!-- ============ 胜率条 ============ -->
     <!-- soft→strong 是各自那半区的渐变两端, 优势越大越往 strong 走 -->
-    <color name="winrate_red_soft">#E08B84</color>
+    <color name="winrate_red_soft">#E0908A</color>
     <color name="winrate_red_strong">#C0392B</color>
-    <color name="winrate_black_soft">#6E6A66</color>
+    <color name="winrate_black_soft">#7A756E</color>
     <color name="winrate_black_strong">#2C2A28</color>
     <!-- 百分比文字压在各自半区上, 所以要分开定: 亮色主题两半都是深色底,
          白字都能读; 暗色主题黑方那半是浅色, 见 values-night. -->
     <color name="winrate_text_on_red">#FFFFFF</color>
     <color name="winrate_text_on_black">#FFFFFF</color>
 
+    <!-- ============ 引擎加载遮罩 ============ -->
+    <!-- 浅色主题给米白带 ~70% alpha. 原本硬编码 #B3F7F3EE, 切到暗色主题就
+         变成一块亮亮的米色贴在深底上, 比没遮罩还扎眼. 改成 token, 两套
+         主题各自一份, 看起来都像"同一张图压了层薄纱"。 -->
+    <color name="loading_scrim">#B3F7F3EE</color>
+
     <!-- ============ 段位 ============ -->
-    <color name="rank_bronze">#B06D33</color>
-    <color name="rank_silver">#8C8C94</color>
-    <color name="rank_gold">#C79A1E</color>
-    <color name="rank_platinum">#6E8A96</color>
-    <color name="rank_diamond">#2E9BB8</color>
-    <color name="rank_master">#E2551F</color>
-    <color name="rank_grandmaster">#8E4EC6</color>
-    <color name="rank_king">#C79A1E</color>
+    <color name="rank_bronze">#A85F28</color>
+    <color name="rank_silver">#7E7E86</color>
+    <color name="rank_gold">#B08814</color>
+    <color name="rank_platinum">#5F7C88</color>
+    <color name="rank_diamond">#1F87A3</color>
+    <color name="rank_master">#D2450F</color>
+    <color name="rank_grandmaster">#7B3FB5</color>
+    <!-- 棋王不能再用金色: rank_gold 就是同一个色值, 于是最高段位和中段
+         看起来完全一样, 顶档反而不如紫色的大师显眼. 改用玉色 —— 玉在这套
+         语汇里本来就压过金, 而且和上面五个色相都不撞. -->
+    <color name="rank_king">#14544A</color>
 
 </resources>

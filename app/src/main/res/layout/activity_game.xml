@@ -68,20 +68,11 @@
             tools:text="引擎" />
 
         <TextView
-            android:id="@+id/opponent_rating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_caption"
-            tools:text="1600" />
-
-        <TextView
             android:id="@+id/level_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_2"
-            android:background="@drawable/bg_pill"
+            android:background="@drawable/bg_pill_action"
             android:paddingStart="@dimen/space_3"
             android:paddingEnd="@dimen/space_2"
             android:paddingVertical="@dimen/space_1"
@@ -131,6 +122,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/space_2" />
+
+        <!-- 引擎准备中的遮罩.
+             clickable=true 是关键: 这层要**吃掉**触摸事件, 否则棋盘在下面
+             照常响应, 玩家可以走子, 而引擎还没起来不会回招. -->
+        <LinearLayout
+            android:id="@+id/engine_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/loading_scrim"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:layout_width="@dimen/icon_lg"
+                android:layout_height="@dimen/icon_lg"
+                android:indeterminateTint="@color/action" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_3"
+                android:text="@string/loading_engine"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+        </LinearLayout>
 
     </FrameLayout>
 
@@ -232,9 +252,9 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/advisor_button"
-            android:textColor="@color/action"
+            android:textColor="@color/affirm"
             app:icon="@drawable/ic_ai"
-            app:iconTint="@color/action" />
+            app:iconTint="@color/affirm" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_resign"
