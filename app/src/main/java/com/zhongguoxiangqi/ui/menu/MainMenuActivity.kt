@@ -96,7 +96,11 @@ class MainMenuActivity : AppCompatActivity() {
         OpponentAvatar.bind(binding.opponentAvatar, level)
         binding.opponentName.text =
             getString(R.string.new_game_level_format, level.id, getString(level.nameRes))
-        binding.opponentSegment.text = getString(level.segmentRes)
+        // 见 DifficultyLevel.segmentOrNull
+        val segment = level.segmentOrNull(this)
+        binding.opponentSegment.text = segment.orEmpty()
+        binding.opponentSegment.visibility =
+            if (segment == null) android.view.View.GONE else android.view.View.VISIBLE
     }
 
     private fun updateProfile() {
@@ -199,4 +203,17 @@ enum class DifficultyLevel(
     GRANDMASTER(13, R.string.difficulty_grandmaster, R.string.difficulty_segment_grandmaster, R.string.difficulty_desc_grandmaster, 2320, R.color.rank_grandmaster),
     INTERNATIONAL_MASTER(14, R.string.difficulty_international_master, R.string.difficulty_segment_international_master, R.string.difficulty_desc_international_master, 2400, R.color.rank_king),
     LEGENDARY(15, R.string.difficulty_legendary, R.string.difficulty_segment_legendary, R.string.difficulty_desc_legendary, 2500, R.color.rank_king);
+
+    /**
+     * 要显示的段位标签; 和档位名重了就返回 null(调用方把那个 chip 藏起来).
+     *
+     * 两条阶梯到了顶上会合流: 棋协大师 / 国家大师 / 国际大师 既是档位名, 也正是
+     * 真人的头衔 —— 再并排挂一个一模一样的 chip, 那一行就成了"国家大师 国家大师".
+     * 段位标签存在的意义是回答"这相当于什么水平的人", 当档位名**本身**就是答案时,
+     * 正确的做法是不说第二遍, 而不是硬凑一个近义词。
+     */
+    fun segmentOrNull(context: android.content.Context): String? {
+        val segment = context.getString(segmentRes)
+        return segment.takeIf { it != context.getString(nameRes) }
+    }
 }

@@ -6,6 +6,9 @@ import android.Manifest
 import android.os.Bundle
 import android.content.pm.PackageManager
 import android.speech.SpeechRecognizer
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +32,7 @@ import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.game.VoiceCommands
+import com.zhongguoxiangqi.rating.GameResult
 import com.zhongguoxiangqi.rating.UserProfile
 import com.zhongguoxiangqi.ui.menu.DifficultyAdapter
 import com.zhongguoxiangqi.ui.menu.DifficultyLevel
@@ -575,14 +579,36 @@ class GameActivity : AppCompatActivity() {
     private fun moveToChinese(move: Move): String =
         Notation.format(this, move, viewModel.currentPosition)
 
+    /**
+     * 对局结束弹窗.
+     *
+     * 标题报的是**结果**, 不是"对局结束" —— 旧版标题写"对局结束", 正文第一行
+     * 又是"对局结束", 同一句话说两遍; 而"我到底赢没赢"整个弹窗一个字都没提,
+     * 只能从"评分变化: -15"倒推. 结果还按复盘列表那套语义色上色(胜=affirm、
+     * 负=danger), 让"胜/负"在全 App 是同一种颜色语言.
+     */
     private fun showGameOverDialog(reason: String) {
         if (gameOverDialog?.isShowing == true) return
         if (isFinishing || isDestroyed) return
         val state = viewModel.state.value
         val deltaText = (if (state.ratingDelta >= 0) "+" else "") + state.ratingDelta
         val message = getString(R.string.game_over_body, reason, deltaText, state.playerRank)
+        // 用 gameResult 而不是 gameOverWinner: 后者只在将死时才有值,
+        // 认输走的是 endGame(), 那条路上 winner 一直是 NONE —— 拿它判会把
+        // "我刚认输"显示成"和棋".
+        val (titleRes, colorRes) = when (state.gameResult) {
+            GameResult.WIN -> R.string.game_over_win to R.color.affirm
+            GameResult.LOSS -> R.string.game_over_loss to R.color.danger
+            else -> R.string.game_over_draw to R.color.text_primary
+        }
+        val title = SpannableString(getString(titleRes)).apply {
+            setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(this@GameActivity, colorRes)),
+                0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
         gameOverDialog = AlertDialog.Builder(this)
-            .setTitle(R.string.game_over_title)
+            .setTitle(title)
             .setMessage(message)
             .setCancelable(false)
             .setPositiveButton(R.string.action_new_game) { _, _ ->

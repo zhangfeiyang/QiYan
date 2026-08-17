@@ -92,7 +92,10 @@ class NewGameActivity : AppCompatActivity() {
     private fun bindSelected() {
         OpponentAvatar.bind(binding.selAvatar, selected)
         binding.selName.text = getString(R.string.new_game_level_format, selected.id, getString(selected.nameRes))
-        binding.selSegment.text = getString(selected.segmentRes)
+        // 见 DifficultyLevel.segmentOrNull: 档位名本身就是头衔时不再重复一遍
+        val segment = selected.segmentOrNull(this)
+        binding.selSegment.text = segment.orEmpty()
+        binding.selSegment.visibility = if (segment == null) android.view.View.GONE else android.view.View.VISIBLE
         binding.selDesc.text = getString(selected.descRes)
         adapter.select(selected.id)
     }

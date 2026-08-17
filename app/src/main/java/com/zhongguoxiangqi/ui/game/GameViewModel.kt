@@ -134,6 +134,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val isGameOver: Boolean = false,
         val gameOverReason: String = "",
         val gameOverWinner: Int = Color.NONE,
+        /**
+         * 本局对**玩家**而言的胜负, 未结束为 null.
+         *
+         * 不要用 [gameOverWinner] 判胜负 —— 它只在将死时才有值, 认输/和棋
+         * 走的是 endGame(), 那条路上它一直是 NONE, 拿它判会把"认输"显示成
+         * "和棋". 这里存的是 endGame 收到的那个结果, 也正是写进战绩和棋力
+         * 分的同一个值.
+         */
+        val gameResult: GameResult? = null,
         val moveCount: Int = 0,
         /** 最近一步是否吃子(用于落子音效/震动强度) */
         val lastMoveCaptured: Boolean = false,
@@ -211,6 +220,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isGameOver = false,
             gameOverReason = "",
             gameOverWinner = Color.NONE,
+            gameResult = null,
             moveCount = 0,
             playerRating = userProfile.displayedRating,
             playerRank = getApplication<Application>().getString(rank.nameRes),
@@ -384,6 +394,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             isGameOver = false,
             gameOverReason = "",
             gameOverWinner = Color.NONE,
+            gameResult = null,
             moveCount = moveHistory.size
         )
         _winRateSnapshot.value = WinRateSnapshot(redWinRate = 50.0)
@@ -615,6 +626,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = _state.value.copy(
             isGameOver = true,
             gameOverReason = reason,
+            gameResult = result,
             isThinking = false,
             playerRating = userProfile.displayedRating,
             ratingDelta = userProfile.displayedRating - gameStartRating,

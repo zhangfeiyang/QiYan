@@ -43,7 +43,10 @@ class DifficultyAdapter(
         val level = levels[position]
         val ctx = holder.itemView.context
         holder.name.text = ctx.getString(level.nameRes)
-        holder.segment.text = ctx.getString(level.segmentRes)
+        // 顶上几档的段位标签和档位名是同一个词, 那时候整个 chip 收起来
+        val segment = level.segmentOrNull(ctx)
+        holder.segment.text = segment.orEmpty()
+        holder.segment.visibility = if (segment == null) View.GONE else View.VISIBLE
         holder.desc.text = ctx.getString(level.descRes)
         holder.badge.setBackgroundColor(ContextCompat.getColor(ctx, level.color))
         holder.itemView.isSelected = (position == selectedPosition)

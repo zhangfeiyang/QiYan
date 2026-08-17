@@ -29,7 +29,9 @@
     <string name="difficulty_district">District Player</string>
     <string name="difficulty_city">City Player</string>
     <string name="difficulty_provincial">Provincial Expert</string>
-    <string name="difficulty_local_master">Local Master</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Association Master</string>
     <string name="difficulty_national_master">National Master</string>
     <string name="difficulty_grandmaster">Grandmaster</string>
     <string name="difficulty_international_master">International Master</string>
@@ -47,7 +49,7 @@
     <string name="difficulty_segment_district">Amateur 5 Dan</string>
     <string name="difficulty_segment_city">Amateur 6 Dan</string>
     <string name="difficulty_segment_provincial">Local Master</string>
-    <string name="difficulty_segment_local_master">Chess Association Master</string>
+    <string name="difficulty_segment_local_master">Association Master</string>
     <string name="difficulty_segment_national_master">National Master</string>
     <string name="difficulty_segment_grandmaster">National Grandmaster</string>
     <string name="difficulty_segment_international_master">International Master</string>
@@ -189,11 +191,14 @@
     <string name="game_player_red">Me (Red)</string>
     <string name="game_player_black">Me (Black)</string>
     <string name="game_move_count">Move %1$d</string>
-    <string name="game_over_title">Game Over</string>
     <string name="game_engine_start_failed">Failed to start AI</string>
     <string name="unknown_label">Unknown</string>
     <string name="default_nickname">Chess Friend</string>
-    <string name="game_over_body">Game over\nReason: %1$s\nRating change: %2$s\nCurrent rank: %3$s</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Reason: %1$s\nRating change: %2$s\nCurrent rank: %3$s</string>
+    <string name="game_over_win">You won</string>
+    <string name="game_over_loss">You lost</string>
+    <string name="game_over_draw">Draw</string>
 
     <!-- Settings -->
     <string name="settings_engine">AI Settings</string>

@@ -186,11 +186,16 @@
     <string name="game_player_red">我 (执红)</string>
     <string name="game_player_black">我 (执黑)</string>
     <string name="game_move_count">第%1$d手</string>
-    <string name="game_over_title">对局结束</string>
     <string name="game_engine_start_failed">引擎启动失败</string>
     <string name="unknown_label">未知</string>
     <string name="default_nickname">棋友</string>
-    <string name="game_over_body">对局结束\n原因: %1$s\n评分变化: %2$s\n当前段位: %3$s</string>
+    <!-- 标题现在报的是**结果**(你赢了/你输了/和棋), 所以正文不再重复一遍
+         "对局结束" —— 旧版标题和正文第一行是同一句话, 而真正该说的"我到底
+         赢没赢"一个字都没有, 只能从"评分变化: -15"里倒推。 -->
+    <string name="game_over_body">原因: %1$s\n评分变化: %2$s\n当前段位: %3$s</string>
+    <string name="game_over_win">你赢了</string>
+    <string name="game_over_loss">你输了</string>
+    <string name="game_over_draw">和棋</string>
 
     <!-- 设置 -->
     <string name="settings_engine">AI 设置</string>
