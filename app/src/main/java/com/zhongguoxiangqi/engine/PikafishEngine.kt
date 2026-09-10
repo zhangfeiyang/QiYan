@@ -191,6 +191,30 @@ class PikafishEngine(private val context: Context) : ChessEngine {
     }
 
     /**
+     * 读取本次搜索的 MultiPV 候选着法(引擎评分从好到差, 首条即 bestmove).
+     *
+     * 给"棋手风格"挑选用 —— 只能在收到 onBestMove 之后、下一次 go() 之前读,
+     * 那个窗口里 g_multiPvLines 才属于刚结束的这轮搜索。
+     */
+    fun lastCandidates(): List<PlayStyle.Candidate> {
+        if (!ready) return emptyList()
+        return synchronized(stateLock) {
+            val buf = ByteArray(CANDIDATES_BUF_BYTES)
+            val n = PikafishNative.getMultiPvCandidates(buf)
+            if (n <= 0) return@synchronized emptyList()
+            String(buf, 0, n).split(';').mapNotNull { part ->
+                val seg = part.split(':')
+                if (seg.size < 3) return@mapNotNull null
+                PlayStyle.Candidate(
+                    moveUci = seg[0],
+                    scoreCp = seg[1].toIntOrNull() ?: 0,
+                    scoreMate = seg[2].toIntOrNull() ?: 0,
+                )
+            }
+        }
+    }
+
+    /**
      * 搜索**过程中**把 native 侧的即时评估喂给监听器.
      *
      * C++ 每加深一层就刷新 g_lastInfo(pikafish_jni.cpp 的 set_on_update_full),
@@ -279,5 +303,7 @@ class PikafishEngine(private val context: Context) : ChessEngine {
         const val BOOK_MIN_THINK_MS = 450L
         /** 搜索途中读 g_lastInfo 的间隔. 深度推进本身就有几百毫秒, 再密没意义 */
         const val INFO_POLL_MS = 200L
+        /** MultiPV 候选串上限: 每条约 16 字节, 8 条线远够 */
+        const val CANDIDATES_BUF_BYTES = 512
     }
 }

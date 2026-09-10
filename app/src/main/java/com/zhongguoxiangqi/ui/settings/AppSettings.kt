@@ -55,6 +55,14 @@ class AppSettings(context: Context) {
     val animationEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_ANIMATION, true)
     val boardFlipped: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_FLIPPED, false)
 
+    /**
+     * 吃子的战场厮杀特效(刀光/火花/溅墨).
+     *
+     * 默认开 —— 这是用户明确要的戏份; 但连吃几子时确实闹, 得给人关的余地.
+     * 关掉后棋盘仍会弹"吃车"文字标签: 那是信息, 不属于特效.
+     */
+    val captureFxEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_CAPTURE_FX, true)
+
     /** 背景音乐. 默认开 —— 氛围是这次特意加的, 但随时能关 */
     val bgmEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_BGM, true)
 

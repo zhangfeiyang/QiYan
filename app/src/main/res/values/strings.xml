@@ -385,4 +385,24 @@
     <string name="menu_change_opponent">Change</string>
     <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
     <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Balanced</string>
+    <string name="style_balanced_desc">Always plays the engine\'s best move — pure strength</string>
+    <string name="style_aggressive">Aggressive</string>
+    <string name="style_aggressive_desc">Loves captures and checks, dares to sacrifice for the attack</string>
+    <string name="style_solid">Solid</string>
+    <string name="style_solid_desc">Never trades unwisely, prefers calm positions over complications</string>
+    <string name="style_swarm">Unpredictable</string>
+    <string name="style_swarm_desc">Varies among near-best moves — a different game every time</string>
+    <string name="new_game_style">Opponent style</string>
+    <string name="new_game_style_line">Style: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Check!</string>
+    <string name="board_tag_mate">Checkmate</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Capture battle effects</string>
+    <string name="settings_desc_capture_fx">Slash, sparks and ink-splash animation when a piece is captured. The \'Captured…\' label on the board stays either way</string>
 </resources>

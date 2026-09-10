@@ -61,6 +61,16 @@ object PikafishNative {
      */
     external fun getLastInfo(out: IntArray)
 
+    /**
+     * 读取本次搜索的 MultiPV 候选着法, 供"棋手风格"挑选用.
+     *
+     * 格式: "move:cp:mate;move:cp:mate;..." — 第 1 条是引擎的最佳着法,
+     * 评分都是走子方视角. 只有以 MultiPV>1 搜索时才有内容.
+     *
+     * @return 写入的字节数
+     */
+    external fun getMultiPvCandidates(buf: ByteArray): Int
+
     /** 关闭引擎。 */
     external fun shutdown()
 }

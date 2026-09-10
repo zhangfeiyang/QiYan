@@ -95,6 +95,17 @@
                         android:textAppearance="@style/TextAppearance.Xiangqi.Secondary"
                         tools:text="Solid openings, calculates 3-5 moves ahead" />
 
+                    <!-- 棋路: 档位说"多强", 这行说"怎么下". 跟下面那排风格切换键联动 -->
+                    <TextView
+                        android:id="@+id/sel_style"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:textColor="@color/action"
+                        android:textSize="@dimen/text_caption"
+                        android:textStyle="bold"
+                        tools:text="棋路: 攻杀型" />
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -132,9 +143,67 @@
         android:paddingTop="@dimen/space_3"
         android:paddingBottom="@dimen/space_3">
 
+        <!-- ========== 对手棋路: 档位管"多强", 这里管"怎么下" ========== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_2"
+            android:text="@string/new_game_style"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/style_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_balanced"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_balanced" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_aggressive"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_aggressive" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_solid"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_solid" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_swarm"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_swarm" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <TextView
+            android:id="@+id/style_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary"
+            tools:text="Loves captures, checks and sacrifices" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_4"
             android:layout_marginBottom="@dimen/space_2"
             android:text="@string/new_game_side"
             android:textAppearance="@style/TextAppearance.Xiangqi.Label" />

@@ -229,34 +229,182 @@ class BoardView @JvmOverloads constructor(
         val color: Int,
     )
 
+    /**
+     * 棋子楷体: 加载失败退回系统衬线粗体.
+     * 声明在厮杀特效的画笔之前 —— 那几支笔的字段初始化就要用它.
+     */
+    private val pieceTypeface: Typeface = try {
+        Typeface.createFromAsset(context.assets, "fonts/chinese_piece.ttf")
+    } catch (_: Exception) {
+        Typeface.create(Typeface.SERIF, Typeface.BOLD)
+    }
+
     private var fxSquare = -1
     private var fxPiece = Piece.NONE.code
+    /** 动手的子(进攻方), 厮杀开场它的字会朝被吃子突进 */
+    private var fxAttacker = Piece.NONE.code
+    /** 进攻方来向的单位向量(指向被吃格); 拿不到来向时从正上方压下来 */
+    private var fxDx = 0f
+    private var fxDy = -1f
     private var fxProgress = 0f
+    private var fxCfg: KillFx = KillFx(900L, 0f, 4, 1, 8, 0.45f)
     private var fxAnimator: ValueAnimator? = null
     private val fxShards = ArrayList<Shard>(28)
     private val fxPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val fxPath = Path()
 
+    /** 厮杀特效里的"被吃大字": 与棋子同一套楷体, 被斩成两半的就是它 */
+    private val fxCharPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        typeface = pieceTypeface
+    }
+    /** 大字背后那圈白描, 木色棋盘上保证字永远读得出来 */
+    private val fxCharEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        typeface = pieceTypeface
+        style = Paint.Style.STROKE
+        color = 0xB3FFFFFF.toInt()
+    }
+
+    /** 吃子的厮杀特效开关(设置里可关). 关闭后只保留文字标签 */
+    var captureFxEnabled = true
+
+    /**
+     * 一档厮杀特效的强度参数, 按被吃子的分量给.
+     *
+     * 吃兵是街头的摩擦, 吃车是阵斩, 吃将是终局 —— 时长、震动、斩击数、
+     * 火星量都该说出这个差别, 而不是所有子共用一个爆炸。
+     */
+    private class KillFx(
+        val duration: Long,
+        /** 全盘抖动幅度(格宽的倍数), 0 = 不抖 */
+        val shake: Float,
+        /** 撞击时炸出的兵刃火花条数 */
+        val blades: Int,
+        /** 斩在大字上的刀痕数 */
+        val slashes: Int,
+        /** 四散的火星碎片数 */
+        val embers: Int,
+        /** 落幕朱砂的半径(格宽的倍数) */
+        val splash: Float,
+    )
+
+    // 按棋子类型(1帅 2仕 3相 4马 5车 6炮 7兵)索引
+    private val killByType = arrayOf(
+        KillFx(1500L, 0.140f, 10, 3, 20, 1.3f),  // 将/帅: 终局, 三刀 + 全盘震动
+        KillFx(1000L, 0f,      5, 1, 10, 0.6f),  // 仕
+        KillFx(1000L, 0f,      5, 1, 10, 0.6f),  // 相
+        KillFx(1150L, 0.060f,  6, 1, 12, 0.8f),  // 马
+        KillFx(1250L, 0.090f,  8, 2, 14, 1.0f),  // 车: 双刀
+        KillFx(1150L, 0.060f,  6, 1, 12, 0.8f),  // 炮
+        KillFx(900L,  0f,      4, 1, 8,  0.45f), // 兵/卒: 最轻
+    )
+
+    /** 厮杀时间线锚点: 撞击时刻 / 大字劈开时刻 */
+    private val fxImpact = 0.26f
+    private val fxSplit = 0.36f
+
+    /** 撞击帧动画的精灵图布局: 5 列 x 4 行 = 20 帧 (与 tools 打包参数一致) */
+    private val FX_SHEET_COLS = 5
+    private val FX_SHEET_ROWS = 4
+    private val FX_FRAMES = 20
+
+    // ====== 浮动标签("吃车"/"将军"/"绝杀") ======
+    private var tagSquare = -1
+    private var tagText = ""
+    private var tagColor = 0
+    private var tagProgress = 0f
+    private var tagAnimator: ValueAnimator? = null
+    private val tagPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val tagTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    }
+
+    /**
+     * 在某一格上方弹一条会升起、淡出的文字标签.
+     *
+     * 吃子报"吃车"、将军报"将军": 这些事件的文字提示原本只能走 Toast ——
+     * Toast 从屏幕底部冒出来, 眼睛盯着棋盘时根本注意不到, 而且连吃两子时
+     * 后一条会顶掉前一条. 标签长在事件发生的格子上, 视线不用离开棋盘.
+     */
+    fun showBoardTag(square: Int, text: String, @ColorRes colorRes: Int) {
+        if (square < 0 || square >= Square.COUNT || text.isEmpty()) return
+        tagAnimator?.cancel()
+        tagSquare = square
+        tagText = text
+        tagColor = themeColor(colorRes)
+        tagProgress = 0f
+        tagAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = TAG_DURATION_MS
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                tagProgress = it.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    tagSquare = -1
+                    invalidate()
+                }
+            })
+            start()
+        }
+    }
+
     /** 提示箭头的三角头, 复用避免 onDraw 内分配 */
     private val arrowHeadPath = Path()
 
     /**
-     * 播放吃子特效.
+     * 播放吃子的"战场厮杀"特效.
      *
-     * 每个兵种一套视觉, 不是同一个爆炸换颜色 —— 吃车和吃兵在棋上的分量差得远,
-     * 特效也应该说出这个差别. 具体见 [drawCaptureFx].
+     * 完整时间线见 [drawCaptureFx]: 进攻方的字突进 → 撞击闪光 + 兵刃火花 →
+     * 被吃子的楷体大字被刀痕劈成两半坠地 → 朱砂落幕. 分量越重的子戏越足
+     * (吃车双刀、吃将三刀带全盘震动).
+     *
+     * @param label 非空时在落点上方弹文字标签(如"吃车"). 即使特效被关掉,
+     *        标签也照弹 —— "哪个子没了"是信息, 不是装饰.
      */
-    fun playCaptureEffect(square: Int, capturedPiece: Int) {
+    fun playCaptureEffect(
+        square: Int,
+        capturedPiece: Int,
+        attackerPiece: Int = Piece.NONE.code,
+        attackerSquare: Int = -1,
+        label: String? = null,
+    ) {
+        if (label != null) showBoardTag(square, label, R.color.action)
+        if (!captureFxEnabled) return
         if (square < 0 || square >= Square.COUNT) return
         fxAnimator?.cancel()
         fxSquare = square
         fxPiece = capturedPiece
+        fxAttacker = attackerPiece
+        fxCfg = killByType[Piece.fromCode(capturedPiece).type.coerceIn(0, killByType.size - 1)]
+
+        // 攻方来向: 幽灵字从真实来格的方向突进, 比固定方向有"这一手是谁下的"的叙事
+        val to = squareToCenter(square)
+        if (attackerSquare in 0 until Square.COUNT && attackerSquare != square) {
+            val from = squareToCenter(attackerSquare)
+            val dx = to.x - from.x
+            val dy = to.y - from.y
+            val len = kotlin.math.sqrt(dx * dx + dy * dy)
+            if (len > 1f) {
+                fxDx = dx / len
+                fxDy = dy / len
+            } else {
+                fxDx = 0f; fxDy = -1f
+            }
+        } else {
+            fxDx = 0f; fxDy = -1f
+        }
+
         fxProgress = 0f
-        seedShards(capturedPiece)
+        seedShards(capturedPiece, fxCfg.embers)
 
         fxAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = captureFxDuration(capturedPiece)
-            interpolator = DecelerateInterpolator()
+            duration = fxCfg.duration
+            // 整条时间线自己分段缓动(突进/劈开/坠落各管各的), 全局保持线性
+            interpolator = android.view.animation.LinearInterpolator()
             addUpdateListener {
                 fxProgress = it.animatedValue as Float
                 invalidate()
@@ -272,27 +420,14 @@ class BoardView @JvmOverloads constructor(
         }
     }
 
-    /** 将/帅被吃是终局, 值得演久一点; 兵卒频繁被吃, 拖长了会烦 */
-    private fun captureFxDuration(piece: Int): Long = when (Piece.fromCode(piece)) {
-        Piece.R_KING, Piece.B_KING -> 1100L
-        Piece.R_ROOK, Piece.B_ROOK, Piece.R_CANNON, Piece.B_CANNON -> 780L
-        Piece.R_PAWN, Piece.B_PAWN -> 420L
-        else -> 620L
-    }
-
-    private fun seedShards(pieceCode: Int) {
+    /** 火星碎片: 颜色随被吃方, 数量按特效档位给 */
+    private fun seedShards(pieceCode: Int, count: Int) {
         fxShards.clear()
         val piece = Piece.fromCode(pieceCode)
         val warm = if (piece.isRed) themeColor(R.color.piece_red) else themeColor(R.color.piece_black)
         val spark = themeColor(R.color.fx_spark)
         val rnd = java.util.Random(pieceCode.toLong() * 31 + fxSquare)
 
-        val count = when (piece) {
-            Piece.R_PAWN, Piece.B_PAWN -> 8
-            Piece.R_KING, Piece.B_KING -> 26
-            Piece.R_ROOK, Piece.B_ROOK -> 18
-            else -> 14
-        }
         repeat(count) { i ->
             val ang = (i.toFloat() / count) * (Math.PI * 2).toFloat() +
                 rnd.nextFloat() * 0.4f
@@ -392,15 +527,9 @@ class BoardView @JvmOverloads constructor(
         // 棋子文字必须居中对齐,否则字会整体偏到棋子右侧
         pieceRedPaint.textAlign = Paint.Align.CENTER
         pieceBlackPaint.textAlign = Paint.Align.CENTER
-        // 尝试加载内嵌字体
-        val tf = try {
-            Typeface.createFromAsset(context.assets, "fonts/chinese_piece.ttf")
-        } catch (_: Exception) {
-            // 字体加载失败,使用系统字体
-            Typeface.create(Typeface.SERIF, Typeface.BOLD)
-        }
-        pieceRedPaint.typeface = tf
-        pieceBlackPaint.typeface = tf
+        // 字体在上面 pieceTypeface 处统一加载(厮杀大字与棋子共用同一套楷体)
+        pieceRedPaint.typeface = pieceTypeface
+        pieceBlackPaint.typeface = pieceTypeface
 
         // 字符集在这里自己读, 不由各个 Activity 分别设置: 全 App 有 5 处
         // 用到 BoardView (对局/复盘/支招/摆子/识局), 靠调用方记得设置就等于
@@ -827,6 +956,11 @@ class BoardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        // 厮杀震动: 大子被吃时全盘短促抖动 —— 撞击时刻峰值, 0.55 内衰减归零.
+        // 抖的是整个画面(棋盘+棋子+特效一起), 只抖特效层会像渲染故障.
+        val shake = killShakeOffset()
+        val shakeSave = if (shake != null) canvas.save() else -1
+        if (shake != null) canvas.translate(shake.x, shake.y)
         drawBoard(canvas)
         drawGrid(canvas)
         drawPalace(canvas)
@@ -839,143 +973,324 @@ class BoardView @JvmOverloads constructor(
         if (animatingMove != null) drawAnimatingPiece(canvas)
         drawHintOverlay(canvas)        // 虚影 + 箭头: 画在棋子之上, 永远可见
         drawCaptureFx(canvas)          // 吃子特效压在最上层
+        drawBoardTag(canvas)           // 浮动标签压过特效: "吃车"两个字不能被火花盖掉
+        if (shakeSave != -1) canvas.restoreToCount(shakeSave)
     }
 
     /**
-     * 吃子特效. 七个兵种七套视觉:
+     * 战场厮杀特效.
      *
-     *   车  十字冲击波 —— 车走直线, 冲击波也沿横竖两条线扫出去
-     *   马  螺旋轨迹   —— 对应马走"日"字的折返感
-     *   炮  爆炸       —— 双层冲击环 + 四散火星, 最响的一个
-     *   兵卒 小碎片     —— 最轻, 一闪而过, 免得频繁吃兵时满屏乱飞
-     *   士仕 菱形内爆   —— 士守在九宫里, 用向内收的菱形
-     *   象相 双环扩散   —— 象走田字, 两个同心方环
-     *   将帅 金光爆发   —— 终局, 光柱 + 全盘泛光
+     * 视觉素材由 AI 图像模型生成(刀光/撞击星芒/朱砂溅墨/金爆, 黑底转透明后
+     * 打包在 drawable-nodpi/), 代码只负责按时间线摆位:
      *
-     * 所有几何量都按 [pieceRadius] 缩放, 换屏幕尺寸不会走样.
+     *   0.00-0.26  突进   进攻方的楷体字从真实来格方向压向被吃子
+     *   0.26       撞击   金属撞击星芒炸开(将帅换金爆), 全盘震动峰值
+     *   0.30-0.62  斩击   刀光弧劈在被吃大字上; 车两刀, 将帅三刀
+     *   0.36-1.00  劈半   大字沿刀痕裂成两半, 坠地旋转淡出
+     *   0.52-1.00  落幕   朱砂溅墨收场; 将帅另加全盘金光
+     *   全程        火星   兵刃火星碎片自撞击时刻四散坠落
+     *
+     * 所有几何量都按 [pieceRadius]/[cellWidth] 缩放, 换屏幕尺寸不会走样.
+     * 分量越重的子戏越足: 时长/刀数/震动/火星由 [fxCfg] 一档档给出。
      */
     private fun drawCaptureFx(canvas: Canvas) {
         if (fxSquare == -1) return
         val c = squareToCenter(fxSquare)
         val t = fxProgress
-        val fade = ((1f - t) * 255).toInt().coerceIn(0, 255)
         val piece = Piece.fromCode(fxPiece)
         val main = if (piece.isRed) themeColor(R.color.piece_red) else themeColor(R.color.piece_black)
         val spark = themeColor(R.color.fx_spark)
+        val isKing = piece.type == 1
 
-        when (piece) {
-            Piece.R_ROOK, Piece.B_ROOK -> {
-                // 十字冲击波: 横竖两道亮条向外扫
-                fxPaint.style = Paint.Style.STROKE
-                fxPaint.strokeCap = Paint.Cap.ROUND
-                fxPaint.color = spark
-                fxPaint.alpha = fade
-                fxPaint.strokeWidth = pieceRadius * 0.42f * (1f - t)
-                val reach = pieceRadius * (1f + 5f * t)
-                canvas.drawLine(c.x - reach, c.y, c.x + reach, c.y, fxPaint)
-                canvas.drawLine(c.x, c.y - reach, c.x, c.y + reach, fxPaint)
-                fxPaint.color = main
-                fxPaint.alpha = (fade * 0.7f).toInt()
-                fxPaint.strokeWidth = pieceRadius * 0.16f * (1f - t)
-                canvas.drawCircle(c.x, c.y, pieceRadius * (1f + 2.4f * t), fxPaint)
-            }
+        // ---- 全盘金光(将帅终局专用, 垫在最底) ----
+        if (isKing && t < 0.55f) {
+            fxPaint.style = Paint.Style.FILL
+            fxPaint.color = spark
+            fxPaint.alpha = ((1f - t / 0.55f) * 60f).toInt().coerceIn(0, 255)
+            canvas.drawRect(boardRect, fxPaint)
+        }
 
-            Piece.R_HORSE, Piece.B_HORSE -> {
-                // 螺旋: 碎片绕着中心转出去
+        // ---- 落幕: 朱砂溅墨 / 将帅金爆 ----
+        val settleBmp =
+            if (isKing) fxBitmap(fxGoldBmp, R.drawable.fx_gold) { fxGoldBmp = it }
+            else fxBitmap(fxSplashBmp, R.drawable.fx_splash) { fxSplashBmp = it }
+        if (t > 0.78f && settleBmp != null) {
+            val p = ((t - 0.78f) / 0.22f).coerceIn(0f, 1f)
+            val alpha = (200f * (p * 6f).coerceAtMost(1f) * (1f - p)).toInt()
+            val targetW = if (isKing) cellWidth * (2.6f + 1.8f * p)
+                else pieceRadius * 4.4f * fxCfg.splash * (0.55f + 0.45f * p)
+            drawFxBitmap(canvas, settleBmp, c.x, c.y, targetW / settleBmp.width, p * 24f, alpha)
+        }
+
+        // ---- 撞击: 视频帧动画(普通子=金白爆炸 / 将帅=金色圣光) ----
+        // 视频由本地 MiniMax-H3 文生视频产出, 抽帧去黑底打包成 5x4 精灵图,
+        // 这里按时间线逐帧播放 —— 帧序列自带"火种起爆-膨胀-衰减"的完整运动,
+        // 比静态贴图缩放有冲击力得多.
+        val sheet =
+            if (isKing) fxBitmap(fxGoldSheet, R.drawable.fx_gold_sheet) { fxGoldSheet = it }
+            else fxBitmap(fxBurstSheet, R.drawable.fx_burst_sheet) { fxBurstSheet = it }
+        if (sheet != null) {
+            val t0 = fxImpact - 0.06f   // 提前一点起播: 序列开头正是一粒"火种"
+            val p = ((t - t0) / (0.88f - t0)).coerceIn(0f, 1f)
+            val frame = (p * (FX_FRAMES - 1)).toInt().coerceIn(0, FX_FRAMES - 1)
+            // 全盘级轰炸: 爆炸直接放大到 1.35 倍棋盘宽(将帅 1.6 倍),
+            // 从吃子点向外吞没整张棋盘 —— 震撼感首先来自尺寸
+            val boardW = boardRect.width()
+            val boomW = boardW * (if (isKing) 1.25f + 0.35f * p else 1.05f + 0.30f * p)
+            drawFxFrame(canvas, sheet, frame, c.x, c.y, boomW, 255)
+
+            // 点火瞬间的全盘白闪(一锤定音) + 中段的金色余闪(余波未平)
+            if (t >= fxImpact && t < fxImpact + 0.08f) {
+                val k = (t - fxImpact) / 0.08f
                 fxPaint.style = Paint.Style.FILL
-                fxShards.forEachIndexed { i, s ->
-                    val ang = kotlin.math.atan2(s.vy, s.vx) + t * 3.2f
-                    val r = pieceRadius * (0.3f + 2.6f * t) * (0.6f + s.size * 3f)
-                    val px = c.x + kotlin.math.cos(ang) * r
-                    val py = c.y + kotlin.math.sin(ang) * r
-                    fxPaint.color = if (i % 2 == 0) spark else main
-                    fxPaint.alpha = fade
-                    canvas.drawCircle(px, py, pieceRadius * s.size * (1f - t * 0.6f), fxPaint)
-                }
-            }
-
-            Piece.R_CANNON, Piece.B_CANNON -> {
-                // 爆炸: 内外两层冲击环 + 四散火星
-                fxPaint.style = Paint.Style.STROKE
-                fxPaint.color = spark
-                fxPaint.alpha = fade
-                fxPaint.strokeWidth = pieceRadius * 0.30f * (1f - t)
-                canvas.drawCircle(c.x, c.y, pieceRadius * (0.6f + 3.4f * t), fxPaint)
-                fxPaint.strokeWidth = pieceRadius * 0.16f * (1f - t)
-                fxPaint.alpha = (fade * 0.6f).toInt()
-                canvas.drawCircle(c.x, c.y, pieceRadius * (0.4f + 2.0f * t), fxPaint)
-                fxPaint.style = Paint.Style.FILL
-                drawShards(canvas, c.x, c.y, t, fade, speedScale = 3.4f)
-            }
-
-            Piece.R_PAWN, Piece.B_PAWN -> {
-                // 最轻的一档: 只有几粒碎片
-                fxPaint.style = Paint.Style.FILL
-                drawShards(canvas, c.x, c.y, t, fade, speedScale = 1.8f)
-            }
-
-            Piece.R_ADVISOR, Piece.B_ADVISOR -> {
-                // 菱形内爆: 从外向内收
-                fxPaint.style = Paint.Style.STROKE
-                fxPaint.strokeWidth = pieceRadius * 0.20f
-                fxPaint.color = spark
-                fxPaint.alpha = fade
-                val r = pieceRadius * (2.2f - 1.8f * t)
-                fxPath.reset()
-                fxPath.moveTo(c.x, c.y - r)
-                fxPath.lineTo(c.x + r, c.y)
-                fxPath.lineTo(c.x, c.y + r)
-                fxPath.lineTo(c.x - r, c.y)
-                fxPath.close()
-                canvas.drawPath(fxPath, fxPaint)
-            }
-
-            Piece.R_ELEPHANT, Piece.B_ELEPHANT -> {
-                // 双方环扩散, 对应"田"字
-                fxPaint.style = Paint.Style.STROKE
-                fxPaint.strokeWidth = pieceRadius * 0.18f * (1f - t)
-                for (k in 0..1) {
-                    val phase = (t + k * 0.35f).coerceAtMost(1f)
-                    fxPaint.color = if (k == 0) spark else main
-                    fxPaint.alpha = ((1f - phase) * 255).toInt().coerceIn(0, 255)
-                    val half = pieceRadius * (0.7f + 2.6f * phase)
-                    canvas.drawRect(c.x - half, c.y - half, c.x + half, c.y + half, fxPaint)
-                }
-            }
-
-            Piece.R_KING, Piece.B_KING -> {
-                // 终局: 全盘泛光 + 放射光柱 + 大量碎片
-                fxPaint.style = Paint.Style.FILL
-                fxPaint.color = spark
-                fxPaint.alpha = (fade * 0.22f).toInt()
+                fxPaint.color = 0xFFFFFFFF.toInt()
+                fxPaint.alpha = (70f * (1f - k) * (k * 6f).coerceAtMost(1f)).toInt()
                 canvas.drawRect(boardRect, fxPaint)
-
-                fxPaint.style = Paint.Style.STROKE
-                fxPaint.strokeCap = Paint.Cap.ROUND
-                fxPaint.color = spark
-                fxPaint.alpha = fade
-                val rays = 12
-                val inner = pieceRadius * (0.5f + 1.2f * t)
-                val outer = pieceRadius * (1.2f + 6f * t)
-                fxPaint.strokeWidth = pieceRadius * 0.14f * (1f - t)
-                for (i in 0 until rays) {
-                    val a = (i.toFloat() / rays) * (Math.PI * 2).toFloat() + t * 0.6f
-                    val ca = kotlin.math.cos(a)
-                    val sa = kotlin.math.sin(a)
-                    canvas.drawLine(
-                        c.x + ca * inner, c.y + sa * inner,
-                        c.x + ca * outer, c.y + sa * outer, fxPaint
-                    )
-                }
+            } else if (t >= 0.40f && t < 0.55f) {
+                val k = (t - 0.40f) / 0.15f
                 fxPaint.style = Paint.Style.FILL
-                drawShards(canvas, c.x, c.y, t, fade, speedScale = 4.0f)
-            }
-
-            else -> {
-                fxPaint.style = Paint.Style.FILL
-                drawShards(canvas, c.x, c.y, t, fade, speedScale = 2.4f)
+                fxPaint.color = themeColor(R.color.fx_spark)
+                fxPaint.alpha = (38f * kotlin.math.sin(k * Math.PI).toFloat()).toInt()
+                canvas.drawRect(boardRect, fxPaint)
             }
         }
+
+        // ---- 全盘冲击波环: 从落点一路扫到棋盘四角, 给"波及全场"的几何运动
+        //      (视频火焰负责质感, 这道环负责把整个棋盘串进同一个事件里) ----
+        if (t >= fxImpact && t < 0.66f) {
+            val p = ((t - fxImpact) / (0.66f - fxImpact)).coerceIn(0f, 1f)
+            val reach = boardRect.width() * 0.75f * (0.15f + 0.85f * p)
+            fxPaint.style = Paint.Style.STROKE
+            fxPaint.strokeCap = Paint.Cap.ROUND
+            fxPaint.strokeWidth = pieceRadius * 0.16f * (1f - p) + 1f
+            fxPaint.color = themeColor(R.color.fx_spark)
+            fxPaint.alpha = (190f * (1f - p) * (p * 10f).coerceAtMost(1f)).toInt()
+            canvas.drawCircle(c.x, c.y, reach, fxPaint)
+        }
+
+        // ---- 被吃大字: 撞击前顶起来, 劈开后裂成两半坠地 ----
+        val fxChar = fxCharLabel(piece)
+        val charSize = pieceRadius * 1.7f
+        if (t < fxSplit) {
+            val pop = if (t < fxImpact) 0.5f + 0.5f * (t / fxImpact)
+                else 1f + 0.09f * kotlin.math.sin(
+                    ((t - fxImpact) / 0.08f).coerceAtMost(1f) * Math.PI
+                ).toFloat()
+            drawFxChar(canvas, fxChar, c.x, c.y, charSize * pop, 255, main)
+        } else {
+            val p = ((t - fxSplit) / (1f - fxSplit)).coerceIn(0f, 1f)
+            // 劈开方向 = 第一道刀痕(-32°)的方向; 两半沿法线分开, 带重力下坠
+            val ang = Math.toRadians(-32.0)
+            val ux = kotlin.math.cos(ang).toFloat()
+            val uy = kotlin.math.sin(ang).toFloat()
+            val nx = -uy
+            val ny = ux
+            val sep = cellWidth * 0.40f * p
+            val drop = cellWidth * 1.1f * p * p
+            val rot = 16f * p
+            val alpha = (255f * (1f - p * p)).toInt()
+            val L = cellWidth * 1.3f
+
+            fxPath.reset()
+            fxPath.moveTo(ux * L, uy * L)
+            fxPath.lineTo(-ux * L, -uy * L)
+            fxPath.lineTo(-ux * L + nx * L, -uy * L + ny * L)
+            fxPath.lineTo(ux * L + nx * L, uy * L + ny * L)
+            fxPath.close()
+            val saveTop = canvas.save()
+            canvas.translate(c.x + nx * sep, c.y + ny * sep + drop)
+            canvas.rotate(rot)
+            canvas.clipPath(fxPath)
+            drawFxChar(canvas, fxChar, 0f, 0f, charSize, alpha, main)
+            canvas.restoreToCount(saveTop)
+
+            fxPath.reset()
+            fxPath.moveTo(ux * L, uy * L)
+            fxPath.lineTo(-ux * L, -uy * L)
+            fxPath.lineTo(-ux * L - nx * L, -uy * L - ny * L)
+            fxPath.lineTo(ux * L - nx * L, uy * L - ny * L)
+            fxPath.close()
+            val saveBottom = canvas.save()
+            canvas.translate(c.x - nx * sep, c.y - ny * sep + drop)
+            canvas.rotate(-rot)
+            canvas.clipPath(fxPath)
+            drawFxChar(canvas, fxChar, 0f, 0f, charSize, alpha, main)
+            canvas.restoreToCount(saveBottom)
+        }
+
+        // ---- 斩击刀光: 车两刀, 将帅三刀, 依次劈下 ----
+        val slashBmp = fxBitmap(fxSlashBmp, R.drawable.fx_slash) { fxSlashBmp = it }
+        if (slashBmp != null) {
+            for (i in 0 until fxCfg.slashes) {
+                val ti = t - (0.30f + 0.055f * i)
+                if (ti < 0f || ti > 0.26f) continue
+                val p = ti / 0.26f
+                val alpha = (240f * (1f - p * p)).toInt()
+                val targetW = pieceRadius * (4.2f + 1.6f * p)
+                drawFxBitmap(canvas, slashBmp, c.x, c.y, targetW / slashBmp.width,
+                    -32f + 54f * i, alpha)
+            }
+        }
+
+        // ---- 突进的进攻方幽影: 让"谁动的手"看得见 ----
+        if (t < fxImpact && fxAttacker != Piece.NONE.code) {
+            val k = t / fxImpact
+            val attacker = Piece.fromCode(fxAttacker)
+            val aColor = if (attacker.isRed) themeColor(R.color.piece_red) else themeColor(R.color.piece_black)
+            val dist = cellWidth * 1.5f * (1f - k)
+            drawFxChar(canvas, fxCharLabel(attacker),
+                c.x - fxDx * dist, c.y - fxDy * dist,
+                pieceRadius * 1.35f, (200f * k).toInt(), aColor)
+        }
+
+        // ---- 火星碎片: 撞击时刻起四散坠落 ----
+        val st = ((t - fxImpact) / (1f - fxImpact)).coerceIn(0f, 1f)
+        if (st > 0f) {
+            drawShards(canvas, c.x, c.y, st, (255f * (1f - st)).toInt(), speedScale = 2.6f)
+        }
+    }
+
+    // 特效贴图. 静态层(刀光/溅墨)来自 ChatGPT 生图, 撞击帧动画来自
+    // MiniMax-H3 文生视频抽帧; 都是黑底转透明, 首次用到才解码.
+    private var fxSlashBmp: Bitmap? = null
+    private var fxSplashBmp: Bitmap? = null
+    private var fxGoldBmp: Bitmap? = null
+    private var fxBurstSheet: Bitmap? = null
+    private var fxGoldSheet: Bitmap? = null
+    private val fxBitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    /** 帧动画专用: 加色混合 —— 火焰是光, 光晕自然融进棋盘, 永远不会有方形贴图边 */
+    private val fxFramePaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
+        xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.ADD)
+    }
+    private val fxRect = RectF()
+    private val fxRectSrc = Rect()
+    private val fxRectDst = RectF()
+
+    private fun fxBitmap(cached: Bitmap?, resId: Int, cache: (Bitmap) -> Unit): Bitmap? {
+        cached?.let { return it }
+        return runCatching { BitmapFactory.decodeResource(resources, resId) }
+            .getOrNull()?.also { cache(it) }
+    }
+
+    /** 把一张贴图按目标宽度缩放、绕中心旋转后画在 (cx, cy) */
+    private fun drawFxBitmap(
+        canvas: Canvas, bmp: Bitmap,
+        cx: Float, cy: Float, scale: Float, rotation: Float, alpha: Int,
+    ) {
+        if (alpha <= 0 || scale <= 0f) return
+        fxBitmapPaint.alpha = alpha.coerceIn(0, 255)
+        val save = canvas.save()
+        canvas.translate(cx, cy)
+        canvas.rotate(rotation)
+        val w = bmp.width * scale
+        val h = bmp.height * scale
+        fxRect.set(-w / 2f, -h / 2f, w / 2f, h / 2f)
+        canvas.drawBitmap(bmp, null, fxRect, fxBitmapPaint)
+        canvas.restoreToCount(save)
+    }
+
+    /**
+     * 从精灵图上取第 [frame] 帧画在 (cx, cy), 目标宽度 [targetW].
+     * 布局 5 列 x 4 行, 共 [FX_FRAMES] 帧, 行优先.
+     */
+    private fun drawFxFrame(
+        canvas: Canvas, sheet: Bitmap, frame: Int,
+        cx: Float, cy: Float, targetW: Float, alpha: Int,
+    ) {
+        if (alpha <= 0) return
+        val col = frame % FX_SHEET_COLS
+        val row = frame / FX_SHEET_COLS
+        val fw = sheet.width / FX_SHEET_COLS
+        val fh = sheet.height / FX_SHEET_ROWS
+        fxRectSrc.set(col * fw, row * fh, (col + 1) * fw, (row + 1) * fh)
+        val h = targetW * fh / fw
+        fxRectDst.set(cx - targetW / 2f, cy - h / 2f, cx + targetW / 2f, cy + h / 2f)
+        fxFramePaint.alpha = alpha.coerceIn(0, 255)
+        canvas.drawBitmap(sheet, fxRectSrc, fxRectDst, fxFramePaint)
+    }
+
+    /** 厮杀大字: 楷体 + 白描边, 木色棋盘和火花之上都读得出 */
+    private fun drawFxChar(
+        canvas: Canvas, ch: String, cx: Float, cy: Float,
+        size: Float, alpha: Int, color: Int,
+    ) {
+        if (alpha <= 0 || ch.isEmpty()) return
+        fxCharPaint.textSize = size
+        fxCharEdgePaint.textSize = size
+        val fm = fxCharPaint.fontMetrics
+        val baseline = cy - (fm.ascent + fm.descent) / 2f
+        fxCharEdgePaint.strokeWidth = size * 0.045f
+        fxCharEdgePaint.alpha = (alpha * 0.85f).toInt().coerceIn(0, 255)
+        canvas.drawText(ch, cx, baseline, fxCharEdgePaint)
+        fxCharPaint.color = color
+        fxCharPaint.alpha = alpha.coerceIn(0, 255)
+        canvas.drawText(ch, cx, baseline, fxCharPaint)
+    }
+
+    /** 厮杀特效里棋子印什么字, 与棋盘棋子同一套字符集规则 */
+    private fun fxCharLabel(piece: Piece): String = when (pieceSet) {
+        PieceSet.LATIN -> piece.fen.uppercaseChar().toString()
+        else -> if (piece.isRed) piece.redChar else piece.blackChar
+    }
+
+    /** 全盘震动偏移; 无震动档或已衰减完时返回 null */
+    private fun killShakeOffset(): PointF? {
+        if (fxSquare == -1 || fxCfg.shake <= 0f) return null
+        val t = fxProgress
+        val k = when {
+            t < fxImpact -> t / fxImpact
+            t < 0.55f -> 1f - (t - fxImpact) / (0.55f - fxImpact)
+            else -> 0f
+        }
+        if (k <= 0f) return null
+        val a = fxCfg.shake * cellWidth * k
+        return PointF(
+            kotlin.math.sin(t * 71f) * a,
+            kotlin.math.cos(t * 53f) * a * 0.6f,
+        )
+    }
+
+    /**
+     * 浮动标签: 胶囊底 + 粗体字, 从格子上方弹出, 边升边淡出.
+     *
+     * 起伏节奏: 前 12% 弹出(放大到位), 之后匀速上升, 最后 25% 淡出 ——
+     * 一口气淡到底会显得像 bug, 先站稳再消失才有"通知"的分量.
+     */
+    private fun drawBoardTag(canvas: Canvas) {
+        if (tagSquare == -1) return
+        val c = squareToCenter(tagSquare)
+        val t = tagProgress
+
+        val appear = (t / 0.12f).coerceIn(0f, 1f)
+        val alpha = when {
+            t > 0.75f -> ((1f - (t - 0.75f) / 0.25f) * 255).toInt()
+            else -> (appear * 255).toInt()
+        }.coerceIn(0, 255)
+        val rise = pieceRadius * 1.9f * t
+        tagTextPaint.textSize = pieceRadius * 0.56f * (0.75f + 0.25f * appear)
+
+        val fm = tagTextPaint.fontMetrics
+        val textH = fm.descent - fm.ascent
+        val padH = pieceRadius * 0.30f
+        val pillW = tagTextPaint.measureText(tagText) + padH * 2
+        val pillH = textH + padH * 0.8f
+        val pillR = pillH / 2f
+
+        // 标签默认悬在格子上方; 靠近棋盘顶端(或翻面后靠底端)放不下时改到下方
+        val above = c.y - pieceRadius * 1.7f - rise
+        val cy = if (above - pillH < boardRect.top && !flipped) {
+            c.y + pieceRadius * 1.7f + rise
+        } else if (above + pillH > boardRect.bottom && flipped) {
+            c.y + pieceRadius * 1.7f + rise
+        } else above
+
+        tagPaint.color = tagColor
+        tagPaint.alpha = (alpha * 0.92f).toInt().coerceIn(0, 255)
+        canvas.drawRoundRect(c.x - pillW / 2, cy - pillH / 2, c.x + pillW / 2, cy + pillH / 2, pillR, pillR, tagPaint)
+
+        tagTextPaint.color = themeColor(R.color.piece_text)
+        tagTextPaint.alpha = alpha
+        canvas.drawText(tagText, c.x, cy - (fm.ascent + fm.descent) / 2, tagTextPaint)
     }
 
     /** 碎片四散: 带一点重力, 让它们往下掉而不是平着飞 */
@@ -1430,6 +1745,8 @@ class BoardView @JvmOverloads constructor(
         }
         /** 走子动画时长 */
         private const val MOVE_ANIMATION_MS = 220L
+        /** 浮动标签("吃X"/"将军")的完整生命周期 */
+        private const val TAG_DURATION_MS = 950L
         private const val LONG_PRESS_MS = 600L
         /** 超过这个位移(像素平方)就认为是拖动,取消长按 */
         private const val LONG_PRESS_SLOP_SQ = 100f

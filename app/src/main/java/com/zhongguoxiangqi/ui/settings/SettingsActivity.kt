@@ -64,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.swShowCoords.isChecked = showCoords
         binding.swShowWinrate.isChecked = showWinrate
         binding.swAnimation.isChecked = animation
+        binding.swCaptureFx.isChecked = prefs.getBoolean(KEY_CAPTURE_FX, true)
         binding.swFlipped.isChecked = flipped
         binding.themeGroup.check(when (theme) {
             1 -> R.id.theme_dark
@@ -120,6 +121,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         binding.swAnimation.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(KEY_ANIMATION, checked).apply()
+        }
+        binding.swCaptureFx.setOnCheckedChangeListener { _, checked ->
+            prefs.edit().putBoolean(KEY_CAPTURE_FX, checked).apply()
         }
         binding.swFlipped.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(KEY_FLIPPED, checked).apply()
@@ -200,6 +204,7 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_SHOW_WINRATE = "show_winrate"
         const val KEY_ANIMATION = "animation"
         const val KEY_FLIPPED = "flipped"
+        const val KEY_CAPTURE_FX = "capture_fx"
         const val KEY_THEME = "theme"
         const val KEY_BGM = "bgm"
         const val KEY_PIECE_SET = "piece_set"

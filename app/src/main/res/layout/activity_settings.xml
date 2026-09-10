@@ -242,6 +242,18 @@
                     android:text="@string/settings_desc_animation" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/sw_capture_fx"
+                    style="@style/Widget.Xiangqi.Switch"
+                    android:text="@string/settings_capture_fx" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_2"
+                    android:text="@string/settings_desc_capture_fx" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_flipped"
                     style="@style/Widget.Xiangqi.Switch"
                     android:text="@string/settings_board_flip" />

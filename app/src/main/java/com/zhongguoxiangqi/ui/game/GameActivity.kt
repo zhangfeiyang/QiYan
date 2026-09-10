@@ -28,6 +28,7 @@ import com.zhongguoxiangqi.ai.AdvisorConfig
 import com.zhongguoxiangqi.ai.AdvisorSession
 import com.zhongguoxiangqi.ai.BoardContext
 import com.zhongguoxiangqi.databinding.ActivityGameBinding
+import com.zhongguoxiangqi.engine.PlayStyle
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Rules
@@ -58,6 +59,8 @@ class GameActivity : AppCompatActivity() {
 
     private var lastPlayerSide = Color.RED
     private var lastDifficulty = 5
+    /** 对手风格(攻杀/稳健...), 与难度正交; 开局带来, 对局中可随时改 */
+    private var lastStyle = PlayStyle.BALANCED
 
     /** 非空 = 这盘是从拍照识别摆好的局面开的, "再来一局"要接着用同一个局面 */
     private var startFen: String? = null
@@ -133,6 +136,7 @@ class GameActivity : AppCompatActivity() {
         voiceInput = VoiceInputController(this, ::onVoiceText, ::onVoiceError)
         lastDifficulty = intent.getIntExtra(EXTRA_DIFFICULTY, 5)
         lastPlayerSide = intent.getIntExtra(EXTRA_PLAYER_SIDE, Color.RED)
+        lastStyle = PlayStyle.fromId(intent.getIntExtra(EXTRA_STYLE, PlayStyle.BALANCED.id))
 
         setupBoard()
         setupControls()
@@ -140,11 +144,11 @@ class GameActivity : AppCompatActivity() {
 
         // 启动新对局. startFen 非空时是从拍照识别摆好的局面接着下
         startFen = intent.getStringExtra(EXTRA_START_FEN)
-        viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen)
+        viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen, lastStyle)
         // 开局这一刻就要记住设定, 而不是等用户去改难度或翻转才记.
         // 否则从「新对局」页挑完对手打进来, 退回首页会发现对手卡还是上一档,
         // 按"开始对局"也照旧用老档位 —— 挑对手这件事等于没发生.
-        persistGameSetup(lastDifficulty, lastPlayerSide)
+        persistGameSetup(lastDifficulty, lastPlayerSide, lastStyle)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -237,6 +241,8 @@ class GameActivity : AppCompatActivity() {
         val settings = AppSettings(this)
         binding.boardView.setShowCoordinates(settings.showCoordinates)
         binding.boardView.setAnimationEnabled(settings.animationEnabled)
+        // 厮杀特效可以整体关掉(只留"吃X"文字标签)
+        binding.boardView.captureFxEnabled = settings.captureFxEnabled
         // 执黑时默认翻转到黑方视角,设置里的翻转开关在此基础上再取反
         val defaultFlip = lastPlayerSide == Color.BLACK
         binding.boardView.setFlipped(defaultFlip != settings.boardFlipped)
@@ -400,16 +406,28 @@ class GameActivity : AppCompatActivity() {
                 is GameViewModel.GameEvent.PlayerInCheck -> {
                     feedback.onCheck()
                     voiceEffects.onCheck()
+                    showBoardTagAt(
+                        findKing(viewModel.currentPosition, viewModel.currentPosition.sideToMove),
+                        getString(R.string.board_tag_check), R.color.warning,
+                    )
                     viewModel.consumeEvent()
                 }
                 is GameViewModel.GameEvent.TacticCheck -> {
                     feedback.onCheck()
                     voiceEffects.onTactic(event.tactic)
+                    showBoardTagAt(
+                        findKing(viewModel.currentPosition, viewModel.currentPosition.sideToMove),
+                        getString(R.string.board_tag_check), R.color.warning,
+                    )
                     viewModel.consumeEvent()
                 }
                 is GameViewModel.GameEvent.Checkmate -> {
                     feedback.onCheckmate()
                     voiceEffects.onCheckmate()
+                    showBoardTagAt(
+                        findKing(viewModel.currentPosition, viewModel.currentPosition.sideToMove),
+                        getString(R.string.board_tag_mate), R.color.danger,
+                    )
                     viewModel.consumeEvent()
                 }
                 is GameViewModel.GameEvent.NormalMove -> {
@@ -417,12 +435,17 @@ class GameActivity : AppCompatActivity() {
                     viewModel.consumeEvent()
                 }
                 is GameViewModel.GameEvent.CapturedPiece -> {
-                    binding.boardView.playCaptureEffect(event.square, event.piece.code)
-                    // 走子音效+振动 + 弹 "吃X" 的提示. 这是用户对局中**唯一**会看
-                    // 到的吃子提示位置, 必须有可识别的文字, 不然车被吃也不知道.
+                    // 战场厮杀特效 + 棋盘上的浮动标签. 标签取代了原来的 Toast:
+                    // 眼睛盯着棋盘时, 屏幕底部的 Toast 根本看不见, 连吃两子时
+                    // 还会互相顶掉; 长在落点上的"吃车"两个字不会。
                     val msg = getString(R.string.captured_piece_format,
                         getString(pieceNameRes(event.piece)))
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    binding.boardView.playCaptureEffect(
+                        event.square, event.piece.code,
+                        event.attacker?.code ?: com.zhongguoxiangqi.game.Piece.NONE.code,
+                        event.attackerSquare,
+                        msg,
+                    )
                     feedback.onCapturePiece(event.piece)
                     voiceEffects.onCapture(event.piece, event.notation)
                     viewModel.consumeEvent()
@@ -473,6 +496,8 @@ class GameActivity : AppCompatActivity() {
                 binding.levelChip.text = level
                     ?.let { "Lv.${it.id} ${getString(it.nameRes)}" }
                     ?: "Lv.${state.difficulty}"
+                // 风格胶囊与档位胶囊并排: 档位说"多强", 风格说"什么棋路"
+                binding.styleChip.text = getString(state.style.nameRes)
 
                 // INVISIBLE 而不是 GONE: 这个指示器每走一步都要出现/消失一次,
                 // 用 GONE 会让它所在的信息行时高时矮, 而棋盘是 weight=1 吃剩余
@@ -544,6 +569,12 @@ class GameActivity : AppCompatActivity() {
         else -> R.string.piece_pawn
     }
 
+    /** 在棋盘某一格弹浮动标签; 格子无效就静默跳过(比如将已在别处被吃) */
+    private fun showBoardTagAt(square: Int, text: String, colorRes: Int) {
+        if (square < 0) return
+        binding.boardView.showBoardTag(square, text, colorRes)
+    }
+
     private fun updateBoard(state: GameViewModel.GameState) {
         val position = viewModel.currentPosition
         val history = viewModel.moveHistory
@@ -613,7 +644,7 @@ class GameActivity : AppCompatActivity() {
             .setCancelable(false)
             .setPositiveButton(R.string.action_new_game) { _, _ ->
                 gameOverDialog = null
-                viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen)
+                viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen, lastStyle)
             }
             .setNegativeButton(R.string.action_back) { _, _ ->
                 gameOverDialog = null
@@ -623,10 +654,10 @@ class GameActivity : AppCompatActivity() {
     }
 
     /**
-     * 对局中改 AI 等级.
+     * 对局中改 AI 等级/风格.
      *
      * 复用主菜单原来那套难度列表 —— 它已经带了每档的说明和 Elo, 正是"我该
-     * 选哪档"需要的信息, 没必要在这里另做一份简化版.
+     * 选哪档"需要的信息; 风格做成列表上方的一排切换键, 改完立即生效。
      */
     private fun showDifficultyPicker() {
         val view = layoutInflater.inflate(R.layout.dialog_difficulty, null)
@@ -638,6 +669,38 @@ class GameActivity : AppCompatActivity() {
             .setView(view)
             .setNegativeButton(R.string.dialog_cancel, null)
             .create()
+
+        // 风格切换键: 勾上即生效(当前风格打勾), 不关对话框, 方便连着试
+        val styleGroup = view.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.style_group)
+        listOf(
+            R.id.style_balanced to PlayStyle.BALANCED,
+            R.id.style_aggressive to PlayStyle.AGGRESSIVE,
+            R.id.style_solid to PlayStyle.SOLID,
+            R.id.style_swarm to PlayStyle.SWARM,
+        ).forEach { (id, style) ->
+            view.findViewById<com.google.android.material.button.MaterialButton>(id)?.text =
+                getString(style.nameRes)
+        }
+        styleGroup.check(
+            when (viewModel.state.value.style) {
+                PlayStyle.AGGRESSIVE -> R.id.style_aggressive
+                PlayStyle.SOLID -> R.id.style_solid
+                PlayStyle.SWARM -> R.id.style_swarm
+                else -> R.id.style_balanced
+            }
+        )
+        styleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val style = when (checkedId) {
+                R.id.style_aggressive -> PlayStyle.AGGRESSIVE
+                R.id.style_solid -> PlayStyle.SOLID
+                R.id.style_swarm -> PlayStyle.SWARM
+                else -> PlayStyle.BALANCED
+            }
+            viewModel.setStyle(style)
+            lastStyle = style
+            persistGameSetup()
+        }
 
         val levels = DifficultyLevel.entries.toList()
         rv.adapter = DifficultyAdapter(levels, viewModel.state.value.difficulty) { level ->
@@ -662,11 +725,13 @@ class GameActivity : AppCompatActivity() {
      */
     private fun persistGameSetup(
         difficulty: Int = viewModel.state.value.difficulty,
-        side: Int = viewModel.state.value.playerSide
+        side: Int = viewModel.state.value.playerSide,
+        style: PlayStyle = viewModel.state.value.style,
     ) {
         getSharedPreferences(PREFS_GAME, MODE_PRIVATE).edit()
             .putInt(KEY_LAST_DIFFICULTY, difficulty)
             .putInt(KEY_LAST_SIDE, side)
+            .putInt(KEY_LAST_STYLE, style.id)
             .apply()
     }
 
@@ -703,6 +768,8 @@ class GameActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_DIFFICULTY = "difficulty"
         const val EXTRA_PLAYER_SIDE = "player_side"
+        /** 对手风格 id, 见 [PlayStyle] */
+        const val EXTRA_STYLE = "style"
 
         /** 自定义起始局面 (拍照识别摆好后交过来的 FEN) */
         const val EXTRA_START_FEN = "start_fen"
@@ -714,5 +781,6 @@ class GameActivity : AppCompatActivity() {
         const val PREFS_GAME = "game_setup"
         const val KEY_LAST_DIFFICULTY = "last_difficulty"
         const val KEY_LAST_SIDE = "last_side"
+        const val KEY_LAST_STYLE = "last_style"
     }
 }

@@ -385,4 +385,24 @@
     <string name="menu_current_opponent">当前对手</string>
     <string name="menu_change_opponent">更换</string>
     <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">均衡型</string>
+    <string name="style_balanced_desc">永远走引擎认定的最佳着法, 纯粹的强度</string>
+    <string name="style_aggressive">攻杀型</string>
+    <string name="style_aggressive_desc">热爱吃子将军, 敢于弃子强攻</string>
+    <string name="style_solid">稳健型</string>
+    <string name="style_solid_desc">不做亏子的冒险, 偏好平静的局面</string>
+    <string name="style_swarm">灵动型</string>
+    <string name="style_swarm_desc">在接近最佳的着法里随机挑选, 每盘都下得不一样</string>
+    <string name="new_game_style">对手棋路</string>
+    <string name="new_game_style_line">棋路:%1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">将军!</string>
+    <string name="board_tag_mate">绝杀</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">吃子战场特效</string>
+    <string name="settings_desc_capture_fx">吃子时播放刀光、火花与溅墨的厮杀动画; 关闭后棋盘上仍会弹出"吃 X"的文字提示</string>
 </resources>

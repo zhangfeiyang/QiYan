@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.databinding.ActivityNewGameBinding
 import com.zhongguoxiangqi.databinding.ItemOpponentBinding
+import com.zhongguoxiangqi.engine.PlayStyle
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.ui.common.Insets
 import com.zhongguoxiangqi.ui.game.GameActivity
@@ -27,6 +28,7 @@ class NewGameActivity : AppCompatActivity() {
 
     private var selected: DifficultyLevel = DifficultyLevel.entries.first()
     private var side: Int = Color.RED
+    private var style: PlayStyle = PlayStyle.BALANCED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +46,7 @@ class NewGameActivity : AppCompatActivity() {
         // 那一方(随机掷完的结果), 拿它当偏好读回来, 用户选的"随机"就永远
         // 只会显示成红或黑, 再也回不到随机那一档.
         side = prefs.getInt(KEY_SIDE_PREF, Color.RED)
+        style = PlayStyle.fromId(prefs.getInt(GameActivity.KEY_LAST_STYLE, PlayStyle.BALANCED.id))
 
         adapter = OpponentAdapter(selected.id) { level ->
             selected = level
@@ -52,6 +55,32 @@ class NewGameActivity : AppCompatActivity() {
         binding.opponentGrid.layoutManager = GridLayoutManager(this, GRID_COLUMNS)
         binding.opponentGrid.adapter = adapter
         bindSelected()
+
+        // 棋路风格: 四选一, 描述跟着点亮的那档走
+        binding.styleBalanced.text = getString(PlayStyle.BALANCED.nameRes)
+        binding.styleAggressive.text = getString(PlayStyle.AGGRESSIVE.nameRes)
+        binding.styleSolid.text = getString(PlayStyle.SOLID.nameRes)
+        binding.styleSwarm.text = getString(PlayStyle.SWARM.nameRes)
+        binding.styleGroup.check(
+            when (style) {
+                PlayStyle.AGGRESSIVE -> R.id.style_aggressive
+                PlayStyle.SOLID -> R.id.style_solid
+                PlayStyle.SWARM -> R.id.style_swarm
+                else -> R.id.style_balanced
+            }
+        )
+        binding.styleDesc.text = getString(style.descRes)
+        binding.styleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            style = when (checkedId) {
+                R.id.style_aggressive -> PlayStyle.AGGRESSIVE
+                R.id.style_solid -> PlayStyle.SOLID
+                R.id.style_swarm -> PlayStyle.SWARM
+                else -> PlayStyle.BALANCED
+            }
+            binding.styleDesc.text = getString(style.descRes)
+            bindSelected()
+        }
 
         binding.sideGroup.check(
             when (side) {
@@ -83,6 +112,7 @@ class NewGameActivity : AppCompatActivity() {
                 Intent(this, GameActivity::class.java).apply {
                     putExtra(GameActivity.EXTRA_DIFFICULTY, selected.id)
                     putExtra(GameActivity.EXTRA_PLAYER_SIDE, actual)
+                    putExtra(GameActivity.EXTRA_STYLE, style.id)
                 }
             )
             finish()
@@ -97,6 +127,7 @@ class NewGameActivity : AppCompatActivity() {
         binding.selSegment.text = segment.orEmpty()
         binding.selSegment.visibility = if (segment == null) android.view.View.GONE else android.view.View.VISIBLE
         binding.selDesc.text = getString(selected.descRes)
+        binding.selStyle.text = getString(R.string.new_game_style_line, getString(style.nameRes))
         adapter.select(selected.id)
     }
 

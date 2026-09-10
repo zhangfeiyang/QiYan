@@ -24,6 +24,14 @@ class EngineManager(private val context: Context) {
             // 统一 PikaFish 引擎，难度只改 movetime，无需重启。
         }
 
+    /**
+     * 棋手风格.
+     *
+     * 难度管"想多久", 风格管"想好了挑哪步" —— 见 [PlayStyle]。改动即时生效:
+     * 搜索参数在每次 [startSearch] 现算, MultiPV 候选数由 [PlayStyle.multiPv] 给出.
+     */
+    var playStyle: PlayStyle = PlayStyle.BALANCED
+
     /** 当前活动的引擎 */
     var currentEngine: ChessEngine? = null
         private set
@@ -80,7 +88,7 @@ class EngineManager(private val context: Context) {
         val effective = applyUserLimits(adaptParams(params))
         android.util.Log.i(
             "QiYan.Engine",
-            "startSearch diff=$difficultyLevel movetime=${effective.movetime}ms threads=${effective.threads} hash=${effective.hashMb}MB strict=${params.strictMovetime}"
+            "startSearch diff=$difficultyLevel style=${playStyle.name} movetime=${effective.movetime}ms threads=${effective.threads} hash=${effective.hashMb}MB strict=${params.strictMovetime}"
         )
         currentEngine?.startSearch(effective)
     }

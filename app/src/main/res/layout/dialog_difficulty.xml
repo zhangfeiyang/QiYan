@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 挑对手: 上排是棋路风格(随时可切、切了立即生效), 下面是档位阶梯 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,10 +12,59 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_2"
+            android:text="@string/new_game_style"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/style_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_balanced"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_balanced" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_aggressive"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_aggressive" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_solid"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_solid" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/style_swarm"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/style_swarm" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/difficulty_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
             android:overScrollMode="never" />
 
     </LinearLayout>

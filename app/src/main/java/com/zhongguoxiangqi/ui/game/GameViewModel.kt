@@ -13,9 +13,12 @@ import com.zhongguoxiangqi.data.GameRecordDao
 import com.zhongguoxiangqi.engine.EngineInfo
 import com.zhongguoxiangqi.engine.EngineListener
 import com.zhongguoxiangqi.engine.EngineManager
+import com.zhongguoxiangqi.engine.PikafishEngine
+import com.zhongguoxiangqi.engine.PlayStyle
 import com.zhongguoxiangqi.engine.SearchParams
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.Move
+import com.zhongguoxiangqi.game.See
 import com.zhongguoxiangqi.ui.common.Notation
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
@@ -127,6 +130,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     data class GameState(
         val difficulty: Int = 5,
+        /** 对手的棋路风格(攻杀/稳健...), 与难度正交 —— 见 [PlayStyle] */
+        val style: PlayStyle = PlayStyle.BALANCED,
         val playerSide: Int = Color.RED,
         val sideToMove: Int = Color.RED,
         val isThinking: Boolean = false,
@@ -167,8 +172,14 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         data class TacticCheck(val tactic: String) : GameEvent()
         object Checkmate : GameEvent()
         object NormalMove : GameEvent()
-        /** [square] 是被吃子所在的格子, 特效要画在那儿; [notation] 是本步中文记谱 */
-        data class CapturedPiece(val piece: Piece, val square: Int, val notation: String? = null) : GameEvent()
+        /** [square] 是被吃子所在的格子, 特效要画在那儿; 攻方信息让特效"突进"有来向; [notation] 是本步中文记谱 */
+        data class CapturedPiece(
+            val piece: Piece,
+            val square: Int,
+            val attacker: Piece? = null,
+            val attackerSquare: Int = -1,
+            val notation: String? = null,
+        ) : GameEvent()
     }
 
     // ====== 初始化 ======
@@ -177,13 +188,19 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
      * 开始新对局.
      * @param difficulty 难度 1-15
      * @param playerSide 玩家执子 Color.RED / Color.BLACK
+     * @param style 对手风格
      */
     /**
      * @param startFen 非空时从这个局面开局 (拍照识别摆好的残局), 否则标准开局.
      *                 解析失败就退回标准开局 —— 宁可开一盘正常的棋, 也不要
      *                 让用户对着一个空棋盘不知道发生了什么.
      */
-    fun startNewGame(difficulty: Int, playerSide: Int, startFen: String? = null) {
+    fun startNewGame(
+        difficulty: Int,
+        playerSide: Int,
+        startFen: String? = null,
+        style: PlayStyle = PlayStyle.BALANCED,
+    ) {
         stopEngine()
         engineManager.shutdown()
 
@@ -208,11 +225,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         // 现在: 立刻把 GameState 发出去(棋盘先画出来), 引擎在 IO 线程起,
         // 起好之前 isEnginePreparing=true, 界面据此显示"正在摆棋…"并挡住落子。
         engineManager.difficultyLevel = difficulty
+        engineManager.playStyle = style
         _enginePreparing.value = true
 
         val rank = userProfile.rank()
         _state.value = GameState(
             difficulty = difficulty,
+            style = style,
             playerSide = playerSide,
             sideToMove = Color.RED,
             isThinking = false,
@@ -299,8 +318,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             // 只有轮到引擎时才落子, 防止把玩家的棋替玩家走了
             if (position.sideToMove == _state.value.playerSide) return@launch
 
-            val move = uciToMove(bestMove)
-            if (move == null || !position.isLegalMove(move)) {
+            val bestMoveParsed = uciToMove(bestMove)
+            if (bestMoveParsed == null || !position.isLegalMove(bestMoveParsed)) {
                 _events.value = GameEvent.ShowToast(
                     getApplication<Application>().getString(R.string.engine_illegal_move, bestMove)
                 )
@@ -309,13 +328,18 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             }
 
             searchPurpose = SearchPurpose.NONE
+            // 风格挑选: 与最佳着法分差足够小的候选里按棋路挑一步.
+            // 均衡风格(以及候选拿不到的任何退路)就是引擎最佳本身.
+            val move = if (engineManager.playStyle == PlayStyle.BALANCED) bestMoveParsed
+                else pickStyledMove(bestMoveParsed)
             val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
                 Piece.fromCode(position.pieceAt(move.to)) else null
             val captured = capturedPiece != null
+            val attackerPiece = Piece.fromCode(position.pieceAt(move.from))
             val notation = Notation.format(getApplication(), move, position)
             position.doMove(move)
             moveHistory.add(move)
-            updateAfterMove(captured, capturedPiece, move.to, notation)
+            updateAfterMove(captured, capturedPiece, move.to, notation, attackerPiece, move.from)
         }
     }
 
@@ -345,6 +369,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val capturedPiece = if (position.pieceAt(move.to) != Piece.NONE.code)
             Piece.fromCode(position.pieceAt(move.to)) else null
         val captured = capturedPiece != null
+        val attackerPiece = Piece.fromCode(position.pieceAt(move.from))
         val notation = Notation.format(getApplication(), move, position)
         position.doMove(move)
         moveHistory.add(move)
@@ -362,7 +387,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             )
             return false
         }
-        updateAfterMove(captured, capturedPiece, move.to, notation)
+        updateAfterMove(captured, capturedPiece, move.to, notation, attackerPiece, move.from)
 
         // 如果游戏未结束,让引擎走
         if (!_state.value.isGameOver) {
@@ -481,6 +506,24 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     }
 
     /**
+     * 对局中途改对手风格, 立即生效.
+     *
+     * 与 [setDifficulty] 同一套节奏: 不重开, 正在思考就打断重下 —— 否则这一手
+     * 仍按旧风格出, 用户会以为切换没起作用。
+     */
+    fun setStyle(style: PlayStyle) {
+        if (style == _state.value.style) return
+        val wasThinking = _state.value.isThinking
+        engineManager.playStyle = style
+        _state.value = _state.value.copy(style = style)
+        if (wasThinking && !_state.value.isGameOver) {
+            stopEngine()
+            _state.value = _state.value.copy(isThinking = false)
+            makeEngineMove()
+        }
+    }
+
+    /**
      * 交换执子: 我方红黑对调, 引擎接手原来我方那一边.
      *
      * 「翻转」以前只是翻转视角, 盘还是自己那盘. 现在它真的换边 —— 换完如果
@@ -513,12 +556,49 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         // 思考时长/线程/哈希**全部由 EngineManager.adaptParams 按难度算**.
         // 之前这里另起一套 estimateThinkTime/Threads/Hash, 但 adaptParams 会
         // 用 coerceAtLeast 静默抬高 —— 结果是 ViewModel 的 8000ms 在 Lv.10
-        // 被抬到 14s, 在 Lv.15 被抬到 90s. 现在只传 multiPv, 别的留给唯一来源.
-        val params = SearchParams(multiPv = 3)
+        // 被抬到 14s, 在 Lv.15 被抬到 90s. 现在只传 MultiPV(风格要用候选),
+        // 别的留给唯一来源. 均衡风格 MultiPV=1: 一条线都不用分, 棋力最足.
+        val params = SearchParams(multiPv = engineManager.playStyle.multiPv)
         searchSideToMove = position.sideToMove
         searchPurpose = SearchPurpose.ENGINE_MOVE
         engineManager.startSearch(params)
         _state.value = _state.value.copy(isThinking = true)
+    }
+
+    /**
+     * 按 [EngineManager.playStyle] 从本轮搜索的 MultiPV 候选里挑一步.
+     *
+     * 特征(吃子收益/是否将军)在**当前真实局面**上算, 算完立即还原 ——
+     * 只在 onBestMove 回调的主线程协程里跑, 与其它局面读写天然串行.
+     * 任何一步拿不到候选/候选全非法的退路都返回引擎最佳.
+     */
+    private fun pickStyledMove(bestMove: Move): Move {
+        val engine = engineManager.currentEngine as? PikafishEngine ?: return bestMove
+        val raw = engine.lastCandidates()
+        if (raw.size <= 1) return bestMove
+
+        class Entry(val candidate: PlayStyle.Candidate, val move: Move, val features: PlayStyle.Features)
+
+        val entries = ArrayList<Entry>(raw.size)
+        for (cand in raw) {
+            val mv = uciToMove(cand.moveUci) ?: continue
+            if (!position.isLegalMove(mv)) continue
+            val victim = position.pieceAt(mv.to)
+            val isCapture = victim != Piece.NONE.code
+            val gain = if (isCapture) See.evaluate(position, mv) else 0
+            val givesCheck = if (position.doMove(mv)) {
+                val check = Rules.isInCheck(position, position.sideToMove)
+                position.undoMove()
+                check
+            } else false
+            entries += Entry(cand, mv, PlayStyle.Features(isCapture, gain, givesCheck))
+        }
+        if (entries.isEmpty()) return bestMove
+
+        val picked = engineManager.playStyle.pick(entries.map { it.candidate }) { c ->
+            entries.first { it.candidate == c }.features
+        }
+        return entries.firstOrNull { it.candidate == picked }?.move ?: bestMove
     }
 
     private fun stopEngine() {
@@ -533,6 +613,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         capturedPiece: Piece? = null,
         capturedSquare: Int = -1,
         notation: String? = null,
+        attackerPiece: Piece? = null,
+        attackerSquare: Int = -1,
     ) {
         // 检测将军 / 终局
         val inCheck = Rules.isInCheck(position, position.sideToMove)
@@ -566,7 +648,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
         // 重新算威胁光晕 + 触发音效
         emitThreats()
-        emitFeedback(inCheck, isOver, gameOver, capturedPiece, capturedSquare, notation)
+        emitFeedback(inCheck, isOver, gameOver, capturedPiece, capturedSquare, notation, attackerPiece, attackerSquare)
 
         if (isOver) {
             // 确定玩家结果
@@ -601,6 +683,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     private fun emitFeedback(
         inCheck: Boolean, isOver: Boolean, gameOver: Rules.GameOver,
         capturedPiece: Piece?, capturedSquare: Int, notation: String? = null,
+        attackerPiece: Piece? = null, attackerSquare: Int = -1,
     ) {
         _events.value = when {
             isOver && (gameOver == Rules.GameOver.CHECKMATE_RED || gameOver == Rules.GameOver.CHECKMATE_BLACK) ->
@@ -610,7 +693,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
                 val tactic = Tactics.detect(position, Color.opposite(position.sideToMove))
                 if (tactic != null) GameEvent.TacticCheck(tactic) else GameEvent.PlayerInCheck
             }
-            capturedPiece != null -> GameEvent.CapturedPiece(capturedPiece, capturedSquare, notation)
+            capturedPiece != null -> GameEvent.CapturedPiece(
+                capturedPiece, capturedSquare, attackerPiece, attackerSquare, notation,
+            )
             else -> GameEvent.NormalMove
         }
     }

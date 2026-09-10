@@ -18,10 +18,12 @@ android {
         // 代码"), 而这个错误只在 bundle 那一行显示为红字, 整个草稿版本会静默失效。
         // Play 对"上传过但未发布的版本号"也会永久保留: 4/5/6/7 都被占用,
         // 继续顺延。versionName 随版本号走, 保持用户可见版本一致。
-        // 8 已在 2026-08-05 传过, 9 / 10 分别在 2026-08-16、08-17 发到内测轨道
-        // (bundle 列表共 10 行), 本次顺延到 11。
-        versionCode = 11
-        versionName = "1.3.7"
+        // 8 已在 2026-08-05 传过, 9 / 10 / 11 分别在 2026-08-16、08-17、08-17 发到
+        // 内测轨道; 12 在 2026-09-10 发布 1.3.8 时上传正式版草稿(16KB 对齐被拒后
+        // 从草稿移除, 但版本号已被 Play 永久保留); 13 同日因同一原因被烧 ——
+        // 根因是 AGP 8.2 打包不做 16KB zip 对齐, 升级 AGP 8.5.2 后顺延到 14。
+        versionCode = 14
+        versionName = "1.3.8"
 
         // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
         // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上
@@ -235,13 +237,16 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     // ONNX Runtime —— 拍照识别棋局 (棋盘四角关键点 + 棋子分类)
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
+    // 1.22 起 JNI 壳库才带 16 KB 页面对齐 (1.20 的 libonnxruntime4j_jni.so
+    // 还是 4KB 对齐, Play 会整包拒收), 升级时用 readelf 复核一遍.
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
 
     // 实时预览支招: 摄像头常开 + 逐帧分析
-    implementation("androidx.camera:camera-core:1.3.4")
-    implementation("androidx.camera:camera-camera2:1.3.4")
-    implementation("androidx.camera:camera-lifecycle:1.3.4")
-    implementation("androidx.camera:camera-view:1.3.4")
+    // 1.4.x 的 libimage_processing_util_jni.so 才是 16 KB 对齐 (1.3.4 不合规)
+    implementation("androidx.camera:camera-core:1.4.2")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
 
     // Anthropic SDK —— AI 分析功能, 走 AstroSimulator 的本地代理
     implementation("com.anthropic:anthropic-java:2.52.0")

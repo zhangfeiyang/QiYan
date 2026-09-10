@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.databinding.ActivityMainMenuBinding
+import com.zhongguoxiangqi.engine.PlayStyle
 import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.rating.UserProfile
 import com.zhongguoxiangqi.rating.UserRank
@@ -89,18 +90,20 @@ class MainMenuActivity : AppCompatActivity() {
         updateOpponentCard()
     }
 
-    /** 首页那张"当前对手"卡. 数据源就是"直接开局"会用的那一档, 两者必须一致 */
+    /** 首页那张"当前对手"卡. 数据源就是"直接开局"会用的那一组设定, 两者必须一致 */
     private fun updateOpponentCard() {
         val level = DifficultyLevel.entries.firstOrNull { it.id == lastDifficulty() }
             ?: DifficultyLevel.entries.first()
         OpponentAvatar.bind(binding.opponentAvatar, level)
         binding.opponentName.text =
             getString(R.string.new_game_level_format, level.id, getString(level.nameRes))
-        // 见 DifficultyLevel.segmentOrNull
+        // 见 DifficultyLevel.segmentOrNull; 风格拼在同一条副标题里, 开局前
+        // 就能看清"这一局跟谁、什么棋路"。
         val segment = level.segmentOrNull(this)
-        binding.opponentSegment.text = segment.orEmpty()
-        binding.opponentSegment.visibility =
-            if (segment == null) android.view.View.GONE else android.view.View.VISIBLE
+        val styleName = getString(PlayStyle.fromId(lastStyle()).nameRes)
+        binding.opponentSegment.text = listOf(segment, styleName)
+            .filterNotNull()
+            .joinToString(separator = " · ")
     }
 
     private fun updateProfile() {
@@ -147,10 +150,15 @@ class MainMenuActivity : AppCompatActivity() {
         getSharedPreferences(GameActivity.PREFS_GAME, MODE_PRIVATE)
             .getInt(GameActivity.KEY_LAST_SIDE, Color.RED)
 
+    private fun lastStyle(): Int =
+        getSharedPreferences(GameActivity.PREFS_GAME, MODE_PRIVATE)
+            .getInt(GameActivity.KEY_LAST_STYLE, PlayStyle.BALANCED.id)
+
     private fun startGame(difficultyId: Int, side: Int) {
         val intent = Intent(this, GameActivity::class.java).apply {
             putExtra(GameActivity.EXTRA_DIFFICULTY, difficultyId)
             putExtra(GameActivity.EXTRA_PLAYER_SIDE, side)
+            putExtra(GameActivity.EXTRA_STYLE, lastStyle())
         }
         startActivity(intent)
     }

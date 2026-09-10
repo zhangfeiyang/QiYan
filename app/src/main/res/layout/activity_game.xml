@@ -84,6 +84,21 @@
             android:textStyle="bold"
             tools:text="Lv.3 中级" />
 
+        <!-- 风格胶囊: 档位说"多强", 风格说"什么棋路"(攻杀/稳健/灵动).
+             同一行可点入口的一部分, 点开在难度弹窗里切换. -->
+        <TextView
+            android:id="@+id/style_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_1"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            tools:text="攻杀型" />
+
         <TextView
             android:id="@+id/think_indicator"
             android:layout_width="wrap_content"

@@ -25,5 +25,9 @@ target_compile_options(pikafish PRIVATE
     -fno-rtti
     -fvisibility=hidden
     -DIS_64BIT)
+# 16 KB 内存页面对齐: Google Play 自 2025-11 起对 targetSdk 35+ 的原生库
+# 强制要求, 否则新版本上传被 Console 拒收("不支持 16 KB 页面大小").
+target_link_options(pikafish PRIVATE
+    -Wl,-z,max-page-size=16384)
 target_include_directories(pikafish PRIVATE ${PIKA_SRC})
 target_link_libraries(pikafish log)
