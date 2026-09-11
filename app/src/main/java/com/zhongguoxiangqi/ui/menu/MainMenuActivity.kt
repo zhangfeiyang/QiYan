@@ -59,6 +59,12 @@ class MainMenuActivity : AppCompatActivity() {
         binding.cardLive.setOnClickListener {
             startActivity(Intent(this, com.zhongguoxiangqi.ui.live.LiveAdviceActivity::class.java))
         }
+        binding.btnCampaign.setOnClickListener {
+            startActivity(Intent(this, com.zhongguoxiangqi.ui.campaign.CampaignActivity::class.java))
+        }
+        binding.btnPuzzle.setOnClickListener {
+            startActivity(Intent(this, com.zhongguoxiangqi.ui.puzzle.PuzzleListActivity::class.java))
+        }
         binding.btnReplay.setOnClickListener {
             startActivity(Intent(this, ReplayActivity::class.java))
         }

@@ -132,6 +132,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val difficulty: Int = 5,
         /** 对手的棋路风格(攻杀/稳健...), 与难度正交 —— 见 [PlayStyle] */
         val style: PlayStyle = PlayStyle.BALANCED,
+        /** 大于 0 = 对弈闯关模式, 值即当前关卡(对手强度 = 关卡难度) */
+        val campaignLevel: Int = 0,
         val playerSide: Int = Color.RED,
         val sideToMove: Int = Color.RED,
         val isThinking: Boolean = false,
@@ -200,6 +202,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         playerSide: Int,
         startFen: String? = null,
         style: PlayStyle = PlayStyle.BALANCED,
+        campaignLevel: Int = 0,
     ) {
         stopEngine()
         engineManager.shutdown()
@@ -232,6 +235,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         _state.value = GameState(
             difficulty = difficulty,
             style = style,
+            campaignLevel = campaignLevel,
             playerSide = playerSide,
             sideToMove = Color.RED,
             isThinking = false,
@@ -703,9 +707,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
     private fun endGame(result: GameResult, reason: String) {
         stopEngine()
         val difficulty = _state.value.difficulty
-        // 用实际对手棋力算分,而不是难度标称值(降级时两者不同)
-        val engineElo = engineManager.effectiveElo()
-        userProfile.recordResult(result, engineElo)
+        val campaignLevel = _state.value.campaignLevel
+        // 闯关模式不动战绩积分: 重复刷低关卡会白送积分, 排行含金量就没了。
+        // 棋谱也不入库(复盘列表里塞满刷关记录没有价值), 闯关进度记在 ProgressStore。
+        if (campaignLevel == 0) {
+            val engineElo = engineManager.effectiveElo()
+            userProfile.recordResult(result, engineElo)
+        }
         val rank = userProfile.rank()
 
         _state.value = _state.value.copy(
@@ -714,12 +722,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameResult = result,
             isThinking = false,
             playerRating = userProfile.displayedRating,
-            ratingDelta = userProfile.displayedRating - gameStartRating,
+            ratingDelta = if (campaignLevel == 0) userProfile.displayedRating - gameStartRating else 0,
             playerRank = getApplication<Application>().getString(rank.nameRes)
         )
 
+        if (campaignLevel > 0) return
+
         // 保存对局记录
         viewModelScope.launch(Dispatchers.IO) {
+            val engineElo = engineManager.effectiveElo()
             val record = GameRecord(
                 startTime = gameStartTime,
                 endTime = System.currentTimeMillis(),

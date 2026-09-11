@@ -89,7 +89,7 @@
     <string name="action_two_player">Two Players</string>
     <string name="action_voice">Voice move</string>
 
-    <!-- Voice commands & effects -->
+    <!-- Voice commands &amp; effects -->
     <string name="voice_listening">Say a move, e.g. \"车九进四\" (rook nine advances four)</string>
     <string name="voice_played">Played: %1$s</string>
     <string name="voice_no_match">No legal move matches \"%1$s\"</string>
@@ -405,4 +405,63 @@
     <!-- ====== 吃子战场特效 ====== -->
     <string name="settings_capture_fx">Capture battle effects</string>
     <string name="settings_desc_capture_fx">Slash, sparks and ink-splash animation when a piece is captured. The \'Captured…\' label on the board stays either way</string>
+
+    <string name="puzzle_1_name">Mate in 1 · Smothered</string>
+    <string name="puzzle_1_hint">The black horse is pinned. Center your king: black is stalemated</string>
+    <string name="puzzle_2_name">Mate in 1 · Double Cannons</string>
+    <string name="puzzle_2_hint">Front cannon is the screen — move the rear cannon to the file</string>
+    <string name="puzzle_3_name">Mate in 1 · Double Rooks</string>
+    <string name="puzzle_3_hint">The rear rook sweeps to the back rank</string>
+    <string name="puzzle_4_name">Mate in 2 · Double Rooks</string>
+    <string name="puzzle_4_hint">Sink a rook to check; when the elephant blocks, switch direction</string>
+    <string name="puzzle_5_name">Mate in 2 · Two Rooks</string>
+    <string name="puzzle_5_hint">One rook pins the file, the other shuttles checks</string>
+    <string name="puzzle_6_name">Mate in 3 · Rook &amp; Cannon</string>
+    <string name="puzzle_6_hint">Rook holds the file; pawn and cannon close in</string>
+    <string name="puzzle_7_name">Mate in 4 · Horse &amp; Cannon</string>
+    <string name="puzzle_7_hint">Shuttle horse and cannon checks, tightening the net</string>
+    <string name="puzzle_8_name">Mate in 2 · Horse &amp; Cannon</string>
+    <string name="puzzle_8_hint">Horse check with cannon behind</string>
+    <string name="puzzle_9_name">Mate in 3 · Rook Horse Cannon</string>
+    <string name="puzzle_9_hint">Sacrifice to open the line</string>
+    <string name="campaign_entry">对弈闯关</string>
+    <string name="campaign_entry_desc">15 关难度递增, 赢下解锁下一关</string>
+    <string name="puzzle_entry">残局破解</string>
+    <string name="puzzle_entry_desc">经典杀局, 每局限悔棋 3 次</string>
+    <string name="campaign_title">对弈闯关</string>
+    <string name="campaign_level_format">第 %1$d 关</string>
+    <string name="campaign_level_difficulty_format">对手强度 Lv.%1$d</string>
+    <string name="campaign_locked">上一关获胜后解锁</string>
+    <string name="campaign_passed">已通关</string>
+    <string name="campaign_win_title">闯关成功!</string>
+    <string name="campaign_next_level">下一关</string>
+    <string name="campaign_retry">重试本关</string>
+    <string name="campaign_back_list">返回关卡列表</string>
+    <string name="campaign_level_chip">闯关 第%1$d关</string>
+    <string name="puzzle_title">残局破解</string>
+    <string name="puzzle_list_title">残局闯关</string>
+    <string name="puzzle_solved">已破解</string>
+    <string name="puzzle_unsolved">未破解</string>
+    <string name="puzzle_attempts_format">已尝试 %1$d 次</string>
+    <string name="puzzle_red_to_move">红先, %1$d 步内将死黑方</string>
+    <string name="puzzle_undo_left_format">剩余悔棋 %1$d 次</string>
+    <string name="puzzle_moves_left_format">剩余步数 %1$d</string>
+    <string name="puzzle_retry">重新开始</string>
+    <string name="puzzle_undo">悔棋</string>
+    <string name="puzzle_undo_exhausted">本局悔棋次数已用完</string>
+    <string name="puzzle_deviated">错失杀机! 悔棋或重新开始</string>
+    <string name="puzzle_solved_title">破解成功!</string>
+    <string name="puzzle_fail_title">闯关失败</string>
+    <string name="puzzle_fail_moves">超出步数限制, 黑方守住</string>
+    <string name="puzzle_next_puzzle">下一局</string>
+    <string name="puzzle_retry_confirm">已尝试 %1$d 次, 本局最多悔棋 3 次, 超步即失败。重新开始吗?</string>
+
+    <string name="campaign_unlocked">Playable</string>
+    <string name="campaign_fail_title">Level Failed</string>
+    <string name="campaign_body_unlocked">Level cleared — the next one is unlocked!</string>
+    <string name="campaign_body_all_clear">All 15 levels cleared. You are a legend of the board!</string>
+    <string name="campaign_body_retry">Not this time — try again!</string>
+    <string name="puzzle_stage_name">Stage %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · moves %2$d/%3$d · undos left %4$d · attempt #%5$d</string>
+    <string name="puzzle_solved_body">Solved — well played!</string>
 </resources>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 残局破解对局页: 关卡信息浮在棋盘上方, 底部悔棋/重开 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface_base"
+    tools:context=".ui.puzzle.PuzzleActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary" />
+
+    <TextView
+        android:id="@+id/puzzle_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:textAppearance="@style/TextAppearance.Xiangqi.Title"
+        tools:text="第 1 关 · 一步杀·困毙" />
+
+    <TextView
+        android:id="@+id/puzzle_meta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:textAppearance="@style/TextAppearance.Xiangqi.Secondary"
+        tools:text="红先, 1 步内将死黑方 · 已走 0/1 · 剩余悔棋 3 · 尝试 1 次" />
+
+    <TextView
+        android:id="@+id/puzzle_deviated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:paddingHorizontal="@dimen/screen_gutter"
+        android:text="@string/puzzle_deviated"
+        android:textColor="@color/danger"
+        android:textSize="@dimen/text_caption"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.zhongguoxiangqi.ui.board.BoardView
+            android:id="@+id/board_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/space_2" />
+
+        <TextView
+            android:id="@+id/thinking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="@dimen/space_3"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_1"
+            android:text="@string/status_thinking"
+            android:textColor="@color/warning"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_2"
+        android:paddingTop="@dimen/space_2"
+        android:paddingBottom="@dimen/space_4"
+        android:baselineAligned="false">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_undo"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/puzzle_undo"
+            app:icon="@drawable/ic_undo" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_retry"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/puzzle_retry"
+            app:icon="@drawable/ic_history" />
+
+    </LinearLayout>
+
+</LinearLayout>

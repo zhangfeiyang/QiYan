@@ -84,7 +84,7 @@
     <string name="action_two_player">双人对战</string>
     <string name="action_voice">语音走子</string>
 
-    <!-- 语音指挥 & 语音播报 -->
+    <!-- 语音指挥 &amp; 语音播报 -->
     <string name="voice_listening">请说出着法，例如：车九进四</string>
     <string name="voice_played">已走：%1$s</string>
     <string name="voice_no_match">没有匹配到合法着法：%1$s</string>
@@ -405,4 +405,63 @@
     <!-- ====== 吃子战场特效 ====== -->
     <string name="settings_capture_fx">吃子战场特效</string>
     <string name="settings_desc_capture_fx">吃子时播放刀光、火花与溅墨的厮杀动画; 关闭后棋盘上仍会弹出"吃 X"的文字提示</string>
+
+    <string name="puzzle_1_name">一步杀·困毙</string>
+    <string name="puzzle_1_hint">黑马被拴住不能动(动则露将), 平帅归中, 黑方困毙</string>
+    <string name="puzzle_2_name">一步杀·重炮</string>
+    <string name="puzzle_2_hint">前炮作炮架, 把后炮平到中路叫将</string>
+    <string name="puzzle_3_name">一步杀·双车错</string>
+    <string name="puzzle_3_hint">后车扫底叫将, 黑士自堵将门</string>
+    <string name="puzzle_4_name">两步杀·双车错</string>
+    <string name="puzzle_4_hint">车沉底线叫将, 黑象拦后再换个方向杀</string>
+    <string name="puzzle_5_name">两步杀·双车</string>
+    <string name="puzzle_5_hint">一车占肋控将, 另一车辗转叫将</string>
+    <string name="puzzle_6_name">三步杀·车炮兵</string>
+    <string name="puzzle_6_hint">车占肋控将, 兵炮配合逐步逼宫</string>
+    <string name="puzzle_7_name">四步杀·马炮</string>
+    <string name="puzzle_7_hint">马炮辗转叫将, 一步步收紧罗网</string>
+    <string name="puzzle_8_name">两步杀·马炮</string>
+    <string name="puzzle_8_hint">马后炮是经典杀形</string>
+    <string name="puzzle_9_name">三步杀·车马炮</string>
+    <string name="puzzle_9_hint">先弃子开路</string>
+    <string name="campaign_entry">对弈闯关</string>
+    <string name="campaign_entry_desc">15 关难度递增, 赢下解锁下一关</string>
+    <string name="puzzle_entry">残局破解</string>
+    <string name="puzzle_entry_desc">经典杀局, 每局限悔棋 3 次</string>
+    <string name="campaign_title">对弈闯关</string>
+    <string name="campaign_level_format">第 %1$d 关</string>
+    <string name="campaign_level_difficulty_format">对手强度 Lv.%1$d</string>
+    <string name="campaign_locked">上一关获胜后解锁</string>
+    <string name="campaign_passed">已通关</string>
+    <string name="campaign_win_title">闯关成功!</string>
+    <string name="campaign_next_level">下一关</string>
+    <string name="campaign_retry">重试本关</string>
+    <string name="campaign_back_list">返回关卡列表</string>
+    <string name="campaign_level_chip">闯关 第%1$d关</string>
+    <string name="puzzle_title">残局破解</string>
+    <string name="puzzle_list_title">残局闯关</string>
+    <string name="puzzle_solved">已破解</string>
+    <string name="puzzle_unsolved">未破解</string>
+    <string name="puzzle_attempts_format">已尝试 %1$d 次</string>
+    <string name="puzzle_red_to_move">红先, %1$d 步内将死黑方</string>
+    <string name="puzzle_undo_left_format">剩余悔棋 %1$d 次</string>
+    <string name="puzzle_moves_left_format">剩余步数 %1$d</string>
+    <string name="puzzle_retry">重新开始</string>
+    <string name="puzzle_undo">悔棋</string>
+    <string name="puzzle_undo_exhausted">本局悔棋次数已用完</string>
+    <string name="puzzle_deviated">错失杀机! 悔棋或重新开始</string>
+    <string name="puzzle_solved_title">破解成功!</string>
+    <string name="puzzle_fail_title">闯关失败</string>
+    <string name="puzzle_fail_moves">超出步数限制, 黑方守住</string>
+    <string name="puzzle_next_puzzle">下一局</string>
+    <string name="puzzle_retry_confirm">已尝试 %1$d 次, 本局最多悔棋 3 次, 超步即失败。重新开始吗?</string>
+
+    <string name="campaign_unlocked">可挑战</string>
+    <string name="campaign_fail_title">闯关失败</string>
+    <string name="campaign_body_unlocked">本关通过, 已解锁下一关!</string>
+    <string name="campaign_body_all_clear">全部 15 关通关! 你已是棋盘上的传奇。</string>
+    <string name="campaign_body_retry">本关未通过, 再试一次吧。</string>
+    <string name="puzzle_stage_name">第 %1$d 关 · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · 已走 %2$d/%3$d 步 · 剩余悔棋 %4$d 次 · 第 %5$d 次尝试</string>
+    <string name="puzzle_solved_body">破解成功, 恭喜!</string>
 </resources>

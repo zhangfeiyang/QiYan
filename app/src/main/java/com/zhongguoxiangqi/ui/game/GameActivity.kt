@@ -62,6 +62,10 @@ class GameActivity : AppCompatActivity() {
     /** 对手风格(攻杀/稳健...), 与难度正交; 开局带来, 对局中可随时改 */
     private var lastStyle = PlayStyle.BALANCED
 
+    /** 大于 0 = 对弈闯关模式, 值即当前关卡 */
+    private var campaignLevel = 0
+    private lateinit var progressStore: com.zhongguoxiangqi.data.ProgressStore
+
     /** 非空 = 这盘是从拍照识别摆好的局面开的, "再来一局"要接着用同一个局面 */
     private var startFen: String? = null
     private var gameOverDialog: AlertDialog? = null
@@ -137,6 +141,8 @@ class GameActivity : AppCompatActivity() {
         lastDifficulty = intent.getIntExtra(EXTRA_DIFFICULTY, 5)
         lastPlayerSide = intent.getIntExtra(EXTRA_PLAYER_SIDE, Color.RED)
         lastStyle = PlayStyle.fromId(intent.getIntExtra(EXTRA_STYLE, PlayStyle.BALANCED.id))
+        campaignLevel = intent.getIntExtra(EXTRA_CAMPAIGN_LEVEL, 0)
+        progressStore = com.zhongguoxiangqi.data.ProgressStore(this)
 
         setupBoard()
         setupControls()
@@ -144,11 +150,12 @@ class GameActivity : AppCompatActivity() {
 
         // 启动新对局. startFen 非空时是从拍照识别摆好的局面接着下
         startFen = intent.getStringExtra(EXTRA_START_FEN)
-        viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen, lastStyle)
+        viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen, lastStyle, campaignLevel)
         // 开局这一刻就要记住设定, 而不是等用户去改难度或翻转才记.
         // 否则从「新对局」页挑完对手打进来, 退回首页会发现对手卡还是上一档,
         // 按"开始对局"也照旧用老档位 —— 挑对手这件事等于没发生.
-        persistGameSetup(lastDifficulty, lastPlayerSide, lastStyle)
+        // 闯关模式的设定跟着关卡走, 不覆盖自由对局的记忆.
+        if (campaignLevel == 0) persistGameSetup(lastDifficulty, lastPlayerSide, lastStyle)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -283,8 +290,10 @@ class GameActivity : AppCompatActivity() {
             ).show()
         }
 
-        // 对手信息整行可点 -> 改 AI 等级
-        binding.opponentRow.setOnClickListener { showDifficultyPicker() }
+        // 对手信息整行可点 -> 改 AI 等级. 闯关模式关卡强度固定, 不开放中途改档
+        binding.opponentRow.setOnClickListener {
+            if (campaignLevel == 0) showDifficultyPicker()
+        }
 
         binding.btnResign.setOnClickListener {
             AlertDialog.Builder(this)
@@ -493,9 +502,15 @@ class GameActivity : AppCompatActivity() {
                 binding.moveCount.text = getString(R.string.game_move_count, state.moveCount / 2 + 1)
 
                 val level = DifficultyLevel.entries.firstOrNull { it.id == state.difficulty }
-                binding.levelChip.text = level
-                    ?.let { "Lv.${it.id} ${getString(it.nameRes)}" }
-                    ?: "Lv.${state.difficulty}"
+                // 闯关模式: 档位胶囊改显关卡号, 点它不弹难度选择(关卡强度固定)
+                if (state.campaignLevel > 0) {
+                    binding.levelChip.text =
+                        getString(R.string.campaign_level_chip, state.campaignLevel)
+                } else {
+                    binding.levelChip.text = level
+                        ?.let { "Lv.${it.id} ${getString(it.nameRes)}" }
+                        ?: "Lv.${state.difficulty}"
+                }
                 // 风格胶囊与档位胶囊并排: 档位说"多强", 风格说"什么棋路"
                 binding.styleChip.text = getString(state.style.nameRes)
 
@@ -622,6 +637,10 @@ class GameActivity : AppCompatActivity() {
         if (gameOverDialog?.isShowing == true) return
         if (isFinishing || isDestroyed) return
         val state = viewModel.state.value
+        if (state.campaignLevel > 0) {
+            showCampaignOverDialog(state)
+            return
+        }
         val deltaText = (if (state.ratingDelta >= 0) "+" else "") + state.ratingDelta
         val message = getString(R.string.game_over_body, reason, deltaText, state.playerRank)
         // 用 gameResult 而不是 gameOverWinner: 后者只在将死时才有值,
@@ -647,6 +666,44 @@ class GameActivity : AppCompatActivity() {
                 viewModel.startNewGame(lastDifficulty, lastPlayerSide, startFen, lastStyle)
             }
             .setNegativeButton(R.string.action_back) { _, _ ->
+                gameOverDialog = null
+                finish()
+            }
+            .show()
+    }
+
+    /**
+     * 闯关模式的结算弹窗: 赢了解锁下一关(最后一关则全部通关), 输了重试本关.
+     * 标题按闯关语义说话, 不再是"胜/负"; 也不提积分 —— 闯关不计分.
+     */
+    private fun showCampaignOverDialog(state: GameViewModel.GameState) {
+        val level = state.campaignLevel
+        val won = state.gameResult == GameResult.WIN
+        val hasNext = won && level < com.zhongguoxiangqi.engine.EngineManager.MAX_LEVEL
+        if (won) progressStore.markCampaignPassed(level)
+
+        val title = getString(
+            if (won) R.string.campaign_win_title else R.string.campaign_fail_title
+        ) + " " + getString(R.string.campaign_level_format, level)
+        val body = when {
+            hasNext -> getString(R.string.campaign_body_unlocked)
+            won -> getString(R.string.campaign_body_all_clear)
+            else -> getString(R.string.campaign_body_retry)
+        }
+        gameOverDialog = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(body)
+            .setCancelable(false)
+            .setPositiveButton(
+                if (hasNext) R.string.campaign_next_level else R.string.campaign_retry
+            ) { _, _ ->
+                gameOverDialog = null
+                viewModel.startNewGame(
+                    level.coerceIn(1, com.zhongguoxiangqi.engine.EngineManager.MAX_LEVEL),
+                    lastPlayerSide, startFen, lastStyle, level
+                )
+            }
+            .setNegativeButton(R.string.campaign_back_list) { _, _ ->
                 gameOverDialog = null
                 finish()
             }
@@ -770,6 +827,11 @@ class GameActivity : AppCompatActivity() {
         const val EXTRA_PLAYER_SIDE = "player_side"
         /** 对手风格 id, 见 [PlayStyle] */
         const val EXTRA_STYLE = "style"
+        /** 对局模式: 不传 = 自由对局; [MODE_CAMPAIGN] = 对弈闯关 */
+        const val EXTRA_MODE = "mode"
+        const val MODE_CAMPAIGN = "campaign"
+        /** 闯关关卡号(1..15), 只在 [EXTRA_MODE]=[MODE_CAMPAIGN] 时有效 */
+        const val EXTRA_CAMPAIGN_LEVEL = "campaign_level"
 
         /** 自定义起始局面 (拍照识别摆好后交过来的 FEN) */
         const val EXTRA_START_FEN = "start_fen"

@@ -364,6 +364,39 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- ============ 闯关模式: 对弈闯关 + 残局破解 ============ -->
+    <!-- 两个闯关入口并列: 都是"从易到难打关卡"的玩法, 与自由对局区分 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_campaign"
+        style="@style/Widget.Xiangqi.Button.Outlined"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_gutter"
+        android:layout_marginEnd="@dimen/space_2"
+        android:layout_marginTop="@dimen/space_3"
+        android:text="@string/campaign_entry"
+        app:icon="@drawable/ic_flag"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toBottomOf="@id/card_live"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_puzzle" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_puzzle"
+        style="@style/Widget.Xiangqi.Button.Outlined"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_2"
+        android:layout_marginEnd="@dimen/screen_gutter"
+        android:text="@string/puzzle_entry"
+        app:icon="@drawable/ic_hint"
+        app:iconGravity="textStart"
+        app:iconSize="@dimen/icon_sm"
+        app:layout_constraintTop_toTopOf="@id/btn_campaign"
+        app:layout_constraintStart_toEndOf="@id/btn_campaign"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- ============ 平级功能: 双列 ============ -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_replay"
@@ -377,7 +410,7 @@
         app:icon="@drawable/ic_history"
         app:iconGravity="textStart"
         app:iconSize="@dimen/icon_sm"
-        app:layout_constraintTop_toBottomOf="@id/card_live"
+        app:layout_constraintTop_toBottomOf="@id/btn_campaign"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_recognize" />
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 闯关关卡卡: 关号 + 对手强度 + 状态 -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.Xiangqi.Card"
+    android:id="@+id/level_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/space_1"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="@dimen/space_3">
+
+        <TextView
+            android:id="@+id/level_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Xiangqi.Title"
+            tools:text="第 3 关" />
+
+        <TextView
+            android:id="@+id/level_difficulty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_caption"
+            tools:text="对手强度 Lv.3" />
+
+        <TextView
+            android:id="@+id/level_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_2"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold"
+            tools:text="已通关" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
