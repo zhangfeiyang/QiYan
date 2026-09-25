@@ -16,12 +16,14 @@ import com.zhongguoxiangqi.databinding.ItemTacticAcademyBinding
 import com.zhongguoxiangqi.game.TacticNames
 import com.zhongguoxiangqi.game.TacticTopic
 import com.zhongguoxiangqi.game.TacticsAcademy
+import com.zhongguoxiangqi.ui.board.BoardView
 import com.zhongguoxiangqi.ui.common.Insets
+import com.zhongguoxiangqi.ui.common.Notation
 
 /**
  * 经典杀法宝典界面.
  *
- * 呈现象棋十大经典绝杀 (马后炮、铁门栓、重炮、双车错、卧槽马、挂角马、白脸将、天地炮、大刀剜心、闷宫)
+ * 呈现象棋经典绝杀 (马后炮、铁门栓、重炮、双车错、卧槽马、挂角马、白脸将、天地炮、钓鱼马、大刀剜心、闷宫)
  * 支持原声试听、破局实战与精通印章点亮.
  */
 class TacticsAcademyActivity : AppCompatActivity() {
@@ -41,6 +43,7 @@ class TacticsAcademyActivity : AppCompatActivity() {
 
         store = ProgressStore(this)
 
+        binding.academyBanner.text = getString(R.string.tactic_academy_banner_count, TacticsAcademy.topics.size)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = TacticsAdapter(TacticsAcademy.topics)
     }
@@ -82,16 +85,20 @@ class TacticsAcademyActivity : AppCompatActivity() {
             val item = list[position]
             val isMastered = store.puzzleSolvedIds().contains(item.puzzleId)
 
-            holder.b.tacticName.text = "${item.icon} ${TacticNames.label(this@TacticsAcademyActivity, item.name)}"
+            val latin = Notation.pieceSetFor(this@TacticsAcademyActivity) == BoardView.PieceSet.LATIN
+            holder.b.tacticPiece.text = if (latin) item.keyPiece.latin else item.keyPiece.hanzi
+            holder.b.tacticName.text = TacticNames.label(this@TacticsAcademyActivity, item.name)
             holder.b.tacticRhyme.text = getString(item.rhymeRes)
             holder.b.tacticDesc.text = getString(item.descriptionRes)
 
             if (isMastered) {
                 holder.b.tacticSeal.text = getString(R.string.tactic_mastered)
                 holder.b.tacticSeal.setTextColor(getColor(R.color.action))
+                holder.b.tacticSeal.setBackgroundResource(R.drawable.bg_pill_action)
             } else {
                 holder.b.tacticSeal.text = getString(R.string.tactic_learning)
                 holder.b.tacticSeal.setTextColor(getColor(R.color.text_secondary))
+                holder.b.tacticSeal.setBackgroundResource(R.drawable.bg_pill)
             }
 
             holder.b.btnVoice.setOnClickListener {

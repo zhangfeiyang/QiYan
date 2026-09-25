@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 速拼开赛说明卡后面那层纸色蒙版: 盖住空棋盘, 但仍透出一点棋盘纹理 -->
+    <color name="rush_intro_scrim">#E6F6EFE2</color>
+    <!-- 远峰/中山渐隐的终点: 与 ink_far / ink_mid 同色相、零透明度,
+         渐变中段不会因为混进黑色而发灰 -->
+    <color name="ink_far_clear">#002A231B</color>
+    <color name="ink_mid_clear">#002E3A2B</color>
+</resources>

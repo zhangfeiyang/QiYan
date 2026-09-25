@@ -10,7 +10,7 @@
     <string name="home_daily_desc">One position. A little progress.</string>
     <string name="home_daily_ready">Try today’s puzzle ›</string>
     <string name="home_daily_done">Completed · Play again ›</string>
-    <string name="home_streak">%1$d day streak · %2$d days completed</string>
+    <string name="home_streak">Current streak: %1$d · Days practised: %2$d</string>
     <string name="home_streak_start">Solve a puzzle to begin your streak</string>
     <string name="home_journey">Your next move</string>
     <string name="home_campaign_title">Climb the mountain</string>
@@ -40,7 +40,7 @@
     <string name="new_game_advanced_options">Playing style</string>
     <string name="new_game_selected">Selected</string>
     <string name="new_game_recommended">Start here</string>
-    <string name="new_game_style_training">The first two levels focus on learning. Playing styles unlock from Club.</string>
+    <string name="new_game_style_training">At the two learning levels, the style only nudges how often the opponent grabs material or slips up.</string>
     <string name="difficulty_gentle">Gentle</string>
     <string name="difficulty_starter">Beginner</string>
     <string name="difficulty_club">Club</string>

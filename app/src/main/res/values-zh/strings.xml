@@ -192,14 +192,14 @@
     <string name="puzzle_rush_title">残局速拼</string>
     <string name="puzzle_rush_banner">三分钟冲榜 · 最佳 %1$d 局</string>
     <string name="tactics_banner_title">杀法宝典</string>
-    <string name="tactics_banner_sub">十种经典绝杀</string>
+    <string name="tactics_banner_sub">经典绝杀</string>
     <string name="tactics_banner_progress">已研习 %1$d / %2$d</string>
     <string name="puzzle_rush_subtitle">3分钟限时极速闯关</string>
     <string name="puzzle_rush_start">开始速拼</string>
     <string name="puzzle_rush_score">得分</string>
     <string name="puzzle_rush_high_score">最高纪录: %1$d 局</string>
     <string name="puzzle_rush_combo">连击 x%1$d</string>
-    <string name="puzzle_rush_pass">跳过此题</string>
+    <string name="puzzle_rush_pass">跳过（扣一颗心）</string>
     <string name="puzzle_rush_time_up">时间耗尽！</string>
     <string name="puzzle_rush_lives_out">生命耗尽！</string>
     <string name="puzzle_rush_new_record">🎉 刷新历史纪录！</string>
@@ -248,7 +248,6 @@
     <string name="game_over_draw">和棋</string>
 
     <!-- 设置 -->
-    <string name="settings_engine">AI 设置</string>
     <string name="settings_threads">思考线程</string>
     <string name="settings_hash">哈希表(MB)</string>
     <string name="settings_sound">音效</string>
@@ -676,7 +675,6 @@
     <string name="puzzle_unsolved">未破解</string>
     <string name="puzzle_attempts_format">已尝试 %1$d 次</string>
     <string name="puzzle_red_to_move">红先, %1$d 步内将死黑方</string>
-    <string name="puzzle_rush_prompt">%1$s · 第 %2$d 局 · %3$s · %4$d 步杀</string>
     <string name="puzzle_undo_left_format">剩余悔棋 %1$d 次</string>
     <string name="puzzle_moves_left_format">剩余步数 %1$d</string>
     <string name="puzzle_retry">重新开始</string>
@@ -785,7 +783,6 @@
     <string name="tactic_desc_heart">不惜弃车强行斩杀中士，摧毁防守核心枢纽，引诱敌将弃守成杀。</string>
     <string name="tactic_rhyme_smothered">“双士自闭塞，巧借敌力杀”</string>
     <string name="tactic_desc_smothered">利用敌方双士自塞将门的结构弱点，单炮点底或车兵压顶强杀。</string>
-    <string name="tactic_academy_banner">象棋十大经典绝杀</string>
     <string name="tactic_academy_sub">熟记攻杀口诀 · 聆听原声号令 · 攻破专项实战</string>
     <string name="tactic_voice">大师原声</string>
     <string name="tactic_challenge">破局实战</string>

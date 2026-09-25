@@ -22,7 +22,7 @@
 
     <item android:id="@+id/avatar_rim">
         <shape android:shape="oval">
-            <stroke android:width="3dp" android:color="@color/piece_black" />
+            <stroke android:width="@dimen/avatar_rim_width" android:color="@color/piece_black" />
         </shape>
     </item>
 

@@ -142,15 +142,20 @@ class ProgressStore(context: Context) {
     // ====== 每日一题 ======
 
     fun dailyPuzzleId(today: LocalDate = LocalDate.now()): Int =
-        DailyPractice.puzzleId(today, Puzzles.all.map { it.id })
+        DailyPractice.puzzleIdFor(today, Puzzles.all.map { it.id }, dailyStarterIds(), dailyCompletedDates())
 
     fun dailyPractice(today: LocalDate = LocalDate.now()): DailyPracticeSnapshot =
-        DailyPractice.snapshot(today, Puzzles.all.map { it.id }, dailyCompletedDates())
+        DailyPractice.snapshot(today, Puzzles.all.map { it.id }, dailyCompletedDates(), dailyStarterIds())
+
+    /** 新手每日一题的入门题池: 一两步杀 (见 [DailyPractice.STARTER_DAYS]) */
+    private fun dailyStarterIds(): List<Int> = Puzzles.all.filter { it.maxMoves <= 2 }.map { it.id }
 
     /** Only the scheduled puzzle, finished on its own local date, can earn a day. */
     fun markDailyPuzzleCompleted(id: Int, challengeDate: LocalDate, today: LocalDate = LocalDate.now()): Boolean {
         val completed = dailyCompletedDates()
-        val updated = DailyPractice.recordCompletion(today, challengeDate, id, Puzzles.all.map { it.id }, completed)
+        val updated = DailyPractice.recordCompletion(
+            today, challengeDate, id, Puzzles.all.map { it.id }, completed, dailyStarterIds(),
+        )
         if (updated == completed) return false
         prefs.edit().putStringSet(KEY_DAILY_COMPLETED, updated.map { it.toString() }.toSet()).apply()
         return true

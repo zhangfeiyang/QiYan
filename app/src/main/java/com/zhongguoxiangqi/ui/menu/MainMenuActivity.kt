@@ -89,7 +89,7 @@ class MainMenuActivity : AppCompatActivity() {
             })
         }
         if (savedInstanceState == null && AppSettings(this).animationEnabled && ValueAnimator.areAnimatorsEnabled()) {
-            listOf(binding.heroPanel, binding.featureRow, binding.cardOpponent, binding.cardDaily).forEachIndexed { index, view ->
+            listOf(binding.heroPanel, binding.cardOpponent, binding.featureRow, binding.cardDaily).forEachIndexed { index, view ->
                 view.alpha = 0f
                 view.translationY = 14f * resources.displayMetrics.density
                 view.animate().alpha(1f).translationY(0f).setStartDelay(index * 70L)
@@ -248,16 +248,29 @@ class MainMenuActivity : AppCompatActivity() {
 
     private fun updateProfile() {
         binding.nickname.text = userProfile.nickname
-        val rank = userProfile.rank()
-        binding.ratingValue.text = getString(rank.nameRes)
-        binding.ratingValue.setTextColor(ContextCompat.getColor(this, rank.colorRes))
-        binding.rankSeal.text = rank.id.toString()
-        val ladder = RankLadder.progress(userProfile.displayedRating)
-        binding.rankMeter.progress = (ladder.fraction * 1000).toInt()
-        val progressLine = if (ladder.next == null) {
-            getString(R.string.rank_progress_top)
+        val progressLine = if (userProfile.isInPlacement) {
+            // 定级中还没有印: 不挂一个没下过计分局就给的"业余三段", 进度条走定级盘数
+            val played = userProfile.totalGames
+            binding.ratingValue.setText(R.string.rank_placement_name)
+            binding.ratingValue.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            binding.rankSeal.text = "?"
+            binding.rankMeter.progress = played * 1000 / RankLadder.PLACEMENT_GAMES
+            getString(
+                R.string.rank_placement_progress,
+                played, RankLadder.PLACEMENT_GAMES, RankLadder.PLACEMENT_GAMES - played,
+            )
         } else {
-            getString(R.string.rank_progress_next, getString(ladder.next.nameRes), ladder.pointsToNext)
+            val rank = userProfile.rank()
+            binding.ratingValue.text = getString(rank.nameRes)
+            binding.ratingValue.setTextColor(ContextCompat.getColor(this, rank.colorRes))
+            binding.rankSeal.text = rank.id.toString()
+            val ladder = RankLadder.progress(userProfile.displayedRating)
+            binding.rankMeter.progress = (ladder.fraction * 1000).toInt()
+            if (ladder.next == null) {
+                getString(R.string.rank_progress_top)
+            } else {
+                getString(R.string.rank_progress_next, getString(ladder.next.nameRes), ladder.pointsToNext)
+            }
         }
         binding.rankProgress.text = progressLine + "\n" + getString(R.string.home_open_rank_hall)
         binding.profileCard.contentDescription = getString(R.string.home_open_rank_hall)

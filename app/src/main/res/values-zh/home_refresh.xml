@@ -40,7 +40,7 @@
     <string name="new_game_advanced_options">对手棋路</string>
     <string name="new_game_selected">已选择</string>
     <string name="new_game_recommended">新手推荐</string>
-    <string name="new_game_style_training">前两档专注轻松练习，进阶及以上可选择对手棋路。</string>
+    <string name="new_game_style_training">两档陪练里，棋路只会略微改变对手吃子和失误的频率。</string>
     <string name="difficulty_gentle">轻松陪练</string>
     <string name="difficulty_starter">入门</string>
     <string name="difficulty_club">进阶</string>

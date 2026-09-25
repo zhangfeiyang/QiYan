@@ -111,6 +111,8 @@
             android:textColor="@color/warning"
             android:textSize="@dimen/text_caption"
             android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -196,25 +198,32 @@
             android:textStyle="bold"
             tools:text="我" />
 
-        <TextView
-            android:id="@+id/opening_chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_2"
-            android:background="@drawable/bg_pill_translucent"
-            android:paddingHorizontal="@dimen/space_2"
-            android:paddingVertical="2dp"
-            android:textColor="@color/action"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            tools:visibility="visible"
-            tools:text="中炮对屏风马" />
-
-        <View
+        <!-- 开局名胶囊放在一个吃剩余宽度的容器里: 英文开局名很长
+             ("Central cannon vs screen horses"), 以前胶囊按内容撑开, 把右边的
+             段位和手数挤出屏幕 ("Move 2" 只剩 "Mc"). 现在放不下就省略号. -->
+        <FrameLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/space_2">
+
+            <TextView
+                android:id="@+id/opening_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_2"
+                android:background="@drawable/bg_pill_translucent"
+                android:paddingHorizontal="@dimen/space_2"
+                android:paddingVertical="2dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/action"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="中炮对屏风马" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/player_rating"

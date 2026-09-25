@@ -299,10 +299,11 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
+        // 按下后顶栏的"AI 思考中"胶囊就是回应; 以前另弹一条只写着"提示"两个字的
+        // Toast, 什么信息也没有. 推荐着法算出来后写回同一颗胶囊, 见 renderThinkChip.
         binding.btnHint.setOnClickListener {
             if (viewModel.state.value.isThinking) return@setOnClickListener
             viewModel.requestHint()
-            Toast.makeText(this, R.string.action_hint, Toast.LENGTH_SHORT).show()
         }
 
         binding.btnUndo.setOnClickListener {
@@ -326,16 +327,20 @@ class GameActivity : AppCompatActivity() {
         // 「翻转」以前只是换个看棋的视角, 盘还是自己那盘. 现在它真的换边:
         // 我方红黑对调, 引擎接手原来我这边. 视角跟着走, 否则换完自己的子
         // 跑到对面去了, 更难认.
+        // 闯关的执子固定: 换到引擎经营好的那一边就能白拿关卡星.
+        // 计分局下过棋再换边会转为练习, 先说清楚再换.
         binding.btnFlip.setOnClickListener {
-            viewModel.swapSides()
-            val nowBlack = viewModel.state.value.playerSide == Color.BLACK
-            binding.boardView.setFlipped(nowBlack)
-            persistGameSetup()
-            Toast.makeText(
-                this,
-                if (nowBlack) R.string.game_switched_to_black else R.string.game_switched_to_red,
-                Toast.LENGTH_SHORT
-            ).show()
+            when {
+                viewModel.state.value.campaignLevel > 0 ->
+                    Toast.makeText(this, R.string.game_swap_campaign_locked, Toast.LENGTH_SHORT).show()
+                viewModel.swapMakesPractice() -> AlertDialog.Builder(this)
+                    .setTitle(R.string.game_swap_rated_title)
+                    .setMessage(R.string.game_swap_rated_message)
+                    .setPositiveButton(R.string.game_swap_rated_confirm) { _, _ -> swapSides() }
+                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .show()
+                else -> swapSides()
+            }
         }
 
         // 对手信息整行可点 -> 改 AI 等级. 闯关模式关卡强度固定, 不开放中途改档
@@ -357,6 +362,18 @@ class GameActivity : AppCompatActivity() {
         binding.btnAi.setOnClickListener {
             startGameAnalysis()
         }
+    }
+
+    private fun swapSides() {
+        if (!viewModel.swapSides()) return
+        val nowBlack = viewModel.state.value.playerSide == Color.BLACK
+        binding.boardView.setFlipped(nowBlack)
+        persistGameSetup()
+        Toast.makeText(
+            this,
+            if (nowBlack) R.string.game_switched_to_black else R.string.game_switched_to_red,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     // ====== AI 分析(全屏动效 + 透明对话框) ======
@@ -583,11 +600,7 @@ class GameActivity : AppCompatActivity() {
                 binding.styleChip.text = getString(state.style.nameRes)
                 binding.styleChip.visibility = View.VISIBLE
 
-                // INVISIBLE 而不是 GONE: 这个指示器每走一步都要出现/消失一次,
-                // 用 GONE 会让它所在的信息行时高时矮, 而棋盘是 weight=1 吃剩余
-                // 空间 —— 于是每走一步棋盘就被挤扁再弹回, 看起来就是上下抖动.
-                binding.thinkIndicator.visibility =
-                    if (state.isThinking) View.VISIBLE else View.INVISIBLE
+                renderThinkChip(state, viewModel.hintState.value)
 
                 val onCampaign = state.campaignLevel > 0
                 coachTip.visibility = if ((onCampaign || state.difficulty <= 2) && !state.isGameOver) View.VISIBLE else View.GONE
@@ -661,13 +674,43 @@ class GameActivity : AppCompatActivity() {
             viewModel.hintState.collect { hint ->
                 // 只在棋盘上画箭头, 不再弹"推荐 X / 备选 Y / 评估 Z / 深度 N"
                 // 那张卡片: 用户按提示是想知道"走哪儿", 箭头已经把这件事说完了,
-                // 那串引擎术语既占地方又没人读.
+                // 那串引擎术语既占地方又没人读. 只留一行记谱, 写在顶栏胶囊里.
                 if (hint?.primaryMove != null) {
                     binding.boardView.setHint(hint.primaryMove, hint.secondaryMoves)
+                    if (hint.notation.isNotBlank()) {
+                        binding.boardView.announceForAccessibility(getString(R.string.game_hint_chip, hint.notation))
+                    }
                 } else {
                     binding.boardView.clearHint()
                 }
+                renderThinkChip(viewModel.state.value, hint)
             }
+        }
+    }
+
+    /**
+     * 顶栏那颗胶囊: 引擎在想时写"思考中", 提示出来后换成推荐着法的记谱,
+     * 直到玩家落子. 箭头只有看得见的人能读, 记谱读屏也念得出来.
+     *
+     * INVISIBLE 而不是 GONE: 这个指示器每走一步都要出现/消失一次,
+     * 用 GONE 会让它所在的信息行时高时矮, 而棋盘是 weight=1 吃剩余
+     * 空间 —— 于是每走一步棋盘就被挤扁再弹回, 看起来就是上下抖动.
+     */
+    private fun renderThinkChip(state: GameViewModel.GameState, hint: GameViewModel.HintState?) {
+        val chip = binding.thinkIndicator
+        val notation = hint?.notation?.takeIf { hint.primaryMove != null && it.isNotBlank() }
+        when {
+            state.isThinking -> {
+                chip.setText(R.string.status_thinking)
+                chip.setTextColor(ContextCompat.getColor(this, R.color.warning))
+                chip.visibility = View.VISIBLE
+            }
+            notation != null && !state.isGameOver -> {
+                chip.text = getString(R.string.game_hint_chip, notation)
+                chip.setTextColor(ContextCompat.getColor(this, R.color.affirm))
+                chip.visibility = View.VISIBLE
+            }
+            else -> chip.visibility = View.INVISIBLE
         }
     }
 
@@ -910,22 +953,26 @@ class GameActivity : AppCompatActivity() {
             getString(R.string.game_mode_ranked)
         }
 
-        val ratingLine = if (state.isPractice) {
-            getString(R.string.result_practice_detail)
-        } else {
-            getString(R.string.game_over_rating_detail, deltaText, state.playerRank)
+        val ratingLine = when {
+            state.continuesRatedGame -> getString(R.string.result_continuation_detail)
+            state.isPractice -> getString(R.string.result_practice_detail)
+            // 定级期间不报分数涨落: 头几盘一盘近两百分的摆动只会吓人, 印下满再揭晓
+            state.placementPlayed != null -> getString(
+                R.string.result_placement_progress,
+                state.placementPlayed,
+                com.zhongguoxiangqi.rating.RankLadder.PLACEMENT_GAMES,
+                com.zhongguoxiangqi.rating.RankLadder.PLACEMENT_GAMES - state.placementPlayed,
+            )
+            else -> getString(R.string.game_over_rating_detail, deltaText, state.playerRank)
         }
         dialogBinding.resultDetail.text = appendPromotion(ratingLine, state)
         if (won) lightResultStars(dialogBinding, CampaignStars.MAX)
 
-        // 悔棋按钮: 点击关闭弹窗并悔棋
-        dialogBinding.btnResultUndo.isEnabled = state.moveCount > 0
-        dialogBinding.btnResultUndo.setOnClickListener {
-            dialog.dismiss()
-            gameOverDialog = null
-            userDismissedGameOver = false
-            if (viewModel.undoMove()) feedback.onUndo()
-        }
+        bindContinueButton(dialogBinding, dialog, state)
+
+        // 复盘: 直接打开刚存下的这一盘
+        dialogBinding.btnResultReview.visibility = View.VISIBLE
+        dialogBinding.btnResultReview.setOnClickListener { openReview() }
 
         // 再来一局
         dialogBinding.btnResultPlayAgain.setOnClickListener {
@@ -1034,14 +1081,9 @@ class GameActivity : AppCompatActivity() {
             listOf(body, starsLine, record).filter { it.isNotEmpty() }.joinToString("\n")
         } else body
 
-        // 悔棋
-        dialogBinding.btnResultUndo.isEnabled = state.moveCount > 0
-        dialogBinding.btnResultUndo.setOnClickListener {
-            dialog.dismiss()
-            gameOverDialog = null
-            userDismissedGameOver = false
-            if (viewModel.undoMove()) feedback.onUndo()
-        }
+        bindContinueButton(dialogBinding, dialog, state)
+        // 闯关不入库(见 GameViewModel.endGame), 没有可复盘的棋谱
+        dialogBinding.btnResultReview.visibility = View.GONE
 
         dialogBinding.btnResultPlayAgain.text = getString(
             if (hasNext) R.string.campaign_next_level else R.string.campaign_retry
@@ -1075,6 +1117,42 @@ class GameActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    /**
+     * 结算页左下的「继续」.
+     *
+     * 认输时局面还在, 按钮叫"继续对局"、原样接着下; 其它终局才是真的悔一手.
+     * 退不回去(执黑时盘上只有引擎那一手)就不给按.
+     */
+    private fun bindContinueButton(b: DialogGameResultBinding, dialog: Dialog, state: GameViewModel.GameState) {
+        b.btnResultUndo.setText(if (state.endedByResign) R.string.result_resume else R.string.result_undo)
+        b.btnResultUndo.isEnabled = state.endedByResign || state.moveCount > 0
+        b.btnResultUndo.setOnClickListener {
+            if (viewModel.continueAfterGameOver()) {
+                dialog.dismiss()
+                gameOverDialog = null
+                userDismissedGameOver = false
+                if (!state.endedByResign) feedback.onUndo()
+            } else {
+                Toast.makeText(this, R.string.game_undo_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** 打开刚下完的这一盘的复盘. 棋谱是异步落盘的, 等它写完再开 */
+    private fun openReview() {
+        lifecycleScope.launch {
+            val id = viewModel.awaitSavedRecordId()
+            if (id == null) {
+                Toast.makeText(this@GameActivity, R.string.result_review_unavailable, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            startActivity(
+                Intent(this@GameActivity, com.zhongguoxiangqi.ui.replay.ReplayViewerActivity::class.java)
+                    .putExtra(com.zhongguoxiangqi.ui.replay.ReplayViewerActivity.EXTRA_GAME_ID, id)
+            )
+        }
+    }
+
     /** 点亮结算匾上的星. 1 星亮中间, 2 星再亮左边, 3 星全亮. */
     private fun lightResultStars(binding: DialogGameResultBinding, stars: Int) {
         val on = when (stars.coerceIn(0, CampaignStars.MAX)) {
@@ -1090,7 +1168,9 @@ class GameActivity : AppCompatActivity() {
 
     private fun appendPromotion(detail: String, state: GameViewModel.GameState): String {
         if (state.promotedRank.isBlank()) return detail
-        return getString(R.string.rank_promoted, state.promotedRank) + "\n" + detail
+        val headline = if (state.placementComplete) getString(R.string.result_placement_done, state.promotedRank)
+            else getString(R.string.rank_promoted, state.promotedRank)
+        return headline + "\n" + detail
     }
 
     /**

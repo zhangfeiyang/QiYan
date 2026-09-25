@@ -25,6 +25,20 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <!-- 杀法主子的棋子徽记 (替代原来的 emoji) -->
+            <TextView
+                android:id="@+id/tactic_piece"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_piece_medallion"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:textColor="@color/piece_red"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="炮" />
+
             <TextView
                 android:id="@+id/tactic_name"
                 android:layout_width="0dp"
@@ -34,16 +48,19 @@
                 android:textSize="17sp"
                 android:textStyle="bold"
                 android:fontFamily="serif"
-                tools:text="🐎 马后炮" />
+                tools:text="马后炮" />
 
+            <!-- 研习状态: 普通胶囊; 精通后换成朱砂描边的行动胶囊.
+                 原来用的是对手头像那张底 (3dp 黑色刻环的椭圆), 一行小字
+                 被粗黑圈箍着, 比标题还抢眼. -->
             <TextView
                 android:id="@+id/tactic_seal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:background="@drawable/bg_opponent_avatar"
-                android:textColor="@color/lounge_soft_gold"
+                android:background="@drawable/bg_pill"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 tools:text="已精通" />

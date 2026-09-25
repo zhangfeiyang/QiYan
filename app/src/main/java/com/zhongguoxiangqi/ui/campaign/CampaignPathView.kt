@@ -382,7 +382,9 @@ class CampaignPathView @JvmOverloads constructor(
 
         textPaint.typeface = kaiTypeface
         textPaint.isFakeBoldText = true
-        textPaint.color = themeColor(R.color.gold_text)
+        // 不能用 gold_text: 那是"金底按钮上的字"色, 夜间是深褐 #4A1D0A,
+        // 画在深色页面上等于隐身. warning 是日夜各自调过对比度的琥珀金.
+        textPaint.color = themeColor(R.color.warning)
         textPaint.textSize = dp(GOAL_TEXT_DP)
         val label = context.getString(R.string.campaign_goal)
         canvas.drawText(label, chest.centerX(), chest.bottom + dp(16f) -

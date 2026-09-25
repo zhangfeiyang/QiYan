@@ -38,131 +38,11 @@
             android:paddingHorizontal="@dimen/screen_gutter"
             android:paddingBottom="@dimen/space_8">
 
-            <!-- ========== 引擎 ========== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_4"
-                android:layout_marginBottom="@dimen/space_2"
-                android:text="@string/settings_engine"
-                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_surface_card"
-                android:padding="@dimen/space_4">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/settings_threads"
-                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/settings_desc_threads"
-                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_threads_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="40dp"
-                        android:gravity="end"
-                        android:textColor="@color/action"
-                        android:textSize="@dimen/text_title"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold"
-                        tools:text="2" />
-
-                </LinearLayout>
-
-                <SeekBar
-                    android:id="@+id/seek_threads"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_1"
-                    android:max="8"
-                    android:progress="2" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/stroke_hairline"
-                    android:layout_marginVertical="@dimen/space_3"
-                    android:background="@color/border_subtle" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/settings_hash"
-                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/settings_desc_hash"
-                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_hash_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="72dp"
-                        android:gravity="end"
-                        android:textColor="@color/action"
-                        android:textSize="@dimen/text_title"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold"
-                        tools:text="64 MB" />
-
-                </LinearLayout>
-
-                <SeekBar
-                    android:id="@+id/seek_hash"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_1"
-                    android:max="1024"
-                    android:progress="64" />
-
-            </LinearLayout>
-
             <!-- ========== 界面 ========== -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginTop="@dimen/space_4"
                 android:layout_marginBottom="@dimen/space_2"
                 android:text="@string/settings_section_display"
                 android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
@@ -475,6 +355,129 @@
                     android:text="@string/settings_theme_system" />
 
             </RadioGroup>
+
+            <!-- ========== 引擎 (高级) ==========
+                 线程/哈希是给懂行的人调的, 以前却排在设置页第一屏, 新用户一进来
+                 先看到 "Threads 2 / Hash 64 MB". 常用的声音/棋盘/记谱放前面,
+                 这块挪到最后. -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_6"
+                android:layout_marginBottom="@dimen/space_2"
+                android:text="@string/settings_engine_advanced"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_surface_card"
+                android:padding="@dimen/space_4">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_threads"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_desc_threads"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_threads_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="40dp"
+                        android:gravity="end"
+                        android:textColor="@color/action"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        tools:text="2" />
+
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_threads"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:max="8"
+                    android:progress="2" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/stroke_hairline"
+                    android:layout_marginVertical="@dimen/space_3"
+                    android:background="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_hash"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_desc_hash"
+                            android:textAppearance="@style/TextAppearance.Xiangqi.Secondary" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_hash_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="72dp"
+                        android:gravity="end"
+                        android:textColor="@color/action"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        tools:text="64 MB" />
+
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_hash"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_1"
+                    android:max="1024"
+                    android:progress="64" />
+
+            </LinearLayout>
 
             <!-- ========== 其他 ========== -->
             <TextView

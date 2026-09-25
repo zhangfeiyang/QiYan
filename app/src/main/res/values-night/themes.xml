@@ -31,6 +31,8 @@
         <item name="materialButtonStyle">@style/Widget.Xiangqi.Button</item>
         <item name="materialCardViewStyle">@style/Widget.Xiangqi.Card</item>
         <item name="toolbarStyle">@style/Widget.Xiangqi.Toolbar</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Xiangqi.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Xiangqi.MaterialAlertDialog</item>
     </style>
 
     <!-- 实心按钮的按压涟漪在深色上要用白色叠加, 黑色叠加等于没有反馈 -->

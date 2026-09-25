@@ -38,6 +38,9 @@
         <item name="materialButtonStyle">@style/Widget.Xiangqi.Button</item>
         <item name="materialCardViewStyle">@style/Widget.Xiangqi.Card</item>
         <item name="toolbarStyle">@style/Widget.Xiangqi.Toolbar</item>
+        <!-- 系统弹窗跟随 App 的纸/墨配色, 见 ThemeOverlay.Xiangqi.AlertDialog -->
+        <item name="alertDialogTheme">@style/ThemeOverlay.Xiangqi.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Xiangqi.MaterialAlertDialog</item>
     </style>
 
     <style name="Theme.ZhongguoXiangqi.Game" parent="Theme.ZhongguoXiangqi">
@@ -239,6 +242,32 @@
         <item name="android:minHeight">@dimen/touch_min</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">@dimen/text_body</item>
+    </style>
+
+    <!-- ================= 系统弹窗 =================
+         App 里的确认框都走 AppCompat 的 AlertDialog.Builder (设置页两处走
+         MaterialAlertDialogBuilder). 原先两者都没接主题: 夜间是冷灰直角的
+         默认浮层. 这里只换底色/圆角/强调色, 按钮样式沿用 Material 的对话框
+         文字按钮 (行动色), 确认键仍然醒目. -->
+    <style name="ThemeOverlay.Xiangqi.AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialog_window</item>
+        <item name="android:colorBackground">@color/surface_overlay</item>
+        <item name="colorBackgroundFloating">@color/surface_overlay</item>
+        <item name="colorSurface">@color/surface_overlay</item>
+        <item name="colorPrimary">@color/action</item>
+        <item name="colorAccent">@color/action</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+    </style>
+
+    <style name="ThemeOverlay.Xiangqi.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorSurface">@color/surface_overlay</item>
+        <item name="colorPrimary">@color/action</item>
+        <item name="colorAccent">@color/action</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
     <!-- ================= 弹窗 ================= -->

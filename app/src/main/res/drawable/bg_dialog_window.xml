@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  系统弹窗(确认认输/悔棋/离开速拼…)的窗口底.
+
+  以前这些弹窗没接 App 的主题, 用的是 AppCompat 默认的浮层色: 浅色下是
+  纯白直角, 夜间是一块冷灰 (#424242) —— 在暖墨色的页面上像别的 App 弹出来的.
+  现在走 surface_overlay (日: 白; 夜: 暖炭), 圆角与卡片同档.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetTop="16dp"
+    android:insetRight="16dp"
+    android:insetBottom="16dp">
+    <shape android:shape="rectangle">
+        <corners android:radius="@dimen/radius_lg" />
+        <solid android:color="@color/surface_overlay" />
+    </shape>
+</inset>

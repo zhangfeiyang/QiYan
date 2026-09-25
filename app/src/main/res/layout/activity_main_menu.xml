@@ -110,6 +110,57 @@
                     app:icon="@drawable/ic_play"
                     app:iconGravity="textStart" />
             </LinearLayout>
+            <!-- 当前对手: 它决定了上面「开始」按钮开出来的是哪一盘, 所以紧贴 hero.
+                 以前隔着两张墨绿特色卡排在下面, 看起来像一个独立功能. -->
+            <LinearLayout
+                android:id="@+id/card_opponent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="80dp"
+                android:paddingVertical="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/opponent_avatar"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:textSize="24sp"
+                    android:importantForAccessibility="no" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/opponent_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/difficulty_gentle"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/opponent_segment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_beginner_badge"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="3dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_change_opponent"
+                        android:textColor="@color/lounge_link"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </LinearLayout>
             <!-- 招牌特色: 实时支招 + 拍照识别. 紧跟 hero, 进首页一眼可见.
                  两张卡自带墨绿深底 (与 hero 同族), 夜间模式无需另配.
                  id 沿用旧工具行的 card_live / btn_recognize, 处理器零改动. -->
@@ -250,55 +301,6 @@
                         android:importantForAccessibility="no"
                         android:visibility="gone" />
                 </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/card_opponent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="80dp"
-                android:paddingVertical="14dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <TextView
-                    android:id="@+id/opponent_avatar"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:gravity="center"
-                    android:textSize="24sp"
-                    android:importantForAccessibility="no" />
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/opponent_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/difficulty_gentle"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/opponent_segment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/home_beginner_badge"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginTop="3dp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/home_change_opponent"
-                        android:textColor="@color/lounge_link"
-                        android:textSize="12sp"
-                        android:layout_marginTop="4dp" />
-                </LinearLayout>
             </LinearLayout>
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_daily"

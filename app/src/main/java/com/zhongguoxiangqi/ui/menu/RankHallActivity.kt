@@ -27,13 +27,16 @@ class RankHallActivity : AppCompatActivity() {
 
         val profile = UserProfile(this)
         val progress = RankLadder.progress(profile.displayedRating)
-        binding.rankSummary.text = if (progress.next == null) {
-            getString(R.string.rank_progress_top)
-        } else {
-            getString(R.string.rank_progress_next, getString(progress.next.nameRes), progress.pointsToNext)
+        binding.rankSummary.text = when {
+            profile.isInPlacement -> getString(
+                R.string.rank_hall_placement, profile.totalGames, RankLadder.PLACEMENT_GAMES,
+            )
+            progress.next == null -> getString(R.string.rank_progress_top)
+            else -> getString(R.string.rank_progress_next, getString(progress.next.nameRes), progress.pointsToNext)
         }
         binding.hall.setLadder(
-            currentId = progress.current.id,
+            // 定级中一枚印都还没拿到: 全部显示为"未达"
+            currentId = if (profile.isInPlacement) 0 else progress.current.id,
             names = UserRank.RANKS.map { getString(it.nameRes) },
             ranges = UserRank.RANKS.map { rank ->
                 if (rank.id == UserRank.RANKS.last().id) getString(R.string.rank_range_top, rank.minRating)

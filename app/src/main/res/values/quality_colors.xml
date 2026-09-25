@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      对手头像八档的字色与刻环色.
+
+      头像是一枚象牙棋子, 夜间也还是浅色的面 (piece_face 夜间 #EAD9B6),
+      所以这组颜色刻意不配 values-night: rank_* 的夜间色是给深底用的浅色,
+      压在象牙面上只剩 2:1 左右的对比. 下面八个色在日/夜两种象牙面上都
+      ≥ 3.4:1, 过 24sp 粗体大字的 AA Large.
+    -->
+    <color name="avatar_tier_1">#A85F28</color>
+    <color name="avatar_tier_2">#6B6B73</color>
+    <color name="avatar_tier_3">#8A6A0C</color>
+    <color name="avatar_tier_4">#1B7A93</color>
+    <color name="avatar_tier_5">#C2410C</color>
+    <color name="avatar_tier_6">#7B3FB5</color>
+    <color name="avatar_tier_7">#A11D3A</color>
+    <color name="avatar_tier_8">#14544A</color>
+
+    <dimen name="avatar_rim_width">3dp</dimen>
+
+    <!--
+      压在"宣纸卡"上的字色: 终局结算卡 (bg_jj_card) 和残局速拼结算卡
+      (bg_result_dialog) 的底是写死的浅米色, 夜间也不变 —— 卡里的字原先
+      用 text_primary, 夜间翻成浅色, 主结论那一行和「继续对局」按钮上的
+      字就直接隐身了. 这组色不配 values-night.
+    -->
+    <color name="paper_text_primary">#2A2620</color>
+    <color name="paper_text_secondary">#5C5347</color>
+    <color name="paper_text_tertiary">#776B5C</color>
+    <color name="paper_stroke">#B9AC9C</color>
+    <!-- 速拼结算的大号得分: 原来的 lounge_soft_gold (#DFC48B) 压在米色卡上只有 1.7:1 -->
+    <color name="paper_gold">#8A6A0C</color>
+</resources>

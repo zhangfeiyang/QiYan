@@ -197,14 +197,14 @@
     <string name="puzzle_rush_title">Puzzle Rush</string>
     <string name="puzzle_rush_banner">3 minutes · best %1$d</string>
     <string name="tactics_banner_title">Killing patterns</string>
-    <string name="tactics_banner_sub">Ten classic mates</string>
+    <string name="tactics_banner_sub">Classic mates</string>
     <string name="tactics_banner_progress">%1$d / %2$d learned</string>
     <string name="puzzle_rush_subtitle">3-Minute Speed Solving</string>
     <string name="puzzle_rush_start">Start Rush</string>
     <string name="puzzle_rush_score">Score</string>
     <string name="puzzle_rush_high_score">Best: %1$d</string>
     <string name="puzzle_rush_combo">Streak x%1$d</string>
-    <string name="puzzle_rush_pass">Skip</string>
+    <string name="puzzle_rush_pass">Skip (−1 heart)</string>
     <string name="puzzle_rush_time_up">Time is up!</string>
     <string name="puzzle_rush_lives_out">Out of lives!</string>
     <string name="puzzle_rush_new_record">🎉 New Record!</string>
@@ -251,7 +251,6 @@
     <string name="game_over_draw">Draw</string>
 
     <!-- Settings -->
-    <string name="settings_engine">AI Settings</string>
     <string name="settings_threads">Threads</string>
     <string name="settings_hash">Hash Table (MB)</string>
     <string name="settings_sound">Sound Effects</string>
@@ -680,7 +679,6 @@
     <string name="puzzle_unsolved">Unsolved</string>
     <string name="puzzle_attempts_format">Tried %1$d times</string>
     <string name="puzzle_red_to_move">Red to move, mate in %1$d</string>
-    <string name="puzzle_rush_prompt">%1$s · No. %2$d · %3$s · mate in %4$d</string>
     <string name="puzzle_undo_left_format">Takebacks left: %1$d</string>
     <string name="puzzle_moves_left_format">Moves left: %1$d</string>
     <string name="puzzle_retry">Start over</string>
@@ -715,8 +713,8 @@
     <string name="result_win_big">Total Victory</string>
     <string name="result_win_tactic_fmt">%1$s Mate</string>
     <string name="result_lose_tactic_fmt">Lost to %1$s</string>
-    <string name="result_lose_banner">Narrow Loss</string>
-    <string name="result_draw_banner">Draw Agreed</string>
+    <string name="result_lose_banner">Defeat</string>
+    <string name="result_draw_banner">Draw</string>
     <string name="result_reason_win_tactic_fmt">Checkmated with a brilliant %1$s</string>
     <string name="result_reason_lose_tactic_fmt">Opponent mated you with %1$s</string>
     <string name="result_reason_win_default">Victory sealed</string>
@@ -789,7 +787,6 @@
     <string name="tactic_desc_heart">Give up the rook to take the central advisor, pull the general off its square, and mate.</string>
     <string name="tactic_rhyme_smothered">The advisors block their own general</string>
     <string name="tactic_desc_smothered">Both advisors clog the palace. A cannon on the back rank, or a rook and a pawn, mates through that jam.</string>
-    <string name="tactic_academy_banner">Ten classic mating patterns</string>
     <string name="tactic_academy_sub">Learn the line, hear the call, then solve it</string>
     <string name="tactic_voice">Hear it</string>
     <string name="tactic_challenge">Solve it</string>

@@ -15,7 +15,11 @@
         app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary" />
-    <ScrollView
+    <!-- NestedScrollView 而不是 ScrollView: 里面的 RecyclerView 是 wrap_content,
+         ScrollView 量子视图时把视口高度当作 UNSPECIFIED 的尺寸传下去, RecyclerView
+         据此只摆得下一屏的条目 —— 八档对手只显示到第六档「宗师」, 棋圣/巅峰
+         根本选不到. NestedScrollView 传 0 高度的 UNSPECIFIED, 条目全部摆出. -->
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -150,7 +154,7 @@
                     android:text="@string/side_black" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"

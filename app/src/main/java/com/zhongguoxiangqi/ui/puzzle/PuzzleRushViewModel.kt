@@ -54,6 +54,8 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
         val highScore: Int = 0,
         val honorTitle: String = "",
         val isThinking: Boolean = false,
+        /** 按下「开始」之前为 false: 先读规则, 计时不走 */
+        val isStarted: Boolean = false,
     )
 
     private val _state = MutableStateFlow(UiState())
@@ -92,7 +94,8 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
             score = 0,
             combo = 0,
             maxCombo = 0,
-            isFinished = false
+            isFinished = false,
+            isStarted = true,
         )
 
         loadNextPuzzle()
@@ -114,7 +117,8 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
     }
 
     fun skipCurrentPuzzle() {
-        if (_state.value.isFinished) return
+        // 引擎应手中途也允许跳过: 引擎万一不回话, 这是唯一的出路; 换题会作废那次应手.
+        if (!_state.value.isStarted || _state.value.isFinished) return
         onStrike()
     }
 
@@ -149,6 +153,7 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
     }
 
     private fun onPuzzleSolved() {
+        searchGeneration.incrementAndGet()
         val nextScore = _state.value.score + 1
         val nextCombo = _state.value.combo + 1
         val nextMaxCombo = maxOf(_state.value.maxCombo, nextCombo)
@@ -168,6 +173,8 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
     }
 
     private fun onStrike() {
+        // 这一题到此为止: 还在路上的引擎应手不能再落到盘上、再扣一次命
+        searchGeneration.incrementAndGet()
         val nextLives = _state.value.lives - 1
         _state.value = _state.value.copy(
             lives = nextLives,
@@ -208,6 +215,8 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
         }
 
         usedPuzzleIds.add(puzzle.id)
+        // 换题即作废上一题还在路上的引擎应手, 见 onBestMove
+        searchGeneration.incrementAndGet()
         initialFen = puzzle.fen
         position.setFromFen(initialFen)
         moveHistory.clear()
@@ -221,7 +230,7 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
 
     private fun engineDefend() {
         _state.value = _state.value.copy(isThinking = true)
-        searchGeneration.incrementAndGet()
+        defenseGeneration = searchGeneration.incrementAndGet()
         viewModelScope.launch(Dispatchers.IO) {
             engineManager.setPosition(initialFen, moveHistory)
             engineManager.startSearch(
@@ -266,9 +275,19 @@ class PuzzleRushViewModel(app: Application) : AndroidViewModel(app), EngineListe
     override fun onInfo(info: com.zhongguoxiangqi.engine.EngineInfo) {}
     override fun onError(message: String) {}
 
+    /**
+     * 这一轮引擎应手属于哪一代搜索.
+     *
+     * 回调在工作线程上, 真正落子要等主线程. 这期间玩家若跳过、题目若换了,
+     * 迟到的应手会被当成新题黑方的一步 —— 碰巧合法就直接走在新题上.
+     */
+    @Volatile private var defenseGeneration = -1L
+
     override fun onBestMove(bestMove: String, ponderMove: String?) {
+        val generation = defenseGeneration
         viewModelScope.launch {
-            if (_state.value.isFinished) return@launch
+            if (generation != searchGeneration.get() || _state.value.isFinished) return@launch
+            defenseGeneration = -1L
             val move = UciCoords.parse(bestMove)
             if (move != null && position.isLegalMove(move)) {
                 position.doMove(move)

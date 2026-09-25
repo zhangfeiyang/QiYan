@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 挑对手: 上排是棋路风格(随时可切、切了立即生效), 下面是档位阶梯 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- NestedScrollView: 里面的 RecyclerView 是 wrap_content, 放在普通 ScrollView
+     里只会摆出一屏的条目 (新对局页曾因此只列到第六档). 不再单独铺 bg_page:
+     弹窗本身已是纸色, 再铺一层会在标题栏和按钮栏之间夹出一块不同色的底. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_page"
     android:padding="@dimen/space_4">
 
     <LinearLayout
@@ -70,4 +72,4 @@
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

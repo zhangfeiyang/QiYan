@@ -6,14 +6,28 @@
   的起伏节奏, 不给细节; 参考水墨画的"远山无皴": 越远越淡越简.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="360dp"
     android:height="150dp"
     android:viewportWidth="360"
     android:viewportHeight="150">
 
-    <!-- 一带远峰: 峰头圆浑, 山脚溶进雾里(不做底边) -->
-    <path
-        android:fillColor="@color/ink_far"
-        android:pathData="M0,118 C24,96 44,64 76,58 C100,54 112,74 134,72 C160,70 172,34 202,30 C226,27 238,52 260,56 C282,60 296,42 318,44 C338,46 350,66 360,78 L360,150 L0,150 Z" />
+    <!-- 一带远峰: 峰头圆浑, 山脚溶进雾里(不做底边).
+         "不做底边"以前只是一句愿望: 路径仍在 y=150 收成直线, 纯色填充到底,
+         闯关地图上横着一道硬边. 现在填充自山腰起渐隐到全透明, 底边无处可见. -->
+    <path android:pathData="M0,118 C24,96 44,64 76,58 C100,54 112,74 134,72 C160,70 172,34 202,30 C226,27 238,52 260,56 C282,60 296,42 318,44 C338,46 350,66 360,78 L360,150 L0,150 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="0"
+                android:endY="150">
+                <item android:offset="0" android:color="@color/ink_far" />
+                <item android:offset="0.55" android:color="@color/ink_far" />
+                <item android:offset="1" android:color="@color/ink_far_clear" />
+            </gradient>
+        </aapt:attr>
+    </path>
 
 </vector>

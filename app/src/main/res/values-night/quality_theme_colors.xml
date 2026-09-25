@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="rush_intro_scrim">#E622201D</color>
+    <!-- 远峰/中山渐隐的终点: 与 ink_far / ink_mid 同色相、零透明度,
+         渐变中段不会因为混进黑色而发灰 -->
+    <color name="ink_far_clear">#00F0ECE5</color>
+    <color name="ink_mid_clear">#00F0ECE5</color>
+</resources>

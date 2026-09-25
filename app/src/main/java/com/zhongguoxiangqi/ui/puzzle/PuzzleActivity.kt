@@ -176,10 +176,16 @@ class PuzzleActivity : AppCompatActivity() {
             else Puzzles.next(puzzle.id)
         val practice = viewModel.store.dailyPractice()
         val tacticLabel = if (won && !tactic.isNullOrBlank()) TacticNames.label(this, tactic) else null
+        val tacticLine = tacticLabel?.let { getString(R.string.puzzle_solved_tactic_body, it) }
+        // 每日一题的打卡确认必须出现: 以前杀法名排在前面, 用杀法解开的每日一题
+        // (比如马后炮) 只说"以马后炮解开", 第几天、连续几天一个字都没提.
         val message = when {
-            tacticLabel != null -> getString(R.string.puzzle_solved_tactic_body, tacticLabel)
-            won && dailyDate == LocalDate.now() -> getString(R.string.daily_puzzle_success, practice.completedDays, practice.currentStreak)
+            won && dailyDate == LocalDate.now() -> listOfNotNull(
+                tacticLine,
+                getString(R.string.daily_puzzle_success, practice.completedDays, practice.currentStreak),
+            ).joinToString("\n")
             won && dailyDate != null -> getString(R.string.daily_puzzle_expired)
+            tacticLine != null -> tacticLine
             won -> getString(R.string.puzzle_solved_body)
             else -> getString(R.string.puzzle_fail_moves)
         }

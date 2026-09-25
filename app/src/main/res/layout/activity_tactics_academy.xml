@@ -25,14 +25,17 @@
         android:paddingTop="6dp"
         android:paddingBottom="12dp">
 
+        <!-- 条数由代码按题库填, 不再写死"十大" (实际是 11 式, 首页也写着 x/11).
+             字色原来是 lounge_soft_gold, 压在浅色纸底上只有 1.7:1. -->
         <TextView
+            android:id="@+id/academy_banner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/tactic_academy_banner"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/lounge_soft_gold"
-            android:fontFamily="serif" />
+            android:textColor="@color/text_primary"
+            android:fontFamily="serif"
+            tools:text="象棋经典杀法 · 11 式" />
 
         <TextView
             android:layout_width="match_parent"

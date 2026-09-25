@@ -41,6 +41,11 @@ class PuzzleRushActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         Insets.apply(binding.root, top = binding.toolbar, bottom = binding.bottomBar, extraBottomDp = 8f)
         binding.toolbar.setNavigationOnClickListener { confirmExit() }
+        // 返回键同样先确认: 速拼进行中误触返回就丢掉整局成绩.
+        // 走 OnBackPressedDispatcher 而不是覆写已废弃的 onBackPressed (lint: MissingSuperCall).
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = confirmExit()
+        })
 
         feedback = GameFeedback(this)
         binding.boardView.editMode = false
@@ -54,13 +59,12 @@ class PuzzleRushActivity : AppCompatActivity() {
         binding.btnSkip.setOnClickListener {
             viewModel.skipCurrentPuzzle()
         }
+        binding.btnRushStart.setOnClickListener {
+            viewModel.startRush()
+        }
 
         observeState()
         observeEvents()
-
-        if (savedInstanceState == null) {
-            viewModel.startRush()
-        }
     }
 
     private fun observeState() {
@@ -69,6 +73,11 @@ class PuzzleRushActivity : AppCompatActivity() {
                 viewModel.state.collectLatest { state ->
                     binding.rushScoreText.text = getString(R.string.puzzle_rush_score_line, state.score)
                     binding.rushBestBadge.text = getString(R.string.puzzle_rush_best_badge, state.highScore)
+                    binding.rushIntro.visibility = if (state.isStarted) View.GONE else View.VISIBLE
+                    binding.rushIntroBest.text = if (state.highScore > 0)
+                        getString(R.string.puzzle_rush_intro_best, state.highScore)
+                    else getString(R.string.puzzle_rush_intro_first)
+                    binding.btnSkip.isEnabled = state.isStarted && !state.isFinished
 
                     // 倒计时显示 (mm:ss)
                     val m = state.secondsLeft / 60
@@ -98,21 +107,8 @@ class PuzzleRushActivity : AppCompatActivity() {
 
                     val p = state.currentPuzzle
                     if (p != null) {
-                        val chapterRes = when (p.chapter) {
-                            1 -> R.string.puzzle_chapter_1
-                            2 -> R.string.puzzle_chapter_2
-                            3 -> R.string.puzzle_chapter_3
-                            4 -> R.string.puzzle_chapter_4
-                            5 -> R.string.puzzle_chapter_5
-                            else -> R.string.puzzle_chapter_6
-                        }
-                        binding.puzzlePrompt.text = getString(
-                            R.string.puzzle_rush_prompt,
-                            getString(chapterRes),
-                            p.id,
-                            getString(p.nameRes),
-                            p.maxMoves,
-                        )
+                        // 速拼里卷名和题号没有意义, 还把"一步杀"说了两遍; 只留走棋方和题名
+                        binding.puzzlePrompt.text = getString(R.string.puzzle_rush_prompt_short, getString(p.nameRes))
                         binding.boardView.setPosition(viewModel.currentPosition)
                     }
 
@@ -203,6 +199,9 @@ class PuzzleRushActivity : AppCompatActivity() {
             .setView(dialogBinding.root)
             .setCancelable(false)
             .create()
+        // 结算卡自带圆角纸底 (bg_result_dialog); 弹窗窗口底要透明,
+        // 否则四个圆角外会露出一圈窗口色 (夜间是深色的方角).
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
 
         dialogBinding.btnRetry.setOnClickListener {
             dialog.dismiss()
@@ -241,7 +240,7 @@ class PuzzleRushActivity : AppCompatActivity() {
     }
 
     private fun confirmExit() {
-        if (viewModel.state.value.isFinished) {
+        if (viewModel.state.value.isFinished || !viewModel.state.value.isStarted) {
             finish()
             return
         }
@@ -251,11 +250,6 @@ class PuzzleRushActivity : AppCompatActivity() {
             .setPositiveButton(R.string.puzzle_rush_leave_yes) { _, _ -> finish() }
             .setNegativeButton(R.string.dialog_cancel, null)
             .show()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        confirmExit()
     }
 
     override fun onDestroy() {

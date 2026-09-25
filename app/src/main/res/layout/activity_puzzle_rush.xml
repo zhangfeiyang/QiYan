@@ -63,7 +63,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
             android:paddingVertical="6dp"
-            android:background="@drawable/bg_opponent_avatar">
+            android:background="@drawable/bg_pill">
 
             <TextView
                 android:id="@+id/rush_timer_text"
@@ -117,7 +117,8 @@
             android:id="@+id/rush_best_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/lounge_soft_gold"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/warning"
             android:textSize="12sp"
             android:textStyle="bold"
             tools:text="🏆 最高: 15" />
@@ -158,6 +159,69 @@
             android:shadowRadius="6"
             android:visibility="gone"
             tools:text="+1 妙招！" />
+
+        <!-- 开赛前的说明卡. 以前一进页面三分钟就开始倒数, 玩家还没弄明白
+             "跳过要扣一颗心"就已经在丢时间. 现在先看规则, 按「开始」才计时. -->
+        <FrameLayout
+            android:id="@+id/rush_intro"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/rush_intro_scrim"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/bg_surface_card"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="@string/puzzle_rush_intro_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:lineSpacingExtra="6dp"
+                    android:text="@string/puzzle_rush_intro_rules"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/rush_intro_best"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:textColor="@color/warning"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="你的最佳：12 局" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_rush_start"
+                    style="@style/Widget.Xiangqi.Button.Gold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:minHeight="52dp"
+                    android:text="@string/puzzle_rush_start"
+                    android:textSize="17sp"
+                    app:icon="@drawable/ic_play"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
 
     <!-- 底部控制栏 -->

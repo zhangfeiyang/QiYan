@@ -78,4 +78,32 @@ class DailyPracticeTest {
         assertEquals(3, result.completedDays)
         assertEquals(3, result.bestStreak)
     }
+
+    private val starters = listOf(1, 2, 3)
+
+    @Test fun newcomersGetStarterPuzzlesUntilTheyHaveAWeekOfPractice() {
+        val fewDays = (1L..3L).map { today.minusDays(it) }.toSet()
+        assertTrue(DailyPractice.puzzleIdFor(today, puzzles, starters, emptySet()) in starters)
+        assertTrue(DailyPractice.puzzleIdFor(today, puzzles, starters, fewDays) in starters)
+        val week = (1L..DailyPractice.STARTER_DAYS.toLong()).map { today.minusDays(it) }.toSet()
+        assertEquals(DailyPractice.puzzleId(today, puzzles), DailyPractice.puzzleIdFor(today, puzzles, starters, week))
+    }
+
+    @Test fun finishingTodayDoesNotSwapTodaysPuzzle() {
+        // 第 7 次打卡恰好是今天: 做完之前和之后, 今天的题必须是同一道, 否则这次完成记不上
+        val sixDays = (1L..6L).map { today.minusDays(it) }.toSet()
+        val before = DailyPractice.puzzleIdFor(today, puzzles, starters, sixDays)
+        val recorded = DailyPractice.recordCompletion(today, today, before, puzzles, sixDays, starters)
+        assertTrue(today in recorded)
+        assertEquals(before, DailyPractice.snapshot(today, puzzles, recorded, starters).puzzleId)
+    }
+
+    @Test fun starterScheduleOnlyCreditsTheStarterPuzzle() {
+        val starterToday = DailyPractice.puzzleIdFor(today, puzzles, starters, emptySet())
+        val fullToday = DailyPractice.puzzleId(today, puzzles)
+        if (fullToday != starterToday) {
+            assertTrue(DailyPractice.recordCompletion(today, today, fullToday, puzzles, emptySet(), starters).isEmpty())
+        }
+        assertEquals(setOf(today), DailyPractice.recordCompletion(today, today, starterToday, puzzles, emptySet(), starters))
+    }
 }

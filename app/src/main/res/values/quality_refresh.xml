@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Sides are fixed on the mountain climb.</string>
+    <string name="game_swap_rated_title">Swap sides?</string>
+    <string name="game_swap_rated_message">You would take over the position the AI has been playing. This game becomes practice and will not change your rating.</string>
+    <string name="game_swap_rated_confirm">Swap and practise</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Hint · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">You kept playing after the result, so this part is unrated. The first result stands.</string>
+    <string name="result_resume">Keep playing</string>
+    <string name="result_review">Review game</string>
+    <string name="result_review_unavailable">This game was not saved, so there is nothing to review.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Three minutes. How many mates?</string>
+    <string name="puzzle_rush_intro_rules">• Red moves first in every position. Find the mate.\n• A wrong move or a skip costs a heart. Lose all three and the rush ends.\n• Positions get harder as your score climbs.</string>
+    <string name="puzzle_rush_intro_best">Your best: %1$d</string>
+    <string name="puzzle_rush_intro_first">No record yet. Set your first one.</string>
+    <string name="puzzle_rush_prompt_short">Red to move · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Advanced · AI engine</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d classic mating patterns</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Placement</string>
+    <string name="rank_placement_chip">Placement %1$d/%2$d</string>
+    <string name="rank_placement_progress">Placement %1$d/%2$d · %3$d to go before your first seal</string>
+    <string name="result_placement_progress">Placement game %1$d of %2$d is in. %3$d more to reveal your first seal.</string>
+    <string name="result_placement_done">Placement complete. Your first seal: %1$s</string>
+    <string name="rank_hall_placement">Placement: %1$d of %2$d rated games played. Your first seal is revealed after game %2$d.</string>
+</resources>

@@ -173,7 +173,7 @@
                 android:id="@+id/result_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_tertiary"
+                android:textColor="@color/paper_text_tertiary"
                 android:textSize="12sp"
                 tools:text="轻松练习 · 不计分" />
 
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/paper_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="练习完成，棋力分保持不变。本局已保存。" />
@@ -193,7 +193,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/result_replay_hint"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/paper_text_secondary"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -206,7 +206,8 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-            <!-- 悔棋按钮 -->
+            <!-- 悔棋按钮. 英文 "Undo and continue" 在半宽按钮里会折成两行、
+                 第二行被 50dp 的高度切掉; 固定单行, 放不下就自动缩字. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_result_undo"
                 style="@style/Widget.Xiangqi.Button.Outlined"
@@ -214,11 +215,20 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
+                android:paddingHorizontal="12dp"
+                android:maxLines="1"
                 android:text="@string/result_undo"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:backgroundTint="#E6FFFFFF"
+                android:textColor="@color/paper_text_primary"
+                app:iconTint="@color/paper_text_secondary"
+                app:strokeColor="@color/paper_stroke"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="11sp"
+                app:autoSizeMaxTextSize="15sp"
                 app:icon="@drawable/ic_undo"
+                app:iconPadding="6dp"
                 app:iconSize="18dp"
                 app:strokeWidth="2dp" />
 
@@ -238,19 +248,52 @@
 
         </LinearLayout>
 
-        <!-- 返回大厅按钮 -->
-        <TextView
-            android:id="@+id/btn_result_exit"
+        <!-- 复盘 + 返回. 下完一盘最值得做的事是回头看哪一步走坏了 ——
+             以前得先退回首页、进复盘列表、再找到这一盘; 现在一步直达. -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:text="@string/action_back"
-            android:textColor="#E0FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_result_review"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginEnd="8dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="16dp"
+                android:text="@string/result_review"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:backgroundTint="#33000000"
+                app:cornerRadius="22dp"
+                app:icon="@drawable/ic_history"
+                app:iconPadding="6dp"
+                app:iconSize="18dp"
+                app:iconTint="#FFFFFF"
+                app:rippleColor="#33FFFFFF"
+                app:strokeColor="#B3FFFFFF"
+                app:strokeWidth="1.5dp" />
+
+            <TextView
+                android:id="@+id/btn_result_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:paddingHorizontal="20dp"
+                android:text="@string/action_back"
+                android:textColor="#E0FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 

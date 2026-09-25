@@ -89,6 +89,9 @@ class UserProfile(context: Context) {
     /** 段位等级 */
     fun rank(): UserRank = UserRank.fromRating(displayedRating)
 
+    /** 还在定级: 前 [RankLadder.PLACEMENT_GAMES] 盘计分局只定分不授印 ([totalGames] 只数计分局) */
+    val isInPlacement: Boolean get() = RankLadder.inPlacement(totalGames)
+
     /** 显示评分 */
     val displayedRating: Int get() = rating.toInt().coerceAtLeast(0)
 

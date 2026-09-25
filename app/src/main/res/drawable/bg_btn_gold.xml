@@ -4,8 +4,12 @@
 
   参考设计的行动键都是"金底 + 深褐红字"的胶囊. 三层做法:
     底层  金渐变(上亮下沉) + 暗金描边, 描边是"镶边", 没有它渐变会糊进底色
-    面层  顶部一条白光, 鎏金的"凸"感从这里来 —— 只圆上面的角, 压住下半
+    面层  顶部一条白光, 鎏金的"凸"感从这里来 —— 白光自上而下淡到几乎透明
   最外包 ripple, 保持安卓的按压反馈.
+
+  面层的四个角必须和底层一样是胶囊圆角. 它曾经只圆上面两个角、下面是直角,
+  而面层铺满整个按钮高度 —— 胶囊下半的两个弧角外面于是露出一截 5% 白的
+  直角矩形, 压在墨绿首页卡上就是按钮底下一道发灰的横条.
 
   MaterialButton 换上自定义 background 后 MaterialShape 失效, 圆角全靠
   这里自己的 corners; 改按钮圆角时两处要一起动.
@@ -33,17 +37,14 @@
             <item
                 android:left="1dp"
                 android:top="1dp"
-                android:right="1dp">
+                android:right="1dp"
+                android:bottom="1dp">
                 <shape android:shape="rectangle">
                     <gradient
                         android:angle="270"
                         android:startColor="#52FFFFFF"
-                        android:endColor="#0DFFFFFF" />
-                    <corners
-                        android:topLeftRadius="24dp"
-                        android:topRightRadius="24dp"
-                        android:bottomLeftRadius="0dp"
-                        android:bottomRightRadius="0dp" />
+                        android:endColor="#00FFFFFF" />
+                    <corners android:radius="@dimen/radius_pill" />
                 </shape>
             </item>
 

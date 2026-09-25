@@ -10,6 +10,7 @@ import com.zhongguoxiangqi.analysis.WinRateAnalyzer
 import com.zhongguoxiangqi.analysis.WinRateSnapshot
 import com.zhongguoxiangqi.data.GameRecord
 import com.zhongguoxiangqi.data.GameRecordDao
+import com.zhongguoxiangqi.engine.DifficultySettings
 import com.zhongguoxiangqi.engine.EngineInfo
 import com.zhongguoxiangqi.engine.EngineListener
 import com.zhongguoxiangqi.engine.EngineManager
@@ -31,6 +32,8 @@ import com.zhongguoxiangqi.rating.GameResult
 import com.zhongguoxiangqi.rating.RankLadder
 import com.zhongguoxiangqi.rating.UserProfile
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,9 +101,40 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
 
     private var gameStartTime = 0L
     val hasStarted: Boolean get() = gameStartTime != 0L
+    /**
+     * 本局的积分/战绩是否已经结算过.
+     *
+     * 结算只做一次, 但"终局"可以有多次: 结算页上「悔棋继续」之后还能再下完.
+     * 以前两件事共用这一个开关, 第二次终局直接 return, 状态停在"未结束" ——
+     * 认输按了没反应, 将死了也不弹结算, 引擎还被要求在无子可走的局面里出招.
+     */
     private var resultRecorded = false
+    /** 第一次终局结算出的积分变化, 续下去再存棋谱时沿用 */
+    private var settledRatingDelta = 0
+    /** 本局第一次终局时计过分 —— 棋谱的"练习"标注按它来, 不按续下之后的状态 */
+    private var settledRated = false
     private var gameStartRating = 0
     private var initialFen = ""
+    /** 本局是从拍照/摆棋给的局面开的(不计分) */
+    private var startedFromFen = false
+    /**
+     * 本局对手出现过的最低档位.
+     *
+     * 积分按它换算: 否则中途把对手调低、赢面到手再调回大师, 就能按大师的分值结算.
+     */
+    private var lowestLevelFaced = DifficultySettings.DEFAULT_LEVEL
+
+    /**
+     * 本局在对局库里的那一条.
+     *
+     * 每开一局换一个新槽位: 上一局的写入若在开新局之后才落地, 写的也是旧槽位,
+     * 不会把新局的 id 顶成旧局的 —— 那样新局一存就会覆盖掉上一盘棋谱.
+     */
+    private class SavedGame {
+        @Volatile var id: Long = 0L
+        var job: Job? = null
+    }
+    private var savedGame = SavedGame()
     /** 起始局面 FEN, 给 AI 分析 / 棋谱回放用 */
     val initialFenSnapshot: String get() = initialFen
 
@@ -131,7 +165,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val scoreCp: Int,
         val scoreMate: Int,
         val depth: Int,
-        val pv: List<String>
+        val pv: List<String>,
+        /** 推荐着法的记谱(按当前记谱设置), 给提示条和读屏用 —— 箭头看不见的人也要知道走哪 */
+        val notation: String = "",
     )
 
     data class GameState(
@@ -178,6 +214,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val undosUsed: Int = 0,
         /** 本局排位跨过了新段位时的段位名, 否则空 */
         val promotedRank: String = "",
+        /** 这盘计分局下完正好定级结束, [promotedRank] 是揭晓的首枚印 */
+        val placementComplete: Boolean = false,
+        /** 这盘是定级赛且下完仍在定级: 已下的计分局数; 否则 null */
+        val placementPlayed: Int? = null,
+        /** 本次终局是玩家认输(局面本身没结束, 「继续」就是撤回认输) */
+        val endedByResign: Boolean = false,
+        /** 结算过一次后又「悔棋继续」下完的部分: 不再计分 */
+        val isContinuation: Boolean = false,
+        /** 续下之前的那次终局计过分 —— 结算页要说明"成绩以第一次为准" */
+        val continuesRatedGame: Boolean = false,
     )
 
     sealed class GameEvent {
@@ -233,8 +279,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             runCatching { position.setFromFen(startFen) }.getOrDefault(false)
         if (!loaded) position.setupStartPosition()
         initialFen = position.toFen()
+        startedFromFen = startFen != null
         gameStartTime = System.currentTimeMillis()
         resultRecorded = false
+        settledRatingDelta = 0
+        settledRated = false
+        savedGame = SavedGame()
         gameStartRating = userProfile.displayedRating
         _winRateSnapshot.value = WinRateSnapshot(redWinRate = 50.0)
         _hintState.value = null
@@ -251,12 +301,13 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         val level = difficulty.coerceIn(1, EngineManager.MAX_LEVEL)
         engineManager.difficultyLevel = level
         engineManager.playStyle = style
+        lowestLevelFaced = level
         _enginePreparing.value = true
 
-        val rank = userProfile.rank()
+        val isPractice = level == 1 || startedFromFen
         _state.value = GameState(
             difficulty = level,
-            isPractice = level == 1 || startFen != null,
+            isPractice = isPractice,
             style = style,
             campaignLevel = campaignLevel,
             playerSide = playerSide,
@@ -269,7 +320,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameResult = null,
             moveCount = 0,
             playerRating = userProfile.displayedRating,
-            playerRank = getApplication<Application>().getString(rank.nameRes),
+            playerRank = rankLabel(countsTowardPlacement = campaignLevel == 0 && !isPractice),
             engineName = engineManager.currentEngine?.name() ?: getApplication<Application>().getString(R.string.unknown_label),
             engineElo = engineManager.effectiveElo(),
         )
@@ -444,14 +495,16 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         if (_enginePreparing.value || _state.value.isThinking) return false
         if (moveHistory.isEmpty()) return false
 
-        stopEngine()
-
         // 目标: 退回到轮玩家走的局面.
         // 轮到玩家 => 引擎刚走完, 要退引擎那步和玩家上一步(2 步);
         // 轮到引擎 => 玩家刚走完, 只退玩家这一步(1 步).
+        // 执黑时盘上只有引擎的第一手, 玩家还没走过 —— 没有可悔的棋. 以前这里
+        // 照样退掉引擎那一手, 结果轮到引擎却没人让它走, 整盘棋卡住.
         val playerToMove = position.sideToMove == _state.value.playerSide
-        val toUndo = if (playerToMove && moveHistory.size >= 2) 2 else 1
-        repeat(toUndo.coerceAtMost(moveHistory.size)) {
+        val toUndo = if (playerToMove) 2 else 1
+        if (toUndo > moveHistory.size) return false
+        stopEngine()
+        repeat(toUndo) {
             position.undoMove()
             moveHistory.removeAt(moveHistory.size - 1)
         }
@@ -465,6 +518,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameOverReason = "",
             gameOverWinner = Color.NONE,
             gameResult = null,
+            winningTactic = null,
+            endedByResign = false,
             moveCount = moveHistory.size,
             openingName = opening,
             undosUsed = _state.value.undosUsed + 1,
@@ -474,12 +529,47 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         return true
     }
 
+    /**
+     * 结算页上的「继续」.
+     *
+     * 认输时局面本身没有结束, 继续就是撤回认输、原样接着下; 将死/困毙/重复这类
+     * 终局要退回到轮玩家走的那一手. 本局的积分和战绩在第一次终局时已经结算,
+     * 续下去的部分一律不计分 —— 否则"输了悔棋、赢了再结算"就能刷分.
+     */
+    fun continueAfterGameOver(): Boolean {
+        val s = _state.value
+        if (!s.isGameOver || _enginePreparing.value) return false
+        val resumed = if (s.endedByResign) {
+            _state.value = s.copy(
+                isGameOver = false,
+                gameOverReason = "",
+                gameOverWinner = Color.NONE,
+                gameResult = null,
+                winningTactic = null,
+                endedByResign = false,
+            )
+            true
+        } else {
+            undoMove()
+        }
+        if (!resumed) return false
+        _state.value = _state.value.copy(
+            isPractice = true,
+            isContinuation = true,
+            continuesRatedGame = settledRated,
+            ratingDelta = 0,
+            promotedRank = "",
+        )
+        if (position.sideToMove != _state.value.playerSide) makeEngineMove()
+        return true
+    }
+
     /** 认输 —— 认输方永远是玩家自己,与执红执黑无关 */
     fun resign(): GameResult {
         if (_enginePreparing.value) return GameResult.LOSS
         if (_state.value.isGameOver) return _state.value.gameResult ?: GameResult.LOSS
         stopEngine()
-        endGame(GameResult.LOSS, getApplication<Application>().getString(R.string.status_resign))
+        endGame(GameResult.LOSS, getApplication<Application>().getString(R.string.status_resign), resigned = true)
         return GameResult.LOSS
     }
 
@@ -545,10 +635,17 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         if (_state.value.isGameOver) return
         stopEngine()
         engineManager.difficultyLevel = clamped
+        // 还没落子时改档就是"换个对手", 按新档位重新判定计不计分;
+        // 下到一半再改, 积分只按这盘出现过的最低档结算, 练习局也不会因此变成计分局.
+        val notStarted = moveHistory.isEmpty() && !_state.value.isContinuation
+        lowestLevelFaced = if (notStarted) clamped else minOf(lowestLevelFaced, clamped)
+        val isPractice = if (notStarted) clamped == 1 || startedFromFen
+            else _state.value.isPractice || clamped == 1
         _state.value = _state.value.copy(
             difficulty = clamped,
-            isPractice = _state.value.isPractice || clamped == 1,
+            isPractice = isPractice,
             engineElo = engineManager.effectiveElo(),
+            playerRank = rankLabel(countsTowardPlacement = _state.value.campaignLevel == 0 && !isPractice),
         )
         if (!_enginePreparing.value && position.sideToMove != _state.value.playerSide) makeEngineMove()
     }
@@ -573,17 +670,31 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
      * 「翻转」以前只是翻转视角, 盘还是自己那盘. 现在它真的换边 —— 换完如果
      * 轮到的是引擎那一方, 立刻让引擎接着走, 否则局面会卡住等一个永远不会
      * 落子的人.
+     *
+     * 下过棋之后再换边, 等于接手引擎经营出来的局面: 计分局就此转成练习
+     * (界面会先征得同意, 见 [swapMakesPractice]); 闯关的执子固定, 不许换.
      */
-    fun swapSides() {
-        if (_enginePreparing.value || _state.value.isGameOver) return
+    fun swapSides(): Boolean {
+        if (_enginePreparing.value || _state.value.isGameOver) return false
+        if (_state.value.campaignLevel > 0) return false
         val newSide = if (_state.value.playerSide == Color.RED) Color.BLACK else Color.RED
+        val becomesPractice = swapMakesPractice()
         stopEngine()
         _hintState.value = null
-        _state.value = _state.value.copy(playerSide = newSide, isThinking = false)
+        _state.value = _state.value.copy(
+            playerSide = newSide,
+            isThinking = false,
+            isPractice = _state.value.isPractice || becomesPractice,
+        )
         if (position.sideToMove != newSide) {
             makeEngineMove()
         }
+        return true
     }
+
+    /** 这一局此刻换边会不会让它不再计分 —— 开局前换边只是选先后手, 不算 */
+    fun swapMakesPractice(): Boolean =
+        !_state.value.isPractice && _state.value.campaignLevel == 0 && moveHistory.isNotEmpty()
 
     /** 重置胜率显示 */
     fun resetAnalysisDisplay() {
@@ -757,21 +868,34 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
         }
     }
 
-    private fun endGame(result: GameResult, reason: String, winner: Int = Color.NONE, winningTactic: String? = null) {
-        if (resultRecorded) return
-        resultRecorded = true
+    private fun endGame(
+        result: GameResult,
+        reason: String,
+        winner: Int = Color.NONE,
+        winningTactic: String? = null,
+        resigned: Boolean = false,
+    ) {
+        if (_state.value.isGameOver) return
         stopEngine()
         val difficulty = _state.value.difficulty
         val campaignLevel = _state.value.campaignLevel
+        // 积分只在第一次终局结算; 结算后「继续」下完的部分只刷新终局状态和棋谱.
+        val firstFinish = !resultRecorded
+        resultRecorded = true
         // 闯关模式不动战绩积分: 重复刷低关卡会白送积分, 排行含金量就没了。
         // 棋谱也不入库(复盘列表里塞满刷关记录没有价值), 闯关进度记在 ProgressStore。
-        val rated = campaignLevel == 0 && !_state.value.isPractice
+        val rated = firstFinish && campaignLevel == 0 && !_state.value.isPractice
+        val ratedGamesBefore = userProfile.totalGames
         if (rated) {
-            val engineElo = engineManager.effectiveElo()
-            userProfile.recordResult(result, engineElo)
+            userProfile.recordResult(result, EngineManager.nominalElo(lowestLevelFaced))
+            settledRatingDelta = userProfile.displayedRating - gameStartRating
+            settledRated = true
         }
-        val rank = userProfile.rank()
-        val promoted = if (rated) RankLadder.promoted(gameStartRating, userProfile.displayedRating) else null
+        val ratedGamesAfter = userProfile.totalGames
+        val earned = if (rated) RankLadder.earnedSeal(
+            gameStartRating, userProfile.displayedRating, ratedGamesBefore, ratedGamesAfter,
+        ) else null
+        val placementComplete = rated && RankLadder.completesPlacement(ratedGamesBefore, ratedGamesAfter)
 
         _state.value = _state.value.copy(
             sideToMove = position.sideToMove,
@@ -781,12 +905,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
             gameOverWinner = winner,
             winningTactic = winningTactic,
             gameResult = result,
+            endedByResign = resigned,
             moveCount = moveHistory.size,
             isThinking = false,
             playerRating = userProfile.displayedRating,
-            ratingDelta = if (rated) userProfile.displayedRating - gameStartRating else 0,
-            playerRank = getApplication<Application>().getString(rank.nameRes),
-            promotedRank = promoted?.let { getApplication<Application>().getString(it.nameRes) }.orEmpty(),
+            ratingDelta = if (rated) settledRatingDelta else 0,
+            playerRank = rankLabel(countsTowardPlacement = false),
+            promotedRank = earned?.let { getApplication<Application>().getString(it.nameRes) }.orEmpty(),
+            placementComplete = placementComplete,
+            placementPlayed = if (rated && userProfile.isInPlacement) ratedGamesAfter else null,
         )
 
         if (campaignLevel > 0) return
@@ -803,19 +930,57 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
                     GameResult.LOSS -> -1
                     GameResult.DRAW -> 0
                 },
-                ratingDelta = _state.value.ratingDelta,
+                ratingDelta = settledRatingDelta,
                 playerRating = userProfile.displayedRating,
                 moves = moveHistory.map { moveToUci(it) },
                 initialFen = initialFen,
-                endReason = if (_state.value.isPractice)
+                endReason = if (!settledRated)
                     getApplication<Application>().getString(R.string.game_practice_record_reason, reason)
                 else reason
             )
-        viewModelScope.launch(Dispatchers.IO) {
-            gameDao.insert(record)
-        }
+        saveRecord(record)
 
         _events.value = GameEvent.GameOver
+    }
+
+    /**
+     * 玩家那一行显示的段位.
+     *
+     * 定级期间还没有印: 计分局写"定级赛 n/3"(这是第几盘), 其它场合只写"定级中" ——
+     * 闯关、练习不计入定级, 写成第几盘反而误导.
+     */
+    private fun rankLabel(countsTowardPlacement: Boolean): String {
+        val app = getApplication<Application>()
+        return when {
+            !userProfile.isInPlacement -> app.getString(userProfile.rank().nameRes)
+            countsTowardPlacement -> app.getString(
+                R.string.rank_placement_chip, userProfile.totalGames + 1, RankLadder.PLACEMENT_GAMES,
+            )
+            else -> app.getString(R.string.rank_placement_name)
+        }
+    }
+
+    /**
+     * 把本局写进对局库. 同一局再次终局(悔棋继续后下完)覆盖同一条记录,
+     * 复盘里看到的永远是最后下完的那一版, 不会多出一盘重复的棋.
+     *
+     * 不跟 viewModelScope 一起取消: 结算页上点「返回」会立刻销毁 ViewModel,
+     * 那一瞬间还没落盘的棋谱就丢了.
+     */
+    private fun saveRecord(record: GameRecord) {
+        val slot = savedGame
+        val previous = slot.job
+        slot.job = viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            previous?.join()
+            slot.id = gameDao.insert(record.copy(id = slot.id))
+        }
+    }
+
+    /** 本局存进对局库后的 id; 还没终局或不入库(闯关)时为 null. 会等正在进行的写入落盘 */
+    suspend fun awaitSavedRecordId(): Long? {
+        val slot = savedGame
+        slot.job?.join()
+        return slot.id.takeIf { it > 0 }
     }
 
     private fun uciToMove(uci: String): Move? = UciCoords.parse(uci)
@@ -843,7 +1008,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app), EngineListener {
                 scoreCp = _winRateSnapshot.value.scoreCp,
                 scoreMate = _winRateSnapshot.value.scoreMate,
                 depth = _winRateSnapshot.value.depth,
-                pv = finalPv.ifEmpty { listOf(bestMove) }
+                pv = finalPv.ifEmpty { listOf(bestMove) },
+                notation = Notation.format(getApplication(), move, position),
             )
             _state.value = _state.value.copy(isThinking = false)
         }

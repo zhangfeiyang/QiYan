@@ -177,7 +177,7 @@ class PuzzleListActivity : AppCompatActivity() {
             val attempts = store.puzzleAttempts(puzzle.id)
 
             card.puzzleNo.text = ctx.getString(R.string.campaign_level_format, puzzle.id)
-            card.puzzleName.text = ctx.getString(puzzle.nameRes)
+            card.puzzleName.text = PuzzleTitles.theme(ctx.getString(puzzle.nameRes))
             card.puzzleGoal.text = ctx.getString(R.string.puzzle_red_to_move, puzzle.maxMoves)
 
             if (solved) {
