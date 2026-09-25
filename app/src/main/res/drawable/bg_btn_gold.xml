@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  鎏金主按钮底.
+
+  参考设计的行动键都是"金底 + 深褐红字"的胶囊. 三层做法:
+    底层  金渐变(上亮下沉) + 暗金描边, 描边是"镶边", 没有它渐变会糊进底色
+    面层  顶部一条白光, 鎏金的"凸"感从这里来 —— 只圆上面的角, 压住下半
+  最外包 ripple, 保持安卓的按压反馈.
+
+  MaterialButton 换上自定义 background 后 MaterialShape 失效, 圆角全靠
+  这里自己的 corners; 改按钮圆角时两处要一起动.
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#337A2A17">
+
+    <item>
+        <layer-list>
+
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:angle="270"
+                        android:startColor="@color/gold_grad_1"
+                        android:centerColor="@color/gold_grad_2"
+                        android:endColor="@color/gold_grad_3" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/gold_stroke" />
+                    <corners android:radius="@dimen/radius_pill" />
+                </shape>
+            </item>
+
+            <item
+                android:left="1dp"
+                android:top="1dp"
+                android:right="1dp">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:angle="270"
+                        android:startColor="#52FFFFFF"
+                        android:endColor="#0DFFFFFF" />
+                    <corners
+                        android:topLeftRadius="24dp"
+                        android:topRightRadius="24dp"
+                        android:bottomLeftRadius="0dp"
+                        android:bottomRightRadius="0dp" />
+                </shape>
+            </item>
+
+        </layer-list>
+    </item>
+
+</ripple>

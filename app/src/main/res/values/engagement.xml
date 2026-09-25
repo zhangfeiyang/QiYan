@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Practice · unrated</string>
+    <string name="game_search_no_move">No move was returned. Try Hint again, or change the opponent level to resume.</string>
+    <string name="puzzle_engine_error">The puzzle engine could not respond. Try restarting this puzzle.</string>
+    <string name="game_coach_start">Take your time. Tap a piece to see its legal moves; Hint shows a suggested move.</string>
+    <string name="game_coach_practice">Relaxed practice · hints and undos are free. Your rating stays unchanged.</string>
+    <string name="game_coach_check">Your general is in check. Capture the attacker, block the attack, or move your general.</string>
+    <string name="game_coach_thinking">Watch your opponent’s move, then check whether any of your pieces are under attack.</string>
+    <string name="game_coach_opening">Try developing your horses and rooks. Keep your pieces protected before attacking.</string>
+    <string name="game_coach_selected">%1$s · Highlighted spots are legal moves.</string>
+    <string name="game_coach_blocked">This piece has no legal move. Try another piece, or use Hint.</string>
+    <string name="game_rule_rook">Rooks move straight along clear ranks or files</string>
+    <string name="game_rule_cannon">Cannons jump exactly one piece when capturing</string>
+    <string name="game_rule_horse">Horses move in an L; a blocked leg stops the move</string>
+    <string name="game_rule_elephant">Elephants move two diagonally and stay on their own side</string>
+    <string name="game_rule_advisor">Advisors move one diagonal step inside the palace</string>
+    <string name="game_rule_king">Generals move one straight step inside the palace</string>
+    <string name="game_rule_pawn">Pawns move forward; after crossing the river, they can also move sideways</string>
+    <string name="game_undo_no_penalty">Take back your last turn? Undoing does not deduct rating points.</string>
+    <string name="game_practice_undone">Turn taken back. Try another idea.</string>
+    <string name="game_play_again">Play again</string>
+    <string name="game_try_easier">Try easier</string>
+    <string name="game_try_challenge">Daily puzzle</string>
+    <string name="game_practice_result">%1$s\n\nPractice complete. Your rating is unchanged; the game is saved for review.</string>
+    <string name="game_practice_record_reason">Practice · %1$s</string>
+    <string name="daily_puzzle_title">Daily puzzle</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">Today’s puzzle complete!\n%1$d practice days · %2$d-day streak\n\nOne completion per day. A new puzzle arrives tomorrow.</string>
+    <string name="daily_puzzle_expired">Puzzle solved. A new day has begun; today’s puzzle is ready on the home screen.</string>
+    <string name="daily_puzzle_more">More puzzles</string>
+    <string name="puzzle_clue">Clue</string>
+    <string name="puzzle_undo_unavailable">Undo is unavailable for this position.</string>
+</resources>

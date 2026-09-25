@@ -11,4 +11,15 @@
 PikaFish 提供），经 JNI 进程内集成。依照 GPL-3 的要求，本应用的完整
 源代码随发布提供。
 
+棋子字体：霞鹜文楷（LXGW WenKai）
+  来源：https://github.com/lxgw/LxgwWenKai
+  版权：LXGW / Fontworks Klee 项目作者
+  许可：SIL Open Font License 1.1（全文见 assets/fonts/OFL-LXGWWenKai.txt）
+  说明：仅打包按棋子字符集子集化的 chinese_piece.ttf（约 10KB）。
+
 其余代码（Android 界面、自研 NNUE 训练工具等）同样以 GPL-3 授权。
+
+原创背景音乐：《松风入局》
+  来源：本项目 tools/generate-ambient-music.py 程序合成，无外部采样。
+  文件：app/src/main/res/raw/bgm_ambient.ogg
+  与项目代码同按 GNU GPL v3 发布。

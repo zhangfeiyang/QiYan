@@ -52,7 +52,7 @@ Page({
     const theme = getApp().globalData.theme;
     const rank = rating.rankOf(profile.rating);
     const setup = store.getLastSetup();
-    const difficulty = difficulties[setup.difficulty - 1] || difficulties[3];
+    const difficulty = difficulties[setup.difficulty - 1] || difficulties[0];
 
     this.setData({
       nickname: profile.nickname || i18n.t('default_nickname'),
@@ -70,7 +70,7 @@ Page({
       winsText: i18n.t('stat_wins_format', profile.wins),
       lossesText: i18n.t('stat_losses_format', profile.losses),
       drawsText: i18n.t('stat_draws_format', profile.draws),
-      playText: `${i18n.t('menu_play')} · Lv.${difficulty.level} ${difficulty.name}`,
+      playText: `${i18n.t('menu_play')} · Lv.${difficulty.level} ${i18n.t(difficulty.nameKey)}`,
     });
   },
 

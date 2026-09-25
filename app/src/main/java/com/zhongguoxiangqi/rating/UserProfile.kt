@@ -64,7 +64,7 @@ class UserProfile(context: Context) {
 
     /** 已选默认难度 */
     var defaultDifficulty: Int
-        get() = prefs.getInt(KEY_DEFAULT_DIFFICULTY, 5)
+        get() = prefs.getInt(KEY_DEFAULT_DIFFICULTY, 1)
         set(value) { prefs.edit().putInt(KEY_DEFAULT_DIFFICULTY, value).apply() }
 
     /** 执子偏好 0=红 1=黑 2=随机 */

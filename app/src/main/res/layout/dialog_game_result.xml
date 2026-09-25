@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  JJ象棋风格 终局结算特效浮层:
+  1. 全屏半透明背景，不遮挡棋局，棋盘与终局走法清晰可见；
+  2. 背后旋转万丈金光 (VictoryRaysView)；
+  3. 礼花星光飞舞特效 (VictoryParticlesView)；
+  4. 气派中国风烫金/朱红匾额 (胜利/绝杀/惜败)；
+  5. 顶部配三颗金星，中间大字如「绝杀获胜」「大获全胜」，下附战果胶囊；
+  6. 信息卡片精炼呈现评分变动与对局说明，绝不重复文字；
+  7. 右上角提供悬浮【✕ 看盘】按钮，随时叉掉专注复盘；
+  8. 底部提供显眼的【悔棋继续】与【再来一局】。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C0D0A08">
+
+    <!-- 1. 背景层: 万丈光芒旋转动效 (位于中央偏上牌匾正背后) -->
+    <com.zhongguoxiangqi.ui.game.VictoryRaysView
+        android:id="@+id/rays_view"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="70dp" />
+
+    <!-- 2. 特效层: 礼花与星光飞舞层 -->
+    <com.zhongguoxiangqi.ui.game.VictoryParticlesView
+        android:id="@+id/particles_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 3. 右上角悬浮关闭【✕ 看盘】按钮 -->
+    <LinearLayout
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_circle_close"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_close"
+            app:tint="#FFFFFF"
+            android:contentDescription="@string/result_close" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@string/result_watch_board"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 4. 主体内容层: 牌匾 + 战报卡 + 操作按钮 (居中垂直排布) -->
+    <LinearLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingHorizontal="24dp">
+
+        <!-- 胜利/惜败 气派匾额 (JJ象棋核心视觉) -->
+        <FrameLayout
+            android:id="@+id/plaque_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:background="@drawable/bg_jj_victory_plaque"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <!-- 顶上三颗耀眼金星 -->
+                <LinearLayout
+                    android:id="@+id/stars_row"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/star_left"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_star_gold"
+                        android:importantForAccessibility="no" />
+
+                    <ImageView
+                        android:id="@+id/star_mid"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:src="@drawable/ic_star_gold"
+                        android:importantForAccessibility="no" />
+
+                    <ImageView
+                        android:id="@+id/star_right"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_star_gold"
+                        android:importantForAccessibility="no" />
+                </LinearLayout>
+
+                <!-- 匾额大字: 「绝杀获胜」/「旗开得胜」/「棋差一着」 -->
+                <TextView
+                    android:id="@+id/result_banner_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="serif"
+                    android:textColor="#FFF8E1"
+                    android:textSize="34sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="4"
+                    android:shadowRadius="8" />
+
+                <!-- 战果胶囊: 绝杀黑方 · 第11手 -->
+                <TextView
+                    android:id="@+id/result_reason"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_pill"
+                    android:backgroundTint="#40FFFFFF"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    tools:text="绝杀黑方 · 第 11 手" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <!-- 战绩详情与提示半透明卡片 -->
+        <LinearLayout
+            android:id="@+id/result_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_jj_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/result_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
+                tools:text="轻松练习 · 不计分" />
+
+            <TextView
+                android:id="@+id/result_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="练习完成，棋力分保持不变。本局已保存。" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/result_replay_hint"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- 底部大操作按钮: 【悔棋继续】与【再来一局】 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- 悔棋按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_result_undo"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="@string/result_undo"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:backgroundTint="#E6FFFFFF"
+                app:icon="@drawable/ic_undo"
+                app:iconSize="18dp"
+                app:strokeWidth="2dp" />
+
+            <!-- 再来一局按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_result_play_again"
+                style="@style/Widget.Xiangqi.Button.Gold"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1.25"
+                android:layout_marginStart="8dp"
+                android:text="@string/game_play_again"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_refresh"
+                app:iconSize="20dp" />
+
+        </LinearLayout>
+
+        <!-- 返回大厅按钮 -->
+        <TextView
+            android:id="@+id/btn_result_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="8dp"
+            android:text="@string/action_back"
+            android:textColor="#E0FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</FrameLayout>

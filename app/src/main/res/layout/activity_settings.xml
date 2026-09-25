@@ -14,7 +14,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface_base">
+    android:background="@drawable/bg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -195,7 +195,47 @@
                     style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_desc_bgm" />
+                    android:text="@string/audio_music_description" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:labelFor="@id/seek_bgm_volume"
+                        android:text="@string/audio_music_volume"
+                        android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                    <TextView
+                        android:id="@+id/tv_bgm_volume"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Xiangqi.Body"
+                        android:textColor="@color/action"
+                        tools:text="30%" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_bgm_volume"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/audio_music_volume"
+                    android:max="100"
+                    android:progress="30" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_music_preview"
+                    style="@style/Widget.Xiangqi.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_2"
+                    android:text="@string/audio_preview" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_vibrate"
@@ -239,7 +279,7 @@
                     style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_desc_animation" />
+                    android:text="@string/audio_motion_description" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_capture_fx"
@@ -250,8 +290,54 @@
                     style="@style/TextAppearance.Xiangqi.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/space_2"
                     android:text="@string/settings_desc_capture_fx" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_3"
+                    android:text="@string/settings_board_skin"
+                    android:textAppearance="@style/TextAppearance.Xiangqi.Body" />
+
+                <TextView
+                    style="@style/TextAppearance.Xiangqi.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_board_skin_desc" />
+
+                <com.zhongguoxiangqi.ui.board.BoardView
+                    android:id="@+id/skin_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:layout_marginTop="@dimen/space_2"
+                    android:importantForAccessibility="no" />
+
+                <RadioGroup
+                    android:id="@+id/skin_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_2">
+
+                    <RadioButton
+                        android:id="@+id/skin_wood"
+                        style="@style/Widget.Xiangqi.Radio"
+                        android:text="@string/skin_wood" />
+
+                    <RadioButton
+                        android:id="@+id/skin_black_gold"
+                        style="@style/Widget.Xiangqi.Radio"
+                        android:text="@string/skin_black_gold" />
+
+                    <RadioButton
+                        android:id="@+id/skin_porcelain"
+                        style="@style/Widget.Xiangqi.Radio"
+                        android:text="@string/skin_porcelain" />
+
+                    <RadioButton
+                        android:id="@+id/skin_jade"
+                        style="@style/Widget.Xiangqi.Radio"
+                        android:text="@string/skin_jade" />
+                </RadioGroup>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/sw_flipped"

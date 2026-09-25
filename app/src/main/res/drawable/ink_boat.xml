@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  山水点景: 一叶孤舟.
+
+  中国山水画的构图惯例 —— 大片留白里放一个极小的点景(舟/亭/人), 空间
+  立刻有了尺度. 船身一道弧 + 篷一个半圆 + 一根渔竿, 剪影即可, 细节
+  会让它变成贴纸.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="36dp"
+    android:viewportWidth="64"
+    android:viewportHeight="36">
+
+    <!-- 船身 -->
+    <path
+        android:fillColor="@color/ink_mountain"
+        android:pathData="M4,22 C14,28 44,28 58,20 C56,26 50,31 31,31 C16,31 8,27 4,22 Z" />
+    <!-- 船篷 -->
+    <path
+        android:fillColor="@color/ink_mountain"
+        android:pathData="M22,22 C22,14 34,14 34,22 Z" />
+    <!-- 渔竿 -->
+    <path
+        android:strokeColor="@color/ink_mountain"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M40,21 C46,14 52,10 60,8" />
+
+</vector>

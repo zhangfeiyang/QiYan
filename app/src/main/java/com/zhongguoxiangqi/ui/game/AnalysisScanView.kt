@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
+import com.zhongguoxiangqi.R
 import kotlin.math.roundToInt
 
 /**
@@ -79,6 +80,19 @@ class AnalysisScanView @JvmOverloads constructor(
     /** 评估曲线历史 (按时间), 用于画底部的实时评估走势 */
     private val evalHistory = ArrayDeque<Double>()
 
+    /**
+     * 扫描屏复用旋钮: GameActivity 保持默认值即为原行为 ("AI 正在分析棋局" +
+     * 深度/胜率 + 评估折线); 识别/支招场景换标题、关评估区、写副标题.
+     */
+    var titleRes: Int = R.string.analysis_scanning_default
+        set(value) { field = value; invalidate() }
+    /** 没有引擎数据可喂的场景关掉"深度/胜率"行与评估折线 */
+    var showEval: Boolean = true
+        set(value) { field = value; invalidate() }
+    /** showEval=false 时画在深度行位置的副标题 (可选) */
+    var subtitle: CharSequence? = null
+        set(value) { field = value; invalidate() }
+
     fun updateInfo(depth: Int, redWinRate: Double) {
         this.depth = depth
         this.redWinRate = redWinRate
@@ -123,7 +137,12 @@ class AnalysisScanView @JvmOverloads constructor(
         val riverY = top + 4.5f * rowStep
         subPaint.color = 0x99FFFFFF.toInt()
         subPaint.textSize = rowStep * 0.55f
-        canvas.drawText("楚 河   汉 界", (left + right) / 2f, riverY + subPaint.textSize / 3, subPaint)
+        canvas.drawText(
+            context.getString(R.string.board_river_text),
+            (left + right) / 2f,
+            riverY + subPaint.textSize / 3,
+            subPaint,
+        )
 
         // 主扫描光带: 从上往下
         val progress = scanAnimator.animatedValue as Float
@@ -147,42 +166,50 @@ class AnalysisScanView @JvmOverloads constructor(
         )
         canvas.drawRect(left, bandY2 - bandH2, right, bandY2 + bandH2, scanPaint2)
 
-        // 状态文字: AI 正在分析
+        // 状态文字: 标题随宿主场景变 (对局分析 / 拍照识别 / 实时支招)
         textPaint.textSize = 50f
-        canvas.drawText("AI 正在分析棋局", w / 2f, bottom + 60f, textPaint)
-        subPaint.textSize = 32f
-        subPaint.color = 0xDDFFFFFF.toInt()
-        canvas.drawText(
-            "搜索深度 $depth  ·  红方胜率 ${redWinRate.roundToInt()}%",
-            w / 2f, bottom + 110f, subPaint
-        )
+        canvas.drawText(context.getString(titleRes), w / 2f, bottom + 60f, textPaint)
+        if (showEval) {
+            subPaint.textSize = 32f
+            subPaint.color = 0xDDFFFFFF.toInt()
+            canvas.drawText(
+                context.getString(R.string.analysis_scan_status, depth, redWinRate.roundToInt()),
+                w / 2f, bottom + 110f, subPaint
+            )
+        } else if (subtitle != null) {
+            subPaint.textSize = 32f
+            subPaint.color = 0xDDFFFFFF.toInt()
+            canvas.drawText(subtitle!!.toString(), w / 2f, bottom + 110f, subPaint)
+        }
 
-        // 评估曲线: 在文字下面那条窄带画一个折线, 看起来"评估在变"
-        val evalTop = bottom + 130f
-        val evalBottom = bottom + 175f
-        val evalLeft = left + 30f
-        val evalRight = right - 30f
-        if (evalHistory.size >= 2) {
-            val n = evalHistory.size
-            val stepX = if (n > 1) (evalRight - evalLeft) / (n - 1) else 0f
-            // 折线
-            var prevX = evalLeft
-            var prevY = evalBottom - ((evalHistory.first().coerceIn(0.0, 100.0) / 100.0) *
-                (evalBottom - evalTop)).toFloat()
-            for (i in 1 until n) {
-                val v = evalHistory.elementAt(i).coerceIn(0.0, 100.0) / 100.0
-                val x = evalLeft + i * stepX
-                val y = evalBottom - (v * (evalBottom - evalTop)).toFloat()
-                canvas.drawLine(prevX, prevY, x, y, linePaint)
-                prevX = x
-                prevY = y
+        if (showEval) {
+            // 评估曲线: 在文字下面那条窄带画一个折线, 看起来"评估在变"
+            val evalTop = bottom + 130f
+            val evalBottom = bottom + 175f
+            val evalLeft = left + 30f
+            val evalRight = right - 30f
+            if (evalHistory.size >= 2) {
+                val n = evalHistory.size
+                val stepX = if (n > 1) (evalRight - evalLeft) / (n - 1) else 0f
+                // 折线
+                var prevX = evalLeft
+                var prevY = evalBottom - ((evalHistory.first().coerceIn(0.0, 100.0) / 100.0) *
+                    (evalBottom - evalTop)).toFloat()
+                for (i in 1 until n) {
+                    val v = evalHistory.elementAt(i).coerceIn(0.0, 100.0) / 100.0
+                    val x = evalLeft + i * stepX
+                    val y = evalBottom - (v * (evalBottom - evalTop)).toFloat()
+                    canvas.drawLine(prevX, prevY, x, y, linePaint)
+                    prevX = x
+                    prevY = y
+                }
+                // 当前点用一个小圆点强调
+                canvas.drawCircle(prevX, prevY, 7f, linePaint)
+            } else {
+                // 数据还不够, 画一个静态的中线
+                val midY = (evalTop + evalBottom) / 2f
+                canvas.drawLine(evalLeft, midY, evalRight, midY, gridPaint)
             }
-            // 当前点用一个小圆点强调
-            canvas.drawCircle(prevX, prevY, 7f, linePaint)
-        } else {
-            // 数据还不够, 画一个静态的中线
-            val midY = (evalTop + evalBottom) / 2f
-            canvas.drawLine(evalLeft, midY, evalRight, midY, gridPaint)
         }
     }
 

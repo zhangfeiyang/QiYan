@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface_base">
+    android:background="@drawable/bg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -21,7 +22,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@color/surface_raised"
-        android:padding="@dimen/space_2">
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_2">
 
         <TextView
             android:id="@+id/title_text"
@@ -47,24 +49,209 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="@dimen/space_2" />
+        android:layout_marginHorizontal="@dimen/space_2"
+        android:layout_marginVertical="@dimen/space_1" />
 
-    <!-- 走法信息 -->
-    <TextView
-        android:id="@+id/move_info"
+    <!-- 局势胜率与复盘分析卡片 -->
+    <LinearLayout
+        android:id="@+id/card_analysis"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="@dimen/space_2"
+        android:orientation="vertical"
         android:background="@color/surface_raised"
-        android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_label"
-        android:textStyle="bold" />
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingTop="@dimen/space_2"
+        android:paddingBottom="@dimen/space_1"
+        android:layout_marginBottom="@dimen/space_1">
+
+        <!-- 走法评级统计指示条 -->
+        <LinearLayout
+            android:id="@+id/stats_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="2dp">
+
+            <TextView
+                android:id="@+id/stat_brilliant"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#00B0FF"
+                android:textSize="11sp"
+                android:text="💎 0" />
+
+            <TextView
+                android:id="@+id/stat_best"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#4CAF50"
+                android:textSize="11sp"
+                android:text="🟢 0" />
+
+            <TextView
+                android:id="@+id/stat_inaccuracy"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#FFC107"
+                android:textSize="11sp"
+                android:text="🟡 0" />
+
+            <TextView
+                android:id="@+id/stat_mistake"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#FF9800"
+                android:textSize="11sp"
+                android:text="🟠 0" />
+
+            <TextView
+                android:id="@+id/stat_blunder"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="#E53935"
+                android:textSize="11sp"
+                android:text="🔴 0" />
+
+        </LinearLayout>
+
+        <!-- 胜率折线走势图 -->
+        <com.zhongguoxiangqi.ui.replay.AdvantageGraphView
+            android:id="@+id/advantage_graph"
+            android:layout_width="match_parent"
+            android:layout_height="56dp" />
+
+    </LinearLayout>
+
+    <!-- 当前手详细信息条 (记谱 · 评级 · 开局 · 胜率) -->
+    <LinearLayout
+        android:id="@+id/move_details_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_2"
+        android:background="@color/surface_raised"
+        android:layout_marginBottom="@dimen/space_2">
+
+        <TextView
+            android:id="@+id/move_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="@string/replay_start_position" />
+
+        <TextView
+            android:id="@+id/move_quality_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="1dp"
+            android:background="@drawable/bg_opponent_avatar"
+            android:textColor="@color/affirm"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/move_opening_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_2"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/move_winrate_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            tools:text="Red win rate 50%" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_try_variation"
+            style="@style/Widget.Xiangqi.Button.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="@dimen/space_2"
+            android:paddingHorizontal="8dp"
+            android:textSize="11sp"
+            android:text="@string/replay_try_variation"
+            app:icon="@drawable/ic_edit"
+            app:iconSize="12dp" />
+
+    </LinearLayout>
+
+    <!-- 变着探索面板 (试下模式时显示) -->
+    <LinearLayout
+        android:id="@+id/variation_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/space_3"
+        android:paddingVertical="@dimen/space_2"
+        android:background="#153E38"
+        android:layout_marginBottom="@dimen/space_2"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/variation_info_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="#DFC48B"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Line +0 · Red 50%" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_variation_undo"
+            style="@style/Widget.Xiangqi.Button.Tool"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:paddingHorizontal="8dp"
+            android:textSize="11sp"
+            android:text="@string/replay_variation_undo"
+            android:textColor="#DFC48B"
+            app:icon="@drawable/ic_undo"
+            app:iconSize="12dp"
+            app:iconTint="#DFC48B" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_variation_exit"
+            style="@style/Widget.Xiangqi.Button.Gold"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:paddingHorizontal="10dp"
+            android:textSize="11sp"
+            android:text="@string/replay_variation_exit" />
+
+    </LinearLayout>
 
     <!-- ============ 回放控制 ============ -->
-    <!-- 原来是 6 个纯文字按钮挤一行, 字号被压到 12sp 才塞得下. 换成图标
-         工具键: 首/上一手/播放/下一手/末 + AI 分析, 播放键用行动色实心
-         标出来 —— 它是这一排里唯一会改变播放状态的键. -->
     <LinearLayout
         android:id="@+id/control_row"
         android:layout_width="match_parent"

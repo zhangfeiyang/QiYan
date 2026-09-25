@@ -39,6 +39,7 @@ class PuzzleVerificationTest {
         }
     }
 
+
     private fun verifyPuzzle(puzzle: Puzzle) {
         val context = "谜题${puzzle.id}(${fenOf(puzzle)})"
 

@@ -66,6 +66,9 @@ class AppSettings(context: Context) {
     /** 背景音乐. 默认开 —— 氛围是这次特意加的, 但随时能关 */
     val bgmEnabled: Boolean get() = prefs.getBoolean(SettingsActivity.KEY_BGM, true)
 
+    /** Music stays behind the board feedback; users can adjust or mute it independently. */
+    val bgmVolume: Int get() = prefs.getInt(SettingsActivity.KEY_BGM_VOLUME, 30).coerceIn(0, 100)
+
     /**
      * 主题模式: 0=跟随系统 1=深色 2=浅色.
      *
@@ -82,6 +85,9 @@ class AppSettings(context: Context) {
      * 只翻译了外壳 —— 用户读得懂"Hint"却认不出被提示的那枚子是什么。
      */
     val pieceSetMode: Int get() = prefs.getInt(SettingsActivity.KEY_PIECE_SET, 0)
+
+    /** 棋盘材质, 见 [com.zhongguoxiangqi.ui.board.BoardSkin]. 默认黄花梨. */
+    val boardSkin: Int get() = prefs.getInt(SettingsActivity.KEY_BOARD_SKIN, 0)
 
     /**
      * 记谱法: 0=跟随界面语言 1=中文记谱 2=WXF.

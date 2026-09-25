@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  水墨竹枝(角饰).
+
+  参考中国风棋类 App 的页面四角总有一两枝淡墨竹: 竹是"君子"的符号, 和
+  象棋的文人气质同源. 用剪影而不是工笔 —— 页面装饰只需"有"而不需"实",
+  浓淡(alpha 烘在 ink_deco 色值里)比形状更早决定它像不像水墨.
+
+  结构: 一竿三节(节间留一道细缝, 竹节的"节点"感从这里来) + 一竿侧枝 +
+  五簇竹叶. 叶子是两端尖的梭形, 靠 group 的 rotate/flip 摆出自然散布.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="240dp"
+    android:viewportWidth="120"
+    android:viewportHeight="240">
+
+    <!-- 主竿: 三节, 顶端一节收短 -->
+    <path
+        android:fillColor="@color/ink_deco"
+        android:pathData="M52,0 h8 v70 h-8 z M52,76 h8 v66 h-8 z M52,148 h8 v92 h-8 z" />
+
+    <!-- 侧枝: 从主竿第二节斜出, 细一档 -->
+    <path
+        android:fillColor="@color/ink_deco"
+        android:pathData="M60,86 L86,74 h3 L88,78 L62,90 z" />
+
+    <!-- 竿顶一簇: 两叶一上一下 -->
+    <group
+        android:translateX="56"
+        android:translateY="16"
+        android:rotation="-26">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+    <group
+        android:translateX="56"
+        android:translateY="20"
+        android:rotation="26"
+        android:scaleY="0.9">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+
+    <!-- 第二节左侧一簇: 三叶垂向左下 -->
+    <group
+        android:translateX="53"
+        android:translateY="78"
+        android:rotation="150"
+        android:scaleX="0.92">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+    <group
+        android:translateX="53"
+        android:translateY="80"
+        android:rotation="196"
+        android:scaleX="0.78">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+
+    <!-- 侧枝末端一簇: 两叶向右上挑 -->
+    <group
+        android:translateX="87"
+        android:translateY="74"
+        android:rotation="-58"
+        android:scaleX="0.85">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+    <group
+        android:translateX="87"
+        android:translateY="76"
+        android:rotation="-12"
+        android:scaleX="0.7">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+
+    <!-- 底部一簇: 压角, 两叶向右下 -->
+    <group
+        android:translateX="56"
+        android:translateY="150"
+        android:rotation="58"
+        android:scaleX="0.95">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+    <group
+        android:translateX="56"
+        android:translateY="152"
+        android:rotation="14"
+        android:scaleX="0.72">
+        <path
+            android:fillColor="@color/ink_deco"
+            android:pathData="M0,0 C10,-8 28,-11 44,-4 C30,4 12,5 0,0 Z" />
+    </group>
+
+</vector>

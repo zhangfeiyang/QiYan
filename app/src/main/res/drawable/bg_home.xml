@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  首页底: 宣纸渐变 + 水墨角饰.
+
+  在通用 bg_page 之上叠四样装饰, 全部低浓度, 合起来才是"中国风的门面":
+    左上   一枝淡墨竹(探进画面)
+    右下   同一枝竹倒转压角 —— 素材复用: 低浓度下镜像与否读不出来,
+           不值得为它维护第二个矢量
+    底部   一条水墨远山, 把页面收进"画"里
+    右上   一轮淡朱红日, 全页唯一的暖色点睛
+
+  装饰是 layer-list 的 item, 用 width/height/gravity 定位, 不随内容
+  滚动 —— 它们是"纸的纹理", 不是内容.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/bg_page" />
+
+    <!-- 左上竹枝: 顶部略收进, 让竹梢从状态栏下方探出来 -->
+    <item
+        android:width="108dp"
+        android:height="216dp"
+        android:left="4dp"
+        android:top="20dp"
+        android:gravity="start|top"
+        android:drawable="@drawable/ink_bamboo" />
+
+    <!-- 右下竹枝: 压角 -->
+    <item
+        android:width="108dp"
+        android:height="216dp"
+        android:right="4dp"
+        android:bottom="4dp"
+        android:gravity="end|bottom"
+        android:drawable="@drawable/ink_bamboo" />
+
+    <!-- 底部远山 -->
+    <item
+        android:height="120dp"
+        android:gravity="bottom"
+        android:drawable="@drawable/ink_mountains" />
+
+    <!-- 右上红日 -->
+    <item
+        android:width="72dp"
+        android:height="72dp"
+        android:top="72dp"
+        android:right="28dp"
+        android:gravity="end|top"
+        android:drawable="@drawable/ink_sun" />
+
+</layer-list>

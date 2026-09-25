@@ -34,7 +34,7 @@ class PikafishEngine(private val context: Context) : ChessEngine {
 
     override fun name(): String = "PikaFish（GPL-3）"
 
-    override fun maxStrength(): Int = 10
+    override fun maxStrength(): Int = DifficultySettings.MAX_LEVEL
 
     override fun start(): Boolean {
         synchronized(stateLock) {
@@ -129,7 +129,8 @@ class PikafishEngine(private val context: Context) : ChessEngine {
         val listenerSnap = listener
         val thread = Thread({
             try {
-                val book = bookMove()
+                // Analysis needs scored search output, never an instant book response.
+                val book = if (params.strictMovetime) null else bookMove()
                 if (book != null) {
                     waitBriefly(minOf(BOOK_MIN_THINK_MS, params.movetime.takeIf { it > 0 }
                         ?: BOOK_MIN_THINK_MS))
@@ -173,11 +174,12 @@ class PikafishEngine(private val context: Context) : ChessEngine {
 
     override fun stopSearch() {
         stopRequested = true
-        PikafishNative.stop()
+        // Practice mode may never have loaded the native library.
+        if (ready) PikafishNative.stop()
         val thread = searchThread
         if (thread != null && thread !== Thread.currentThread() && thread.isAlive) {
             try {
-                thread.join()
+                thread.join(500)
             } catch (_: InterruptedException) {
                 Thread.currentThread().interrupt()
             }
@@ -288,17 +290,23 @@ class PikafishEngine(private val context: Context) : ChessEngine {
         }
     }
 
-    private fun copyAssetToCache(assetName: String, cacheName: String = assetName): String {
+    private fun copyAssetToCache(assetName: String, cacheName: String = assetName): String = synchronized(assetExtractionLock) {
         val file = java.io.File(context.cacheDir, cacheName)
         if (file.exists() && file.length() > 0) return file.absolutePath
         file.parentFile?.mkdirs()
+        val tempFile = java.io.File(context.cacheDir, "$cacheName.tmp.${java.util.UUID.randomUUID()}")
         context.assets.open(assetName).use { input ->
-            file.outputStream().use { output -> input.copyTo(output) }
+            tempFile.outputStream().use { output -> input.copyTo(output) }
+        }
+        if (!tempFile.renameTo(file) && (!file.exists() || file.length() == 0L)) {
+            tempFile.copyTo(file, overwrite = true)
+            tempFile.delete()
         }
         return file.absolutePath
     }
 
     private companion object {
+        private val assetExtractionLock = Any()
         const val MAX_DEPTH = 64
         const val BOOK_MIN_THINK_MS = 450L
         /** 搜索途中读 g_lastInfo 的间隔. 深度推进本身就有几百毫秒, 再密没意义 */

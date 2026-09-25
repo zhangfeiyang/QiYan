@@ -71,6 +71,24 @@
             android:label="@string/campaign_title" />
 
         <activity
+            android:name=".ui.menu.RankHallActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="@string/rank_hall_title" />
+
+        <activity
+            android:name=".ui.campaign.HistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="@string/home_history_title" />
+
+        <activity
+            android:name=".ui.puzzle.PuzzleCatalogActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="@string/home_catalog_title" />
+
+        <activity
             android:name=".ui.puzzle.PuzzleListActivity"
             android:exported="false"
             android:screenOrientation="portrait"
@@ -82,6 +100,19 @@
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/puzzle_list_title" />
+
+        <activity
+            android:name=".ui.puzzle.PuzzleRushActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/puzzle_rush_title" />
+
+        <activity
+            android:name=".ui.puzzle.TacticsAcademyActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="@string/home_tactics_title" />
 
         <activity
             android:name=".ui.replay.ReplayActivity"

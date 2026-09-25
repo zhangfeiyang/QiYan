@@ -6,6 +6,7 @@
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import vm from 'node:vm';
+import { readAndroidStrings } from './android-resources.mjs';
 
 const fail = (msg) => { throw new Error(msg); };
 
@@ -34,8 +35,8 @@ if (generated.fingerprint !== expected) {
 
 // ====== 难度档位 ======
 
-if (difficulties.length !== 15 || difficulties.some((item, index) => item.level !== index + 1)) {
-  fail('难度必须是连续的 1-15 档');
+if (difficulties.length !== 8 || difficulties.some((item, index) => item.level !== index + 1)) {
+  fail('难度必须是连续的 1-8 档');
 }
 for (const item of difficulties) {
   for (const field of ['name', 'segment', 'desc', 'elo', 'tone', 'thinkTimeMs']) {
@@ -45,45 +46,24 @@ for (const item of difficulties) {
 
 // ====== Android 侧 ======
 
-const androidMenu = await readFile('app/src/main/java/com/zhongguoxiangqi/ui/menu/MainMenuActivity.kt', 'utf8');
 const androidEngine = await readFile('app/src/main/java/com/zhongguoxiangqi/engine/EngineManager.kt', 'utf8');
-const androidStringsXml = await readFile('app/src/main/res/values-zh/strings.xml', 'utf8');
-
-if (!androidMenu.includes('LEGENDARY(15,') || !androidEngine.includes('MAX_LEVEL = 15')) {
-  fail('Android 端难度映射未同步到 15 档');
+const androidDifficulty = await readFile('app/src/main/java/com/zhongguoxiangqi/engine/DifficultySettings.kt', 'utf8');
+if (!androidDifficulty.includes('MAX_LEVEL = 8') ||
+    !androidEngine.includes('MAX_LEVEL = DifficultySettings.MAX_LEVEL')) {
+  fail('Android 端难度映射未同步到 8 档');
 }
+const zhStrings = await readAndroidStrings('app/src/main/res/values-zh');
 
-function parseStrings(xml) {
-  const out = {};
-  const re = /<string\s+name="([^"]+)"\s*(?:formatted="[^"]*"\s*)?>([\s\S]*?)<\/string>/g;
-  let m;
-  while ((m = re.exec(xml)) !== null) out[m[1]] = m[2];
-  return out;
-}
-const zhStrings = parseStrings(androidStringsXml);
-
-// 档名/段位/描述必须和 Android 的 strings.xml 逐字相同。
-// 这一条是这次返工的核心: 之前共享配置写的是"启蒙/初学/入门…", Android 写的
-// 是"入门/初级/中级下…", 同一档在两端叫两个名字。
-const ANDROID_LEVEL_KEYS = [
-  'easy', 'beginner', 'lower_intermediate', 'intermediate', 'upper_intermediate',
-  'advanced', 'amateur', 'district', 'city', 'provincial',
-  'local_master', 'national_master', 'grandmaster', 'international_master', 'legendary',
-];
-difficulties.forEach((item, index) => {
-  const suffix = ANDROID_LEVEL_KEYS[index];
-  const checks = [
-    ['name', `difficulty_${suffix}`],
-    ['segment', `difficulty_segment_${suffix}`],
-    ['desc', `difficulty_desc_${suffix}`],
-  ];
-  for (const [field, key] of checks) {
-    if (zhStrings[key] === undefined) fail(`Android 字符串表缺少 ${key}`);
+// Resource keys are shared as well as text, so both locales show the same tier.
+for (const item of difficulties) {
+  for (const field of ['name', 'segment', 'desc']) {
+    const key = item[`${field}Key`];
+    if (!key || zhStrings[key] === undefined) fail(`Android 字符串表缺少 ${key}`);
     if (item[field] !== zhStrings[key]) {
-      fail(`Lv.${item.level} 的 ${field} 与 Android ${key} 不一致: "${item[field]}" vs "${zhStrings[key]}"`);
+      fail(`Lv.${item.level} 的 ${field} 与 Android ${key} 不一致`);
     }
   }
-});
+}
 
 // 段位 key 必须在 Android 字符串表里存在, 小程序按同一个 key 取文案
 for (const rank of userRanks) {
@@ -97,8 +77,8 @@ if (missing.length) fail(`未声明小程序同步计划: ${missing.map((f) => f
 
 // ====== 端侧引擎档位 ======
 
-if (engineProfile.miniprogramMaxLevel > 9) {
-  fail('端侧 JS 引擎物理上只能稳定支持到 9 档，请收敛 miniprogramMaxLevel');
+if (engineProfile.miniprogramMaxLevel !== 3) {
+  fail('小程序本地难度应为 1-3；4-8 档需专业引擎');
 }
 for (let level = 1; level <= engineProfile.miniprogramMaxLevel; level += 1) {
   const key = String(level);
@@ -106,7 +86,7 @@ for (let level = 1; level <= engineProfile.miniprogramMaxLevel; level += 1) {
   if (!levelNotes[key]) fail(`共享段位说明缺少 ${level} 档`);
   if (!engineProfile.searchTimeBudgetMs?.[key]) fail(`共享时间预算缺少 ${level} 档`);
 }
-for (let level = engineProfile.miniprogramMaxLevel + 1; level <= 15; level += 1) {
+for (let level = engineProfile.miniprogramMaxLevel + 1; level <= difficulties.length; level += 1) {
   if (engineProfile.miniprogramSearchDepths[String(level)]) {
     fail(`${level} 档超出端侧能力却仍然给了搜索参数`);
   }
@@ -115,9 +95,9 @@ for (let level = engineProfile.miniprogramMaxLevel + 1; level <= 15; level += 1)
 // ====== 文案表 / 图标 ======
 
 const strings = loadGenerated('miniprogram/generated/strings.js');
-const androidEnStrings = parseStrings(await readFile('app/src/main/res/values/strings.xml', 'utf8'));
+const androidEnStrings = await readAndroidStrings('app/src/main/res/values');
 for (const key of Object.keys(androidEnStrings)) {
-  if (!(key in strings.en) || !(key in strings.zh)) {
+  if (strings.en[key] !== androidEnStrings[key] || strings.zh[key] !== zhStrings[key]) {
     fail(`文案表缺少 ${key}，请运行 node tools/sync-shared-config.mjs`);
   }
 }
@@ -132,11 +112,11 @@ for (const name of ['play', 'hint', 'undo', 'flip', 'ai', 'flag', 'history', 'ca
 
 // ====== 小程序界面上的硬性槽位 ======
 
-// 难度选择器必须把 Lv.10-15 也列出来 (灰态), 而不是直接藏掉:
+// 难度选择器必须把 Lv.4-5 也列出来 (灰态), 而不是直接藏掉:
 // 让用户知道这些档位存在、在哪能用, 比装作没有更诚实。
 const picker = await readFile('miniprogram/components/difficulty-picker/difficulty-picker.wxml', 'utf8');
 if (!picker.includes('appOnly')) fail('难度选择器缺少"仅 App 可用"的灰态标记');
-if (!picker.includes('wx:for="{{levels}}"')) fail('难度选择器必须遍历全部 15 档');
+if (!picker.includes('wx:for="{{levels}}"')) fail('难度选择器必须遍历全部 5 档');
 
 // 首页不该再摆难度网格 —— App 的首页没有它, 它属于对局页的选择器
 const indexWxml = await readFile('miniprogram/pages/index/index.wxml', 'utf8');

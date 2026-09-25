@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  山水中景: 比远峰浓一档、矮一档的中山.
+
+  与远峰错位排布(峰头不重叠), 两层之间的"墨色差"就是空间感.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="160dp"
+    android:viewportWidth="360"
+    android:viewportHeight="160">
+
+    <path
+        android:fillColor="@color/ink_mid"
+        android:pathData="M-8,128 C16,104 40,80 72,76 C96,73 110,92 136,90 C166,88 178,56 210,54 C234,52 246,74 270,78 C294,82 310,64 334,66 C348,67 358,76 368,84 L368,160 L-8,160 Z" />
+
+</vector>

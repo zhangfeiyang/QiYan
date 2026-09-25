@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lounge_ink">#153E38</color>
+    <color name="lounge_ink_deep">#102C29</color>
+    <color name="lounge_paper">#F7EED8</color>
+    <color name="lounge_soft_gold">#DFC48B</color>
+    <color name="lounge_muted">#C2D1C7</color>
+    <color name="lounge_daily">#F0E7D2</color>
+    <color name="lounge_link">#9B392D</color>
+</resources>

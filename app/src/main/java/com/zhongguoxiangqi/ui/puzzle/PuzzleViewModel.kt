@@ -13,6 +13,7 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Puzzle
+import com.zhongguoxiangqi.game.PuzzleCatalog
 import com.zhongguoxiangqi.game.Puzzles
 import com.zhongguoxiangqi.game.Rules
 import com.zhongguoxiangqi.game.UciCoords
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * 残局破解 ViewModel.
@@ -46,6 +49,7 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
         val won: Boolean = false,
         /** 走错导致错失杀机 */
         val deviated: Boolean = false,
+        val dailyDate: LocalDate? = null,
     )
 
     private val _state = MutableStateFlow(UiState())
@@ -72,30 +76,51 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
     /** 当前引擎搜索的用途; 引擎单实例, 必须区分"黑方防守"与"杀机校验" */
     @Volatile private var purpose = Purpose.NONE
     @Volatile private var lastCheckMateScore = 0
+    private val searchGeneration = AtomicLong()
+    private var engineStarting = false
 
     private enum class Purpose { NONE, DEFENSE, CHECK }
 
     init {
+        ensureEngineReady()
+    }
+
+    private fun ensureEngineReady() {
+        if (engineStarting || _state.value.engineReady) return
+        engineStarting = true
         viewModelScope.launch {
             val ok = withContext(Dispatchers.IO) { engineManager.start(this@PuzzleViewModel) }
+            engineStarting = false
             _state.value = _state.value.copy(engineReady = ok)
+            if (!ok) _toastEvent.value = com.zhongguoxiangqi.R.string.puzzle_engine_error
         }
     }
 
-    fun loadPuzzle(id: Int) {
-        val p = Puzzles.byId(id) ?: return
-        puzzle = p
-        initialFen = p.fen
+    fun loadPuzzle(id: Int, dailyDate: LocalDate? = null) {
+        val p = Puzzles.byId(id) ?: PuzzleCatalog.byId(getApplication(), id) ?: return
+        loadPuzzle(p, dailyDate)
+    }
+
+    fun loadPuzzle(puzzle: Puzzle, dailyDate: LocalDate? = null) {
+        _finishedEvent.value = null
+        _state.value = _state.value.copy(dailyDate = dailyDate)
+        this.puzzle = puzzle
+        initialFen = puzzle.fen
         resetBoard(startNewAttempt = true)
+    }
+
+    fun loadDailyPuzzle(today: LocalDate = LocalDate.now()) {
+        loadPuzzle(store.dailyPuzzleId(today), today)
     }
 
     /** 玩家(红方)走子入口, 返回是否接受 */
     fun onPlayerMove(move: Move): Boolean {
         val p = puzzle ?: return false
         val s = _state.value
-        if (s.finished || s.thinking || !s.engineReady) return false
+        if (s.finished || s.thinking) return false
         if (position.sideToMove != Color.RED) return false
         if (!position.isLegalMove(move)) return false
+        if (!s.engineReady && !matesAtOnce(move)) return false
 
         stopEngine()
         position.doMove(move)
@@ -168,10 +193,19 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
             attempts = if (startNewAttempt) store.incrementPuzzleAttempts(p.id)
                        else _state.value.attempts,
         )
+        ensureEngineReady()
+    }
+
+    /** 一步将死不必等引擎加载完才落子. */
+    private fun matesAtOnce(move: Move): Boolean {
+        if (!position.doMove(move)) return false
+        val over = Rules.gameOver(position)
+        position.undoMove()
+        return over == Rules.GameOver.CHECKMATE_BLACK || over == Rules.GameOver.STALEMATE
     }
 
     private fun engineDefend() {
-        val p = puzzle ?: return
+        puzzle ?: return
         engineManager.setPosition(initialFen, moveHistory)
         purpose = Purpose.DEFENSE
         _state.value = _state.value.copy(thinking = true)
@@ -182,7 +216,7 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
 
     /** 黑方防守后, 从玩家视角快速校验杀机是否还在 */
     private fun checkMateStillOn() {
-        val p = puzzle ?: return
+        puzzle ?: return
         engineManager.setPosition(initialFen, moveHistory)
         purpose = Purpose.CHECK
         lastCheckMateScore = 0
@@ -193,14 +227,19 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
 
     private fun finish(won: Boolean) {
         val p = puzzle ?: return
+        if (_state.value.finished) return
         stopEngine()
-        if (won) store.markPuzzleSolved(p.id)
+        if (won) {
+            store.markPuzzleSolved(p.id)
+            _state.value.dailyDate?.let { store.markDailyPuzzleCompleted(p.id, it) }
+        }
         _state.value = _state.value.copy(finished = true, won = won, thinking = false)
         _finishedEvent.value = won
     }
 
     private fun stopEngine() {
         purpose = Purpose.NONE
+        searchGeneration.incrementAndGet()
         engineManager.stopSearch()
         _state.value = _state.value.copy(thinking = false)
     }
@@ -211,22 +250,25 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
 
     override fun onInfo(info: com.zhongguoxiangqi.engine.EngineInfo) {
         // 杀机校验的评分是玩家(红)视角: searchSideToMove 就是红方
-        if (purpose == Purpose.CHECK && info.scoreMate != 0) {
+        if (purpose == Purpose.CHECK && info.pvIndex <= 1) {
             lastCheckMateScore = info.scoreMate
         }
     }
 
     override fun onBestMove(bestMove: String, ponderMove: String?) {
         val purposeSnap = purpose
+        val generation = searchGeneration.get()
         viewModelScope.launch {
+            if (generation != searchGeneration.get() || purpose != purposeSnap || _state.value.finished) return@launch
             when (purposeSnap) {
                 Purpose.DEFENSE -> {
-                    val p = puzzle ?: return@launch
+                    puzzle ?: return@launch
                     if (_state.value.finished) return@launch
                     val move = UciCoords.parse(bestMove)
                     if (move == null || !position.isLegalMove(move)) {
-                        // 黑方无好棋可走(将死/困毙边缘) —— 视作玩家得手
-                        finish(won = true)
+                        // A missing or illegal engine response is not a solved puzzle.
+                        stopEngine()
+                        _toastEvent.value = com.zhongguoxiangqi.R.string.puzzle_engine_error
                         return@launch
                     }
                     position.doMove(move)
@@ -254,7 +296,12 @@ class PuzzleViewModel(app: Application) : AndroidViewModel(app), EngineListener 
     }
 
     override fun onError(message: String) {
-        // 引擎错误静默: 残局里引擎起不来时棋盘仍可摆, 但不给防守
+        val generation = searchGeneration.get()
+        viewModelScope.launch {
+            if (generation != searchGeneration.get()) return@launch
+            stopEngine()
+            _toastEvent.value = com.zhongguoxiangqi.R.string.puzzle_engine_error
+        }
     }
 
     override fun onCleared() {

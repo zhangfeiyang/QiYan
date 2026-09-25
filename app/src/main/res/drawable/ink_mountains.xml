@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  水墨远山(页脚装饰).
+
+  参考设计的页面底部铺一条淡淡的远山: 两道山脊前后错落, 全部走平缓的
+  二次贝塞尔 —— 近山用 ink_mountain(浓一档), 远山更淡, "墨分五色"的
+  层次感靠这两档浓差就够, 不必真画皴法.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="110dp"
+    android:viewportWidth="360"
+    android:viewportHeight="110">
+
+    <!-- 远山: 全宽, 峰势平缓 -->
+    <path
+        android:fillColor="@color/ink_mountain"
+        android:pathData="M0,96 C30,84 66,62 104,58 C136,55 158,70 190,66 C224,62 244,36 282,32 C314,29 340,48 360,58 L360,110 L0,110 Z" />
+
+    <!-- 近山: 只占左半与右侧, 山脚沉到decor底边之外, 压住画面 -->
+    <path
+        android:fillColor="@color/ink_deco"
+        android:pathData="M-10,110 C18,92 44,72 84,70 C120,68 140,88 176,96 C210,103 236,88 262,90 C300,93 330,104 370,100 L370,118 L-10,118 Z" />
+
+</vector>

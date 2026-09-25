@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  通用页面底: 宣纸微渐变.
+
+  之前所有页面用一块平的 surface_base, 加上状态栏同色, 屏幕就是一张
+  没有空气感的平面. 参考中国风设计的页面都带纵向微渐变(顶亮底沉),
+  内容像铺在纸上而不是印在塑料上. 渐变只有 4% 左右的明度差 —— 底色
+  是舞台, 抢戏就错了.
+
+  首页用带水墨角饰的 bg_home; 其余页面统一用这一张. 主题的
+  windowBackground 也指向它, 新页面不写 background 也自动成立.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="@color/page_grad_1"
+                android:centerColor="@color/page_grad_2"
+                android:endColor="@color/page_grad_3" />
+        </shape>
+    </item>
+</layer-list>

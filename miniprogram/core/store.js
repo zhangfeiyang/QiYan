@@ -11,6 +11,7 @@
  * 也不必写迁移代码。
  */
 const rating = require('./rating');
+const { engineProfile } = require('../generated/product-config');
 
 const KEY_SETTINGS = 'settings';
 const KEY_PROFILE = 'profile';
@@ -47,7 +48,7 @@ const DEFAULT_PROFILE = {
   draws: 0,
 };
 
-const DEFAULT_SETUP = { difficulty: 4, playerSide: 1 };
+const DEFAULT_SETUP = { difficulty: engineProfile.defaultLevel, playerSide: 1, difficultyVersion: engineProfile.difficultyVersion };
 
 function read(key, defaults) {
   const stored = wx.getStorageSync(key);
@@ -90,8 +91,10 @@ function displayedRating(profile) {
  * @param opponentRating 对手实际棋力, 用档位的 elo
  * @returns 更新后的档案
  */
-function recordResult(result, opponentRating) {
+function recordResult(result, opponentRating, rated = true) {
   const profile = getProfile();
+  // Gentle practice is saved as a replay by the caller, never as a ranked result.
+  if (!rated) return profile;
   const glicko = { rating: profile.rating, rd: profile.rd, sigma: profile.sigma };
   rating.update(glicko, [{ opponentRating, opponentRd: 200, score: result }]);
 
@@ -132,12 +135,27 @@ function addRecord(record) {
 // 首页的"开始对弈"直接开局, 用的就是这里 —— 开出来的是你上次在下的那盘的
 // 设定, 而不是每次都从默认值重来 (同 GameActivity.PREFS_GAME)。
 
+function normalizeDifficulty(value) {
+  const numeric = Number(value);
+  return Math.max(1, Math.min(engineProfile.maxLevel, Math.trunc(numeric) || 1));
+}
+
 function getLastSetup() {
-  return read(KEY_LAST_SETUP, DEFAULT_SETUP);
+  const stored = wx.getStorageSync(KEY_LAST_SETUP);
+  if (!stored || typeof stored !== 'object') return { ...DEFAULT_SETUP };
+  const legacy = !stored.difficultyVersion || stored.difficultyVersion < engineProfile.difficultyVersion;
+  const rawLevel = Number(stored.difficulty) || 1;
+  const difficulty = legacy
+    ? Math.ceil(Math.max(1, Math.min(15, rawLevel)) / 3)
+    : normalizeDifficulty(rawLevel);
+  const setup = { ...DEFAULT_SETUP, ...stored, difficulty, difficultyVersion: engineProfile.difficultyVersion };
+  if (legacy || difficulty !== stored.difficulty) wx.setStorageSync(KEY_LAST_SETUP, setup);
+  return setup;
 }
 
 function saveLastSetup(setup) {
-  const next = { ...getLastSetup(), ...setup };
+  const next = { ...getLastSetup(), ...setup, difficultyVersion: engineProfile.difficultyVersion };
+  next.difficulty = normalizeDifficulty(next.difficulty);
   wx.setStorageSync(KEY_LAST_SETUP, next);
   return next;
 }

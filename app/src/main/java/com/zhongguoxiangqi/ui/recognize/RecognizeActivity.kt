@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.recognize
 
 import com.zhongguoxiangqi.ui.common.Insets
 
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +31,8 @@ import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Square
 import com.zhongguoxiangqi.game.UciCoords
+import com.zhongguoxiangqi.ui.game.AnalysisScanView
+import com.zhongguoxiangqi.ui.settings.AppSettings
 import com.zhongguoxiangqi.vision.BoardLayout
 import com.zhongguoxiangqi.vision.BoardRecognizer
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +50,9 @@ import java.io.File
 class RecognizeActivity : AppCompatActivity(), EngineListener {
 
     private lateinit var binding: ActivityRecognizeBinding
+
+    /** 轻量音效: 快门 / 识别成功 / 失败. 不背对局那 30+ 个音频 */
+    private val sfx by lazy { com.zhongguoxiangqi.ui.game.GameFeedback(this, light = true) }
 
     private var recognizer: BoardRecognizer? = null
     private var engineManager: EngineManager? = null
@@ -118,23 +125,38 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         buildTrays()
         refreshBoard()
 
-        // 模型有 40MB, 加载要几百毫秒, 不能卡住界面
+        binding.btnModelRetry.setOnClickListener { loadModel() }
+        loadModel()
+    }
+
+    /**
+     * 模型有 40MB, 加载要几百毫秒到几秒: 期间进度条转着、入口禁用着, 用户
+     * 知道在等什么。失败给"重试"按钮 —— 原来失败后两个入口永远灰着, 用户
+     * 只能退出重进。模型就绪后**不再自动开相机**: 想从相册选的人不该被
+     * 强制过一遍相机, 而且拍摄要点要先讲 (见布局注释)。
+     */
+    private fun loadModel() {
+        binding.modelProgress.visibility = View.VISIBLE
+        binding.modelProgressLabel.visibility = View.VISIBLE
+        binding.modelProgressLabel.setText(R.string.recognize_loading_model)
+        binding.btnModelRetry.visibility = View.GONE
+        binding.btnStartCamera.isEnabled = false
+        binding.btnStartGallery.isEnabled = false
         lifecycleScope.launch {
             val r = withContext(Dispatchers.IO) { BoardRecognizer.create(this@RecognizeActivity) }
             recognizer = r
             if (r == null) {
+                binding.modelProgress.visibility = View.GONE
+                binding.modelProgressLabel.visibility = View.GONE
+                binding.btnModelRetry.visibility = View.VISIBLE
                 Toast.makeText(
                     this@RecognizeActivity,
                     R.string.recognize_model_failed, Toast.LENGTH_LONG
                 ).show()
                 return@launch
             }
-            // 模型就绪后**不再自动开相机**。
-            //
-            // 原来是进来直接弹相机, 理由是"用户点进来就是想拍"。但想从相册
-            // 选的人得先退出相机再去翻 toolbar; 而且"识别准不准全看拍得正
-            // 不正"这件事没有任何地方告诉过他 —— 整盘全对只有约 83%, 拍歪了
-            // 就是白拍。现在先给一屏引导, 两条路并列, 附拍摄要点。
+            binding.modelProgress.visibility = View.GONE
+            binding.modelProgressLabel.visibility = View.GONE
             binding.btnStartCamera.isEnabled = true
             binding.btnStartGallery.isEnabled = true
         }
@@ -144,6 +166,45 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     private fun showBoard() {
         binding.startPanel.visibility = View.GONE
         binding.contentGroup.visibility = View.VISIBLE
+    }
+
+    // ====== 忙碌扫描层 ======
+
+    /** 识别/求招期间的全屏扫描层 (复用对局里那块 AnalysisScanView) */
+    private var busyOverlay: View? = null
+
+    /**
+     * 铺一块"扫描中"覆盖层, 换掉原来那条 Toast: 覆盖层带棋盘扫描动效,
+     * 场景标题说明此刻在做什么, 还顺带挡住下面的按钮防止连点。
+     * 返回是否铺了 —— 动画开关关闭时返回 false, 调用方退回 Toast。
+     */
+    private fun showBusyOverlay(titleRes: Int, subtitle: CharSequence?): Boolean {
+        if (!AppSettings(this).animationEnabled || !ValueAnimator.areAnimatorsEnabled()) return false
+        if (busyOverlay != null || isFinishing || isDestroyed) return false
+        val overlay = layoutInflater.inflate(R.layout.view_game_analysis_overlay, null, false)
+        overlay.findViewById<AnalysisScanView>(R.id.scan_view).apply {
+            this.titleRes = titleRes
+            showEval = false
+            this.subtitle = subtitle
+        }
+        // 这是"等结果"不是"可跳过的表演", 不给跳过入口
+        overlay.findViewById<View>(R.id.analysis_skip).visibility = View.GONE
+        busyOverlay = overlay
+        findViewById<ViewGroup>(android.R.id.content).addView(
+            overlay,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        )
+        overlay.alpha = 0f
+        overlay.animate().alpha(1f).setDuration(220L).start()
+        return true
+    }
+
+    private fun hideBusyOverlay() {
+        val overlay = busyOverlay ?: return
+        busyOverlay = null
+        overlay.animate().alpha(0f).setDuration(220L).withEndAction {
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+        }.start()
     }
 
     // ====== 支招水平 ======
@@ -157,9 +218,9 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         val labelRes: Int,
         val descRes: Int,
     ) {
-        FAST(6, R.string.advice_level_fast, R.string.advice_level_fast_desc),
-        NORMAL(10, R.string.advice_level_normal, R.string.advice_level_normal_desc),
-        DEEP(14, R.string.advice_level_deep, R.string.advice_level_deep_desc),
+        FAST(3, R.string.advice_level_fast, R.string.advice_level_fast_desc),
+        NORMAL(4, R.string.advice_level_normal, R.string.advice_level_normal_desc),
+        DEEP(5, R.string.advice_level_deep, R.string.advice_level_deep_desc),
     }
 
     private var adviceLevel = AdviceLevel.NORMAL
@@ -228,7 +289,12 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         val r = recognizer ?: return
         if (busy) return
         busy = true
-        Toast.makeText(this, R.string.recognize_working, Toast.LENGTH_SHORT).show()
+        sfx.onRecognizeStart()  // 快门声: 告诉用户"拍下了, 开始认"
+        // 扫描覆盖层优先; 动画被关时退回原来的 Toast
+        val overlayShown = showBusyOverlay(R.string.analysis_scanning_recognize, null)
+        if (!overlayShown) {
+            Toast.makeText(this, R.string.recognize_working, Toast.LENGTH_SHORT).show()
+        }
         binding.advice.visibility = View.GONE
 
         lifecycleScope.launch {
@@ -240,10 +306,13 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             }
             busy = false
             if (result == null) {
+                hideBusyOverlay()
+                sfx.onRecognizeFail()
                 Toast.makeText(this@RecognizeActivity,
                     R.string.recognize_failed, Toast.LENGTH_LONG).show()
                 return@launch
             }
+            sfx.onRecognizeOk()  // 拨弦上行: 认出来了
             layout = result.layout
             confidence = result.confidence
             hasRecognized = true
@@ -263,6 +332,8 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
                     R.string.recognize_corner_warning, Toast.LENGTH_LONG).show()
             }
             refreshBoard()
+            // 覆盖层淡出时露出的是已经摆好的棋盘, 不是空屏
+            hideBusyOverlay()
         }
     }
 
@@ -489,6 +560,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         binding.advice.visibility = View.VISIBLE
         binding.advice.text = getString(R.string.recognize_thinking)
         binding.btnAdvise.isEnabled = false
+        showBusyOverlay(R.string.analysis_scanning_advice, getString(R.string.recognize_thinking))
 
         lifecycleScope.launch(Dispatchers.IO) {
             val mgr = engineManager ?: EngineManager(this@RecognizeActivity).also {
@@ -497,6 +569,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
             }
             if (mgr.currentEngine == null && !mgr.start(this@RecognizeActivity)) {
                 withContext(Dispatchers.Main) {
+                    hideBusyOverlay()
                     binding.advice.text = getString(R.string.recognize_engine_failed)
                     binding.btnAdvise.isEnabled = true
                 }
@@ -512,6 +585,8 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     override fun onInfo(info: EngineInfo) {}
     override fun onError(message: String) {
         runOnUiThread {
+            hideBusyOverlay()
+            sfx.onRecognizeFail()
             binding.advice.text = getString(R.string.recognize_engine_error, message)
             binding.btnAdvise.isEnabled = true
         }
@@ -520,11 +595,14 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
     override fun onBestMove(bestMove: String, ponderMove: String?) {
         val move = UciCoords.parse(bestMove)
         runOnUiThread {
+            hideBusyOverlay()
             binding.btnAdvise.isEnabled = true
             if (move == null) {
+                sfx.onRecognizeFail()
                 binding.advice.text = getString(R.string.recognize_no_move)
                 return@runOnUiThread
             }
+            sfx.onRecognizeOk()  // 支招到位
             val pos = BoardLayout.toPosition(layout, sideToMove)
             val piece = pos?.pieceAt(move.from)?.let { Piece.fromCode(it) }
             binding.advice.text = getString(
@@ -541,6 +619,7 @@ class RecognizeActivity : AppCompatActivity(), EngineListener {
         super.onDestroy()
         engineManager?.shutdown()
         recognizer?.close()
+        sfx.release()
     }
 
     /** 把校正后的正视图也转成与照片相同的朝向 */

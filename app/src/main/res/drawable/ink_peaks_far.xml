@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  山水远景: 全宽远峰.
+
+  闯关地图的"画"分三层(远峰/中山/近山), 这里是最淡的一层 —— 只给山形
+  的起伏节奏, 不给细节; 参考水墨画的"远山无皴": 越远越淡越简.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="150dp"
+    android:viewportWidth="360"
+    android:viewportHeight="150">
+
+    <!-- 一带远峰: 峰头圆浑, 山脚溶进雾里(不做底边) -->
+    <path
+        android:fillColor="@color/ink_far"
+        android:pathData="M0,118 C24,96 44,64 76,58 C100,54 112,74 134,72 C160,70 172,34 202,30 C226,27 238,52 260,56 C282,60 296,42 318,44 C338,46 350,66 360,78 L360,150 L0,150 Z" />
+
+</vector>

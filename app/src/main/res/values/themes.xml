@@ -11,18 +11,21 @@
     <style name="Theme.ZhongguoXiangqi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Material 组件的颜色角色 -->
         <item name="colorPrimary">@color/action</item>
-        <item name="colorPrimaryDark">@color/surface_base</item>
+        <item name="colorPrimaryDark">@color/page_grad_1</item>
         <item name="colorOnPrimary">@color/text_on_action</item>
         <item name="colorAccent">@color/action</item>
         <item name="colorSurface">@color/surface_raised</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorError">@color/danger</item>
         <item name="android:colorBackground">@color/surface_base</item>
-        <item name="android:windowBackground">@color/surface_base</item>
+        <!-- 页面底统一走宣纸渐变: 不写 background 的页面自动成立,
+             写了的(旧布局)覆盖它也不冲突 -->
+        <item name="android:windowBackground">@drawable/bg_page</item>
 
-        <!-- 状态栏/导航栏与内容同色, 不再用一条深褐色横杠把屏幕切两半 -->
-        <item name="android:statusBarColor">@color/surface_base</item>
-        <item name="android:navigationBarColor">@color/surface_base</item>
+        <!-- 状态栏/导航栏各取渐变的两端, 与页面无缝; 不再用一条深褐色横杠
+             把屏幕切两半 -->
+        <item name="android:statusBarColor">@color/page_grad_1</item>
+        <item name="android:navigationBarColor">@color/page_grad_3</item>
         <!-- 浅色底 → 深色图标; values-night 里翻转 -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
@@ -39,12 +42,13 @@
 
     <style name="Theme.ZhongguoXiangqi.Game" parent="Theme.ZhongguoXiangqi">
         <!-- 对弈时棋盘要顶到边, 状态栏跟着内容底色走 -->
-        <item name="android:statusBarColor">@color/surface_base</item>
+        <item name="android:statusBarColor">@color/page_grad_1</item>
     </style>
 
     <!-- ================= Toolbar ================= -->
     <style name="Widget.Xiangqi.Toolbar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="android:background">@color/surface_base</item>
+        <!-- 透明: 让宣纸渐变从标题栏后面透上来, 页面才是一整张纸 -->
+        <item name="android:background">@android:color/transparent</item>
         <item name="titleTextColor">@color/text_primary</item>
         <item name="subtitleTextColor">@color/text_secondary</item>
         <item name="titleTextAppearance">@style/TextAppearance.Xiangqi.Title</item>
@@ -84,6 +88,33 @@
         <item name="cornerRadius">@dimen/radius_md</item>
         <item name="android:textAllCaps">false</item>
         <item name="elevation">0dp</item>
+    </style>
+
+    <!--
+      鎏金按钮: 参考设计的门面行动键("开始对弈"这类一级入口专用).
+
+      自定义 background 后 MaterialShape/selector_action_bg 失效, 按压态
+      由 drawable 里的 ripple 接管, 文字/icon 色固定为金面上的深褐红.
+      一屏只允许一颗 —— 金是这套色系里最贵的颜色, 满屏金就等于没有金.
+    -->
+    <style name="Widget.Xiangqi.Button.Gold" parent="Widget.MaterialComponents.Button">
+        <!-- backgroundTint 必须显式清空: 父样式从 Material 默认拿来
+             ?attr/colorPrimary, 色块 tint 会把金渐变压成一块纯朱红 -->
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/bg_btn_gold</item>
+        <item name="android:textColor">@color/gold_text</item>
+        <item name="iconTint">@color/gold_text</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/radius_pill</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="elevation">0dp</item>
+        <item name="iconSize">@dimen/icon_md</item>
+        <!-- inset 与普通主按钮一致, 高度也对齐 button_height -->
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
     </style>
 
     <style name="Widget.Xiangqi.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">

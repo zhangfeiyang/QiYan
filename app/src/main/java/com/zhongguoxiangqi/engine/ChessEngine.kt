@@ -13,7 +13,7 @@ interface ChessEngine {
     /** 引擎名称(用于显示) */
     fun name(): String
 
-    /** 引擎最大强度(1-10) */
+    /** 引擎最大难度档位 */
     fun maxStrength(): Int
 
     /**
@@ -72,7 +72,7 @@ data class SearchParams(
      * [movetime] 是**硬上限**, 不允许按难度往上抬.
      *
      * 默认 false 是给对局用的: 那边"难度高"就该"想得久", EngineManager
-     * 会按等级把 movetime 抬到 2~8 秒. 但实时支招正相反 —— 延迟才是硬
+     * 会按等级设置思考时长. 但实时支招正相反 —— 延迟才是硬
      * 约束, 宁可要 0.6 秒算出的好棋, 也不要 4 秒后的最佳棋. 这个标志就是
      * 让调用方把这件事说清楚.
      */
@@ -80,8 +80,8 @@ data class SearchParams(
 ) {
     companion object {
         val DEFAULT_GAME = SearchParams(depth = 0, movetime = 3000, threads = 2, hashMb = 64, multiPv = 1)
-        val DEFAULT_ANALYSIS = SearchParams(infinite = true, threads = 2, hashMb = 64, multiPv = 3)
-        val INSTANT_HINT = SearchParams(movetime = 1500, threads = 1, hashMb = 32, multiPv = 1)
+        val DEFAULT_ANALYSIS = SearchParams(infinite = true, threads = 2, hashMb = 64, multiPv = 3, strictMovetime = true)
+        val INSTANT_HINT = SearchParams(movetime = 1500, threads = 1, hashMb = 32, multiPv = 1, strictMovetime = true)
     }
 }
 

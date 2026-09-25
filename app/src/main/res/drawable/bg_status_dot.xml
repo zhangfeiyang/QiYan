@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  实时支招状态条上的 8dp 圆点: 底色白色仅为占位, 运行时代码按状态 tint —
+  锁定中=warning 金 / 已锁定=affirm 绿 / 棋盘无效=灰. 不在这里写死颜色,
+  明暗主题与语义色 token 才有单一出处.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFFFFF" />
+    <size
+        android:width="8dp"
+        android:height="8dp" />
+</shape>

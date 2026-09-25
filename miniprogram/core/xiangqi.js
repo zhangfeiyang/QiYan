@@ -524,8 +524,8 @@ function searchRoot(board, side, depth, ordering, deadline) {
   return { move: bestMove, aborted: false };
 }
 
-function pickRandom(moves) {
-  return moves[Math.floor(Math.random() * moves.length)];
+function pickRandom(moves, random = Math.random) {
+  return moves[Math.floor(random() * moves.length)];
 }
 
 /**
@@ -534,7 +534,7 @@ function pickRandom(moves) {
  * 档位参数全部来自 shared/config/engine-profile.json —— 深度、是否静搜、
  * 排序策略、时间预算都由那份配置说了算, 改棋力只改配置。
  */
-function localBestMove(board, side, level = 5) {
+function localBestMove(board, side, level = engineProfile.defaultLevel, random = Math.random) {
   const config = engineProfile.miniprogramSearchDepths[String(level)];
   if (!config) return null;
 
@@ -543,12 +543,19 @@ function localBestMove(board, side, level = 5) {
   const moves = legalMoves(board, side);
   if (!moves.length) return null;
 
-  if (level <= 1) return pickRandom(moves);
-  if (level === 2) {
-    const captures = moves.filter((move) => move.captured);
-    return captures.length
-      ? captures.sort((a, b) => mvvLva(b, board) - mvvLva(a, board))[0]
-      : pickRandom(moves);
+  if (config.ordering === 'practice') {
+    if (random() < config.randomChance) return pickRandom(moves, random);
+    const scored = moves.map((move) => {
+      let score = VALUE[(move.captured || '').toUpperCase()] || 0;
+      if (level === 2) {
+        const next = applyMove(board, move);
+        const replies = legalMoves(next, otherSide(side));
+        score -= Math.max(0, ...replies.map((reply) => VALUE[(reply.captured || '').toUpperCase()] || 0));
+      }
+      return { move, score };
+    });
+    const best = Math.max(...scored.map((entry) => entry.score));
+    return pickRandom(scored.filter((entry) => entry.score === best), random).move;
   }
 
   if (config.ordering === 'iterative-deepening') {

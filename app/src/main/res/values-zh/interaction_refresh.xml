@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">对弈</string>
+    <string name="nav_learn">研习</string>
+    <string name="nav_tools">工具</string>
+    <string name="nav_me">我的</string>
+    <string name="difficulty_6">宗师</string>
+    <string name="difficulty_6_tag">深算攻防</string>
+    <string name="difficulty_6_desc">更长时间思考，擅长寻找连续战术。</string>
+    <string name="difficulty_7">棋圣</string>
+    <string name="difficulty_7_tag">精研棋局</string>
+    <string name="difficulty_7_desc">深研局面变化，适合高水平棋友切磋。</string>
+    <string name="difficulty_8">巅峰</string>
+    <string name="difficulty_8_tag">巅峰挑战</string>
+    <string name="difficulty_8_desc">最长搜索预算，全力应战，尽情挑战。</string>
+    <string name="confirm_setup">确定选择</string>
+    <string name="style_choose">棋路：%1$s  ▾</string>
+    <string name="puzzle_collection">残局棋谱集</string>
+    <string name="puzzle_collection_desc">观局、寻路、破招，循序练出杀棋本领。</string>
+    <string name="puzzle_page">第 %1$d / %2$d 册</string>
+    <string name="page_previous">上一册</string>
+    <string name="page_next">下一册</string>
+    <string name="puzzle_collection_progress">已破解 %1$d / %2$d 局</string>
+    <string name="puzzle_family_rook">车路攻杀</string>
+    <string name="puzzle_family_cannon">炮阵玄机</string>
+    <string name="puzzle_family_horse">马踏九宫</string>
+    <string name="puzzle_family_mixed">协同制胜</string>
+    <string name="result_close">关闭结算，查看终局</string>
+    <string name="result_win">胜</string>
+    <string name="result_loss">负</string>
+    <string name="result_draw">和</string>
+    <string name="result_undo">悔棋继续</string>
+    <string name="result_replay_hint">终局已保留，关闭此面板可查看棋盘。</string>
+    <string name="game_mode_ranked">评测对弈</string>
+</resources>

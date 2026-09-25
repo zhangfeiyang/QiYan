@@ -1,13 +1,4 @@
-/**
- * 难度选择 —— 对应 Android 的 dialog_difficulty.xml + DifficultyAdapter。
- *
- * 15 档全列, 每档带"这档对手大概是什么水平"的段位标签和一句说明, 左侧色条
- * 按段位取色。之前小程序把这 15 格塞在首页, 首屏一半被难度网格占掉, 而 App
- * 的首页根本没有它 —— 它是对局中随时能点开的选择器。
- *
- * Lv.10 以上端侧 JS 引擎跑不动 (见 engine-profile.miniprogramMaxLevel),
- * 灰掉但**仍然列出来**: 让用户知道这些档位存在、在哪能用, 比直接藏掉诚实。
- */
+/** Five shared difficulty tiers; higher native-engine levels remain clearly marked. */
 const { difficulties, engineProfile } = require('../../generated/product-config');
 const palette = require('../../core/palette');
 const i18n = require('../../core/i18n');
@@ -15,7 +6,7 @@ const i18n = require('../../core/i18n');
 Component({
   properties: {
     show: { type: Boolean, value: false },
-    current: { type: Number, value: 4 },
+    current: { type: Number, value: engineProfile.defaultLevel },
     theme: { type: String, value: 'dark' },
   },
 
@@ -46,6 +37,9 @@ Component({
       this.setData({
         levels: difficulties.map((item) => ({
           ...item,
+          name: i18n.t(item.nameKey),
+          segment: i18n.t(item.segmentKey),
+          desc: i18n.t(item.descKey),
           color: palette.tone(theme, item.tone),
           appOnly: item.level > max,
         })),

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Play</string>
+    <string name="nav_learn">Study</string>
+    <string name="nav_tools">Tools</string>
+    <string name="nav_me">Me</string>
+    <string name="difficulty_6">Grandmaster</string>
+    <string name="difficulty_6_tag">Deeper tactics</string>
+    <string name="difficulty_6_desc">More time to uncover tactical combinations.</string>
+    <string name="difficulty_7">Legend</string>
+    <string name="difficulty_7_tag">Precision play</string>
+    <string name="difficulty_7_desc">Patient calculation for experienced players.</string>
+    <string name="difficulty_8">Pinnacle</string>
+    <string name="difficulty_8_tag">Full challenge</string>
+    <string name="difficulty_8_desc">The longest search budget. Take your time.</string>
+    <string name="confirm_setup">Confirm selection</string>
+    <string name="style_choose">Style: %1$s  ▾</string>
+    <string name="puzzle_collection">Endgame atlas</string>
+    <string name="puzzle_collection_desc">Read the position. Find the winning move.</string>
+    <string name="puzzle_page">Volume %1$d / %2$d</string>
+    <string name="page_previous">Previous</string>
+    <string name="page_next">Next</string>
+    <string name="puzzle_collection_progress">%1$d solved · %2$d positions</string>
+    <string name="puzzle_family_rook">Rook tactics</string>
+    <string name="puzzle_family_cannon">Cannon tactics</string>
+    <string name="puzzle_family_horse">Horse tactics</string>
+    <string name="puzzle_family_mixed">Combined attack</string>
+    <string name="result_close">Close result, view board</string>
+    <string name="result_win">VICTORY</string>
+    <string name="result_loss">DEFEAT</string>
+    <string name="result_draw">DRAW</string>
+    <string name="result_undo">Undo and continue</string>
+    <string name="result_replay_hint">The final position stays on the board. Close this panel to inspect it.</string>
+    <string name="game_mode_ranked">Ranked Match</string>
+</resources>

@@ -118,15 +118,15 @@ settings.onPickTheme({ currentTarget: { dataset: { value: 1 } } });
 
 const gameCore = require('../core/xiangqi.js');
 const gamePage = load('../pages/game/game.js');
-gamePage.onLoad({ level: '4', side: '1' });
+gamePage.onLoad({ level: '3', side: '1' });
 gamePage.onShow();
 
 assert.equal(gamePage.data.board.length, 10, '开局要摆好棋盘');
 assert.equal(gamePage.data.sideToMove, gameCore.RED);
-assert.equal(gamePage.data.appOnly, false, 'Lv.4 是端侧档位');
+assert.equal(gamePage.data.appOnly, false, 'Lv.3 是端侧档位');
 assert.equal(gamePage.data.playerRowAlpha, 1, '轮到我走, 我这一行要亮着');
 assert.equal(gamePage.data.opponentRowAlpha, 0.45, '不该谁走的那一行压暗');
-assert.ok(gamePage.data.difficultyLabel.startsWith('Lv.4'), '档位 chip 要显示当前难度');
+assert.ok(gamePage.data.difficultyLabel.startsWith('Lv.3'), '档位 chip 要显示当前难度');
 
 // 选中一个子 → 出可走点
 gamePage.onCellTap({ detail: { row: 6, col: 4 } });
@@ -167,22 +167,22 @@ assert.equal(gamePage.data.flipped, true, '换边后视角要跟着走');
 
 // 难度: 对局中改档位立即生效, 不重开局
 const movesBefore = gamePage.data.moveCount;
-gamePage.onPickLevel({ detail: { level: 7 } });
-assert.equal(gamePage.data.difficulty.level, 7);
+gamePage.onPickLevel({ detail: { level: 2 } });
+assert.equal(gamePage.data.difficulty.level, 2);
 assert.equal(gamePage.data.moveCount, movesBefore, '改难度不该重开局');
 
-// Lv.10 以上进来给说明卡, 而不是一盘下不动的棋
+// Lv.4 以上进来给说明卡, 而不是一盘下不动的棋
 const appOnlyGame = load('../pages/game/game.js');
-appOnlyGame.onLoad({ level: '13', side: '1' });
+appOnlyGame.onLoad({ level: '5', side: '1' });
 assert.equal(appOnlyGame.data.appOnly, true);
-assert.ok(appOnlyGame.data.appOnlyTitle.includes('Lv.13'));
-assert.ok(appOnlyGame.data.appOnlyBody.includes('9'), '说明卡要写清端侧到哪一档');
+assert.ok(appOnlyGame.data.appOnlyTitle.includes('Lv.5'));
+assert.ok(appOnlyGame.data.appOnlyBody.includes('3'), '说明卡要写清端侧到哪一档');
 
 // ====== 终局与复盘 ======
 
 storage.delete('records');
 const finishing = load('../pages/game/game.js');
-finishing.onLoad({ level: '4', side: '1' });
+finishing.onLoad({ level: '3', side: '1' });
 modals = [];
 finishing.onResign();
 assert.equal(modals.length, 1, '认输要二次确认');
@@ -246,9 +246,45 @@ for (const [w, h] of [[304, 400], [304, 560], [560, 400], [750, 1200], [200, 200
 
 const picker = load('../components/difficulty-picker/difficulty-picker.js');
 picker.rebuild();
-assert.equal(picker.data.levels.length, 15, '难度选择器要列出全部 15 档');
+assert.equal(picker.data.levels.length, 8, '难度选择器要列出全部 8 档');
 assert.equal(picker.data.levels[0].appOnly, false);
-assert.equal(picker.data.levels[14].appOnly, true, 'Lv.15 要标成 App 端');
+assert.equal(picker.data.levels[4].appOnly, true, 'Lv.5 要标成 App 端');
+assert.equal(picker.data.levels[7].appOnly, true, 'Lv.8 要标成 App 端');
 assert.ok(picker.data.levels[0].color.startsWith('#'), '每一档要有段位色条');
+
+// Practice assistance always uses the strongest local analysis, not random opponent policy.
+const gentleHint = load('../pages/game/game.js');
+gentleHint.onLoad({ level: '1', side: '1' });
+const originalBestMove = gameCore.localBestMove;
+let analysisLevel;
+gameCore.localBestMove = (board, side, level) => {
+  analysisLevel = level;
+  return gameCore.legalMoves(board, side)[0];
+};
+gentleHint.onHint();
+assert.equal(analysisLevel, gameCore.engineProfile.miniprogramMaxLevel);
+gameCore.localBestMove = originalBestMove;
+
+// Configuring a cloud engine must never turn the first two practice levels into strong opponents.
+const store = require('../core/store');
+store.updateSettings({ engineApiBaseUrl: 'https://example.invalid' });
+let localCalls = 0;
+gentleHint.playEngineLocal = () => { localCalls++; };
+gentleHint.setData({ sideToMove: gameCore.BLACK, isThinking: true });
+gentleHint.requestEngineMove();
+assert.equal(localCalls, 1);
+store.updateSettings({ engineApiBaseUrl: '' });
+
+// A gentle practice game stays unrated even after selecting a harder opponent.
+const rankedProfileBefore = { ...store.getProfile() };
+gentleHint.onPickLevel({ detail: { level: 3 } });
+gentleHint.endGame({ type: gameCore.GAME_OVER.CHECKMATE, winner: gameCore.BLACK });
+assert.deepEqual(store.getProfile(), rankedProfileBefore, 'gentle games leave the entire ranked profile unchanged');
+assert.equal(store.getRecords()[0].practice, true);
+
+// App-only pages can be changed back to an available local tier.
+appOnlyGame.onPickLevel({ detail: { level: 1 } });
+assert.equal(appOnlyGame.data.appOnly, false);
+assert.equal(appOnlyGame.data.difficulty.level, 1);
 
 console.log('smoke tests passed');

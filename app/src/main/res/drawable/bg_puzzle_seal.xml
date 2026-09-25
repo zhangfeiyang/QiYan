@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 古风朱红方印: 破关印章 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#14C0392B" />
+    <stroke
+        android:width="1.2dp"
+        android:color="@color/action" />
+    <corners android:radius="4dp" />
+</shape>

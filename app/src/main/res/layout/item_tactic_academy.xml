@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/border_subtle"
+    app:cardBackgroundColor="@color/surface_raised">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 标题与研习印章 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tactic_name"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"
+                tools:text="🐎 马后炮" />
+
+            <TextView
+                android:id="@+id/tactic_seal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:background="@drawable/bg_opponent_avatar"
+                android:textColor="@color/lounge_soft_gold"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="已精通" />
+        </LinearLayout>
+
+        <!-- 口诀 -->
+        <TextView
+            android:id="@+id/tactic_rhyme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/action"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:text="“马后藏奇炮，当头将莫逃”" />
+
+        <!-- 详细说明 -->
+        <TextView
+            android:id="@+id/tactic_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:lineSpacingExtra="3dp"
+            tools:text="以马为炮架，炮隔马将军，马炮协同封死敌将全部退路。" />
+
+        <!-- 操作按钮行 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp"
+            android:gravity="end|center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_voice"
+                style="@style/Widget.Xiangqi.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/tactic_voice"
+                android:textSize="12sp"
+                android:paddingHorizontal="12dp"
+                app:icon="@drawable/ic_play"
+                app:iconSize="14dp" />
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="1dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_challenge"
+                style="@style/Widget.Xiangqi.Button.Gold"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/tactic_challenge"
+                android:textSize="12sp"
+                android:paddingHorizontal="14dp"
+                app:icon="@drawable/ic_next"
+                app:iconGravity="textEnd"
+                app:iconSize="14dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

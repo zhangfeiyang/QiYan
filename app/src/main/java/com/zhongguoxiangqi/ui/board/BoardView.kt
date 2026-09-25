@@ -2,6 +2,7 @@ package com.zhongguoxiangqi.ui.board
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -22,6 +23,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.PathInterpolator
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.zhongguoxiangqi.R
@@ -30,6 +32,8 @@ import com.zhongguoxiangqi.game.Move
 import com.zhongguoxiangqi.game.Piece
 import com.zhongguoxiangqi.game.Position
 import com.zhongguoxiangqi.game.Square
+import com.zhongguoxiangqi.ui.settings.AppSettings
+import com.zhongguoxiangqi.ui.settings.SettingsActivity
 import kotlin.math.max
 import kotlin.math.min
 
@@ -65,7 +69,17 @@ class BoardView @JvmOverloads constructor(
     private var flipped = false
     private var showCoordinates = true
     private var showWinRateBar = true
-    private var animationEnabled = true
+    private val settings = AppSettings(context)
+    private val preferences = context.applicationContext.getSharedPreferences(AppSettings.PREFS_NAME, Context.MODE_PRIVATE)
+    private var animationEnabled = settings.animationEnabled
+    private fun motionAllowed(): Boolean = animationEnabled && ValueAnimator.areAnimatorsEnabled()
+    private val settingsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == SettingsActivity.KEY_ANIMATION || key == SettingsActivity.KEY_CAPTURE_FX || key == null) {
+            refreshMotionSettings()
+        }
+        if (key == SettingsActivity.KEY_BOARD_SKIN || key == null) applyBoardSkin()
+    }
+    private var palette: BoardPalette? = null
 
     // ====== 数据 ======
     private var position: Position = Position()
@@ -82,12 +96,23 @@ class BoardView @JvmOverloads constructor(
     var onLongPressListener: ((Int) -> Unit)? = null
 
     /**
+     * 选中棋子的触感回调. 设了它就交给宿主 (GameFeedback.onSelectPiece),
+     * 让"震动"开关真正管得到选子; 没设则退回系统默认 KEYBOARD_TAP.
+     */
+    var onSelectHaptic: (() -> Unit)? = null
+
+    /**
      * 编辑模式: 点击只上报格子, 不做选子/走子那一套.
      *
      * 拍照识别出来的局面往往还没法合法走子(可能缺将、可能多子), 用走子逻辑
      * 去处理点击只会什么都选不中.
      */
     var editMode = false
+
+    /**
+     * 关掉之后触摸交给父级滚动. 设置页的材质预览用它, 免得棋盘把整页滑动手势吃掉.
+     */
+    var inputEnabled = true
 
     /** 编辑模式下的点击回调 */
     var onCellTapListener: ((Int) -> Unit)? = null
@@ -118,6 +143,9 @@ class BoardView @JvmOverloads constructor(
     private val pieceBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pieceShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pieceLiftShadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var landingShakeY = 0f
+    private var landingShakeAnimator: ValueAnimator? = null
     private val boardLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = themeColor(R.color.board_line)
         strokeWidth = 2f
@@ -213,6 +241,22 @@ class BoardView @JvmOverloads constructor(
     private var selectionPulse = 0f
     private var selectionAnimator: ValueAnimator? = null
 
+    /** Small local accents leave piece labels readable and never block input. */
+    private class BoardPulse {
+        var square = -1
+        var progress = 0f
+        var animator: ValueAnimator? = null
+    }
+    private val landingPulse = BoardPulse()
+    private val checkPulse = BoardPulse()
+    private val pulsePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+
+    /**
+     * 落子涟漪是"谁刚走"的颜色线索: 玩家=暖金 (fx_spark), 对手=冷青
+     * (board_ripple_opponent). 由宿主在 setPosition 前经 [setRippleByPlayer] 设定.
+     */
+    private var rippleByPlayer = true
+
     // ====== 吃子特效 ======
 
     /**
@@ -230,7 +274,9 @@ class BoardView @JvmOverloads constructor(
     )
 
     /**
-     * 棋子楷体: 加载失败退回系统衬线粗体.
+     * 棋子楷体: 霞鹜文楷 Medium 子集(仅棋子七字 + 简繁变体 + 楚河汉界 +
+     * 拉丁记谱字母, 10KB, OFL 许可随字体附在 assets/fonts/). 加载失败退回
+     * 系统衬线粗体.
      * 声明在厮杀特效的画笔之前 —— 那几支笔的字段初始化就要用它.
      */
     private val pieceTypeface: Typeface = try {
@@ -267,7 +313,16 @@ class BoardView @JvmOverloads constructor(
     }
 
     /** 吃子的厮杀特效开关(设置里可关). 关闭后只保留文字标签 */
-    var captureFxEnabled = true
+    var captureFxEnabled = settings.captureFxEnabled
+        set(value) {
+            field = value
+            if (!value) {
+                fxAnimator?.cancel()
+                fxAnimator = null
+                fxSquare = -1
+                invalidate()
+            }
+        }
 
     /**
      * 一档厮杀特效的强度参数, 按被吃子的分量给.
@@ -291,13 +346,13 @@ class BoardView @JvmOverloads constructor(
 
     // 按棋子类型(1帅 2仕 3相 4马 5车 6炮 7兵)索引
     private val killByType = arrayOf(
-        KillFx(1500L, 0.140f, 10, 3, 20, 1.3f),  // 将/帅: 终局, 三刀 + 全盘震动
-        KillFx(1000L, 0f,      5, 1, 10, 0.6f),  // 仕
-        KillFx(1000L, 0f,      5, 1, 10, 0.6f),  // 相
-        KillFx(1150L, 0.060f,  6, 1, 12, 0.8f),  // 马
-        KillFx(1250L, 0.090f,  8, 2, 14, 1.0f),  // 车: 双刀
-        KillFx(1150L, 0.060f,  6, 1, 12, 0.8f),  // 炮
-        KillFx(900L,  0f,      4, 1, 8,  0.45f), // 兵/卒: 最轻
+        KillFx(1000L, 0.025f, 10, 3, 16, 0.9f), // 将/帅: 终局, 短促的收束
+        KillFx(650L, 0f,      5, 1, 8,  0.5f),  // 仕
+        KillFx(650L, 0f,      5, 1, 8,  0.5f),  // 相
+        KillFx(750L, 0f,      6, 1, 10, 0.65f), // 马
+        KillFx(850L, 0.015f,  8, 2, 12, 0.8f),  // 车: 双刀, 轻微顿挫
+        KillFx(750L, 0f,      6, 1, 10, 0.65f), // 炮
+        KillFx(600L, 0f,      4, 1, 6,  0.4f),  // 兵/卒: 最轻
     )
 
     /** 厮杀时间线锚点: 撞击时刻 / 大字劈开时刻 */
@@ -315,6 +370,11 @@ class BoardView @JvmOverloads constructor(
     private var tagColor = 0
     private var tagProgress = 0f
     private var tagAnimator: ValueAnimator? = null
+    private var tagStatic = false
+    private val hideStaticTag = Runnable {
+        tagSquare = -1
+        invalidate()
+    }
     private val tagPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val tagTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
@@ -331,10 +391,18 @@ class BoardView @JvmOverloads constructor(
     fun showBoardTag(square: Int, text: String, @ColorRes colorRes: Int) {
         if (square < 0 || square >= Square.COUNT || text.isEmpty()) return
         tagAnimator?.cancel()
+        handler.removeCallbacks(hideStaticTag)
         tagSquare = square
         tagText = text
         tagColor = themeColor(colorRes)
         tagProgress = 0f
+        tagStatic = !motionAllowed()
+        if (tagStatic) {
+            // Information stays available with reduced motion; no zooming or floating.
+            handler.postDelayed(hideStaticTag, TAG_DURATION_MS)
+            invalidate()
+            return
+        }
         tagAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = TAG_DURATION_MS
             interpolator = DecelerateInterpolator()
@@ -373,13 +441,13 @@ class BoardView @JvmOverloads constructor(
         label: String? = null,
     ) {
         if (label != null) showBoardTag(square, label, R.color.action)
-        if (!captureFxEnabled) return
+        if (!captureFxEnabled || !motionAllowed()) return
         if (square < 0 || square >= Square.COUNT) return
         fxAnimator?.cancel()
         fxSquare = square
         fxPiece = capturedPiece
         fxAttacker = attackerPiece
-        fxCfg = killByType[Piece.fromCode(capturedPiece).type.coerceIn(0, killByType.size - 1)]
+        fxCfg = killByType[(Piece.fromCode(capturedPiece).type - 1).coerceIn(0, killByType.size - 1)]
 
         // 攻方来向: 幽灵字从真实来格的方向突进, 比固定方向有"这一手是谁下的"的叙事
         val to = squareToCenter(square)
@@ -452,7 +520,8 @@ class BoardView @JvmOverloads constructor(
         color = themeColor(R.color.board_palace)
         textSize = 56f
         textAlign = Paint.Align.CENTER
-        typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+        // 楚河汉界与棋子共用同一套楷体: 一张盘上出现两种字体会像拼装的
+        typeface = pieceTypeface
     }
 
     // ====== 动画 ======
@@ -484,9 +553,13 @@ class BoardView @JvmOverloads constructor(
     private val pieceFacePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
-    private val pieceWoodLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = themeColor(R.color.piece_grain)
-        strokeWidth = 0.8f
+    /**
+     * 棋子面背光侧的暖褐暗部: 只靠左上白高光, 立体感是"平的" —— 右下再垫
+     * 一圈暗部, 圆面才鼓得起来. 着色器在 [rebuildShaders] 里构建.
+     */
+    private val pieceShadePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    /** 内刻环: 本方身份色的一圈细环, 实物棋子车出来的那道边 */
+    private val pieceRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
     }
     private val boardWoodPaint = Paint().apply {
@@ -494,16 +567,28 @@ class BoardView @JvmOverloads constructor(
         strokeWidth = 1f
         style = Paint.Style.STROKE
     }
-    private val boardBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    /** 实木外框: 亮面朝上的一圈, 渐变在 [rebuildShaders] 里构建 */
+    private val frameFillPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    /** 外框外沿的收边细线 */
+    private val frameEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = themeColor(R.color.board_frame_edge)
+        style = Paint.Style.STROKE
+        strokeWidth = 1.5f
+    }
+    /** 盘面边界的外圈线: 真棋盘"外粗内细"双线里的粗那道 */
+    private val playBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = themeColor(R.color.board_border)
         style = Paint.Style.STROKE
-        strokeWidth = 6f
+    }
+    /** 炮位/兵位的直角标记 */
+    private val markPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = themeColor(R.color.board_line)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
     }
     private val boardRect = RectF()
-
-    private val redPieceColor = themeColor(R.color.piece_red)
-    private val blackPieceColor = themeColor(R.color.piece_black)
-    private val pieceTextColor = themeColor(R.color.piece_text)
+    /** 盘面矩形: 外框以内的木面, 格线/棋子都画在这里面 */
+    private val playRect = RectF()
 
     /** 棋子上印汉字还是拉丁字母. 见 [pieceLabel] */
     enum class PieceSet { HANZI, LATIN }
@@ -523,11 +608,15 @@ class BoardView @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         pieceShadowPaint.color = themeColor(R.color.piece_shadow)
+        pieceLiftShadowPaint.color = (themeColor(R.color.piece_shadow) and 0x00FFFFFF) or 0x66000000
         pieceBorderPaint.style = Paint.Style.FILL
         // 棋子文字必须居中对齐,否则字会整体偏到棋子右侧
         pieceRedPaint.textAlign = Paint.Align.CENTER
         pieceBlackPaint.textAlign = Paint.Align.CENTER
-        // 字体在上面 pieceTypeface 处统一加载(厮杀大字与棋子共用同一套楷体)
+        // 字体在上面 pieceTypeface 处统一加载(厮杀大字与棋子共用同一套楷体).
+        // 子集里只有 Medium 一档字重, 棋子字要的是"刻印"的厚重, 开伪粗补足.
+        pieceRedPaint.isFakeBoldText = true
+        pieceBlackPaint.isFakeBoldText = true
         pieceRedPaint.typeface = pieceTypeface
         pieceBlackPaint.typeface = pieceTypeface
 
@@ -552,6 +641,15 @@ class BoardView @JvmOverloads constructor(
         // 刚选中的棋子清掉.
         if (animateMove == null && position.hash == this.position.hash) return
 
+        clearPulse(landingPulse)
+        clearPulse(checkPulse)
+        if (animateMove == null) {
+            fxAnimator?.cancel()
+            tagAnimator?.cancel()
+            handler.removeCallbacks(hideStaticTag)
+            tagSquare = -1
+        }
+
         this.position = position.copy()
         this.lastMove = null
         this.hintMove = null
@@ -561,7 +659,7 @@ class BoardView @JvmOverloads constructor(
         syncSelectionAnimator()
         this.checkedKingSq = -1
 
-        if (animateMove != null && animationEnabled && cellWidth > 0f) {
+        if (animateMove != null && motionAllowed() && cellWidth > 0f) {
             startMoveAnimation(animateMove)
         } else {
             cancelMoveAnimation()
@@ -579,7 +677,7 @@ class BoardView @JvmOverloads constructor(
             cancelMoveAnimation()
             return
         }
-        animationAnimator?.cancel()
+        cancelMoveAnimation()
         animatingMove = move
         animatingPiece = piece
         animatingFromCenter = squareToCenter(move.from)
@@ -588,7 +686,9 @@ class BoardView @JvmOverloads constructor(
 
         animationAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = MOVE_ANIMATION_MS
-            interpolator = DecelerateInterpolator()
+            // Material 标准缓动: 起手略快、落定缓收, 比纯 Decelerate 多一点
+            // "提起-落定"的分量感; 时长不变, 只换曲线.
+            interpolator = PathInterpolator(0.3f, 0f, 0.2f, 1f)
             addUpdateListener {
                 animationProgress = it.animatedValue as Float
                 invalidate()
@@ -596,6 +696,24 @@ class BoardView @JvmOverloads constructor(
             doOnEnd {
                 animatingMove = null
                 animationProgress = 0f
+                animationAnimator = null
+                startPulse(landingPulse, move.to, 380L)
+                triggerMoveLandingShake()
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    /** 落子微震颤: 产生 2.5px 的微幅物理回弹，模拟实木棋子砸在棋盘上的沉稳触感 */
+    fun triggerMoveLandingShake() {
+        if (!motionAllowed()) return
+        landingShakeAnimator?.cancel()
+        landingShakeAnimator = ValueAnimator.ofFloat(0f, 2.5f, -1.0f, 0f).apply {
+            duration = 130L
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                landingShakeY = it.animatedValue as Float
                 invalidate()
             }
             start()
@@ -603,6 +721,7 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun cancelMoveAnimation() {
+        animationAnimator?.removeAllListeners()
         animationAnimator?.cancel()
         animationAnimator = null
         animatingMove = null
@@ -656,11 +775,66 @@ class BoardView @JvmOverloads constructor(
 
     fun setAnimationEnabled(enabled: Boolean) {
         this.animationEnabled = enabled
+        if (!motionAllowed()) {
+            cancelMoveAnimation()
+            fxAnimator?.cancel()
+            fxAnimator = null
+            clearPulse(landingPulse)
+            clearPulse(checkPulse)
+            if (tagSquare != -1) {
+                tagAnimator?.removeAllListeners()
+                tagAnimator?.cancel()
+                tagAnimator = null
+                tagStatic = true
+                handler.removeCallbacks(hideStaticTag)
+                handler.postDelayed(hideStaticTag, TAG_DURATION_MS)
+            }
+        }
+        syncSelectionAnimator()
+        invalidate()
     }
 
     fun setCheckedKing(sq: Int) {
+        // 将军光环呼吸 3 遍 (repeat=2): 足够被注意到, 又有界不耗电
+        if (sq != checkedKingSq && sq in 0 until Square.COUNT) startPulse(checkPulse, sq, 720L, repeat = 2)
+        if (sq == -1) clearPulse(checkPulse)
         this.checkedKingSq = sq
         invalidate()
+    }
+
+    /** [repeat] 是额外重播次数: 0=只播一遍, 2=共三遍 (将军光环用, 有界不耗电) */
+    private fun startPulse(pulse: BoardPulse, square: Int, durationMs: Long, repeat: Int = 0) {
+        clearPulse(pulse)
+        if (!motionAllowed()) return
+        pulse.square = square
+        pulse.animator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = durationMs
+            interpolator = DecelerateInterpolator()
+            repeatCount = repeat
+            repeatMode = ValueAnimator.RESTART
+            addUpdateListener {
+                pulse.progress = it.animatedValue as Float
+                invalidate()
+            }
+            doOnEnd {
+                pulse.square = -1
+                pulse.animator = null
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    /** 宿主在 setPosition 前告知"刚走子的是不是玩家", 决定落子涟漪的冷暖色 */
+    fun setRippleByPlayer(byPlayer: Boolean) {
+        rippleByPlayer = byPlayer
+    }
+
+    private fun clearPulse(pulse: BoardPulse) {
+        pulse.animator?.cancel()
+        pulse.animator = null
+        pulse.square = -1
+        pulse.progress = 0f
     }
 
     /** 清除选格 */
@@ -691,7 +865,7 @@ class BoardView @JvmOverloads constructor(
      * 纯耗电 —— 对局界面常年停在那儿, 这点开销不能白花.
      */
     private fun syncSelectionAnimator() {
-        val shouldRun = selectedSquare != -1
+        val shouldRun = selectedSquare != -1 && motionAllowed() && isAttachedToWindow && windowVisibility == VISIBLE
         if (shouldRun && selectionAnimator == null) {
             selectionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = 900L
@@ -714,6 +888,7 @@ class BoardView @JvmOverloads constructor(
     // ====== 触摸事件 ======
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!inputEnabled) return false
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 downX = event.x
@@ -753,15 +928,70 @@ class BoardView @JvmOverloads constructor(
         longPressRunnable = null
     }
 
+    private fun refreshMotionSettings() {
+        setAnimationEnabled(settings.animationEnabled)
+        captureFxEnabled = settings.captureFxEnabled
+    }
+
+    /** 按当前材质重上盘面和棋子的颜色. 黄花梨走主题色, 其余三套用固定色板. */
+    private fun applyBoardSkin() {
+        palette = BoardPalettes.of(BoardSkin.fromId(settings.boardSkin))
+        val p = palette
+        boardLinePaint.color = p?.line ?: themeColor(R.color.board_line)
+        palaceLinePaint.color = p?.palace ?: themeColor(R.color.board_line)
+        boardWoodPaint.color = p?.grain ?: themeColor(R.color.board_grain)
+        frameEdgePaint.color = p?.frameEdge ?: themeColor(R.color.board_frame_edge)
+        playBorderPaint.color = p?.border ?: themeColor(R.color.board_border)
+        markPaint.color = p?.line ?: themeColor(R.color.board_line)
+        riverTextPaint.color = p?.river ?: themeColor(R.color.board_palace)
+        coordinatePaint.color = p?.coord ?: themeColor(R.color.board_coord)
+        rebuildShaders()
+        invalidate()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        refreshMotionSettings()
+        applyBoardSkin()
+        preferences.registerOnSharedPreferenceChangeListener(settingsListener)
+    }
+
     override fun onDetachedFromWindow() {
+        preferences.unregisterOnSharedPreferenceChangeListener(settingsListener)
         selectionAnimator?.cancel()
         selectionAnimator = null
         fxAnimator?.cancel()
         fxAnimator = null
+        tagAnimator?.cancel()
+        tagAnimator = null
+        handler.removeCallbacks(hideStaticTag)
+        tagSquare = -1
+        clearPulse(landingPulse)
+        clearPulse(checkPulse)
         super.onDetachedFromWindow()
         cancelPendingLongPress()
-        animationAnimator?.cancel()
-        animationAnimator = null
+        cancelMoveAnimation()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (!isAttachedToWindow) return
+        // The infinite selection breath must not keep an obscured board drawing frames.
+        if (visibility == VISIBLE) {
+            refreshMotionSettings()
+            applyBoardSkin()
+        } else {
+            selectionAnimator?.cancel()
+            selectionAnimator = null
+            selectionPulse = 0f
+            cancelMoveAnimation()
+            fxAnimator?.cancel()
+            clearPulse(landingPulse)
+            clearPulse(checkPulse)
+            tagAnimator?.cancel()
+            handler.removeCallbacks(hideStaticTag)
+            tagSquare = -1
+        }
     }
 
     /** 标出可疑格子, 传空集合即清除 */
@@ -800,6 +1030,8 @@ class BoardView @JvmOverloads constructor(
             if (piece != Piece.NONE.code && Piece.fromCode(piece).color == position.sideToMove) {
                 selectedSquare = sq
                 syncSelectionAnimator()
+                onSelectHaptic?.invoke()
+                    ?: performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 val moves = mutableListOf<Move>()
                 com.zhongguoxiangqi.game.Rules.generateAllLegal(position, moves)
                 legalMovesFromSelected = moves.filter { it.from == sq }
@@ -816,6 +1048,8 @@ class BoardView @JvmOverloads constructor(
             if (piece != Piece.NONE.code && Piece.fromCode(piece).color == position.sideToMove) {
                 selectedSquare = sq
                 syncSelectionAnimator()
+                onSelectHaptic?.invoke()
+                    ?: performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
                 val moves = mutableListOf<Move>()
                 com.zhongguoxiangqi.game.Rules.generateAllLegal(position, moves)
                 legalMovesFromSelected = moves.filter { it.from == sq }
@@ -921,16 +1155,29 @@ class BoardView @JvmOverloads constructor(
     private fun rebuildShaders() {
         if (pieceRadius <= 0f) return
 
-        // 木纹要一直铺到坐标标签外面 —— 边框收在 pieceRadius*1.2(0.5 格)时,
-        // 标签只能画在木纹之外的页面底色上, 看着像掉出棋盘.
+        // 实木外框铺到坐标标签外面 —— 内沿收在 WOOD_MARGIN - FRAME 处,
+        // 标签落在"棋子外沿 → 框内沿"这条空带里, 不会压到框上.
         val wood = cellWidth * WOOD_MARGIN_CELLS
         boardRect.set(
             boardLeft - wood, boardTop - wood,
             boardRight + wood, boardBottom + wood
         )
+        val frame = cellWidth * FRAME_CELLS
+        playRect.set(boardRect.left + frame, boardRect.top + frame,
+            boardRect.right - frame, boardRect.bottom - frame)
+        // 框是"亮面朝上"的一圈木条: 顶亮底暗, 一条纵向渐变近似
+        val skin = palette
+        frameFillPaint.shader = LinearGradient(
+            0f, boardRect.top, 0f, boardRect.bottom,
+            skin?.frameTop ?: themeColor(R.color.board_frame),
+            skin?.frameEdge ?: themeColor(R.color.board_frame_edge),
+            Shader.TileMode.CLAMP
+        )
+        playBorderPaint.strokeWidth = (cellWidth * 0.045f).coerceAtLeast(2f)
+        markPaint.strokeWidth = (cellWidth * 0.028f).coerceAtLeast(1.5f)
         boardBgPaint.shader = LinearGradient(
             boardRect.left, boardRect.top, boardRect.right, boardRect.bottom,
-            intArrayOf(
+            skin?.boardGrad ?: intArrayOf(
                 themeColor(R.color.board_grad_1),
                 themeColor(R.color.board_grad_2),
                 themeColor(R.color.board_grad_3),
@@ -942,12 +1189,20 @@ class BoardView @JvmOverloads constructor(
 
         pieceInnerPaint.shader = RadialGradient(
             -pieceRadius * 0.3f, -pieceRadius * 0.3f, pieceRadius * 0.7f,
-            intArrayOf(
+            skin?.pieceGrad ?: intArrayOf(
                 themeColor(R.color.piece_grad_1),
                 themeColor(R.color.piece_grad_2),
                 themeColor(R.color.piece_grad_3)
             ),
             floatArrayOf(0f, 0.5f, 1f),
+            Shader.TileMode.CLAMP
+        )
+        // 背光暗部: 圆心偏到右下, 从 piece_shade 渐隐到全透明
+        // (透明端由 shade 色自己降 alpha 得出, 不必再开一个 token)
+        val shade = skin?.pieceShade ?: themeColor(R.color.piece_shade)
+        pieceShadePaint.shader = RadialGradient(
+            pieceRadius * 0.38f, pieceRadius * 0.45f, pieceRadius * 0.95f,
+            shade, shade and 0x00FFFFFF,
             Shader.TileMode.CLAMP
         )
     }
@@ -956,18 +1211,26 @@ class BoardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        // 厮杀震动: 大子被吃时全盘短促抖动 —— 撞击时刻峰值, 0.55 内衰减归零.
-        // 抖的是整个画面(棋盘+棋子+特效一起), 只抖特效层会像渲染故障.
+        // 厮杀震动与落子微震颤: 大子被吃时全盘短促抖动，落子落地时木质回弹
         val shake = killShakeOffset()
-        val shakeSave = if (shake != null) canvas.save() else -1
-        if (shake != null) canvas.translate(shake.x, shake.y)
+        val totalShakeX = shake?.x ?: 0f
+        val totalShakeY = (shake?.y ?: 0f) + landingShakeY
+        val hasShake = totalShakeX != 0f || totalShakeY != 0f
+        val shakeSave = if (hasShake) canvas.save() else -1
+        if (hasShake) canvas.translate(totalShakeX, totalShakeY)
         drawBoard(canvas)
         drawGrid(canvas)
+        drawPositionMarks(canvas)
         drawPalace(canvas)
         drawRiver(canvas)
         if (showCoordinates) drawCoordinates(canvas)
         drawThreats(canvas)            // 威胁光晕: 画在棋子下, 看起来像棋子在"发光"
         drawHighlights(canvas)
+        drawPulse(
+            canvas, landingPulse,
+            if (rippleByPlayer) R.color.fx_spark else R.color.board_ripple_opponent
+        )
+        drawPulse(canvas, checkPulse, R.color.hl_check)
         drawPieces(canvas)
         drawSelectionRing(canvas)      // 选中环: 必须压在棋子之上, 见下方说明
         if (animatingMove != null) drawAnimatingPiece(canvas)
@@ -1259,14 +1522,14 @@ class BoardView @JvmOverloads constructor(
     private fun drawBoardTag(canvas: Canvas) {
         if (tagSquare == -1) return
         val c = squareToCenter(tagSquare)
-        val t = tagProgress
+        val t = if (tagStatic) 0.18f else tagProgress
 
         val appear = (t / 0.12f).coerceIn(0f, 1f)
         val alpha = when {
             t > 0.75f -> ((1f - (t - 0.75f) / 0.25f) * 255).toInt()
             else -> (appear * 255).toInt()
         }.coerceIn(0, 255)
-        val rise = pieceRadius * 1.9f * t
+        val rise = if (tagStatic) 0f else pieceRadius * 1.9f * t
         tagTextPaint.textSize = pieceRadius * 0.56f * (0.75f + 0.25f * appear)
 
         val fm = tagTextPaint.fontMetrics
@@ -1326,7 +1589,7 @@ class BoardView @JvmOverloads constructor(
         if (selectedSquare == -1) return
         val center = squareToCenter(selectedSquare)
         val cx = center.x
-        val cy = center.y
+        val cy = center.y - pieceRadius * 0.16f
         val phase = selectionPulse                      // 0..1 往复
         val ringR = pieceRadius * (1.06f + 0.10f * phase)
 
@@ -1354,30 +1617,27 @@ class BoardView @JvmOverloads constructor(
     }
 
     private fun drawBoard(canvas: Canvas) {
-        // 木纹背景
-        canvas.drawRoundRect(boardRect, 12f, 12f, boardBgPaint)
+        // 实木外框: 亮面朝上的一圈木条(渐变), 外沿再收一道细边
+        canvas.drawRoundRect(boardRect, 14f, 14f, frameFillPaint)
+        canvas.drawRoundRect(boardRect, 14f, 14f, frameEdgePaint)
 
-        // 木纹细节 (细线)
+        // 盘面 + 外圈边界线: 真棋盘"外粗内细"双线的粗那道, 格线本身是细的
+        canvas.drawRoundRect(playRect, 8f, 8f, boardBgPaint)
+        canvas.drawRoundRect(playRect, 8f, 8f, playBorderPaint)
+
+        // 木纹细节(细线): 框和盘面一起铺, 浅盘上若隐若现才算"木"
         for (i in 0..30) {
             val y = boardRect.top + (boardRect.height() / 30f) * i
             val wave = kotlin.math.sin(i * 0.7f) * 4f
             canvas.drawLine(boardRect.left + wave, y, boardRect.right - wave, y, boardWoodPaint)
         }
-
-        // 边框
-        canvas.drawRoundRect(boardRect, 12f, 12f, boardBorderPaint)
     }
 
     private fun drawGrid(canvas: Canvas) {
-        // 横线 (10 条)
+        // 横线 (10 条): 全部贯通 —— 楚河汉界处横线也不断开, 断的是纵线
         for (i in 0 until Square.ROWS) {
             val y = boardTop + i * cellHeight
-            if (i == 0 || i == Square.ROWS - 1) {
-                canvas.drawLine(boardLeft, y, boardRight, y, boardLinePaint)
-            } else {
-                // 楚河汉界处的横线不断开
-                canvas.drawLine(boardLeft, y, boardRight, y, boardLinePaint)
-            }
+            canvas.drawLine(boardLeft, y, boardRight, y, boardLinePaint)
         }
 
         // 纵线 (9 条)
@@ -1400,6 +1660,39 @@ class BoardView @JvmOverloads constructor(
         drawPalaceX(canvas, boardTop, boardLeft + 3 * cellWidth, boardLeft + 5 * cellWidth, 2 * cellHeight)
         // 下方: row 7..9, col 3..5
         drawPalaceX(canvas, boardTop + 7 * cellHeight, boardLeft + 3 * cellWidth, boardLeft + 5 * cellWidth, 2 * cellHeight)
+    }
+
+    /**
+     * 炮位/兵位的直角标记: 真棋盘在炮位(2,1)(2,7)(7,1)(7,7)和兵位
+     * (3,*) (6,*) 画四组小直角. 这套记号是棋盘"出身"的一部分 —— 参考的
+     * 实木盘上就有, 少了它盘面再像也像块光板.
+     *
+     * 边线上的点(兵位 col 0/8)只画靠内的一侧, 外侧让位给边界线.
+     */
+    private fun drawPositionMarks(canvas: Canvas) {
+        for (row in intArrayOf(2, 7)) {
+            for (col in intArrayOf(1, 7)) drawPositionMark(canvas, row, col)
+        }
+        for (row in intArrayOf(3, 6)) {
+            for (col in 0 until Square.COLS step 2) drawPositionMark(canvas, row, col)
+        }
+    }
+
+    private fun drawPositionMark(canvas: Canvas, row: Int, col: Int) {
+        val cx = boardLeft + col * cellWidth
+        val cy = boardTop + row * cellHeight
+        val gap = cellWidth * 0.07f   // 直角离交点的空隙
+        val arm = cellWidth * 0.17f   // 直角臂长
+        for (sx in intArrayOf(-1, 1)) {
+            // 边线外侧不画: 兵位贴着左右边界
+            if ((col == 0 && sx < 0) || (col == Square.COLS - 1 && sx > 0)) continue
+            for (sy in intArrayOf(-1, 1)) {
+                val ox = cx + sx * gap
+                val oy = cy + sy * gap
+                canvas.drawLine(ox, oy, ox + sx * arm, oy, markPaint)
+                canvas.drawLine(ox, oy, ox, oy + sy * arm, markPaint)
+            }
+        }
     }
 
     private fun drawPalaceX(canvas: Canvas, topY: Float, leftX: Float, rightX: Float, h: Float) {
@@ -1432,11 +1725,11 @@ class BoardView @JvmOverloads constructor(
         val fm = coordinatePaint.fontMetrics
         // 基线偏移: 把文字的视觉中心落在给定的 y 上
         val baseline = -(fm.ascent + fm.descent) / 2f
-        // 标签放进"棋子外沿 → 木纹边框"这条空带的正中.
+        // 标签放进"棋子外沿 → 外框内沿"这条空带的正中.
         // 以前是按 pieceRadius 的倍数硬编码落点(0.23~0.57 格), 正好压在最外圈
         // 棋子(半径 0.42 格)身上 —— 上下两排列号被车马象整个盖住, 行号"10"也有
         // 一半钻到车底下, 等于没标. 小程序那边(59bf6b4)已经按同样思路修过.
-        val bandCenter = (pieceRadius + cellWidth * WOOD_MARGIN_CELLS) / 2f
+        val bandCenter = (pieceRadius + cellWidth * (WOOD_MARGIN_CELLS - FRAME_CELLS)) / 2f
 
         coordinatePaint.textAlign = Paint.Align.CENTER
         val yTop = boardTop - bandCenter + baseline
@@ -1542,13 +1835,13 @@ class BoardView @JvmOverloads constructor(
     private fun drawHighlights(canvas: Canvas) {
         // 最后走法高亮
         lastMove?.let { m ->
-            drawSquareHighlight(canvas, m.from, highlightLastMovePaint, true)
-            drawSquareHighlight(canvas, m.to, highlightLastMovePaint, true)
+            drawSquareHighlight(canvas, m.from, highlightLastMovePaint)
+            drawSquareHighlight(canvas, m.to, highlightLastMovePaint)
         }
 
         // 选格高亮
         if (selectedSquare != -1) {
-            drawSquareHighlight(canvas, selectedSquare, highlightSelectPaint, true)
+            drawSquareHighlight(canvas, selectedSquare, highlightSelectPaint)
         }
 
         // 可走步高亮
@@ -1564,22 +1857,36 @@ class BoardView @JvmOverloads constructor(
         // 提示高亮: 起点上已经有真实棋子, 终点上会有虚影棋子, 所以两边都不画环
         // (环会被棋子/虚影盖住, 还不如不画). 真正的提示效果由 hintOverlay 负责.
         for (m in hintMoveSecondary) {
-            drawSquareHighlight(canvas, m.from, highlightHintSecondaryPaint, true)
-            drawSquareHighlight(canvas, m.to, highlightHintSecondaryPaint, true)
+            drawSquareHighlight(canvas, m.from, highlightHintSecondaryPaint)
+            drawSquareHighlight(canvas, m.to, highlightHintSecondaryPaint)
         }
 
         // 将军高亮
         if (checkedKingSq != -1) {
-            drawSquareHighlight(canvas, checkedKingSq, checkMarkerPaint, true)
+            val center = squareToCenter(checkedKingSq)
+            checkMarkerPaint.strokeWidth = (pieceRadius * 0.1f).coerceAtLeast(2f)
+            canvas.drawCircle(center.x, center.y, pieceRadius * 1.10f, checkMarkerPaint)
         }
 
         // 识别存疑的格子 —— 画在最上层, 让视线直接落到最可能错的地方
         for (sq in suspectSquares) {
-            drawSquareHighlight(canvas, sq, suspectPaint, true)
+            drawSquareHighlight(canvas, sq, suspectPaint)
         }
     }
 
-    private fun drawSquareHighlight(canvas: Canvas, sq: Int, paint: Paint, asStroke: Boolean) {
+    private fun drawPulse(canvas: Canvas, pulse: BoardPulse, @ColorRes color: Int) {
+        if (pulse.square == -1) return
+        val center = squareToCenter(pulse.square)
+        val t = pulse.progress
+        pulsePaint.color = themeColor(color)
+        pulsePaint.strokeWidth = pieceRadius * (0.09f - t * 0.04f)
+        pulsePaint.alpha = ((1f - t) * 165).toInt().coerceIn(0, 255)
+        canvas.drawCircle(center.x, center.y, pieceRadius * (1.05f + t * 0.62f), pulsePaint)
+        pulsePaint.alpha = ((1f - t) * 75).toInt().coerceIn(0, 255)
+        canvas.drawCircle(center.x, center.y, pieceRadius * (1.02f + t * 0.32f), pulsePaint)
+    }
+
+    private fun drawSquareHighlight(canvas: Canvas, sq: Int, paint: Paint) {
         val center = squareToCenter(sq)
         canvas.drawCircle(center.x, center.y, pieceRadius * 0.95f, paint)
     }
@@ -1624,25 +1931,34 @@ class BoardView @JvmOverloads constructor(
 
     private fun drawPiece(canvas: Canvas, sq: Int, pieceCode: Int) {
         val center = squareToCenter(sq)
-        drawPieceAt(canvas, center.x, center.y, pieceCode)
+        if (sq == selectedSquare) {
+            val liftY = pieceRadius * 0.16f
+            drawPieceAt(canvas, center.x, center.y - liftY, pieceCode, scale = 1.07f, isLifted = true)
+        } else {
+            drawPieceAt(canvas, center.x, center.y, pieceCode)
+        }
     }
 
     /**
-     * 画一枚棋子: 实心色底 + 白字.
+     * 画一枚棋子: 象牙面 + 本方彩字 + 本方边环.
      *
-     * 旧版是"米白木纹面 + 彩色字": 红子 #B4302A 的字压在 #F5E9CE 的面上只有
-     * 3.2:1 的对比度, 低于正文线, 而棋子上的字恰恰是全 App 最需要一眼读准的
-     * 东西; 更糟的是红黑两方**整枚子长得一样**, 只有中间那个字的颜色不同,
-     * 扫一眼盘面根本分不出敌我。
+     * 回到实物棋子的长相(参考中国风棋类 App 的盘面): 双方共用象牙圆面,
+     * 字与刻环按方着色 —— 红方朱砂、黑方玄墨, 敌我在余光里靠"字+环的颜色"
+     * 分辨, 这正是实物棋盘的认法. 上一版"整枚实心 + 白字"对比度最好, 但
+     * 满盘色块把棋盘变成了弹珠盘; 这一版把对比度做进字色本身(红字压象牙面
+     * 4.8:1、黑字 12.9:1, 都过 AA 正文线), 质感和可读性各拿一头.
      *
-     * 现在整枚子按方着色, 字统一用白色 —— 红子 5.0:1、黑子 15.6:1, 并且
-     * "这是哪一方的子"在余光里就能判断, 不必逐个去读字。
-     *
-     * 分层(由下到上): 投影 → 描边环 → 实心面 → 高光 → 内刻环 → 字.
-     * 内刻环替代了旧版那几条木纹横线: 横线画在实心底上像划痕, 而一圈内环
-     * 正是实物棋子被车出来的那道边, 也顺便把字框住。
+     * 分层(由下到上): 投影 → 深色外沿 → 象牙面 → 背光暗部 → 受光高光 →
+     * 本方色刻环 → 本方色字. 暗部与高光一对, 圆面才鼓得起来.
      */
-    private fun drawPieceAt(canvas: Canvas, cx: Float, cy: Float, pieceCode: Int) {
+    private fun drawPieceAt(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        pieceCode: Int,
+        scale: Float = 1f,
+        isLifted: Boolean = false,
+    ) {
         val piece = Piece.fromCode(pieceCode)
         if (piece == Piece.NONE) return
         val isRed = piece.isRed
@@ -1651,30 +1967,47 @@ class BoardView @JvmOverloads constructor(
         // 以棋子中心为原点绘制,渐变着色器得以复用
         val save = canvas.save()
         canvas.translate(cx, cy)
+        if (scale != 1f) {
+            canvas.scale(scale, scale)
+        }
 
-        // 阴影
-        canvas.drawCircle(3f, 4f, radius * 1.05f, pieceShadowPaint)
+        // 阴影: 提子悬空时阴影下移且扩散, 落地时紧咬棋盘
+        if (isLifted) {
+            canvas.drawCircle(5f, 11f, radius * 1.16f, pieceLiftShadowPaint)
+        } else {
+            canvas.drawCircle(3f, 4f, radius * 1.06f, pieceShadowPaint)
+        }
 
-        // 描边环: 比面色更深一档, 让子的轮廓在木色上咬得住
-        pieceBorderPaint.color =
-            if (isRed) themeColor(R.color.piece_red_edge) else themeColor(R.color.piece_black_edge)
+        val skin = palette
+        // 外沿环: 比本方色更深一档, 让子的轮廓在浅木上咬得住
+        pieceBorderPaint.color = if (isRed) {
+            skin?.pieceRedEdge ?: themeColor(R.color.piece_red_edge)
+        } else {
+            skin?.pieceBlackEdge ?: themeColor(R.color.piece_black_edge)
+        }
         canvas.drawCircle(0f, 0f, radius, pieceBorderPaint)
 
-        // 实心面
-        pieceFacePaint.color = if (isRed) redPieceColor else blackPieceColor
-        canvas.drawCircle(0f, 0f, radius * 0.93f, pieceFacePaint)
+        // 象牙面
+        pieceFacePaint.color = skin?.pieceFace ?: themeColor(R.color.piece_face)
+        canvas.drawCircle(0f, 0f, radius * 0.94f, pieceFacePaint)
 
-        // 高光: 左上偏亮的一层白色渐变, 做出圆润感(shader 已带 alpha)
-        canvas.drawCircle(0f, 0f, radius * 0.93f, pieceInnerPaint)
+        // 背光暗部(右下) + 受光高光(左上)
+        canvas.drawCircle(0f, 0f, radius * 0.94f, pieceShadePaint)
+        canvas.drawCircle(0f, 0f, radius * 0.94f, pieceInnerPaint)
 
-        // 内刻环
-        pieceWoodLinePaint.strokeWidth = radius * 0.05f
-        canvas.drawCircle(0f, 0f, radius * 0.78f, pieceWoodLinePaint)
+        // 本方色刻环: 实物棋子车出来的那道边, 顺便是第二重敌我信号
+        pieceRimPaint.color = if (isRed) {
+            skin?.pieceRed ?: themeColor(R.color.piece_red)
+        } else {
+            skin?.pieceBlack ?: themeColor(R.color.piece_black)
+        }
+        pieceRimPaint.strokeWidth = radius * 0.055f
+        canvas.drawCircle(0f, 0f, radius * 0.80f, pieceRimPaint)
 
-        // 字符. 红黑共用白字, 所以两支画笔的颜色是一样的 ——
+        // 字符. 红黑各用本方身份色压象牙面 ——
         // 仍然分开两支是因为字体大小要按字符集各自调(拉丁字母比汉字窄).
         val charPaint = if (isRed) pieceRedPaint else pieceBlackPaint
-        charPaint.color = pieceTextColor
+        charPaint.color = pieceRimPaint.color
         val text = pieceLabel(piece, isRed)
         val fm = charPaint.fontMetrics
         canvas.drawText(text, 0f, -(fm.ascent + fm.descent) / 2, charPaint)
@@ -1716,15 +2049,17 @@ class BoardView @JvmOverloads constructor(
     companion object {
         /** 棋盘四周为棋子半径和坐标文字预留的空间, 单位是"格" */
         // 上下底标签字号比之前大了一档(0.55 -> 0.65 个 pieceRadius),
-        // 还要给行号两边让出位置, 1.35 已经压到字会被棋子盖住. 加到 1.7.
-        private const val MARGIN_CELLS = 1.7f
+        // 还要给行号两边让出位置, 1.7 已经贴到外框, 加到 1.9.
+        private const val MARGIN_CELLS = 1.9f
         /**
-         * 木纹边框相对最外圈交点再往外铺多少格.
+         * 实木外框外沿相对最外圈交点再往外铺多少格.
          *
-         * 必须 < MARGIN_CELLS/2 (= 0.85), 否则边框描边会被 View 边缘切掉;
-         * 又必须 > 棋子半径 0.42, 坐标标签才有地方落. 0.78 两头都留了余量.
+         * 必须 < MARGIN_CELLS/2 (= 0.95), 否则外框描边会被 View 边缘切掉;
+         * 又必须 > 棋子半径 0.42 + 标签带宽, 坐标标签才有地方落.
          */
-        private const val WOOD_MARGIN_CELLS = 0.78f
+        private const val WOOD_MARGIN_CELLS = 0.90f
+        /** 实木外框的带宽(格): 外沿在 WOOD_MARGIN, 内沿在 WOOD_MARGIN-FRAME */
+        private const val FRAME_CELLS = 0.12f
 
         /**
          * 棋盘上下两排该标的列号.

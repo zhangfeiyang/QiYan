@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 特色卡一次性扫光的光带: 横向 透明→柔白→透明, 由代码平移扫过卡面 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="0"
+        android:startColor="#00FFFFFF"
+        android:centerColor="#38FFF6DF"
+        android:endColor="#00FFFFFF" />
+</shape>

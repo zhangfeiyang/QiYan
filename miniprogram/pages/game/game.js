@@ -90,7 +90,7 @@ Page({
   // ====== 生命周期 ======
 
   onLoad(options) {
-    const level = clamp(Number(options.level) || 4, 1, 15);
+    const level = clamp(Math.trunc(Number(options.level)) || engineProfile.defaultLevel, 1, engineProfile.maxLevel);
     const playerSide = Number(options.side) === game.BLACK ? game.BLACK : game.RED;
     this.startNewGame(level, playerSide, options.fen);
   },
@@ -142,6 +142,7 @@ Page({
     this._moves = [];
     this._startTime = Date.now();
     this._startRating = store.displayedRating(store.getProfile());
+    this._practiceUnrated = level === 1;
 
     this.setData({
       board,
@@ -158,7 +159,7 @@ Page({
       moveCount: 0,
       redWinRate: 50,
       appOnly: level > MAX_LOCAL_LEVEL,
-      appOnlyTitle: i18n.t('mp_app_only_title', `Lv.${level} ${difficulty.name}`),
+      appOnlyTitle: i18n.t('mp_app_only_title', `Lv.${level} ${i18n.t(difficulty.nameKey)}`),
       appOnlyBody: i18n.t('mp_app_only_body', MAX_LOCAL_LEVEL),
     });
 
@@ -186,8 +187,8 @@ Page({
     this.setData({
       opponentName: i18n.t(playerRed ? 'game_opponent_black' : 'game_opponent_red'),
       // 显示档位名而不是分数: 那个 Elo 是估计值, 摆出来是给用户一个并不存在的精确度
-      opponentLevelName: difficulty.name,
-      difficultyLabel: `Lv.${difficulty.level} ${difficulty.name}`,
+      opponentLevelName: i18n.t(difficulty.nameKey),
+      difficultyLabel: `Lv.${difficulty.level} ${i18n.t(difficulty.nameKey)}`,
       playerName: i18n.t(playerRed ? 'game_player_red' : 'game_player_black'),
       playerRank: i18n.t(rank.key),
       moveCountText: i18n.t('game_move_count', Math.floor(moveCount / 2) + 1),
@@ -306,12 +307,13 @@ Page({
   },
 
   requestEngineMove() {
+    if (this.data.isGameOver || this.data.sideToMove === this.data.playerSide) return;
     const { engineApiBaseUrl } = store.getSettings();
-    if (!engineApiBaseUrl) {
+    if (!engineApiBaseUrl || this.data.difficulty.level <= 2) {
       this.playEngineLocal();
       return;
     }
-    // 云端 Pikafish: 与 App 端同一套 1-15 级映射。没响应/给了非法着法就
+    // 云端 Pikafish: 与 App 端同一套 1-5 级映射。没响应/给了非法着法就
     // 退回端侧引擎 —— 宁可这一手弱一点, 也不要让棋局卡在那儿等一个不来的回复。
     wx.request({
       url: `${engineApiBaseUrl}/bestmove`,
@@ -320,6 +322,7 @@ Page({
       data: {
         fen: game.toFen(this.data.board, this.data.sideToMove, this._halfmoveClock),
         level: this.data.difficulty.level,
+        difficultyVersion: engineProfile.difficultyVersion,
       },
       success: ({ data }) => {
         const move = this.matchEngineMove(data);
@@ -364,8 +367,7 @@ Page({
   onHint() {
     const { isThinking, isGameOver, board, sideToMove, playerSide } = this.data;
     if (isThinking || isGameOver || sideToMove !== playerSide) return;
-    const level = Math.min(MAX_LOCAL_LEVEL, this.data.difficulty.level);
-    const move = game.localBestMove(board, sideToMove, level);
+    const move = game.localBestMove(board, sideToMove, MAX_LOCAL_LEVEL);
     if (!move) {
       wx.showToast({ title: i18n.t('mp_hint_none'), icon: 'none' });
       return;
@@ -479,13 +481,14 @@ Page({
    * 改掉 difficulty 下一手就是新等级; 唯一要处理的是它正在思考 —— 打断重下。
    */
   onPickLevel(event) {
-    const level = event.detail.level;
+    const level = clamp(Math.trunc(Number(event.detail.level)) || 1, 1, engineProfile.maxLevel);
+    if (level > MAX_LOCAL_LEVEL) return;
+    this._practiceUnrated = this._practiceUnrated || level === 1;
     const difficulty = difficulties[level - 1];
-    const wasThinking = this.data.isThinking;
-    this.setData({ pickerOpen: false, difficulty, isThinking: false });
+    this.setData({ pickerOpen: false, difficulty, isThinking: false, appOnly: false });
     store.saveLastSetup({ difficulty: level });
     this.refreshLabels();
-    if (wasThinking && !this.data.isGameOver) this.makeEngineMove();
+    if (!this.data.isGameOver && this.data.sideToMove !== this.data.playerSide) this.makeEngineMove();
   },
 
   // ====== 终局 ======
@@ -510,7 +513,7 @@ Page({
     else result = over.winner === playerSide ? ratingSystem.RESULT.WIN : ratingSystem.RESULT.LOSS;
 
     // 用档位的实际棋力算分, 与 App 的 engineManager.effectiveElo() 同义
-    const profile = store.recordResult(result, difficulty.elo);
+    const profile = store.recordResult(result, difficulty.elo, !this._practiceUnrated);
     const newRating = store.displayedRating(profile);
     const delta = newRating - this._startRating;
     const rank = ratingSystem.rankOf(profile.rating);
@@ -521,6 +524,8 @@ Page({
       playerSide,
       difficulty: difficulty.level,
       engineElo: difficulty.elo,
+      difficultyVersion: engineProfile.difficultyVersion,
+      practice: this._practiceUnrated,
       result: result === ratingSystem.RESULT.WIN ? 1 : result === ratingSystem.RESULT.LOSS ? -1 : 0,
       ratingDelta: delta,
       playerRating: newRating,
@@ -564,8 +569,7 @@ Page({
 
   finishScan() {
     if (!this.data.analysisScanning) return;
-    const level = Math.min(MAX_LOCAL_LEVEL, this.data.difficulty.level);
-    const suggestion = game.localBestMove(this.data.board, this.data.sideToMove, level);
+    const suggestion = game.localBestMove(this.data.board, this.data.sideToMove, MAX_LOCAL_LEVEL);
     const candidate = suggestion
       ? i18n.t('mp_analysis_candidate', notation.toChinese(suggestion, this.data.board))
       : '';

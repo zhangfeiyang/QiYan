@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">原创器乐《松风入局》，首页与对弈时轻拨弦与舒缓和弦相伴。音乐轻柔淡入，切到后台自动暂停。</string>
+    <string name="audio_music_volume">音乐音量</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">试听《松风入局》· 12 秒</string>
+    <string name="audio_preview_stop">停止试听</string>
+    <string name="audio_motion_description">柔和走子、落子涟漪与短促将军光环。关闭后也停用吃子动态特效，并跟随系统的动画开关。</string>
+</resources>

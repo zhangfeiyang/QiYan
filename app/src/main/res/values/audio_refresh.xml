@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">An original instrumental with soft plucked strings and spacious chords, on the home screen and during play. Fades in gently and pauses when the app goes into the background.</string>
+    <string name="audio_music_volume">Music volume</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Preview music · 12 seconds</string>
+    <string name="audio_preview_stop">Stop preview</string>
+    <string name="audio_motion_description">Smooth moves, a subtle landing ripple and a brief check pulse. Turning this off also stops capture motion. Respects your system animation setting.</string>
+</resources>

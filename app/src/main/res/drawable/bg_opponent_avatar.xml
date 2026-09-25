@@ -1,15 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  对手头像的底: 一枚棋子.
+  对手头像的底: 一枚象牙棋子.
 
   用棋子而不是人脸插画有两个理由: 一是不必为 15 档各画一张人像(也就不必
   面对"AI 对手长什么样"这种毫无根据的选择); 二是档位本来就有天然的棋子
   阶梯 —— 兵 → 仕 → 相 → 马 → 炮 → 车 → 将 → 帥, 越往上越重, 用户扫一眼
   就知道谁强谁弱, 不用去读 "Lv.11" 这个数字。
 
-  实心色底由 [OpponentAvatar] 按档位色注入, 与盘上的棋子同构(实心 + 白字).
+  与盘上棋子同构: 象牙面 + 身份色刻环. 刻环是独立的一层(avatar_rim),
+  [OpponentAvatar] 只给这一层上档位色 —— 整份 drawable 直接 SRC_IN 会把
+  象牙面一起染掉, 15 枚子就又变回一排色块.
 -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <solid android:color="@color/piece_black" />
-    <stroke android:width="@dimen/stroke_hairline" android:color="#33000000" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/piece_face" />
+            <stroke android:width="1dp" android:color="#33000000" />
+        </shape>
+    </item>
+
+    <item android:id="@+id/avatar_rim">
+        <shape android:shape="oval">
+            <stroke android:width="3dp" android:color="@color/piece_black" />
+        </shape>
+    </item>
+
+</layer-list>

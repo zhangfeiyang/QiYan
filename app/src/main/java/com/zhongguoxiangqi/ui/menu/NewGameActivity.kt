@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.zhongguoxiangqi.ui.common.DifficultyPreferences
 import androidx.recyclerview.widget.RecyclerView
 import com.zhongguoxiangqi.R
 import com.zhongguoxiangqi.databinding.ActivityNewGameBinding
@@ -39,7 +40,7 @@ class NewGameActivity : AppCompatActivity() {
         Insets.apply(binding.root, top = binding.toolbar, bottom = binding.bottomBar, extraBottomDp = 8f)
 
         val prefs = getSharedPreferences(GameActivity.PREFS_GAME, MODE_PRIVATE)
-        val lastId = prefs.getInt(GameActivity.KEY_LAST_DIFFICULTY, DEFAULT_DIFFICULTY)
+        val lastId = DifficultyPreferences.read(this)
         selected = DifficultyLevel.entries.firstOrNull { it.id == lastId }
             ?: DifficultyLevel.entries.first()
         // 执子偏好单独存: GameActivity 写回的 KEY_LAST_SIDE 是**实际**执的
@@ -52,7 +53,7 @@ class NewGameActivity : AppCompatActivity() {
             selected = level
             bindSelected()
         }
-        binding.opponentGrid.layoutManager = GridLayoutManager(this, GRID_COLUMNS)
+        binding.opponentGrid.layoutManager = LinearLayoutManager(this)
         binding.opponentGrid.adapter = adapter
         bindSelected()
 
@@ -99,6 +100,8 @@ class NewGameActivity : AppCompatActivity() {
             prefs.edit().putInt(KEY_SIDE_PREF, side).apply()
         }
 
+        fitChoices(binding.styleGroup)
+        fitChoices(binding.sideGroup)
         binding.btnStart.setOnClickListener {
             // 随机在**开局这一刻**掷, 不是存下来的那个值: 存 RANDOM 再在
             // GameActivity 里解析会让"上次执子"这个记忆变成每局都变, 而
@@ -119,15 +122,28 @@ class NewGameActivity : AppCompatActivity() {
         }
     }
 
+    /** Let translated labels and large text determine when the choices need more room. */
+    private fun fitChoices(group: com.google.android.material.button.MaterialButtonToggleGroup) {
+        group.post {
+            val widthPerChoice = group.width / group.childCount.coerceAtLeast(1)
+            val needsColumn = (0 until group.childCount).any { index ->
+                val button = group.getChildAt(index) as android.widget.TextView
+                button.paint.measureText(button.text.toString()) + button.paddingLeft + button.paddingRight > widthPerChoice
+            }
+            if (needsColumn || resources.configuration.fontScale > 1.2f) {
+                group.orientation = android.widget.LinearLayout.VERTICAL
+                for (index in 0 until group.childCount) {
+                    group.getChildAt(index).layoutParams = android.widget.LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                }
+            }
+        }
+    }
+
     private fun bindSelected() {
-        OpponentAvatar.bind(binding.selAvatar, selected)
-        binding.selName.text = getString(R.string.new_game_level_format, selected.id, getString(selected.nameRes))
-        // 见 DifficultyLevel.segmentOrNull: 档位名本身就是头衔时不再重复一遍
-        val segment = selected.segmentOrNull(this)
-        binding.selSegment.text = segment.orEmpty()
-        binding.selSegment.visibility = if (segment == null) android.view.View.GONE else android.view.View.VISIBLE
-        binding.selDesc.text = getString(selected.descRes)
-        binding.selStyle.text = getString(R.string.new_game_style_line, getString(style.nameRes))
+        binding.styleOptions.visibility = android.view.View.VISIBLE
+        binding.trainingNote.visibility = if (selected.id <= 2) android.view.View.VISIBLE else android.view.View.GONE
         adapter.select(selected.id)
     }
 
@@ -146,7 +162,7 @@ class NewGameActivity : AppCompatActivity() {
             val new = levels.indexOfFirst { it.id == id }
             selectedId = id
             // 只刷新真正换了状态的两格, 而不是 notifyDataSetChanged() ——
-            // 后者会把 15 个格子连同头像的 mutate() 一起重建一遍.
+            // 后者会把五个选项连同头像的 mutate() 一起重建一遍.
             if (old >= 0) notifyItemChanged(old)
             if (new >= 0) notifyItemChanged(new)
         }
@@ -159,18 +175,19 @@ class NewGameActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: VH, position: Int) {
             val level = levels[position]
             OpponentAvatar.bind(holder.b.avatar, level)
-            holder.b.levelNo.text = holder.itemView.context
-                .getString(R.string.new_game_level_short, level.id)
+            holder.b.levelNo.text = holder.itemView.context.getString(level.nameRes)
+            holder.b.levelDesc.text = holder.itemView.context.getString(level.descRes)
+            holder.b.selectedMark.visibility = if (level.id == selectedId) android.view.View.VISIBLE else android.view.View.INVISIBLE
+            holder.b.root.contentDescription = buildString {
+                append(holder.b.levelNo.text).append(". ").append(holder.b.levelDesc.text)
+                if (level.id == selectedId) append(". ").append(holder.itemView.context.getString(R.string.new_game_selected))
+            }
             holder.b.root.isSelected = level.id == selectedId
             holder.b.root.setOnClickListener { onPick(level) }
         }
     }
 
     private companion object {
-        /** 5 列 × 3 行 = 15 档, 整屏摆得下, 不用滚就能互相比较 */
-        const val GRID_COLUMNS = 5
-        const val DEFAULT_DIFFICULTY = 4
-
         /**
          * "随机执子"的哨兵值.
          *

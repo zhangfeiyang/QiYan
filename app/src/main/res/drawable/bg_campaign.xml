@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  闯关地图底: 一整幅可"游"的山水.
+
+  参考设计里关卡地图直接铺在水墨山水上, 关卡是画里的驿站. 这里的画分
+  五层, 由远到近:
+    远峰(最淡) → 雾带(留白) → 孤舟(点景) → 中山 → 近山(压底)
+  全部低浓度, 路径和关卡节点是主角, 画只负责"你走在山水里"的气氛.
+
+  背景固定在屏上不随路径滚动 —— 滚动的是"路", 山水是"天", 参考里
+  二者其实也是两个速度.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/bg_page" />
+
+    <!-- 远峰: 顶部工具栏下方探出一排 -->
+    <item
+        android:height="150dp"
+        android:top="88dp"
+        android:gravity="top"
+        android:drawable="@drawable/ink_peaks_far" />
+
+    <!-- 雾带: 远峰脚下的一条留白, 山水画的"气口".
+         远峰矩形的底边接缝在 top=238dp, 雾带 193..283dp 让接缝正好落在
+         渐变中点 —— 两端都透明, 雾自己没有边, 山从雾里化进纸里. -->
+    <item
+        android:height="90dp"
+        android:top="193dp"
+        android:gravity="top">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#00FFFFFF"
+                android:centerColor="@color/ink_mist"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 孤舟: 泊在雾带上, 靠右, 不与路径抢左半屏 -->
+    <item
+        android:width="64dp"
+        android:height="36dp"
+        android:top="208dp"
+        android:right="30dp"
+        android:gravity="end|top"
+        android:drawable="@drawable/ink_boat" />
+
+    <!-- 中山: 底部近山的上缘 -->
+    <item
+        android:height="160dp"
+        android:bottom="96dp"
+        android:gravity="bottom"
+        android:drawable="@drawable/ink_peaks_mid" />
+
+    <!-- 中山上缘的渐隐: 中山是矩形矢量, 山头接线(bottom=256dp)会露一道
+         硬边. 雾带 211..301dp 让接线落在渐变中点, 两端透明 —— 中山从雾
+         里长出来, 雾又不露自己的边. -->
+    <item
+        android:height="90dp"
+        android:bottom="211dp"
+        android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="90"
+                android:startColor="#00FFFFFF"
+                android:centerColor="@color/ink_mist"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 近山: 压住页面底边 -->
+    <item
+        android:height="120dp"
+        android:gravity="bottom"
+        android:drawable="@drawable/ink_mountains" />
+
+</layer-list>

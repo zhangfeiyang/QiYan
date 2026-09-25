@@ -5,7 +5,7 @@
   中性色带一点暖褐 (#22201D 而非 #242424): 纯灰配木色棋盘会显脏, 让底色和
   棋盘落在同一个色温上, 木头才像是"放在桌上"而不是"贴在屏幕上".
 
-  棋盘和棋子的处理与浅色一致 —— 实心色底 + 白字。深底上木盘要**压暗**而不
+  棋盘和棋子的处理与浅色一致 —— 象牙面 + 彩字。深底上木盘要**压暗**而不
   是提亮: 满屏原木在近黑底上会过曝, 反过来抢走棋子的注意力。
 -->
 <resources>
@@ -15,6 +15,24 @@
     <color name="surface_base">#22201D</color>
     <color name="surface_raised">#2C2A26</color>
     <color name="surface_overlay">#37342F</color>
+
+    <!-- ============ 宣纸页面底 ============ -->
+    <!-- 夜里的宣纸是"烛照"的: 顶部微亮, 越往下越沉. 渐变停靠点与浅色同名. -->
+    <color name="page_grad_1">#292622</color>
+    <color name="page_grad_2">#22201D</color>
+    <color name="page_grad_3">#1B1916</color>
+
+    <!-- ============ 水墨装饰 ============ -->
+    <!-- 夜里的水墨是"留白": 比底色亮的细笔, 浓度与浅色那套相抵 -->
+    <color name="ink_deco">#1FF0ECE5</color>
+    <color name="ink_mountain">#22F0ECE5</color>
+    <color name="ink_sun">#20D6453A</color>
+    <color name="ink_mist">#14F0ECE5</color>
+    <color name="ink_far">#12F0ECE5</color>
+    <color name="ink_mid">#17F0ECE5</color>
+
+    <!-- ============ 闯关地图 ============ -->
+    <color name="campaign_path">#6E5F45</color>
 
     <!-- ============ 描边 ============ -->
     <color name="border_subtle">#3A3630</color>
@@ -53,31 +71,44 @@
     <color name="side_black">#CFC9C1</color>
 
     <!-- ============ 棋盘 ============ -->
-    <color name="board_grad_1">#C6AC80</color>
-    <color name="board_grad_2">#BCA073</color>
-    <color name="board_grad_3">#B09468</color>
-    <color name="board_grad_4">#9E835A</color>
+    <color name="board_grad_1">#C9AF82</color>
+    <color name="board_grad_2">#BFA376</color>
+    <color name="board_grad_3">#B29669</color>
+    <color name="board_grad_4">#9F845B</color>
     <color name="board_line">#6E4A24</color>
     <color name="board_palace">#5A3A1B</color>
-    <!-- 外框在暗色下反而要更深: 让棋盘从背景里"浮"出来 -->
+    <!-- 实木边框: 暗色下外沿压到近黑, 让棋盘从深底里"浮"出来 -->
+    <color name="board_frame">#8A6C42</color>
+    <color name="board_frame_edge">#1B150E</color>
     <color name="board_border">#16130F</color>
     <color name="board_coord">#8A6C42</color>
     <color name="board_grain">#40806040</color>
 
     <!-- ============ 棋子 ============ -->
-    <!-- 与浅色同构: 实心色底 + 白字. 红子在暗木上略提亮以保住边界. -->
+    <!-- 象牙面在夜里压暗一档, 免得满盘白子过曝; 字色不变 —— 面仍是浅色,
+         深字对比度绰绰有余. 红方身份色略提亮保住边界. -->
     <color name="piece_red">#C43A2C</color>
     <color name="piece_red_edge">#8E2A20</color>
     <color name="piece_black">#1C1A18</color>
     <color name="piece_black_edge">#000000</color>
     <color name="piece_text">#FFFFFF</color>
-    <color name="piece_face">#F0E2C4</color>
+    <color name="piece_face">#EAD9B6</color>
     <color name="piece_grad_1">#30FFFFFF</color>
     <color name="piece_grad_2">#12FFFFFF</color>
     <color name="piece_grad_3">#00FFFFFF</color>
-    <color name="piece_grain">#14FFFFFF</color>
+    <color name="piece_shade">#4D6E4A24</color>
     <!-- 暗色下阴影加重: 棋子落在木盘上要有明确的离地感 -->
     <color name="piece_shadow">#59000000</color>
+
+    <!-- ============ 鎏金按钮 ============ -->
+    <!-- 金色在深底上本来就跳, 渐变整体压暗半档, 按下更深 -->
+    <color name="gold_grad_1">#EDC877</color>
+    <color name="gold_grad_2">#DBA94F</color>
+    <color name="gold_grad_3">#C6923A</color>
+    <color name="gold_stroke">#9A7126</color>
+    <color name="gold_text">#4A1D0A</color>
+    <color name="gold_pressed">#B9882E</color>
+    <color name="gold_disabled">#6E5F45</color>
 
     <!-- ============ 落子高亮 ============ -->
     <color name="hl_select">#99F2C94C</color>
@@ -87,6 +118,7 @@
     <color name="hl_hint">#995B9DD9</color>
     <color name="hl_check">#99E0574A</color>
     <color name="fx_spark">#FFD24A</color>
+    <color name="board_ripple_opponent">#6FA8CC</color>
     <color name="sel_ring">#FFC24D</color>
     <color name="hl_move_halo">#4081B64C</color>
     <color name="hl_hint_soft">#555B9DD9</color>

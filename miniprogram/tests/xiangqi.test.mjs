@@ -19,8 +19,8 @@ assert.equal(game.legalMoves(board, game.RED, { row: 9, col: 1 }).length, 2);
 const move = game.localBestMove(board, game.RED);
 assert.ok(move && game.legalMoves(board, game.RED).some((item) => JSON.stringify(item) === JSON.stringify(move)));
 
-// 每个 Lv.1-9 都必须返回合法着法
-for (let level = 1; level <= 9; level += 1) {
+// 每个本地档位都必须返回合法着法
+for (let level = 1; level <= game.engineProfile.miniprogramMaxLevel; level += 1) {
   const reply = game.localBestMove(board, game.BLACK, level);
   assert.ok(reply, `Lv.${level} 黑方必须有回复`);
   assert.ok(
@@ -71,8 +71,8 @@ const mate1 = [
   ['', '', '', '', '', '', '', '', ''],
   ['R', 'N', 'B', 'A', 'K', 'A', 'B', 'N', 'R'],
 ];
-const mating = game.localBestMove(mate1, game.RED, 9);
-assert.ok(mating && mating.to.row === 0 && mating.to.col === 4, `Lv.9 应能 1 步吃将，实际: ${JSON.stringify(mating)}`);
+const mating = game.localBestMove(mate1, game.RED, game.engineProfile.miniprogramMaxLevel);
+assert.ok(mating && mating.to.row === 0 && mating.to.col === 4, `最高本地档应能 1 步吃将，实际: ${JSON.stringify(mating)}`);
 
 // ====== 评估 ======
 

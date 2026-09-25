@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface_base">
+    android:background="@drawable/bg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -176,7 +176,7 @@
             <!-- 两条路并列, 不分主次 —— 截图找棋局和拍实体棋盘一样常见 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_start_camera"
-                style="@style/Widget.Xiangqi.Button"
+                style="@style/Widget.Xiangqi.Button.Gold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_5"
@@ -209,6 +209,39 @@
                 android:layout_marginTop="@dimen/space_1"
                 android:text="@string/recognize_start_gallery_desc"
                 android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <!-- 模型加载态: 40MB 权重进来就要读, 期间两个入口禁用. 失败时不让
+                 用户卡死在灰按钮上 —— 给"重试", 不必退出重进. -->
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/model_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_5"
+                android:indeterminate="true"
+                app:trackThickness="4dp"
+                app:trackCornerRadius="2dp"
+                app:indicatorColor="@color/lounge_soft_gold"
+                app:trackColor="@color/border_subtle" />
+
+            <TextView
+                android:id="@+id/model_progress_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/recognize_loading_model"
+                android:textAppearance="@style/TextAppearance.Xiangqi.Label" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_model_retry"
+                style="@style/Widget.Xiangqi.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_2"
+                android:text="@string/action_retry"
+                android:visibility="gone"
+                app:icon="@drawable/ic_refresh"
+                app:iconGravity="textStart"
+                app:iconSize="@dimen/icon_sm" />
 
             <!-- 拍摄要点。识别整盘全对约 83%, 拍得正不正直接决定这个数,
                  与其事后提示"识别失败", 不如事前说清楚。 -->

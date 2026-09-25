@@ -18,16 +18,45 @@
 -->
 <resources>
 
-    <!-- ============ 表面层次 ============ -->
-    <!-- 由低到高: sunken 内凹 < base 底 < raised 卡片 < overlay 浮层 -->
-    <color name="surface_sunken">#EDE7DE</color>
-    <color name="surface_base">#F7F3EE</color>
-    <color name="surface_raised">#FFFDFA</color>
-    <color name="surface_overlay">#FFFFFF</color>
+  <!-- ============ 表面层次 ============ -->
+  <!-- 由低到高: sunken 内凹 < base 底 < raised 卡片 < overlay 浮层.
+       base 取宣纸渐变的中段色: 引擎遮罩这类"压在页面上的纱"要与底色同源,
+       否则会出现一块比周围更亮的补丁. -->
+  <color name="surface_sunken">#EAE2D2</color>
+  <color name="surface_base">#F6EFE2</color>
+  <color name="surface_raised">#FFFCF4</color>
+  <color name="surface_overlay">#FFFFFF</color>
 
-    <!-- ============ 描边 ============ -->
-    <color name="border_subtle">#E3DBCF</color>
-    <color name="border_strong">#CFC3B2</color>
+  <!-- ============ 宣纸页面底 ============ -->
+  <!-- 参考中国风棋类 App 的"宣纸 + 水墨"页面底: 纵向三段微渐变, 顶亮底暗,
+       让内容自然沉向下方. 页面统一走 bg_page / bg_home 这两个 layer-list,
+       这三个 token 是它们的渐变停靠点; 状态栏取第一段, 与页面顶部无缝. -->
+  <color name="page_grad_1">#FDF9F1</color>
+  <color name="page_grad_2">#F6EFE2</color>
+  <color name="page_grad_3">#EEE3CD</color>
+
+  <!-- ============ 水墨装饰 ============ -->
+  <!-- 竹枝/远山这些装饰矢量用的"墨色", alpha 直接烘在色值里 —— 矢量路径
+       不再各自带 alpha, 明暗两套只换色值就能同时换浓淡.
+       淡朱"红日"同理: 远景的一轮, 不抢戏. -->
+  <color name="ink_deco">#1C2E3A2B</color>
+  <color name="ink_mountain">#222A231B</color>
+  <color name="ink_sun">#24C0392B</color>
+  <!-- 山水雾带: 远峰脚下那条留白. 浅色下是白雾, 夜里改成淡色纱. -->
+  <color name="ink_mist">#5EFFFDF6</color>
+  <!-- 远峰/中山比近山更淡: "远山无皴", 越远越淡越简.
+       独立成 token 是因为层与层的浓差就是空间感, 不与近山联动. -->
+  <color name="ink_far">#162A231B</color>
+  <color name="ink_mid">#1B2E3A2B</color>
+
+  <!-- ============ 闯关地图 ============ -->
+  <!-- 蜿蜒虚线: 参考地图的路是"沙土色"的浅色虚线, 压在画上若隐若现;
+       夜里降成暗金, 在深纸上仍是那条可走的路. -->
+  <color name="campaign_path">#D9C69A</color>
+
+  <!-- ============ 描边 ============ -->
+  <color name="border_subtle">#E6DCC8</color>
+  <color name="border_strong">#CFC0A6</color>
 
     <!-- ============ 文字 ============ -->
     <!-- 中性色带暖调 (#23201C 而非 #202020): 纯灰文字压在米白底上会显得发青,
@@ -65,42 +94,65 @@
 
     <!-- ============ 棋盘 ============ -->
     <!-- grad_* 是木纹渐变的四个停靠点, 从左上到右下由浅到深.
-         整体比旧版提亮约 12%: 棋子改成实心色底之后, 盘面越浅棋子越跳. -->
-    <color name="board_grad_1">#F7E9CE</color>
-    <color name="board_grad_2">#F0DFC0</color>
-    <color name="board_grad_3">#E8D3AE</color>
-    <color name="board_grad_4">#DEC69B</color>
+         整体再提亮一档并向暖黄偏: 参考的实木盘是"新砧板"那种浅暖木色,
+         象牙棋子压上去才立得住; 盘面越浅棋子越跳. -->
+    <color name="board_grad_1">#F7E9C9</color>
+    <color name="board_grad_2">#F1DFAF</color>
+    <color name="board_grad_3">#E9D19C</color>
+    <color name="board_grad_4">#DEC289</color>
     <!-- 格线用赭石而不是深褐: 深褐线在浅木上重得像铁丝网, 会和棋子抢注意力 -->
-    <color name="board_line">#A9743F</color>
-    <color name="board_palace">#8A5A2B</color>
-    <color name="board_border">#C9A87A</color>
-    <color name="board_coord">#A08256</color>
+    <color name="board_line">#B27A40</color>
+    <color name="board_palace">#96662F</color>
+    <!-- 实木边框: 内沿亮、外沿暗的两道, 中间是一条略深于盘面的木色带 ——
+         摸起来该是"一圈凸起的框". -->
+    <color name="board_frame">#D3AC6E</color>
+    <color name="board_frame_edge">#9A7134</color>
+    <color name="board_border">#9A7134</color>
+    <color name="board_coord">#A08050</color>
     <color name="board_grain">#40B08A5E</color>
 
     <!-- ============ 棋子 ============ -->
     <!--
-      实心色底 + 白字, 而不是旧版的"米白面 + 彩色字".
+      象牙面 + 彩字 + 彩边环 —— 回到实物棋子的长相, 但把对比度做够.
 
-      旧版红子是 #B4302A 的字压在 #F5E9CE 的面上, 对比度 3.2:1 —— 低于正文
-      线, 而棋子上的字恰恰是全 App 最需要一眼读准的东西. 换成白字压实心底
-      之后红子 5.0:1、黑子 15.6:1, 并且红黑两方从"字的颜色不同"变成"整枚子
-      的颜色不同", 扫一眼盘面就能分清敌我。
+      上一版"实心色底 + 白字"解决了分辨敌我, 却丢掉了实木棋子最核心的质感;
+      再上一版"米白面 + 彩字"又输在字色太浅(#B4302A 压 #F5E9CE 只有 3.2:1).
+      这一版两边共用象牙面, 字与边环按方着色, 且字色加深:
+        红方字/环 #C0392B 压象牙面 4.8:1
+        黑方字/环 #2A2620 压象牙面 12.9:1
+      均过 AA 正文线. 敌我分辨靠"字+边环同色", 这正是实物棋子的认法.
+
+      piece_red / piece_black 仍是"这一方的身份色", 吃子特效的大字与火星
+      也从它们取色, 语义不变.
     -->
     <color name="piece_red">#C0392B</color>
     <color name="piece_red_edge">#8E2A20</color>
-    <color name="piece_black">#22201E</color>
-    <color name="piece_black_edge">#000000</color>
-    <!-- 棋子上的字: 红黑两方共用白字 -->
+    <color name="piece_black">#2A2620</color>
+    <color name="piece_black_edge">#141210</color>
+    <!-- 棋子上的字: 红黑两方各用本方身份色(压象牙面), 浮动标签仍用白字 -->
     <color name="piece_text">#FFFFFF</color>
-    <!-- 面色: 实心棋子不再用它作底, 只留给摆子托盘的空槽 -->
-    <color name="piece_face">#F5E9CE</color>
+    <!-- 象牙面: 双方共用. 托盘空槽也用它, 与盘上棋子同一块料 -->
+    <color name="piece_face">#FCF4DF</color>
     <!-- 棋子面的径向高光: 左上亮 → 右下暗, 做出圆润的立体感.
-         实心底上改为叠一层很淡的白色渐变, 所以这三个停靠点带 alpha. -->
+         象牙面上叠很淡的白光, 所以这三个停靠点带 alpha. -->
     <color name="piece_grad_1">#38FFFFFF</color>
     <color name="piece_grad_2">#14FFFFFF</color>
     <color name="piece_grad_3">#00FFFFFF</color>
-    <color name="piece_grain">#18FFFFFF</color>
+    <!-- 面上背光侧的一层暖褐暗部: 只靠白高光, 圆润感是"平的" —— 底部
+         再垫一圈暗部才有球面. alpha 烘在色值里. -->
+    <color name="piece_shade">#408A5A28</color>
     <color name="piece_shadow">#33000000</color>
+
+    <!-- ============ 鎏金按钮 ============ -->
+    <!-- 参考设计里主行动键是"金底 + 深褐红字"的鎏金胶囊: 金是木质 warm
+         色系的顶配, 与朱红印章同屏不打架. 深褐红字压金面中段 5.5:1. -->
+    <color name="gold_grad_1">#F6DA8E</color>
+    <color name="gold_grad_2">#E9BE63</color>
+    <color name="gold_grad_3">#D6A344</color>
+    <color name="gold_stroke">#B9882E</color>
+    <color name="gold_text">#6E2A12</color>
+    <color name="gold_pressed">#D09A3C</color>
+    <color name="gold_disabled">#DCCBA4</color>
 
     <!-- ============ 落子高亮 (画在木色上, 需带 alpha) ============ -->
     <color name="hl_select">#99E0A61F</color>
@@ -111,6 +163,8 @@
     <color name="hl_check">#99C0392B</color>
     <!-- 吃子特效的火星色: 红黑双方共用, 靠亮度从棋子本色里跳出来 -->
     <color name="fx_spark">#FFB020</color>
+    <!-- 对手落子涟漪的冷色: 与玩家落子的暖金 (fx_spark) 拉开, "谁刚走"一眼可辨 -->
+    <color name="board_ripple_opponent">#3E6C8C</color>
     <!-- 选中环: 压在棋子之上, 所以不带 alpha -->
     <color name="sel_ring">#E0A61F</color>
     <!-- 可走点的外圈光晕, 比实心点更淡 -->
@@ -132,10 +186,11 @@
     <color name="winrate_text_on_black">#FFFFFF</color>
 
     <!-- ============ 引擎加载遮罩 ============ -->
-    <!-- 浅色主题给米白带 ~70% alpha. 原本硬编码 #B3F7F3EE, 切到暗色主题就
+    <!-- 浅色主题给米白带 ~70% alpha. 原本硬编码一个字面量, 切到暗色主题就
          变成一块亮亮的米色贴在深底上, 比没遮罩还扎眼. 改成 token, 两套
-         主题各自一份, 看起来都像"同一张图压了层薄纱"。 -->
-    <color name="loading_scrim">#B3F7F3EE</color>
+         主题各自一份, 看起来都像"同一张图压了层薄纱"。字面量跟随
+         surface_base(宣纸底中段色)走. -->
+    <color name="loading_scrim">#B3F6EFE2</color>
 
     <!-- ============ 段位 ============ -->
     <color name="rank_bronze">#A85F28</color>

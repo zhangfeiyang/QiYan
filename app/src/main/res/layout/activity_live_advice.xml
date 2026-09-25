@@ -52,7 +52,7 @@
         android:background="#66000000"
         android:paddingHorizontal="@dimen/space_3"
         android:layout_marginBottom="@dimen/space_2"
-        app:layout_constraintBottom_toTopOf="@id/status"
+        app:layout_constraintBottom_toTopOf="@id/status_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -76,20 +76,44 @@
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/status"
+    <!-- 状态条: 左边一颗 8dp 圆点随状态变色 (金=锁定中/绿=已锁定/灰=无效),
+         扫一眼颜色就知道到哪一步了, 不必读字 -->
+    <LinearLayout
+        android:id="@+id/status_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#66000000"
         android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_2"
         android:paddingVertical="@dimen/space_3"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/text_body_sm"
-        android:text="@string/live_locking"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="已锁定 · 识别 180ms" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:id="@+id/status_dot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="6dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/bg_status_dot"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- 0dp+weight: EN 长文案换行时也不把圆点挤出屏幕外 -->
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/text_body_sm"
+            android:text="@string/live_locking"
+            tools:text="已锁定 · 识别 180ms" />
+
+    </LinearLayout>
 
     <!-- 当前缩放倍率, 仅放大时显示; 双击预览可重置回 1x -->
     <TextView
@@ -107,5 +131,40 @@
         android:layout_marginTop="@dimen/space_2"
         android:layout_marginEnd="@dimen/space_2"
         tools:text="2.0x" />
+
+    <!-- 启动覆盖层: 模型加载 + 相机起来之前这里只有一块纯黑屏, 用户不知道
+         是卡了还是在等 —— 一行字加个圈, 说明"在启动, 稍等". 首帧分析到达
+         或相机失败时由代码撤下. -->
+    <LinearLayout
+        android:id="@+id/startup_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#E6000000"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:indicatorColor="#DFC48B"
+            app:indicatorSize="44dp"
+            app:trackColor="#33DFC48B" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3"
+            android:text="@string/live_starting"
+            android:textColor="#CCFFFFFF"
+            android:textSize="@dimen/text_body_sm" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

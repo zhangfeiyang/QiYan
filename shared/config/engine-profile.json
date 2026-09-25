@@ -1,18 +1,41 @@
 {
-  "schemaVersion": 1,
-  "pieceValues": {"K":10000,"R":900,"C":450,"N":400,"B":200,"A":200,"P":100},
-  "miniprogramSearchDepths": {
-    "1": {"depth":1, "quiescence":false, "ordering":"capture-first"},
-    "2": {"depth":2, "quiescence":false, "ordering":"capture-first"},
-    "3": {"depth":2, "quiescence":true,  "ordering":"mvv-lva"},
-    "4": {"depth":3, "quiescence":true,  "ordering":"mvv-lva"},
-    "5": {"depth":3, "quiescence":true,  "ordering":"mvv-lva+history"},
-    "6": {"depth":4, "quiescence":true,  "ordering":"mvv-lva+history+killer"},
-    "7": {"depth":4, "quiescence":true,  "ordering":"mvv-lva+history+killer"},
-    "8": {"depth":4, "quiescence":true,  "ordering":"iterative-deepening"},
-    "9": {"depth":5, "quiescence":true,  "ordering":"iterative-deepening"}
+  "schemaVersion": 2,
+  "pieceValues": {
+    "K": 10000,
+    "R": 900,
+    "C": 450,
+    "N": 400,
+    "B": 200,
+    "A": 200,
+    "P": 100
   },
-  "miniprogramMaxLevel": 9,
-  "searchTimeBudgetMs": {"1":60,"2":120,"3":200,"4":320,"5":500,"6":800,"7":1200,"8":1800,"9":2600},
-  "evaluationNotes": "子力值与 PST 是端侧 JS 引擎在小程序可用档位内的口径，必须与 MainMenu 段位注释一致。"
+  "miniprogramSearchDepths": {
+    "1": {
+      "depth": 1,
+      "quiescence": false,
+      "ordering": "practice",
+      "randomChance": 0.85
+    },
+    "2": {
+      "depth": 1,
+      "quiescence": false,
+      "ordering": "practice",
+      "randomChance": 0.25
+    },
+    "3": {
+      "depth": 5,
+      "quiescence": true,
+      "ordering": "iterative-deepening"
+    }
+  },
+  "miniprogramMaxLevel": 3,
+  "searchTimeBudgetMs": {
+    "1": 350,
+    "2": 550,
+    "3": 1200
+  },
+  "evaluationNotes": "前两档为随机与一步吃子陪练；第3档小程序用限时本地搜索，Android使用PikaFish。第4-8档仅App开放，尚未在小程序校准同等棋力。",
+  "difficultyVersion": 2,
+  "defaultLevel": 1,
+  "maxLevel": 8
 }

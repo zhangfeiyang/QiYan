@@ -1,5 +1,6 @@
 package com.zhongguoxiangqi.ui.live
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -7,9 +8,11 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.zhongguoxiangqi.R
+import com.zhongguoxiangqi.ui.settings.AppSettings
 import kotlin.math.atan2
 import kotlin.math.hypot
 
@@ -102,10 +105,30 @@ class BoardOverlayView @JvmOverloads constructor(
         this.corners = corners
         this.srcW = srcW
         this.srcH = srcH
+        val moveChanged = move != null && this.move?.contentEquals(move) != true
         this.move = move
         this.grow = grow
+        // 新着法到达: 箭头 0→1 生长, 给"算出来了"一个可见的动作. 这个动画
+        // 必须在 View 内部做 —— 识别线程每帧都调 update, 外部播的动画会被
+        // 下一帧的 grow=1f 冲掉. 关动画时保持 grow=1 直出.
+        if (moveChanged && grow == 1f &&
+            AppSettings(context).animationEnabled && ValueAnimator.areAnimatorsEnabled()
+        ) {
+            growAnimator?.cancel()
+            growAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 260L
+                interpolator = DecelerateInterpolator(1.5f)
+                addUpdateListener {
+                    this@BoardOverlayView.grow = it.animatedValue as Float
+                    invalidate()
+                }
+                start()
+            }
+        }
         invalidate()
     }
+
+    private var growAnimator: ValueAnimator? = null
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -187,6 +210,12 @@ class BoardOverlayView @JvmOverloads constructor(
         pt[0] = col; pt[1] = row
         boardToSrc.mapPoints(pt)
         LiveGeometry.srcToViewInto(pt[0], pt[1], srcW, srcH, width, height, out)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        growAnimator?.cancel()
+        growAnimator = null
     }
 
 }

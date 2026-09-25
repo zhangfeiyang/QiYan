@@ -3,6 +3,7 @@ package com.zhongguoxiangqi.ui.live
 import com.zhongguoxiangqi.ui.common.Insets
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -34,6 +35,7 @@ import com.zhongguoxiangqi.game.Color
 import com.zhongguoxiangqi.game.UciCoords
 import com.zhongguoxiangqi.vision.BoardLayout
 import com.zhongguoxiangqi.vision.BoardRecognizer
+import com.zhongguoxiangqi.ui.settings.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,6 +67,14 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
     private var engine: EngineManager? = null
     /** 当前相机句柄, 供 zoom 控制 (CameraX 的 CameraControl.zoomState) */
     private var camera: androidx.camera.core.Camera? = null
+
+    /** 轻量音效: 锁定棋盘时一声 blip + 微触感 */
+    private val sfx by lazy { com.zhongguoxiangqi.ui.game.GameFeedback(this, light = true) }
+    /** 上一帧是否已锁定: 只在"没锁→锁上"的那一刻响一次, 不逐帧吵 */
+    private var wasLocked = false
+
+    /** 还没见过第一帧分析结果: 启动覆盖层还挂着 (识别线程回调里置位) */
+    @Volatile private var startupFrameSeen = false
 
     // 这两个 Detector 不能在字段初始化时建: 那时 Activity 还没挂到窗口上,
     // ViewConfiguration.get() 会抛 IllegalStateException, 导致点击"实时支招"
@@ -258,8 +268,24 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    /** 撤下启动覆盖层: 相机出画面了, 该让位给真正的预览 */
+    private fun dismissStartupOverlay() {
+        val v = binding.startupOverlay
+        if (v.visibility != View.VISIBLE || isFinishing || isDestroyed) return
+        if (!AppSettings(this).animationEnabled || !ValueAnimator.areAnimatorsEnabled()) {
+            v.visibility = View.GONE
+            return
+        }
+        v.animate().alpha(0f).setDuration(220L).withEndAction { v.visibility = View.GONE }.start()
+    }
+
     /** 逐帧回调. 跑在 [analysisExecutor] 上, 不要碰 UI. */
     private fun analyze(proxy: ImageProxy) {
+        // 第一帧能到, 说明模型和相机都真的跑起来了, 撤掉启动覆盖层
+        if (!startupFrameSeen) {
+            startupFrameSeen = true
+            runOnUiThread { dismissStartupOverlay() }
+        }
         // 上一帧还在识别就直接丢掉这一帧 —— 排队只会让画面越来越滞后
         if (!recognizing.compareAndSet(false, true)) {
             proxy.close(); return
@@ -295,6 +321,36 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         }
     }
 
+    /**
+     * 状态条: 左侧圆点颜色 + 文案. 金=锁定中, 绿=已锁定, 灰=棋盘无效.
+     * [justLocked] 时圆点做一次性 pop (200ms 内 1→1.5→1, 受动画开关门控).
+     */
+    private fun updateStatusUi(ok: Boolean, locked: Boolean, costMs: Long, justLocked: Boolean) {
+        binding.statusDot.visibility = View.VISIBLE
+        val dotColor = when {
+            !ok -> R.color.text_tertiary
+            !locked -> R.color.warning
+            else -> R.color.affirm
+        }
+        binding.statusDot.background.setTint(ContextCompat.getColor(this, dotColor))
+        binding.status.text = when {
+            !ok -> getString(R.string.live_board_invalid)
+            !locked -> getString(R.string.live_locking)
+            else -> getString(R.string.live_ready, costMs)
+        }
+        if (justLocked) {
+            if (AppSettings(this).animationEnabled && ValueAnimator.areAnimatorsEnabled()) {
+                binding.statusDot.animate()
+                    .scaleX(1.5f).scaleY(1.5f)
+                    .setDuration(100L)
+                    .withEndAction {
+                        binding.statusDot.animate().scaleX(1f).scaleY(1f).setDuration(100L).start()
+                    }
+                    .start()
+            }
+        }
+    }
+
     private fun onRecognized(result: com.zhongguoxiangqi.vision.RecognizedBoard, costMs: Long) {
         val corners = result.corners
         val srcW = lastSrcW
@@ -304,9 +360,10 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         if (result.meanCornerScore < BoardLayout.LOW_CORNER_SCORE) {
             runOnUiThread {
                 binding.overlay.clear()
-                binding.status.text = getString(R.string.live_board_invalid)
+                updateStatusUi(ok = false, locked = false, costMs = costMs, justLocked = false)
             }
             gate.offer(null)
+            wasLocked = false
             return
         }
 
@@ -318,13 +375,14 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         val changed = gate.offer(fen)
         val locked = gate.accepted != null
 
+        // 从没锁到锁上的那一刻: 一声 blip + 微触感, 告诉用户"认住了, 开始支招"
+        val justLocked = locked && ok && !wasLocked
+        if (justLocked) sfx.onLiveLock()
+        wasLocked = locked && ok
+
         runOnUiThread {
             binding.overlay.update(corners, srcW, srcH, currentMove)
-            binding.status.text = when {
-                !ok -> getString(R.string.live_board_invalid)
-                !locked -> getString(R.string.live_locking)
-                else -> getString(R.string.live_ready, costMs)
-            }
+            updateStatusUi(ok, locked, costMs, justLocked)
         }
 
         if (changed && !searching.get()) requestMove(fen!!)
@@ -393,6 +451,7 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         runCatching { recognizer?.close() }
         recognizer = null
         engine?.shutdown()
+        sfx.release()
     }
 
     /**
@@ -425,6 +484,6 @@ class LiveAdviceActivity : AppCompatActivity(), EngineListener {
         const val STABLE_FRAMES = 2
         /** 搜索时间上限, 毫秒. 留出识别和绘制的余量, 保证整体感觉在 1 秒内 */
         const val MOVETIME_MS = 600L
-        const val LIVE_LEVEL = 8
+        const val LIVE_LEVEL = 4
     }
 }

@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 对弈闯关: 15 关阶梯网格, 通关亮绿、可打亮蓝、未解锁置灰 -->
+<!--
+  对弈闯关: 一条蜿蜒的虚线山路串起 5 关, 山顶一只通关宝箱.
+
+  旧版是 3 列网格的关卡卡, 排列整齐得像张表格 —— 闯关的心理是"沿路
+  往上打", 参考中国风棋类 App 的地图把这条路直接画出来: 山水画做底,
+  路是沙土色的虚线, 关卡是路上的驿站(旗/胜印/石碑), 打到哪一面战旗
+  就立到哪。
+
+  路径与节点在 [CampaignPathView] 里自绘; 山水画是 bg_campaign, 铺在
+  屏幕上不随路滚动 —— 滚动的是"路", 山水是"天"。
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface_base">
+    android:background="@drawable/bg_campaign">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -16,12 +26,20 @@
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler"
+    <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
         android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/screen_gutter"
-        android:paddingTop="@dimen/space_2" />
+        android:overScrollMode="never">
+
+        <com.zhongguoxiangqi.ui.campaign.CampaignPathView
+            android:id="@+id/path_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </ScrollView>
 
 </LinearLayout>
