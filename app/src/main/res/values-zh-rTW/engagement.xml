@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">輕鬆練習 · 不計分</string>
+    <string name="game_search_no_move">暫時沒有收到走法，可以重新點提示，或切換對手難度繼續。</string>
+    <string name="puzzle_engine_error">引擎暫時沒有回應，請重新開始本題再試。</string>
+    <string name="game_coach_start">慢慢來。點選棋子看可走落點，拿不準時可以點「提示」。</string>
+    <string name="game_coach_practice">陪練時間：提示、悔棋放心用，本局不影響棋力分。</string>
+    <string name="game_coach_check">正在被將軍！試著吃掉將軍的子、擋住攻擊，或移動將帥。</string>
+    <string name="game_coach_thinking">看看對手走到哪裡，輪到你時先檢查自己的棋子是否安全。</string>
+    <string name="game_coach_opening">先讓車馬活動起來。進攻前，看看自己的棋子有沒有保護。</string>
+    <string name="game_coach_selected">%1$s，亮起的位置都可以走。</string>
+    <string name="game_coach_blocked">這枚棋子暫時無路可走，換一枚試試，也可以點「提示」。</string>
+    <string name="game_rule_rook">車走直線，中間不能有棋子</string>
+    <string name="game_rule_cannon">砲吃子時，中間必須隔一枚棋子</string>
+    <string name="game_rule_horse">馬走日字，馬腿被擋就不能走</string>
+    <string name="game_rule_elephant">象走田字，不能過河，象眼不能被擋</string>
+    <string name="game_rule_advisor">士在九宮內斜走一步</string>
+    <string name="game_rule_king">將帥在九宮內橫走或直走一步</string>
+    <string name="game_rule_pawn">兵卒只能向前，過河後也能左右走，不能後退</string>
+    <string name="game_undo_no_penalty">退回上一個回合，再試一種走法？悔棋不會直接扣除棋力分。</string>
+    <string name="game_practice_undone">已退回，換個思路再試試。</string>
+    <string name="game_play_again">再來一局</string>
+    <string name="game_try_easier">換個簡單的</string>
+    <string name="game_try_challenge">挑戰每日一題</string>
+    <string name="game_practice_result">%1$s\n\n練習完成，棋力分保持不變。本局已儲存，可以隨時覆盤。</string>
+    <string name="game_practice_record_reason">練習 · %1$s</string>
+    <string name="daily_puzzle_title">每日一題</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">今日一題已完成！\n累計練習 %1$d 天 · 連續 %2$d 天\n\n每天記錄一次，明天再來解一題。</string>
+    <string name="daily_puzzle_expired">破解成功。已經是新的一天，回首頁即可挑戰今天的題目。</string>
+    <string name="daily_puzzle_more">再練一題</string>
+    <string name="puzzle_clue">解題思路</string>
+    <string name="puzzle_undo_unavailable">目前局面暫時無法悔棋。</string>
+</resources>

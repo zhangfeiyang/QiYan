@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Ein eigenes Instrumentalstück mit sanften Zupfklängen und weiten Akkorden, auf dem Startbildschirm und während der Partie. Blendet sanft ein und pausiert, wenn die App in den Hintergrund wechselt.</string>
+    <string name="audio_music_volume">Musiklautstärke</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Musik anhören · 12 Sekunden</string>
+    <string name="audio_preview_stop">Vorschau stoppen</string>
+    <string name="audio_motion_description">Flüssige Züge, ein dezenter Lande-Ripple und ein kurzer Schach-Impuls. Beim Ausschalten entfällt auch die Schlag-Animation. Folgt der Systemeinstellung für Animationen.</string>
+</resources>

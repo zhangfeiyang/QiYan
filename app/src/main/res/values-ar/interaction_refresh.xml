@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">اللعب</string>
+    <string name="nav_learn">التعلّم</string>
+    <string name="nav_tools">الأدوات</string>
+    <string name="nav_me">حسابي</string>
+    <string name="difficulty_6">أستاذ كبير</string>
+    <string name="difficulty_6_tag">تكتيكات أعمق</string>
+    <string name="difficulty_6_desc">وقت أكثر لكشف التوليفات التكتيكية.</string>
+    <string name="difficulty_7">أسطورة</string>
+    <string name="difficulty_7_tag">لعب دقيق</string>
+    <string name="difficulty_7_desc">حساب صبور للاعبين ذوي الخبرة.</string>
+    <string name="difficulty_8">القمة</string>
+    <string name="difficulty_8_tag">التحدي الكامل</string>
+    <string name="difficulty_8_desc">أطول ميزانية بحث. خذ وقتك.</string>
+    <string name="confirm_setup">تأكيد الاختيار</string>
+    <string name="style_choose">الأسلوب: %1$s  ▾</string>
+    <string name="puzzle_collection">أطلس النهايات</string>
+    <string name="puzzle_collection_desc">اقرأ الوضع. جد النقسة الرابحة.</string>
+    <string name="puzzle_page">المجلد %1$d / %2$d</string>
+    <string name="page_previous">السابق</string>
+    <string name="page_next">التالي</string>
+    <string name="puzzle_collection_progress">%1$d محلول · %2$d مواضع</string>
+    <string name="puzzle_family_rook">تكتيكات العربات</string>
+    <string name="puzzle_family_cannon">تكتيكات المدفع</string>
+    <string name="puzzle_family_horse">تكتيكات الحصان</string>
+    <string name="puzzle_family_mixed">هجوم مشترك</string>
+    <string name="result_close">أغلق النتيجة، وشاهد اللوح</string>
+    <string name="result_win">فوز</string>
+    <string name="result_loss">هزيمة</string>
+    <string name="result_draw">تعادل</string>
+    <string name="result_undo">تراجع وتابع</string>
+    <string name="result_replay_hint">يبقى الوضع الأخير على اللوح. أغلق هذه اللوحة لتفحّصه.</string>
+    <string name="game_mode_ranked">مباراة مصنفة</string>
+</resources>

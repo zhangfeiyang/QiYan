@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">練習 · レートなし</string>
+    <string name="game_search_no_move">着手が返されませんでした。ヒントをもう一度試すか、相手のレベルを変えて再開してください。</string>
+    <string name="puzzle_engine_error">パズルエンジンが応答できませんでした。この問題を最初からやり直してみてください。</string>
+    <string name="game_coach_start">焦らずどうぞ。駒をタップすると合法手が表示され、ヒントではおすすめの手を示します。</string>
+    <string name="game_coach_practice">のんびり練習 · ヒントも待ったも自由。レートは変わりません。</string>
+    <string name="game_coach_check">自分の帥（将）が王手されています。攻めている駒を取るか、攻撃を受け止めるか、帥を動かしましょう。</string>
+    <string name="game_coach_thinking">相手の手をよく見て、自分の駒が狙われていないか確かめましょう。</string>
+    <string name="game_coach_opening">馬と車を展開してみましょう。攻める前に、駒を守っておくことが大切です。</string>
+    <string name="game_coach_selected">%1$s · ハイライトされた場所が合法手です。</string>
+    <string name="game_coach_blocked">この駒は動かせる場所がありません。別の駒を試すか、ヒントを使いましょう。</string>
+    <string name="game_rule_rook">車は妨げのない縦横のラインをまっすぐ進む</string>
+    <string name="game_rule_cannon">炮は取るときだけ、ちょうど一つの駒を飛び越える</string>
+    <string name="game_rule_horse">馬は「日」の字に動く。足元が塞がれると進めない</string>
+    <string name="game_rule_elephant">相は斜めに二マス動き、自陣から出られない</string>
+    <string name="game_rule_advisor">仕は宮の中を斜めに一マス動く</string>
+    <string name="game_rule_king">帥（将）は宮の中を縦横に一マス動く</string>
+    <string name="game_rule_pawn">兵は前に進む。川を渡ると横にも動ける</string>
+    <string name="game_undo_no_penalty">直前の手を待ったにしますか？レートは減りません。</string>
+    <string name="game_practice_undone">待ったをしました。別の一手を試しましょう。</string>
+    <string name="game_play_again">もう一度対局</string>
+    <string name="game_try_easier">やさしくする</string>
+    <string name="game_try_challenge">今日の問題</string>
+    <string name="game_practice_result">%1$s\n\n練習お疲れさま。レートは変わらず、棋譜は復盤のために保存されました。</string>
+    <string name="game_practice_record_reason">練習 · %1$s</string>
+    <string name="daily_puzzle_title">今日の問題</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">今日の問題クリア！\n練習日数 %1$d日 · 連続 %2$d日\n\n1日1回クリアできます。新しい問題は明日届きます。</string>
+    <string name="daily_puzzle_expired">問題はすでに解答済み。新しい一日が始まりました。今日の問題はホーム画面でどうぞ。</string>
+    <string name="daily_puzzle_more">もっと問題を</string>
+    <string name="puzzle_clue">手がかり</string>
+    <string name="puzzle_undo_unavailable">この局面では待ったは使えません。</string>
+</resources>

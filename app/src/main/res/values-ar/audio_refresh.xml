@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">مقطوعة آلية أصلية بأوتار منشورة ناعمة وأجواء وترية رحبة، على الشاشة الرئيسية وأثناء اللعب. تدخل بهدوء وتتوقف عند ذهاب التطبيق إلى الخلفية.</string>
+    <string name="audio_music_volume">مستوى الموسيقى</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">استمع للموسيقى · 12 ثانية</string>
+    <string name="audio_preview_stop">إيقاف الاستماع</string>
+    <string name="audio_motion_description">نقسات سلسة، تموّج هبوط لطيف ونبضة كش قصيرة. إيقافه يوقف حركة الأخذ أيضًا. يحترم إعداد حركة نظامك.</string>
+</resources>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Gioca</string>
+    <string name="nav_learn">Studio</string>
+    <string name="nav_tools">Strumenti</string>
+    <string name="nav_me">Profilo</string>
+    <string name="difficulty_6">Grande maestro</string>
+    <string name="difficulty_6_tag">Tattiche più profonde</string>
+    <string name="difficulty_6_desc">Più tempo per scoprire combinazioni tattiche.</string>
+    <string name="difficulty_7">Leggenda</string>
+    <string name="difficulty_7_tag">Gioco di precisione</string>
+    <string name="difficulty_7_desc">Calcolo paziente per giocatori esperti.</string>
+    <string name="difficulty_8">Vetta</string>
+    <string name="difficulty_8_tag">Sfida completa</string>
+    <string name="difficulty_8_desc">Il budget di ricerca più lungo. Prenditi il tuo tempo.</string>
+    <string name="confirm_setup">Conferma selezione</string>
+    <string name="style_choose">Stile: %1$s  ▾</string>
+    <string name="puzzle_collection">Atlante dei finali</string>
+    <string name="puzzle_collection_desc">Leggi la posizione. Trova la mossa vincente.</string>
+    <string name="puzzle_page">Volume %1$d / %2$d</string>
+    <string name="page_previous">Precedente</string>
+    <string name="page_next">Successiva</string>
+    <string name="puzzle_collection_progress">%1$d risolti · %2$d posizioni</string>
+    <string name="puzzle_family_rook">Tattiche del carro</string>
+    <string name="puzzle_family_cannon">Tattiche del cannone</string>
+    <string name="puzzle_family_horse">Tattiche del cavallo</string>
+    <string name="puzzle_family_mixed">Attacco combinato</string>
+    <string name="result_close">Chiudi il risultato e guarda la scacchiera</string>
+    <string name="result_win">VITTORIA</string>
+    <string name="result_loss">SCONFITTA</string>
+    <string name="result_draw">PATTA</string>
+    <string name="result_undo">Annulla e continua</string>
+    <string name="result_replay_hint">La posizione finale resta sulla scacchiera. Chiudi questo pannello per esaminarla.</string>
+    <string name="game_mode_ranked">Partita classificata</string>
+</resources>

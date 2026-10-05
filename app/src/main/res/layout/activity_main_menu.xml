@@ -855,7 +855,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="@string/menu_language" />
+                    android:text="@string/menu_language_label" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_about"
                     style="@style/Widget.Xiangqi.Button.Text"

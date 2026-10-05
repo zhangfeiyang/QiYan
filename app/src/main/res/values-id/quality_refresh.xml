@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Sisi terkunci dalam pendakian gunung.</string>
+    <string name="game_swap_rated_title">Tukar sisi?</string>
+    <string name="game_swap_rated_message">Kamu akan mengambil alih posisi yang selama ini dimainkan AI. Pertandingan ini menjadi latihan dan tidak mengubah peringkatmu.</string>
+    <string name="game_swap_rated_confirm">Tukar dan berlatih</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Petunjuk · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Kamu melanjutkan bermain setelah hasilnya, jadi bagian ini tidak berperingkat. Hasil pertama tetap berlaku.</string>
+    <string name="result_resume">Lanjut bermain</string>
+    <string name="result_review">Tinjau pertandingan</string>
+    <string name="result_review_unavailable">Pertandingan ini tidak disimpan, jadi tidak ada yang bisa ditinjau.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Tiga menit. Berapa skakmat?</string>
+    <string name="puzzle_rush_intro_rules">• Merah jalan lebih dulu di setiap posisi. Temukan skakmatnya.\n• Satu langkah salah atau melompat menghabiskan satu nyawa. Habis tiga, ronde berakhir.\n• Posisi makin sulit seiring naiknya skormu.</string>
+    <string name="puzzle_rush_intro_best">Rekor kamu: %1$d</string>
+    <string name="puzzle_rush_intro_first">Belum ada rekor. Tetapkan yang pertama.</string>
+    <string name="puzzle_rush_prompt_short">Giliran Merah · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Lanjutan · Mesin AI</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d pola skakmat klasik</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Penentuan</string>
+    <string name="rank_placement_chip">Penentuan %1$d/%2$d</string>
+    <string name="rank_placement_progress">Penentuan %1$d/%2$d · %3$d lagi sebelum stempel pertamamu</string>
+    <string name="result_placement_progress">Pertandingan penentuan %1$d dari %2$d sedang berjalan. %3$d lagi untuk menyingkap stempel pertamamu.</string>
+    <string name="result_placement_done">Penentuan selesai. Stempel pertamamu: %1$s</string>
+    <string name="rank_hall_placement">Penentuan: %1$d dari %2$d pertandingan berperingkat dimainkan. Stempel pertamamu tersingkap setelah pertandingan ke-%2$d.</string>
+</resources>

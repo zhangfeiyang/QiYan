@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">대국</string>
+    <string name="nav_learn">배움</string>
+    <string name="nav_tools">도구</string>
+    <string name="nav_me">나</string>
+    <string name="difficulty_6">그랜드마스터</string>
+    <string name="difficulty_6_tag">더 깊은 수지</string>
+    <string name="difficulty_6_desc">수지 조합을 드러낼 더 많은 시간.</string>
+    <string name="difficulty_7">전설</string>
+    <string name="difficulty_7_tag">정밀 대국</string>
+    <string name="difficulty_7_desc">경험 많은 기사를 위한 인내의 계산.</string>
+    <string name="difficulty_8">정점</string>
+    <string name="difficulty_8_tag">완전한 도전</string>
+    <string name="difficulty_8_desc">최장 탐색 예산. 천천히 즐기세요.</string>
+    <string name="confirm_setup">선택 확정</string>
+    <string name="style_choose">스타일: %1$s  ▾</string>
+    <string name="puzzle_collection">종반 지도</string>
+    <string name="puzzle_collection_desc">국면을 읽고, 이기는 수를 찾으세요.</string>
+    <string name="puzzle_page">%1$d / %2$d 권</string>
+    <string name="page_previous">이전</string>
+    <string name="page_next">다음</string>
+    <string name="puzzle_collection_progress">%1$d개 해결 · %2$d국면</string>
+    <string name="puzzle_family_rook">차 수지</string>
+    <string name="puzzle_family_cannon">포 수지</string>
+    <string name="puzzle_family_horse">마 수지</string>
+    <string name="puzzle_family_mixed">합동 공격</string>
+    <string name="result_close">결과 닫고 판 보기</string>
+    <string name="result_win">승리</string>
+    <string name="result_loss">패배</string>
+    <string name="result_draw">무승부</string>
+    <string name="result_undo">무르고 계속</string>
+    <string name="result_replay_hint">최종 국면이 판에 그대로 남아 있습니다. 이 패널을 닫고 살펴보세요.</string>
+    <string name="game_mode_ranked">점수 대국</string>
+</resources>

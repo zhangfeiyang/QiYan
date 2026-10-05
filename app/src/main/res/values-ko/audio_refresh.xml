@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">부드러운 현악 타음과 넓은 화음의 오리지널 연주곡으로, 홈 화면과 대국 중에 흐릅니다. 서서히 들어오고 앱이 백그라운드로 가면 잠시 쉽니다.</string>
+    <string name="audio_music_volume">음악 볼륨</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">음악 미리듣기 · 12초</string>
+    <string name="audio_preview_stop">미리듣기 중지</string>
+    <string name="audio_motion_description">매끄러운 착수, 섬세한 착지 물결, 짧은 장군 펄스. 끄면 기물 잡기 움직임도 멈춥니다. 시스템 애니메이션 설정을 따릅니다.</string>
+</resources>

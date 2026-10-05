@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Latihan · tanpa peringkat</string>
+    <string name="game_search_no_move">Tidak ada langkah yang dikembalikan. Coba Petunjuk lagi, atau ubah level lawan untuk melanjutkan.</string>
+    <string name="puzzle_engine_error">Mesin teka-teki tidak bisa menjawab. Coba mulai ulang teka-teki ini.</string>
+    <string name="game_coach_start">Santai saja. Ketuk bidak untuk melihat langkah sahnya; Petunjuk menyarankan satu langkah.</string>
+    <string name="game_coach_practice">Latihan santai · petunjuk dan pembatalan gratis. Peringkatmu tetap.</string>
+    <string name="game_coach_check">Jenderalmu sedang skak. Ambil penyerangnya, halangi serangannya, atau pindahkan jenderalmu.</string>
+    <string name="game_coach_thinking">Amati langkah lawanmu, lalu periksa adakah bidakmu yang sedang diancam.</string>
+    <string name="game_coach_opening">Coba mengembangkan kuda dan keretamu. Lindungi bidak sebelum menyerang.</string>
+    <string name="game_coach_selected">%1$s · Petak yang disorot adalah langkah sah.</string>
+    <string name="game_coach_blocked">Bidak ini tidak punya langkah sah. Coba bidak lain, atau pakai Petunjuk.</string>
+    <string name="game_rule_rook">Kereta bergerak lurus sepanjang baris atau kolom yang kosong</string>
+    <string name="game_rule_cannon">Meriam melompati tepat satu bidak saat mengambil</string>
+    <string name="game_rule_horse">Kuda bergerak membentuk L; kaki yang terhalang menghentikan langkahnya</string>
+    <string name="game_rule_elephant">Gajah melangkah dua diagonal dan tetap di sisinya sendiri</string>
+    <string name="game_rule_advisor">Penasihat melangkah satu diagonal di dalam istana</string>
+    <string name="game_rule_king">Jenderal melangkah satu lurus di dalam istana</string>
+    <string name="game_rule_pawn">Tentara bergerak maju; setelah melewati sungai bisa juga bergerak menyamping</string>
+    <string name="game_undo_no_penalty">Tarik kembali giliran terakhirmu? Pembatalan tidak mengurangi poin peringkat.</string>
+    <string name="game_practice_undone">Giliran ditarik kembali. Coba ide lain.</string>
+    <string name="game_play_again">Main lagi</string>
+    <string name="game_try_easier">Coba yang lebih mudah</string>
+    <string name="game_try_challenge">Teka-teki harian</string>
+    <string name="game_practice_result">%1$s\n\nLatihan selesai. Peringkatmu tidak berubah; pertandingan disimpan untuk ditinjau.</string>
+    <string name="game_practice_record_reason">Latihan · %1$s</string>
+    <string name="daily_puzzle_title">Teka-teki harian</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">Teka-teki hari ini selesai!\n%1$d hari latihan · rentetan %2$d hari\n\nSatu penyelesaian per hari. Teka-teki baru tiba besok.</string>
+    <string name="daily_puzzle_expired">Teka-teki terjawab. Hari baru telah dimulai; teka-teki hari ini menunggu di layar utama.</string>
+    <string name="daily_puzzle_more">Teka-teki lainnya</string>
+    <string name="puzzle_clue">Petunjuk kecil</string>
+    <string name="puzzle_undo_unavailable">Pembatalan tidak tersedia untuk posisi ini.</string>
+</resources>

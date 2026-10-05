@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Oyna</string>
+    <string name="nav_learn">Öğren</string>
+    <string name="nav_tools">Araçlar</string>
+    <string name="nav_me">Ben</string>
+    <string name="difficulty_6">Büyükusta</string>
+    <string name="difficulty_6_tag">Daha derin taktikler</string>
+    <string name="difficulty_6_desc">Taktik kombinasyonları ortaya çıkarmak için daha fazla zaman.</string>
+    <string name="difficulty_7">Efsane</string>
+    <string name="difficulty_7_tag">Hassas oyun</string>
+    <string name="difficulty_7_desc">Deneyimli oyuncular için sabırlı hesaplama.</string>
+    <string name="difficulty_8">Zirve</string>
+    <string name="difficulty_8_tag">Tam meydan okuma</string>
+    <string name="difficulty_8_desc">En uzun arama bütçesi. Acele etme.</string>
+    <string name="confirm_setup">Seçimi onayla</string>
+    <string name="style_choose">Stil: %1$s  ▾</string>
+    <string name="puzzle_collection">Final atlası</string>
+    <string name="puzzle_collection_desc">Pozisyonu oku. Kazanan hamleyi bul.</string>
+    <string name="puzzle_page">Cilt %1$d / %2$d</string>
+    <string name="page_previous">Önceki</string>
+    <string name="page_next">Sonraki</string>
+    <string name="puzzle_collection_progress">%1$d çözüldü · %2$d pozisyon</string>
+    <string name="puzzle_family_rook">Araba taktikleri</string>
+    <string name="puzzle_family_cannon">Top taktikleri</string>
+    <string name="puzzle_family_horse">At taktikleri</string>
+    <string name="puzzle_family_mixed">Kombine saldırı</string>
+    <string name="result_close">Sonucu kapat, tahtayı gör</string>
+    <string name="result_win">ZAFER</string>
+    <string name="result_loss">YENİLGİ</string>
+    <string name="result_draw">BERABERE</string>
+    <string name="result_undo">Geri al ve devam et</string>
+    <string name="result_replay_hint">Son pozisyon tahtada kalır. İncelemek için bu paneli kapat.</string>
+    <string name="game_mode_ranked">Puanlı maç</string>
+</resources>

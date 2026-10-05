@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">연습 · 점수 없음</string>
+    <string name="game_search_no_move">수가 반환되지 않았습니다. 힌트를 다시 쓰거나 상대 레벨을 바꿔 대국을 이어가세요.</string>
+    <string name="puzzle_engine_error">퍼즐 엔진이 응답하지 않았습니다. 이 문제를 다시 시작해 보세요.</string>
+    <string name="game_coach_start">천천히 하세요. 기물을 탭하면 합법적인 수가 표시되고, 힌트는 추천 수를 보여 줍니다.</string>
+    <string name="game_coach_practice">편안한 연습 · 힌트와 무르기는 무료입니다. 점수는 변하지 않습니다.</string>
+    <string name="game_coach_check">당신의 장이 장군 상태입니다. 공격 기물을 잡거나, 공격을 막거나, 장을 옮기세요.</string>
+    <string name="game_coach_thinking">상대의 수를 살피고, 내 기물 중 공격받는 것이 있는지 확인하세요.</string>
+    <string name="game_coach_opening">마와 차를 전개해 보세요. 공격하기 전에 기물부터 보호하세요.</string>
+    <string name="game_coach_selected">%1$s · 밝게 표시된 자리가 합법적인 수입니다.</string>
+    <string name="game_coach_blocked">이 기물은 둘 수 있는 곳이 없습니다. 다른 기물을 시도하거나 힌트를 쓰세요.</string>
+    <string name="game_rule_rook">차는 비어 있는 줄이나 행을 따라 곧장 움직입니다</string>
+    <string name="game_rule_cannon">포는 잡을 때 정확히 기물 하나를 넘습니다</string>
+    <string name="game_rule_horse">마는 L자로 움직이며, 다리가 막히면 그 수는 불가능합니다</string>
+    <string name="game_rule_elephant">상은 대각선 두 칸 움직이며 자기 진영을 벗어나지 못합니다</string>
+    <string name="game_rule_advisor">사는 궁 안에서 대각선 한 칸 움직입니다</string>
+    <string name="game_rule_king">장은 궁 안에서 곧장 한 칸 움직입니다</string>
+    <string name="game_rule_pawn">병은 앞으로 전진하고, 강을 건넌 뒤에는 옆으로도 움직일 수 있습니다</string>
+    <string name="game_undo_no_penalty">마지막 차례를 되돌릴까요? 무르기는 점수를 깎지 않습니다.</string>
+    <string name="game_practice_undone">차례를 무름했습니다. 다른 아이디어를 시도해 보세요.</string>
+    <string name="game_play_again">다시 두기</string>
+    <string name="game_try_easier">쉬운 상대로</string>
+    <string name="game_try_challenge">오늘의 문제</string>
+    <string name="game_practice_result">%1$s\n\n연습 완료. 점수는 그대로이며, 대국은 복기용으로 저장되었습니다.</string>
+    <string name="game_practice_record_reason">연습 · %1$s</string>
+    <string name="daily_puzzle_title">오늘의 문제</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">오늘의 문제 완료!\n연습 %1$d일 · 연속 %2$d일\n\n하루 한 번 완료 인정. 내일 새 문제가 도착합니다.</string>
+    <string name="daily_puzzle_expired">문제를 풀었습니다. 새 하루가 시작되었고 오늘의 문제가 홈 화면에서 기다립니다.</string>
+    <string name="daily_puzzle_more">문제 더 보기</string>
+    <string name="puzzle_clue">단서</string>
+    <string name="puzzle_undo_unavailable">이 국면에서는 무르기를 쓸 수 없습니다.</string>
+</resources>

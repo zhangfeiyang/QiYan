@@ -22,8 +22,10 @@ android {
         // 内测轨道; 12 在 2026-09-10 发布 1.3.8 时上传正式版草稿(16KB 对齐被拒后
         // 从草稿移除, 但版本号已被 Play 永久保留); 13 同日因同一原因被烧 ——
         // 根因是 AGP 8.2 打包不做 16KB zip 对齐, 升级 AGP 8.5.2 后顺延到 14。
-        versionCode = 15
-        versionName = "1.3.9"
+        // 14 发布 1.3.8, 15 发布 1.3.9, 16 起为多语言版 (1.4.0): 新增 14 种
+        // 界面语言 + Play 商店多语言 listing。
+        versionCode = 16
+        versionName = "1.4.0"
 
         // AI 分析的代理配置: 优先 local.properties, 其次 gradle property,
         // 再其次环境变量. 缺一就让 build 警告但不断 build, 装到设备上

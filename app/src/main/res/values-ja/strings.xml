@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">対局</string>
+    <string name="title_replay">復盤</string>
+    <string name="title_settings">設定</string>
+    <string name="title_board_editor">局面編集</string>
+    <string name="menu_play">対局を始める</string>
+    <string name="menu_replay">対局の復盤</string>
+    <string name="menu_settings">設定</string>
+    <string name="menu_about">このアプリについて</string>
+    <string name="menu_difficulty">難易度を選ぶ</string>
+    <string name="menu_side">先後を選ぶ</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">言語</string>
+    <string name="language_dialog_title">言語を選ぶ</string>
+    <string name="language_system_default">システムに合わせる</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">初心者</string>
+    <string name="difficulty_beginner">入門者</string>
+    <string name="difficulty_lower_intermediate">中級（下）</string>
+    <string name="difficulty_intermediate">中級</string>
+    <string name="difficulty_upper_intermediate">中級（上）</string>
+    <string name="difficulty_advanced">上級</string>
+    <string name="difficulty_amateur">アマチュア強豪</string>
+    <string name="difficulty_district">地区強豪</string>
+    <string name="difficulty_city">市級強豪</string>
+    <string name="difficulty_provincial">省級強豪</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">棋協マスター</string>
+    <string name="difficulty_national_master">国家マスター</string>
+    <string name="difficulty_grandmaster">特級マスター</string>
+    <string name="difficulty_international_master">国際マスター</string>
+    <string name="difficulty_legendary">伝説級</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">新規プレイヤー</string>
+    <string name="difficulty_segment_beginner">気軽な初心者</string>
+    <string name="difficulty_segment_lower_intermediate">平均的な愛好家</string>
+    <string name="difficulty_segment_intermediate">街の棋手</string>
+    <string name="difficulty_segment_upper_intermediate">ベテラン愛好家</string>
+    <string name="difficulty_segment_advanced">アマ初段</string>
+    <string name="difficulty_segment_amateur">アマ三段</string>
+    <string name="difficulty_segment_district">アマ五段</string>
+    <string name="difficulty_segment_city">アマ六段</string>
+    <string name="difficulty_segment_provincial">地方マスター</string>
+    <string name="difficulty_segment_local_master">棋協マスター</string>
+    <string name="difficulty_segment_national_master">国家マスター</string>
+    <string name="difficulty_segment_grandmaster">国家特級マスター</string>
+    <string name="difficulty_segment_international_master">国際マスター</string>
+    <string name="difficulty_segment_legendary">国際特級マスター</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">ルールを覚えたばかり。よく駒をあげてしまう</string>
+    <string name="difficulty_desc_beginner">見えている駒は取るが、簡単なわなには気づかない</string>
+    <string name="difficulty_desc_lower_intermediate">基本の戦術を知り、ときに両取りも見える</string>
+    <string name="difficulty_desc_intermediate">堅実な序盤で、3〜5手先を読む</string>
+    <string name="difficulty_desc_upper_intermediate">手順に沿った指し回しで、序盤もしっかり</string>
+    <string name="difficulty_desc_advanced">地力のあるアマ。終盤も堅く、悪手は少ない</string>
+    <string name="difficulty_desc_amateur">戦術が安定し、基本的なわなも仕掛ける</string>
+    <string name="difficulty_desc_district">攻守のバランスが良く、ミスを見逃さない</string>
+    <string name="difficulty_desc_city">全体観が強く、わなを用意し、大悪手はめったにない</string>
+    <string name="difficulty_desc_provincial">省級大会レベル。計算が正確</string>
+    <string name="difficulty_desc_local_master">マスター級の指し回し。変化を深く読む</string>
+    <string name="difficulty_desc_national_master">鋭い攻めで、ほとんどミスしない</string>
+    <string name="difficulty_desc_grandmaster">国家特級マスター級。深い戦略眼</string>
+    <string name="difficulty_desc_international_master">国際マスター級。どの段階でも正確</string>
+    <string name="difficulty_desc_legendary">国際特級マスター級。この端末で最強の棋力</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">ヒント</string>
+    <string name="action_undo">待った</string>
+    <string name="action_new_game">新規対局</string>
+    <string name="action_resign">投了</string>
+    <string name="action_draw">和棋を提案</string>
+    <string name="action_analysis">解析</string>
+    <string name="action_flip">反転</string>
+    <string name="action_settings">設定</string>
+    <string name="action_back">戻る</string>
+    <string name="action_save">保存</string>
+    <string name="action_export">PGNを出力</string>
+    <string name="action_play_red">赤で先手</string>
+    <string name="action_play_black">黒で後手</string>
+    <string name="action_two_player">二人対局</string>
+    <string name="action_voice">音声で指す</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">一手を話してください。例：「車九進四」（車が9筋を4つ進む）</string>
+    <string name="voice_played">指した手：%1$s</string>
+    <string name="voice_no_match">「%1$s」に合う合法手がありません</string>
+    <string name="voice_ambiguous">曖昧です — もう少し具体的にお願いします</string>
+    <string name="voice_no_speech">聞き取れませんでした。もう一度お願いします</string>
+    <string name="voice_error">音声認識に失敗しました</string>
+    <string name="voice_unavailable">この端末では音声認識を利用できません</string>
+    <string name="voice_permission_denied">音声での着手にはマイクの権限が必要です</string>
+    <string name="voice_wait_engine">AI が指し終わるまでお待ちください</string>
+    <string name="voice_not_your_turn">まだあなたの番ではありません</string>
+    <string name="voice_game_over">対局は終了しました</string>
+
+    <!-- Status -->
+    <string name="status_thinking">AI 思考中…</string>
+    <string name="status_your_turn">あなたの番です</string>
+    <string name="status_check">王手！</string>
+    <string name="status_checkmate">詰み！</string>
+    <string name="status_draw">引き分け</string>
+    <string name="status_resign">投了</string>
+    <string name="status_win">勝利</string>
+    <string name="status_loss">敗北</string>
+    <string name="status_stalemate">困斃</string>
+    <string name="status_engine_error">AI エラー。バックアップエンジンに切り替えました</string>
+    <string name="game_over_checkmate_red">黒が赤を詰みました</string>
+    <string name="game_over_checkmate_black">赤が黒を詰みました</string>
+    <string name="game_over_repetition">同一局面の繰り返し</string>
+    <string name="game_over_fifty_moves">50手ルール</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">勝率</string>
+    <string name="winrate_red">赤の勝率</string>
+    <string name="winrate_black">黒の勝率</string>
+    <string name="depth_label">深度</string>
+    <string name="nodes_label">ノード数</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">時間</string>
+
+    <!-- Rating -->
+    <string name="rating_current">現在のレーティング</string>
+    <string name="rating_total_games">総対局数</string>
+    <string name="rating_wins">勝ち</string>
+    <string name="rating_losses">負け</string>
+    <string name="rating_draws">引き分け</string>
+    <string name="rating_winrate">勝率</string>
+    <string name="rating_rank">ランク</string>
+    <string name="rank_1">初心者</string>
+    <string name="rank_2">入門者</string>
+    <string name="rank_3">アマ初段</string>
+    <string name="rank_4">アマ三段</string>
+    <string name="rank_5">アマ五段</string>
+    <string name="rank_6">アマ七段</string>
+    <string name="rank_7">地方マスター</string>
+    <string name="rank_8">国家マスター</string>
+    <string name="rank_9">特級マスター</string>
+    <string name="rank_10">棋王</string>
+    <string name="rank_hall_title">段位の印</string>
+    <string name="rank_hall_intro">初心者から棋王まで、印は全十枚。印が動くのはレーティング対局だけです。練習と登山モードでは動きません。</string>
+    <string name="rank_hall_current">現在</string>
+    <string name="rank_hall_reached">到達済み</string>
+    <string name="rank_hall_locked">未到達</string>
+    <string name="rank_progress_next">%1$sまであと%2$d点</string>
+    <string name="rank_progress_top">棋王 — この階段の頂上</string>
+    <string name="rank_promoted">%1$s に昇段しました</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">段位の印を見る</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">新規対局</string>
+    <string name="dialog_new_game_message">新しい対局を始めますか？</string>
+    <string name="dialog_resign_title">投了</string>
+    <string name="dialog_resign_message">本当に投了しますか？</string>
+    <string name="dialog_undo_title">待った</string>
+    <string name="dialog_undo_message">待ったをするとレートが少し下がります。それでも待ったにしますか？</string>
+    <string name="dialog_yes">はい</string>
+    <string name="dialog_no">いいえ</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">キャンセル</string>
+    <string name="dialog_confirm">確定</string>
+
+    <!-- Review -->
+    <string name="replay_empty">まだ対局がありません</string>
+    <string name="replay_play">自動再生</string>
+    <string name="replay_pause">一時停止</string>
+    <string name="replay_prev">前へ</string>
+    <string name="replay_next">次へ</string>
+    <string name="replay_first">最初の手</string>
+    <string name="replay_last">最後の手</string>
+    <string name="replay_move_number">%1$d手目</string>
+    <string name="result_win_short">勝</string>
+    <string name="result_loss_short">負</string>
+    <string name="result_draw_short">分</string>
+    <string name="side_red_short">赤</string>
+    <string name="side_black_short">黒</string>
+    <string name="replay_moves_summary">%1$d手 · %2$s</string>
+    <string name="replay_record_missing">棋譜が見つかりません</string>
+    <string name="replay_player_info">Lv.%1$d  %2$s  %3$d手</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">%1$d手目を復元できませんでした</string>
+    <string name="replay_viewer_title">対局リプレイ</string>
+    <string name="replay_share_report">戦績をシェア</string>
+    <string name="replay_export_pgn">PGNを出力</string>
+    <string name="replay_copy_fen">FENをコピー</string>
+    <string name="replay_copied_to_clipboard">クリップボードにコピーしました</string>
+    <string name="puzzle_rush_title">パズルラッシュ</string>
+    <string name="puzzle_rush_banner">3分 · ベスト %1$d</string>
+    <string name="tactics_banner_title">殺法パターン</string>
+    <string name="tactics_banner_sub">古典の詰み</string>
+    <string name="tactics_banner_progress">%1$d / %2$d 習得</string>
+    <string name="puzzle_rush_subtitle">3分間のスピードチャレンジ</string>
+    <string name="puzzle_rush_start">ラッシュ開始</string>
+    <string name="puzzle_rush_score">スコア</string>
+    <string name="puzzle_rush_high_score">ベスト：%1$d</string>
+    <string name="puzzle_rush_combo">連続正解 x%1$d</string>
+    <string name="puzzle_rush_pass">スキップ（ハート −1）</string>
+    <string name="puzzle_rush_time_up">タイムアップ！</string>
+    <string name="puzzle_rush_lives_out">ハートがなくなりました！</string>
+    <string name="puzzle_rush_new_record">🎉 新記録！</string>
+    <string name="puzzle_rush_solved_count">%1$d問を解答</string>
+    <string name="puzzle_rush_play_again">もう一度</string>
+    <string name="puzzle_rush_share">スコアをシェア</string>
+    <string name="puzzle_rush_report_title">【QiYan シャンチー · パズルラッシュ】</string>
+    <string name="puzzle_rush_score_line">スコア %1$d</string>
+    <string name="puzzle_rush_best_badge">ベスト %1$d</string>
+    <string name="puzzle_rush_mate_line">詰み · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">称号：%1$s</string>
+    <string name="puzzle_rush_record_line">新記録：%1$d</string>
+    <string name="puzzle_rush_previous_best">これまでのベスト：%1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\n3分で%2$d問解答。\n最高連続正解 %3$d。\n%4$s</string>
+    <string name="puzzle_rush_leave">このラッシュを中断しますか？スコアは保存されません。</string>
+    <string name="puzzle_rush_leave_yes">中断する</string>
+    <string name="puzzle_rush_honor_1">見習い</string>
+    <string name="puzzle_rush_honor_2">クラブ級</string>
+    <string name="puzzle_rush_honor_3">疾風の一刀</string>
+    <string name="puzzle_rush_honor_4">計算の鬼</string>
+    <string name="puzzle_rush_honor_5">ラッシュの達人</string>
+    <string name="stat_total_games_format">%1$d局</string>
+    <string name="stat_wins_format">%1$d勝</string>
+    <string name="stat_losses_format">%1$d負</string>
+    <string name="stat_draws_format">%1$d分</string>
+    <string name="game_illegal_move">無効な手です</string>
+    <string name="game_undo_failed">待ったできません</string>
+    <string name="game_switched_to_black">黒に交代しました</string>
+    <string name="game_switched_to_red">赤に交代しました</string>
+    <string name="game_opponent_black">AI（黒）</string>
+    <string name="game_opponent_red">AI（赤）</string>
+    <string name="game_player_red">自分（赤）</string>
+    <string name="game_player_black">自分（黒）</string>
+    <string name="game_move_count">%1$d手目</string>
+    <string name="game_engine_start_failed">AI の起動に失敗しました</string>
+    <string name="unknown_label">不明</string>
+    <string name="default_nickname">棋友</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">理由：%1$s\nレート変化：%2$s\n現在のランク：%3$s</string>
+    <string name="game_over_rating_detail">レート変化：%1$s · 現在のランク：%2$s</string>
+    <string name="game_over_win">あなたの勝ち</string>
+    <string name="game_over_loss">あなたの負け</string>
+    <string name="game_over_draw">引き分け</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">スレッド数</string>
+    <string name="settings_hash">ハッシュテーブル (MB)</string>
+    <string name="settings_sound">効果音</string>
+    <string name="settings_vibrate">振動</string>
+    <string name="settings_bgm">BGM</string>
+    <string name="settings_board_flip">既定で盤面を反転</string>
+    <string name="settings_show_coords">座標を表示</string>
+    <string name="settings_show_winrate">勝率を表示</string>
+    <string name="settings_animation">駒のアニメーション</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="settings_desc_threads">多いほど速く計算できますが、電池を消費します。端末のコア数の半分までを推奨</string>
+    <string name="settings_desc_hash">AI の思考キャッシュ。大きくすると長考の棋力が上がり、メモリが不足するときは小さくします</string>
+    <string name="settings_desc_sound">着手・駒取り・王手のときに音を鳴らします</string>
+    <string name="settings_desc_vibrate">着手時に軽く振動で知らせます</string>
+    <string name="settings_desc_bgm">対局中は静かな古琴の環境音をループ再生。音量は抑えめで効果音を妨げません</string>
+    <string name="settings_desc_coords">盤の縁に沿って縦線と横線の番号を表示します</string>
+    <string name="settings_desc_winrate">盤の上にリアルタイムの勝率バーを表示します</string>
+    <string name="settings_desc_animation">オフにすると駒が即座に置かれます。低スペック端末ではより滑らか</string>
+    <string name="settings_desc_flip">対局を黒側の視点で始めます</string>
+    <string name="settings_section_display">表示</string>
+    <string name="settings_section_other">その他</string>
+    <string name="settings_theme_system">システムに合わせる</string>
+    <string name="settings_theme_light">ライト</string>
+    <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_clear_data">すべてのデータを削除</string>
+    <string name="dialog_clear_data_title">データを削除</string>
+    <string name="dialog_clear_data_message">すべての棋譜とレーティングデータを削除します。続行しますか？</string>
+    <!-- Live hints -->
+    <string name="live_title">リアルタイム助言</string>
+    <string name="live_entry">リアルタイム助言</string>
+    <string name="live_need_camera">盤面のリアルタイム認識にはカメラの権限が必要です</string>
+    <string name="live_camera_failed">カメラを起動できませんでした</string>
+    <string name="live_locking">盤面を探しています…</string>
+    <string name="live_board_invalid">盤面をうまく認識できていません。四隅すべてが画面に収まるようにしてください</string>
+    <string name="live_ready">ロック完了 · 認識 %1$d ms</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">リセット</string>
+    <string name="editor_clear">クリア</string>
+    <string name="settings_clear_data_desc">すべての棋譜とレーティングデータを削除します。元に戻せません</string>
+    <string name="settings_piece_style">駒のスタイル</string>
+    <string name="settings_board_style">盤のスタイル</string>
+    <string name="settings_about">このアプリについて</string>
+    <string name="settings_engine_path">AI モデルのパス</string>
+    <string name="settings_about_text">QiYan v1.0\n\n自社開発 AI（NNUE ニューラルネット評価）\n盤面の写真認識とリアルタイム助言に対応</string>
+
+    <!-- About -->
+    <string name="about_engine_title">AI 情報</string>
+    <string name="about_engine_version">自社開発 NNUE</string>
+    <string name="about_engine_desc">シャンチー AI</string>
+
+    <!-- Common -->
+    <string name="red">赤</string>
+    <string name="black">黒</string>
+    <string name="move_count">%1$d手</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">盤面をスキャン</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">AI 解析</string>
+    <string name="advisor_send">送信</string>
+    <string name="advisor_input_hint">何でも聞いてください…</string>
+    <string name="advisor_error_generic">解析は一時的に利用できません。後でもう一度お試しください</string>
+    <string name="advisor_no_config">AI 機能が設定されていません。開発者にお問い合わせください</string>
+    <string name="advisor_unavailable">AI は一時的に利用できません。しばらくしてからもう一度お試しください</string>
+    <string name="advisor_waiting">AI がまだ前の回答中です。少々お待ちください</string>
+    <string name="advisor_key_rejected">認証キーが無効か、取り消されています。プロキシトークンを再設定してください。</string>
+    <string name="advisor_clear">会話をクリア</string>
+    <string name="advisor_context_replay">%1$d手目をレビュー中</string>
+    <string name="advisor_context_game">第%1$d手 · %2$s の番</string>
+    <string name="advisor_thinking">AI が解析中…</string>
+    <string name="advisor_button">AI 解析</string>
+    <string name="advisor_empty_title">AI にこの対局について聞く</string>
+    <string name="advisor_empty_subtitle">現在の局面を見たうえで答えてくれます — 形勢、次の一手、直前の手の問題などを聞いてみましょう</string>
+    <string name="advisor_suggest_analyze">現在の局面を解析して</string>
+    <string name="advisor_suggest_next">次はどう指せばいい？</string>
+    <string name="advisor_suggest_review">直前の手に問題はあった？</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">タップでスキップ</string>
+    <string name="analysis_summary_prompt">現在の局面を2〜3文で要約してください：形勢、どちらが有利か、攻めと受けの要点、いま最も注目すべき一手。日本語で。</string>
+    <string name="advisor_send_desc">送信</string>
+    <string name="advisor_move_banner">AI がこの手を示します：%1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">盤面をスキャン</string>
+    <string name="recognize_take_photo">写真を撮る</string>
+    <string name="recognize_pick_image">ギャラリーから選ぶ</string>
+    <string name="recognize_preview_desc">補正された盤面</string>
+    <string name="recognize_red_to_move">赤の番</string>
+    <string name="recognize_black_to_move">黒の番</string>
+    <string name="recognize_advise">AI に助言を求める</string>
+    <string name="recognize_hint_start">盤面の写真を撮るか、ギャラリーから選んでください。正面から四隅すべてが収まるように撮ると認識しやすいです。</string>
+    <string name="recognize_working">認識中…</string>
+    <string name="recognize_failed">認識に失敗しました。別の写真を試してください</string>
+    <string name="recognize_model_failed">認識モデルの読み込みに失敗しました</string>
+    <string name="recognize_no_camera">利用できるカメラがありません</string>
+    <string name="recognize_corner_warning">盤面の四隅が正しく枠に収まっておらず、認識がずれる可能性があります。正面から撮り直してください。</string>
+    <string name="recognize_must_fix">先に次の問題を修正してください：</string>
+    <string name="recognize_ready">認識が完了しました。黄色い丸が不確かな位置です（全%1$dか所）— マスをタップして修正できます。助言を求める前に確認してください。</string>
+    <string name="recognize_pick_piece">%1$c%2$d にどの駒を置きますか？</string>
+    <string name="recognize_empty">空</string>
+    <string name="recognize_flip">反転</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">%1$sを取った</string>
+    <string name="piece_king">将帥</string>
+    <string name="piece_advisor">仕</string>
+    <string name="piece_elephant">相</string>
+    <string name="piece_horse">馬</string>
+    <string name="piece_rook">車</string>
+    <string name="piece_cannon">炮</string>
+    <string name="piece_pawn">兵卒</string>
+    <string name="recognize_thinking">AI 思考中…</string>
+    <string name="recognize_engine_failed">AI の起動に失敗しました</string>
+    <string name="recognize_engine_error">AI エラー：%1$s</string>
+    <string name="recognize_no_move">AI が手を返しませんでした</string>
+    <string name="recognize_advice">助言：%1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">カメラを実際の盤面に向ければ、指している最中に助言がもらえます</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">局面の写真を撮りましょう</string>
+    <string name="recognize_start_camera_desc">実際の盤面を撮影</string>
+    <string name="recognize_start_gallery_desc">スクリーンショットや既存の写真を使う</string>
+    <string name="recognize_tips_title">きれいに撮ると正確に認識します</string>
+    <string name="recognize_tip_1">盤面に正対して。斜めから撮らないで</string>
+    <string name="recognize_tip_2">四隅すべてを画面に収める</string>
+    <string name="recognize_tip_3">光は均一に。反射と影を避ける</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">助言の強さ</string>
+    <string name="advice_level_fast">高速</string>
+    <string name="advice_level_fast_desc">すぐに助言を返します</string>
+    <string name="advice_level_normal">標準</string>
+    <string name="advice_level_normal_desc">1〜2秒考えて。たいていの場面に十分</string>
+    <string name="advice_level_deep">じっくり</string>
+    <string name="advice_level_deep_desc">長めに考えます。重要な局面で頼りになります</string>
+    <string name="advice_level_current">助言の強さ：%1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"楚河          漢界"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">駒の表記</string>
+    <string name="settings_piece_set_desc">漢字は伝統的な見た目。ラテン文字（K/A/B/N/R/C/P）は英語の着手記法と対応します</string>
+    <string name="piece_set_hanzi">漢字</string>
+    <string name="piece_set_latin">文字 K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">記譜法</string>
+    <string name="settings_notation_desc">中国式記譜では「炮二平五」、WXF では同じ手を「C2.5」と書きます</string>
+    <string name="notation_chinese">中国式記譜</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">エンジンが無効な手を返しました：%1$s</string>
+    <string name="engine_error">エンジンエラー：%1$s</string>
+    <string name="must_answer_check">王手されています — まず受けてください</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">盤面を準備しています…</string>
+    <string name="settings_follow_language">アプリの言語に合わせる</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">新規対局</string>
+    <string name="new_game_pick_opponent">対戦相手を選ぶ</string>
+    <string name="new_game_side">どちらを指す</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">赤</string>
+    <string name="side_black">黒</string>
+    <string name="side_random">ランダム</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">対戦相手</string>
+    <string name="menu_change_opponent">変更</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">バランス型</string>
+    <string name="style_balanced_desc">常にエンジンの最善手を指す — 純粋な強さ</string>
+    <string name="style_aggressive">攻撃型</string>
+    <string name="style_aggressive_desc">駒取りと王手が大好き。攻めのためなら捨て駒もいとわない</string>
+    <string name="style_solid">堅実型</string>
+    <string name="style_solid_desc">損な駒交換をせず、複雑な展開より静かな局面を好む</string>
+    <string name="style_swarm">多変化型</string>
+    <string name="style_swarm_desc">最善手に近い手の中から選ぶ — 毎回違う対局になる</string>
+    <string name="new_game_style">相手の棋風</string>
+    <string name="new_game_style_line">棋風：%1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">王手！</string>
+    <string name="board_tag_mate">詰み</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">駒取りの戦闘エフェクト</string>
+    <string name="settings_desc_capture_fx">駒が取られるとき、刀光・火花・墨飛沫のアニメーションを再生します。オフにしても盤上の「取った」表示は出続けます</string>
+    <string name="settings_board_skin">盤の素材</string>
+    <string name="settings_board_skin_desc">4種類のオフライン素材。駒の文字は象牙面の上で暗色のまま、読みやすさを保ちます。</string>
+    <string name="skin_wood">温かな木目</string>
+    <string name="skin_black_gold">漆黒と金</string>
+    <string name="skin_porcelain">青磁</string>
+    <string name="skin_jade">白玉</string>
+
+    <string name="puzzle_1_name">1手詰・悶宮</string>
+    <string name="puzzle_1_hint">黒の馬は動けない。帥を中央に寄せて黒を困斃に追い込もう</string>
+    <string name="puzzle_2_name">1手詰・重炮</string>
+    <string name="puzzle_2_hint">前の炮が炮架 — 後ろの炮を中路へ移動して王手</string>
+    <string name="puzzle_3_name">1手詰・車＆馬</string>
+    <string name="puzzle_3_hint">後ろの車が最下ラインへ掃けて両王手</string>
+    <string name="puzzle_4_name">1手詰・帥将対面</string>
+    <string name="puzzle_4_hint">縦列の上で帥と将が対面。車を最下ラインに落とす</string>
+    <string name="puzzle_5_name">1手詰・鉄門栓</string>
+    <string name="puzzle_5_hint">中炮が中央を押さえ、車が最下ラインへ落ちて門を封じる</string>
+    <string name="puzzle_6_name">1手詰・挟撃炮</string>
+    <string name="puzzle_6_hint">炮を底深く落とし、車が盾となって決定打を放つ</string>
+    <string name="puzzle_7_name">1手詰・双車の攻め</string>
+    <string name="puzzle_7_hint">炮の支援のもと、双車で宮城を挟み込む</string>
+    <string name="puzzle_8_name">1手詰・馬後炮</string>
+    <string name="puzzle_8_hint">駿馬を炮架に使い、即座に詰みへ</string>
+    <string name="puzzle_9_name">2手詰・双車錯</string>
+    <string name="puzzle_9_hint">車を底に沈めて王手。象が防いだら方向を替える</string>
+    <string name="puzzle_10_name">2手詰・二鬼拍門</string>
+    <string name="puzzle_10_hint">一方が縦列を押さえ、もう一方が王手を繰り返す</string>
+    <string name="puzzle_11_name">2手詰・臥槽馬</string>
+    <string name="puzzle_11_hint">馬が宮の側面を押さえ、車が沈んで詰み</string>
+    <string name="puzzle_12_name">2手詰・跳ね馬の両王手</string>
+    <string name="puzzle_12_hint">馬を前に跳ばして王手を晒し、車と連携する</string>
+    <string name="puzzle_13_name">2手詰・車馬炮</string>
+    <string name="puzzle_13_hint">馬が中央へ跳び、炮が致命打を合わせる</string>
+    <string name="puzzle_14_name">2手詰・兵の進撃</string>
+    <string name="puzzle_14_hint">炮が中央を固め、兵が迫り込む</string>
+    <string name="puzzle_15_name">2手詰・双車縦列</string>
+    <string name="puzzle_15_hint">縦列に沿った双車が宮の守りを解体する</string>
+    <string name="puzzle_16_name">2手詰・車後の炮</string>
+    <string name="puzzle_16_hint">車が道を開き、後ろに隠れた炮が決める</string>
+    <string name="puzzle_17_name">3手詰・臥槽馬の深攻め</string>
+    <string name="puzzle_17_hint">馬が宮の隅を攻め、車が最下ラインを封じる</string>
+    <string name="puzzle_18_name">3手詰・釣魚馬</string>
+    <string name="puzzle_18_hint">釣魚馬が将を縛り、車が9ラインで仕上げる</string>
+    <string name="puzzle_19_name">3手詰・掛角馬</string>
+    <string name="puzzle_19_hint">掛角馬が出口を封じ、車の詰みを止められない</string>
+    <string name="puzzle_20_name">3手詰・双車挟撃</string>
+    <string name="puzzle_20_hint">噛み合う双車が敵将の周りの網を絞める</string>
+    <string name="puzzle_21_name">2手詰・釣魚馬のピン</string>
+    <string name="puzzle_21_hint">釣魚馬が宮を封じ、車が中央へ滑って詰み</string>
+    <string name="puzzle_22_name">2手詰・天地炮</string>
+    <string name="puzzle_22_hint">一つの炮は中央を制し、一つは底まで沈んで決める</string>
+    <string name="puzzle_23_name">3手詰・車馬の連環</string>
+    <string name="puzzle_23_hint">連携する車と馬が致命的な王手を続ける</string>
+    <string name="puzzle_24_name">3手詰・双車の網</string>
+    <string name="puzzle_24_hint">隣り合う縦列から双車が進み、将を捕らえる</string>
+
+    <string name="puzzle_25_name">3手詰・守り崩し</string>
+    <string name="puzzle_25_hint">双車が仕を抜いて守りを粉砕する</string>
+    <string name="puzzle_26_name">3手詰・双車錯連環</string>
+    <string name="puzzle_26_hint">帥の力を借りて双車が交互に沈む</string>
+    <string name="puzzle_27_name">3手詰・車の陽動</string>
+    <string name="puzzle_28_hint">先陣の車を捨て、将を城から誘い出す</string>
+    <string name="puzzle_28_name">3手詰・掛角の飛馬</string>
+    <string name="puzzle_27_hint">駒を捨てて敵の宮城を破る</string>
+    <string name="puzzle_29_name">3手詰・双車包囲</string>
+    <string name="puzzle_29_hint">双車が宮の中心へ渡り込む</string>
+    <string name="puzzle_30_name">3手詰・側面攻撃</string>
+    <string name="puzzle_30_hint">車が最下ラインに沈み、馬が回り込む</string>
+    <string name="puzzle_31_name">3手詰・帥将対面</string>
+    <string name="puzzle_31_hint">開いた縦列で帥将が対面。車が勝ちを封じる</string>
+    <string name="puzzle_32_name">3手詰・駆ける馬</string>
+    <string name="puzzle_32_hint">馬が臥槽の位置へ跳び込んで詰みを決める</string>
+
+    <string name="puzzle_33_name">4手詰・釣魚馬の突破</string>
+    <string name="puzzle_33_hint">釣魚馬が将を縛る間に、車が仕を剥がす</string>
+    <string name="puzzle_34_name">4手詰・城門の兵</string>
+    <string name="puzzle_34_hint">勇敢な赤の兵が進み、将の聖域を解体する</string>
+    <string name="puzzle_35_name">4手詰・掛角馬と車</string>
+    <string name="puzzle_35_hint">掛角馬が仕をピンで止め、車が奥から仕上げる</string>
+    <string name="puzzle_36_name">4手詰・双車と駿馬</string>
+    <string name="puzzle_36_hint">両翼の双車と駆ける馬が宮を蹂躙する</string>
+    <string name="puzzle_37_name">4手詰・宮内の兵</string>
+    <string name="puzzle_37_hint">車の支援を受けて兵が中央の宮へ侵入する</string>
+    <string name="puzzle_38_name">4手詰・側翼の車馬</string>
+    <string name="puzzle_38_hint">馬が側面から打ち、車が最後列を封じる</string>
+    <string name="puzzle_39_name">5手詰・兵の掃討</string>
+    <string name="puzzle_39_hint">粘り強い兵が着実に進み、将を縛る</string>
+    <string name="puzzle_40_name">3手詰・双車と炮</string>
+    <string name="puzzle_40_hint">双車と炮が崩れない攻撃陣を組む</string>
+
+    <string name="puzzle_41_name">6手詰・突破の兵</string>
+    <string name="puzzle_41_hint">端の兵が奥へ進み、車と炮が続く</string>
+    <string name="puzzle_42_name">7手詰・肋への侵入</string>
+    <string name="puzzle_42_hint">馬を捨てて守りを引き出し、車の道を開く</string>
+    <string name="puzzle_43_name">6手詰・中央の馬</string>
+    <string name="puzzle_43_hint">馬が盤の中央を支配し、詰みへ導く</string>
+    <string name="puzzle_44_name">6手詰・車一枚の終盤</string>
+    <string name="puzzle_44_hint">一枚の車だけの妙技で、守りを一枚ずつ剥がしていく</string>
+    <string name="puzzle_45_name">2手詰・疾風の双車</string>
+    <string name="puzzle_45_hint">縦列を渡る双車が素早く決着させる</string>
+    <string name="puzzle_46_name">3手詰・駿馬</string>
+    <string name="puzzle_46_hint">馬が逃げ道を封じ、車がラインで仕上げる</string>
+    <string name="puzzle_47_name">3手詰・両翼の車</string>
+    <string name="puzzle_47_hint">隣接する縦列から双車が連携で攻める</string>
+    <string name="puzzle_48_name">2手詰・飛炮</string>
+    <string name="puzzle_48_hint">重炮が炮架を越えて鮮やかに詰む</string>
+
+    <string name="puzzle_chapter_1">第一巻・最初の一歩</string>
+    <string name="puzzle_chapter_sub_1">1手詰・基本の詰み形</string>
+    <string name="puzzle_chapter_2">第二巻・戦術の火花</string>
+    <string name="puzzle_chapter_sub_2">2手詰・連携する攻撃の戦術</string>
+    <string name="puzzle_chapter_3">第三巻・名手の戦略</string>
+    <string name="puzzle_chapter_sub_3">2〜3手詰・古典戦術の総合</string>
+    <string name="puzzle_chapter_4">第四巻・大攻勢</string>
+    <string name="puzzle_chapter_sub_4">3手詰・捨て駒と決定打</string>
+    <string name="puzzle_chapter_5">第五巻・壮大な征服</string>
+    <string name="puzzle_chapter_sub_5">3〜4手詰・上級の終盤テクニック</string>
+    <string name="puzzle_chapter_6">第六巻・特級マスターの試練</string>
+    <string name="puzzle_chapter_sub_6">4〜7手詰・伝説のシャンチー古典名局</string>
+    <string name="campaign_entry">登山に挑戦</string>
+    <string name="campaign_entry_desc">八つのステージ。勝てば次が開きます。</string>
+    <string name="puzzle_entry">終盤問題</string>
+    <string name="puzzle_entry_desc">古典の詰み。各問題、待ったは3回まで</string>
+    <string name="campaign_title">山頂への道</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">ゴール</string>
+    <string name="campaign_level_format">ステージ %1$d</string>
+    <string name="campaign_level_difficulty_format">相手の強さ Lv.%1$d</string>
+    <string name="campaign_locked">前のステージに勝つと開放されます</string>
+    <string name="campaign_passed">クリア済み</string>
+    <string name="campaign_win_title">ステージクリア！</string>
+    <string name="campaign_next_level">次のステージ</string>
+    <string name="campaign_retry">このステージを再挑戦</string>
+    <string name="campaign_back_list">山へ戻る</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">ステージ %1$d · %2$s</string>
+    <string name="stage_1_name">第一歩</string>
+    <string name="stage_1_brief">この相手はよく駒の取り忘れをします。まずはルールに慣れましょう。</string>
+    <string name="stage_2_name">門</string>
+    <string name="stage_2_brief">一手先を読むものの、まだ見落としがあります。</string>
+    <string name="stage_3_name">河</string>
+    <string name="stage_3_brief">ここからはエンジンの探索に切り替わります。考え時間は1秒強。</string>
+    <string name="stage_4_name">関所</string>
+    <string name="stage_4_brief">考える時間が増えます。単純な見落としは見抜かれます。</string>
+    <string name="stage_5_name">陣</string>
+    <string name="stage_5_brief">より深い探索。手抜きの駒は取られます。</string>
+    <string name="stage_6_name">長考</string>
+    <string name="stage_6_brief">思考時間がさらに延びます。</string>
+    <string name="stage_7_name">深読み</string>
+    <string name="stage_7_brief">頂上はすぐそこ。あと一歩の思考時間が足りない。</string>
+    <string name="stage_8_name">頂上</string>
+    <string name="stage_8_brief">この山で最も長い探索時間。</string>
+    <string name="catalog_mate_title">1手詰</string>
+    <string name="catalog_mate_hint">赤の番。1手で詰み。</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">%1$d / %2$d 問解答</string>
+    <string name="catalog_filter_all">すべて</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">解答済み</string>
+    <string name="catalog_open">未解答</string>
+    <string name="history_intro">五つの章、いずれも実在の戦い。各戦は「1手詰め」の一手で決着します。局面は練習問題であり、歴史上の実戦棋譜の再現ではありません。</string>
+    <string name="history_ch_1">春秋</string>
+    <string name="history_ch_2">戦国</string>
+    <string name="history_ch_3">楚漢</string>
+    <string name="history_ch_4">三国</string>
+    <string name="history_ch_5">後世の名戦</string>
+    <string name="battle_1_name">長勺の戦い</string>
+    <string name="battle_1_brief">魯、紀元前684年。曹劌は斉が三度太鼓を打ち果てたのちに攻めた。1手詰：鉄門栓。</string>
+    <string name="battle_2_name">城濮の戦い</string>
+    <string name="battle_2_brief">紀元前632年。晋軍は楚の中軍を誘い出し、両翼から閉じた。1手詰：双車錯。</string>
+    <string name="battle_3_name">柏挙の戦い</string>
+    <string name="battle_3_brief">紀元前506年。呉軍は楚の奥深くへ進み、郢を落とした。1手詰：馬後炮。</string>
+    <string name="battle_4_name">笠沢の戦い</string>
+    <string name="battle_4_brief">紀元前478年。越軍は二手に分かれて川を渡り、呉軍を破った。1手詰：臥槽馬。</string>
+    <string name="battle_5_name">桂陵の戦い</string>
+    <string name="battle_5_brief">紀元前354年。斉軍は魏の都へ進み、趙を囲む魏軍を引き戻した。1手詰：重炮。</string>
+    <string name="battle_6_name">馬陵の戦い</string>
+    <string name="battle_6_brief">紀元前342年。孫臏は営火を減らし、狭道で待ち伏せた。1手詰：釣魚馬。</string>
+    <string name="battle_7_name">長平の戦い</string>
+    <string name="battle_7_brief">紀元前260年。秦軍は趙軍の補給を断ち、包囲の輪を閉じた。1手詰：双車錯。</string>
+    <string name="battle_8_name">即墨の戦い</string>
+    <string name="battle_8_brief">紀元前279年。田単は夜に城門を開き、燕軍の陣へ突っ込んだ。1手詰：臥槽馬。</string>
+    <string name="battle_9_name">井陘の戦い</string>
+    <string name="battle_9_brief">紀元前204年。韓信は背水の陣を敷き、その後に反転した。1手詰：帥将対面。</string>
+    <string name="battle_10_name">暗渡陳倉</string>
+    <string name="battle_10_brief">紀元前206年。栈道は陽動。本隊は陳倉から出た。1手詰：重炮。</string>
+    <string name="battle_11_name">濰水の戦い</string>
+    <string name="battle_11_brief">紀元前204年。韓信は川を堰き止め、敵を渡らせてから水を放った。1手詰：馬後炮。</string>
+    <string name="battle_12_name">垓下の戦い</string>
+    <string name="battle_12_brief">紀元前202年。漢軍は項羽を四方から包囲した。1手詰：双車錯。</string>
+    <string name="battle_13_name">官渡の戦い</string>
+    <string name="battle_13_brief">西暦200年。曹操は烏巣で袁紹の兵糧を焼いた。1手詰：鉄門栓。</string>
+    <string name="battle_14_name">赤壁の戦い</string>
+    <string name="battle_14_brief">西暦208年。火は長江でつながれた艦隊を焼き払った。1手詰：重炮。</string>
+    <string name="battle_15_name">漢中の戦い</string>
+    <string name="battle_15_brief">西暦219年。黄忠は定軍山を取り、夏侯淵が討たれた。1手詰：釣魚馬。</string>
+    <string name="battle_16_name">夷陵の戦い</string>
+    <string name="battle_16_brief">西暦222年。陸遜は守りを固めたのち、蜀の陣を焼いた。1手詰：臥槽馬。</string>
+    <string name="battle_17_name">淝水の戦い</string>
+    <string name="battle_17_brief">西暦383年。苻堅の大軍は退き始めると止まらなかった。1手詰：帥将対面。</string>
+    <string name="battle_18_name">虎牢関の戦い</string>
+    <string name="battle_18_brief">西暦621年。李世民は関前にて竇建徳を破った。1手詰：掛角馬。</string>
+    <string name="battle_19_name">郾城の戦い</string>
+    <string name="battle_19_brief">西暦1140年。岳飛の騎馬が郾城で金軍の騎兵を破った。1手詰：馬後炮。</string>
+    <string name="battle_20_name">鄱陽湖の戦い</string>
+    <string name="battle_20_brief">西暦1363年。朱元璋の火船が陳友諒の樓船を破った。1手詰：天地炮。</string>
+    <string name="tactic_label_mahoupao">馬後炮</string>
+    <string name="tactic_label_bolt">鉄門栓</string>
+    <string name="tactic_label_double_cannon">重炮</string>
+    <string name="tactic_label_double_rook">双車錯</string>
+    <string name="tactic_label_pocket">臥槽馬</string>
+    <string name="tactic_label_corner">掛角馬</string>
+    <string name="tactic_label_fishing">釣魚馬</string>
+    <string name="tactic_label_face">帥将対面</string>
+    <string name="tactic_label_heaven">天地炮</string>
+    <string name="tactic_label_heart">大刀剜心</string>
+    <string name="tactic_label_smothered">悶宮</string>
+    <string name="tactic_label_spring">抜簧</string>
+    <string name="tactic_label_mate">詰み</string>
+    <string name="puzzle_title">終盤問題</string>
+    <string name="puzzle_list_title">終盤問題集</string>
+    <string name="puzzle_solved">解答済み</string>
+    <string name="puzzle_unsolved">未解答</string>
+    <string name="puzzle_attempts_format">%1$d回挑戦済み</string>
+    <string name="puzzle_red_to_move">赤の番。%1$d手で詰み</string>
+    <string name="puzzle_undo_left_format">待った残り：%1$d回</string>
+    <string name="puzzle_moves_left_format">残り手数：%1$d</string>
+    <string name="puzzle_retry">最初から</string>
+    <string name="puzzle_undo">待った</string>
+    <string name="puzzle_undo_exhausted">待ったはもう使えません</string>
+    <string name="puzzle_deviated">詰みを逃しました。待ったするか、最初からやり直しましょう。</string>
+    <string name="puzzle_solved_title">解答成功！</string>
+    <string name="puzzle_fail_title">解答ならず</string>
+    <string name="puzzle_fail_moves">手数切れ。黒が持ちこたえました。</string>
+    <string name="puzzle_next_puzzle">次の問題</string>
+    <string name="puzzle_retry_confirm">%1$d回挑戦済み。待ったは3回まで、手数切れで失敗です。最初からやり直しますか？</string>
+
+    <string name="campaign_unlocked">挑戦可能</string>
+    <string name="campaign_fail_title">挑戦失敗</string>
+    <string name="campaign_body_unlocked">ステージクリア — 次が開放されました！</string>
+    <string name="campaign_stars_line">星%1$d · %2$s · %3$s</string>
+    <string name="campaign_stars_record">このステージのベスト：%1$d</string>
+    <string name="campaign_stars_cd">星%1$d / 3</string>
+    <string name="campaign_star_hint_kept">ヒント未使用</string>
+    <string name="campaign_star_hint_used">ヒント使用</string>
+    <string name="campaign_star_undo_kept">待ったなし</string>
+    <string name="campaign_star_undo_used">待ったあり</string>
+    <string name="campaign_body_all_clear">八つのステージすべてクリア。</string>
+    <string name="campaign_body_retry">今回は惜しい — もう一度！</string>
+    <string name="puzzle_stage_name">ステージ %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · %2$d/%3$d手 · 待った残り%4$d · %5$d回目</string>
+    <string name="puzzle_solved_body">解答成功 — 見事です！</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">盤面を見る</string>
+    <string name="result_win_checkmate">詰みでの勝利</string>
+    <string name="result_win_big">圧勝</string>
+    <string name="result_win_tactic_fmt">%1$sの詰み</string>
+    <string name="result_lose_tactic_fmt">相手の%1$sに敗北</string>
+    <string name="result_lose_banner">敗北</string>
+    <string name="result_draw_banner">引き分け</string>
+    <string name="result_reason_win_tactic_fmt">妙手「%1$s」で詰み切りました</string>
+    <string name="result_reason_lose_tactic_fmt">相手に「%1$s」で詰まされました</string>
+    <string name="result_reason_win_default">勝負あり</string>
+    <string name="result_reason_lose_default">あと一歩 — 惜敗でした</string>
+    <string name="result_reason_draw_default">対局は引き分けに終わりました</string>
+    <string name="result_practice_detail">練習対局が完了 — レートは変わりません。棋譜は保存されました。</string>
+    <string name="campaign_reason_clear">ステージクリア</string>
+    <string name="campaign_reason_fail">挑戦失敗</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">AI が対局を解析しています</string>
+    <string name="analysis_scanning_recognize">盤面を認識しています…</string>
+    <string name="analysis_scanning_advice">AI が助言を準備しています…</string>
+    <string name="recognize_loading_model">認識モデルを読み込んでいます…</string>
+    <string name="live_starting">モデルとカメラを起動しています…</string>
+    <string name="action_retry">再試行</string>
+
+    <string name="puzzle_solved_tactic_title">詰み · %1$s</string>
+    <string name="puzzle_solved_tactic_body">「%1$s」で解答しました。</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">中炮対屏風馬</string>
+    <string name="opening_same_cannon">順手炮</string>
+    <string name="opening_opposite_cannon">列手炮</string>
+    <string name="opening_central_vs_reversed">中炮対反宮馬</string>
+    <string name="opening_central_vs_single">中炮対単提馬</string>
+    <string name="opening_central_vs_tiger">中炮対三歩虎</string>
+    <string name="opening_pawn_vs_cannon">仙人指路対卒底炮</string>
+    <string name="opening_mutual_pawn">仙人指路互進卒</string>
+    <string name="opening_pawn_vs_central">仙人指路対中炮</string>
+    <string name="opening_pawn_vs_horse">仙人指路対進馬</string>
+    <string name="opening_pawn_vs_elephant">仙人指路対飛相</string>
+    <string name="opening_elephant_vs_left">飛相局対左中炮</string>
+    <string name="opening_elephant_vs_right">飛相局対右中炮</string>
+    <string name="opening_elephant_vs_horse">飛相局対進馬</string>
+    <string name="opening_elephant_vs_pawn">飛相局対進卒</string>
+    <string name="opening_elephant_vs_corner">飛相局対士角炮</string>
+    <string name="opening_elephant_vs_crossing">飛相局対過宮炮</string>
+    <string name="opening_horse_vs_pawn">起馬局対挺卒</string>
+    <string name="opening_horse_vs_central">起馬局対中炮</string>
+    <string name="opening_horse_vs_horse">起馬局対進馬</string>
+    <string name="opening_central_cannon">中炮</string>
+    <string name="opening_pawn">仙人指路</string>
+    <string name="opening_elephant">飛相局</string>
+    <string name="opening_horse">起馬局</string>
+    <string name="opening_crossing_cannon">過宮炮</string>
+    <string name="opening_corner_cannon">士角炮</string>
+    <string name="opening_hook_cannon">金鉤炮</string>
+    <string name="opening_iron_roller">鉄滑車</string>
+    <string name="opening_edge_horse">辺馬局</string>
+    <string name="opening_edge_pawn">辺兵局</string>
+    <string name="tactic_rhyme_mahoupao">「馬の後に炮、将はもう逃れられない」</string>
+    <string name="tactic_desc_mahoupao">馬が炮架となり、炮はその向こうから王手。二者で将の退路をすべて封じる。</string>
+    <string name="tactic_rhyme_bolt">「中炮は中路に、車は宮の門に鉄の栓」</string>
+    <string name="tactic_desc_bolt">中炮が宮の門を威嚇。車が最下ラインへ滑り込み、鉄の栓のように門を閉ざす。</string>
+    <string name="tactic_rhyme_double_cannon">「前の炮は炮架、後ろの炮が本陣を突く」</string>
+    <string name="tactic_desc_double_cannon">同一線上に二つの炮。前の炮が炮架となり、後ろの炮がその勢いで宮へ王手をかける。</string>
+    <string name="tactic_rhyme_double_rook">「双車は縦列を違え、宮へ交互に迫る」</string>
+    <string name="tactic_desc_double_rook">隣り合う縦列に落ちた二つの車が、一列ずつ将を追い詰めていく。</string>
+    <string name="tactic_rhyme_pocket">「馬は窪みに臥し、車は底ラインに」</string>
+    <string name="tactic_desc_pocket">馬が敵宮の横の臥槽の位置に潜み、車が最下ラインへ落ちて致命的な包囲を完成させる。</string>
+    <string name="tactic_rhyme_corner">「馬は士の隅に掛かり、車が決める」</string>
+    <string name="tactic_desc_corner">馬が士の隅から王手をかけ、仕と将をその場に釘付けにする。</string>
+    <string name="tactic_rhyme_face">「帥と将は開いた縦列で対面する」</string>
+    <string name="tactic_desc_face">帥と将は対面できないという規則がある。自らの帥が縦列を握ることで、その規則がそのまま詰みになる。</string>
+    <string name="tactic_rhyme_heaven">「一つの炮は最下ラインに、一つの炮は中央に」</string>
+    <string name="tactic_desc_heaven">一つの炮が最下ラインを封じ、もう一つが中央の縦列を握る。二者が同時に打つ。</string>
+    <string name="tactic_rhyme_fishing">「釣魚馬が門に立ち、車が一撃で閉ざす」</string>
+    <string name="tactic_desc_fishing">馬が釣りの地点に立って宮の出口を塞ぐ。車が落ちてきて詰み。</string>
+    <string name="tactic_rhyme_heart">「車を捨てて中央の仕を斬る」</string>
+    <string name="tactic_desc_heart">車を投げ打って中央の仕を取り、将を陣地から引きずり出して詰み。</string>
+    <string name="tactic_rhyme_smothered">「仕が自らの将を塞ぐ」</string>
+    <string name="tactic_desc_smothered">二つの仕が宮を詰まらせている。最下ラインの炮、あるいは車と兵が、その隙間を突いて詰み。</string>
+    <string name="tactic_academy_sub">手順を覚えて、声を聞いて、そして解く</string>
+    <string name="tactic_voice">聞く</string>
+    <string name="tactic_challenge">解く</string>
+    <string name="tactic_mastered">習得済み</string>
+    <string name="tactic_learning">学習中</string>
+    <string name="puzzle_rush_result_title">パズルラッシュ</string>
+    <string name="puzzle_rush_score_unit">問</string>
+    <string name="replay_start_position">開始局面</string>
+    <string name="replay_move_line">%1$d手目 · %2$s</string>
+    <string name="replay_red_winrate">赤の勝率 %1$d%%</string>
+    <string name="replay_try_variation">試す</string>
+    <string name="replay_variation_undo">待った</string>
+    <string name="replay_variation_exit">本譜に戻る</string>
+    <string name="replay_variation_status">変化 +%1$d手 · 赤 %2$d%%</string>
+    <string name="replay_variation_status_move">変化 +%1$d手 · %2$s · 赤 %3$d%%</string>
+    <string name="replay_variation_step">%1$d手目</string>
+    <string name="replay_red_better">赤優勢</string>
+    <string name="replay_black_better">黒優勢</string>
+    <string name="move_quality_brilliant">妙手</string>
+    <string name="move_quality_best">最善手</string>
+    <string name="move_quality_inaccuracy">疑問手</string>
+    <string name="move_quality_mistake">悪手</string>
+    <string name="move_quality_blunder">大悪手</string>
+    <string name="move_quality_book">定跡</string>
+    <string name="analysis_scan_status">深度 %1$d · 赤の勝率 %2$d%%</string>
+</resources>

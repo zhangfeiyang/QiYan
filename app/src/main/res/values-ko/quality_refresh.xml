@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">산 등반에서는 진영이 고정됩니다.</string>
+    <string name="game_swap_rated_title">진영을 바꿀까요?</string>
+    <string name="game_swap_rated_message">지금까지 AI가 두던 국면을 이어 받게 됩니다. 이 대국은 연습으로 바뀌고 점수에 영향을 주지 않습니다.</string>
+    <string name="game_swap_rated_confirm">바꾸고 연습하기</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">힌트 · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">결과가 나온 뒤에도 계속 두셨기에 이 부분은 점수에 반영되지 않습니다. 첫 결과가 유효합니다.</string>
+    <string name="result_resume">계속 두기</string>
+    <string name="result_review">대국 복기</string>
+    <string name="result_review_unavailable">이 대국은 저장되지 않아 복기할 내용이 없습니다.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">3분. 몇 문제까지?</string>
+    <string name="puzzle_rush_intro_rules">• 모든 국면에서 홍이 먼저 둡니다. 외통수를 찾으세요.\n• 틀린 수나 건너뛰기마다 생명 −1. 세 개를 다 쓰면 라운드가 끝납니다.\n• 점수가 오를수록 국면이 어려워집니다.</string>
+    <string name="puzzle_rush_intro_best">내 최고 기록: %1$d</string>
+    <string name="puzzle_rush_intro_first">아직 기록이 없습니다. 첫 기록을 세워 보세요.</string>
+    <string name="puzzle_rush_prompt_short">홍 차례 · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">고급 · AI 엔진</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">고전 외통 패턴 %1$d가지</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">배치전</string>
+    <string name="rank_placement_chip">배치전 %1$d/%2$d</string>
+    <string name="rank_placement_progress">배치전 %1$d/%2$d · 첫 인장까지 %3$d국 남음</string>
+    <string name="result_placement_progress">배치전 %2$d국 중 %1$d국이 진행 중입니다. %3$d국을 더 두면 첫 인장이 공개됩니다.</string>
+    <string name="result_placement_done">배치전 완료. 첫 인장: %1$s</string>
+    <string name="rank_hall_placement">배치전: 점수 대국 %2$d국 중 %1$d국 완료. %2$d국 후에 첫 인장이 공개됩니다.</string>
+</resources>

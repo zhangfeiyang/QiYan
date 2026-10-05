@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Los bandos son fijos en la escalada a la montaña.</string>
+    <string name="game_swap_rated_title">¿Cambiar de bando?</string>
+    <string name="game_swap_rated_message">Tomarías la posición que ha estado jugando la IA. Esta partida pasa a ser práctica y no cambiará tu Elo.</string>
+    <string name="game_swap_rated_confirm">Cambiar y practicar</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Pista · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Seguiste jugando tras el resultado, así que esta parte no cuenta para el Elo. El primer resultado se mantiene.</string>
+    <string name="result_resume">Seguir jugando</string>
+    <string name="result_review">Revisar partida</string>
+    <string name="result_review_unavailable">Esta partida no se guardó, así que no hay nada que revisar.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Tres minutos. ¿Cuántos mates?</string>
+    <string name="puzzle_rush_intro_rules">• Rojo mueve primero en todas las posiciones. Encuentra el mate.\n• Un movimiento erróneo o un salto cuesta una vida. Si pierdes las tres, el rush termina.\n• Las posiciones se vuelven más difíciles a medida que sube tu puntuación.</string>
+    <string name="puzzle_rush_intro_best">Tu mejor marca: %1$d</string>
+    <string name="puzzle_rush_intro_first">Aún no hay récord. Fija el primero.</string>
+    <string name="puzzle_rush_prompt_short">Mueve Rojo · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Avanzado · Motor de IA</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d patrones de mate clásicos</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Clasificación</string>
+    <string name="rank_placement_chip">Clasificación %1$d/%2$d</string>
+    <string name="rank_placement_progress">Clasificación %1$d/%2$d · faltan %3$d para tu primer sello</string>
+    <string name="result_placement_progress">Partida de clasificación %1$d de %2$d registrada. %3$d más para revelar tu primer sello.</string>
+    <string name="result_placement_done">Clasificación completada. Tu primer sello: %1$s</string>
+    <string name="rank_hall_placement">Clasificación: %1$d de %2$d partidas rankeadas jugadas. Tu primer sello se revela tras la partida %2$d.</string>
+</resources>

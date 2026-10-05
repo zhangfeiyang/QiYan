@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Prática · sem Elo</string>
+    <string name="game_search_no_move">Nenhuma jogada foi devolvida. Tente a dica de novo, ou mude o nível do adversário para continuar.</string>
+    <string name="puzzle_engine_error">O motor de puzzles não conseguiu responder. Tente reiniciar este puzzle.</string>
+    <string name="game_coach_start">Sem pressa. Toque em uma peça para ver seus lances legais; a dica mostra uma jogada sugerida.</string>
+    <string name="game_coach_practice">Prática tranquila · dicas e desfazer são grátis. Seu Elo permanece igual.</string>
+    <string name="game_coach_check">Seu general está em xeque. Capture o atacante, bloqueie o ataque ou mova seu general.</string>
+    <string name="game_coach_thinking">Observe a jogada do adversário e veja se alguma das suas peças está sob ataque.</string>
+    <string name="game_coach_opening">Tente desenvolver seus cavalos e carros. Proteja suas peças antes de atacar.</string>
+    <string name="game_coach_selected">%1$s · As casas destacadas são lances legais.</string>
+    <string name="game_coach_blocked">Esta peça não tem lance legal. Tente outra peça, ou use a dica.</string>
+    <string name="game_rule_rook">Os carros movem em linha reta por fileiras e colunas livres</string>
+    <string name="game_rule_cannon">Os canhões pulam exatamente uma peça ao capturar</string>
+    <string name="game_rule_horse">Os cavalos movem em L; uma perna bloqueada impede o lance</string>
+    <string name="game_rule_elephant">Os elefantes movem dois na diagonal e ficam no próprio lado</string>
+    <string name="game_rule_advisor">Os conselheiros movem um passo na diagonal dentro do palácio</string>
+    <string name="game_rule_king">Os generais movem um passo em linha reta dentro do palácio</string>
+    <string name="game_rule_pawn">Os soldados avançam; após cruzar o rio, também podem mover de lado</string>
+    <string name="game_undo_no_penalty">Desfazer sua última vez? Desfazer não deduz pontos de Elo.</string>
+    <string name="game_practice_undone">Vez desfeita. Tente outra ideia.</string>
+    <string name="game_play_again">Jogar de novo</string>
+    <string name="game_try_easier">Tentar mais fácil</string>
+    <string name="game_try_challenge">Puzzle diário</string>
+    <string name="game_practice_result">%1$s\n\nPrática concluída. Seu Elo não muda; a partida é salva para revisão.</string>
+    <string name="game_practice_record_reason">Prática · %1$s</string>
+    <string name="daily_puzzle_title">Puzzle diário</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">Puzzle de hoje concluído!\n%1$d dias de prática · sequência de %2$d dias\n\nUma conclusão por dia. Amanhã chega um puzzle novo.</string>
+    <string name="daily_puzzle_expired">Puzzle resolvido. Um novo dia começou; o puzzle de hoje está pronto na tela inicial.</string>
+    <string name="daily_puzzle_more">Mais puzzles</string>
+    <string name="puzzle_clue">Dica</string>
+    <string name="puzzle_undo_unavailable">Desfazer não está disponível nesta posição.</string>
+</resources>

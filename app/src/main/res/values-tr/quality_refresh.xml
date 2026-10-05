@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Dağ tırmanışında taraflar sabittir.</string>
+    <string name="game_swap_rated_title">Taraf değiştirilsin mi?</string>
+    <string name="game_swap_rated_message">Yapay zekânın oynadığı pozisyonu devralırsın. Bu oyun antrenmana döner ve puanını değiştirmez.</string>
+    <string name="game_swap_rated_confirm">Değiştir ve antrenman yap</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">İpucu · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Sonuçtan sonra oynamaya devam ettin, bu bölüm bu yüzden puansız. Geçerli olan ilk sonuç.</string>
+    <string name="result_resume">Oynamaya devam et</string>
+    <string name="result_review">Oyunu incele</string>
+    <string name="result_review_unavailable">Bu oyun kaydedilmedi, inceleyecek bir şey yok.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Üç dakika. Kaç mat?</string>
+    <string name="puzzle_rush_intro_rules">• Her pozisyonda Kırmızı başlar. Matı bul.\n• Yanlış hamle ya da atlama bir cana mal olur. Üçünü de kaybedersen akın biter.\n• Puan arttıkça pozisyonlar zorlaşır.</string>
+    <string name="puzzle_rush_intro_best">Senin en iyin: %1$d</string>
+    <string name="puzzle_rush_intro_first">Henüz rekor yok. İlkini belirle.</string>
+    <string name="puzzle_rush_prompt_short">Hamle sırası: Kırmızı · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Gelişmiş · Yapay zekâ motoru</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d klasik mat kalıbı</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Kalibrasyon</string>
+    <string name="rank_placement_chip">Kalibrasyon %1$d/%2$d</string>
+    <string name="rank_placement_progress">Kalibrasyon %1$d/%2$d · ilk mühüre %3$d kaldı</string>
+    <string name="result_placement_progress">Kalibrasyon maçı %1$d/%2$d oynandı. İlk mührün için %3$d maç daha.</string>
+    <string name="result_placement_done">Kalibrasyon tamamlandı. İlk mührün: %1$s</string>
+    <string name="rank_hall_placement">Kalibrasyon: %2$d puanlı maçtan %1$d tanesi oynandı. İlk mühür %2$d. maçtan sonra açılır.</string>
+</resources>

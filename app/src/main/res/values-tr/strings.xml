@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">Oyun</string>
+    <string name="title_replay">İnceleme</string>
+    <string name="title_settings">Ayarlar</string>
+    <string name="title_board_editor">Pozisyon Düzenle</string>
+    <string name="menu_play">Oyun Başlat</string>
+    <string name="menu_replay">Oyun İncelemesi</string>
+    <string name="menu_settings">Ayarlar</string>
+    <string name="menu_about">Hakkında</string>
+    <string name="menu_difficulty">Zorluk Seç</string>
+    <string name="menu_side">Taraf Seç</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Dil</string>
+    <string name="language_dialog_title">Dil seç</string>
+    <string name="language_system_default">Sistemi izle</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">Acemi</string>
+    <string name="difficulty_beginner">Çırak</string>
+    <string name="difficulty_lower_intermediate">Alt Orta</string>
+    <string name="difficulty_intermediate">Orta</string>
+    <string name="difficulty_upper_intermediate">Üst Orta</string>
+    <string name="difficulty_advanced">İleri</string>
+    <string name="difficulty_amateur">Deneyimli Amatör</string>
+    <string name="difficulty_district">İlçe Oyuncusu</string>
+    <string name="difficulty_city">Şehir Oyuncusu</string>
+    <string name="difficulty_provincial">İl Ustası</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Federasyon Ustası</string>
+    <string name="difficulty_national_master">Ulusal Usta</string>
+    <string name="difficulty_grandmaster">Büyükusta</string>
+    <string name="difficulty_international_master">Uluslararası Usta</string>
+    <string name="difficulty_legendary">Efsane</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">Yeni Oyuncu</string>
+    <string name="difficulty_segment_beginner">Yeni Başlayan</string>
+    <string name="difficulty_segment_lower_intermediate">Ortalama Meraklı</string>
+    <string name="difficulty_segment_intermediate">Sokak Oyuncusu</string>
+    <string name="difficulty_segment_upper_intermediate">Güçlü Meraklı</string>
+    <string name="difficulty_segment_advanced">Amatör 1. Dan</string>
+    <string name="difficulty_segment_amateur">Amatör 3. Dan</string>
+    <string name="difficulty_segment_district">Amatör 5. Dan</string>
+    <string name="difficulty_segment_city">Amatör 6. Dan</string>
+    <string name="difficulty_segment_provincial">Yerel Usta</string>
+    <string name="difficulty_segment_local_master">Federasyon Ustası</string>
+    <string name="difficulty_segment_national_master">Ulusal Usta</string>
+    <string name="difficulty_segment_grandmaster">Ulusal Büyükusta</string>
+    <string name="difficulty_segment_international_master">Uluslararası Usta</string>
+    <string name="difficulty_segment_legendary">Uluslararası Büyükusta</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">Kuralları yeni öğrendi, sık sık taş kaybeder</string>
+    <string name="difficulty_desc_beginner">Bariz almaları alır, basit tuzakları kaçırır</string>
+    <string name="difficulty_desc_lower_intermediate">Temel taktikleri bilir, bazen çatalları görür</string>
+    <string name="difficulty_desc_intermediate">Sağlam açılışlar, 3-5 hamle ileriyi hesaplar</string>
+    <string name="difficulty_desc_upper_intermediate">İlkeli hamleler oynar, açılışları idare eder</string>
+    <string name="difficulty_desc_advanced">Sağlam amatör, dengeli finaller, az zayıf hamle</string>
+    <string name="difficulty_desc_amateur">Güvenilir taktikler, basit tuzaklar kurar</string>
+    <string name="difficulty_desc_district">Dengeli saldırı ve savunma, hataları cezalandırır</string>
+    <string name="difficulty_desc_city">Güçlü genel bakış, tuzaklar hazırlar, nadiren ciddi hata yapar</string>
+    <string name="difficulty_desc_provincial">İl turnuvası düzeyi, hassas hesaplama</string>
+    <string name="difficulty_desc_local_master">Usta düzeyi oyun, derin hesaplanmış varyantlar</string>
+    <string name="difficulty_desc_national_master">Keskin saldırı oyunu, neredeyse hiç hata yok</string>
+    <string name="difficulty_desc_grandmaster">Ulusal büyükusta düzeyi, derin stratejik oyun</string>
+    <string name="difficulty_desc_international_master">Uluslararası usta düzeyi, her evrede hassas</string>
+    <string name="difficulty_desc_legendary">Uluslararası büyükusta düzeyi — bu cihazdaki en güçlüsü</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">İpucu</string>
+    <string name="action_undo">Geri Al</string>
+    <string name="action_new_game">Yeni Oyun</string>
+    <string name="action_resign">Terk Et</string>
+    <string name="action_draw">Berabere</string>
+    <string name="action_analysis">Analiz</string>
+    <string name="action_flip">Çevir</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="action_back">Geri</string>
+    <string name="action_save">Kaydet</string>
+    <string name="action_export">PGN Dışa Aktar</string>
+    <string name="action_play_red">Kırmızı Oyna (İlk)</string>
+    <string name="action_play_black">Siyah Oyna (İkinci)</string>
+    <string name="action_two_player">İki Oyuncu</string>
+    <string name="action_voice">Sesli hamle</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">Hamle söyle, örneğin \"车九进四\" (araba dokuz, dört ileri)</string>
+    <string name="voice_played">Oynandı: %1$s</string>
+    <string name="voice_no_match">\"%1$s\" ile eşleşen yasal hamle yok</string>
+    <string name="voice_ambiguous">Belirsiz — lütfen daha net söyle</string>
+    <string name="voice_no_speech">Anlaşılmadı, lütfen tekrar dene</string>
+    <string name="voice_error">Ses tanıma başarısız oldu</string>
+    <string name="voice_unavailable">Bu cihazda ses tanıma kullanılamıyor</string>
+    <string name="voice_permission_denied">Sesli hamleler için mikrofon izni gerekiyor</string>
+    <string name="voice_wait_engine">Yapay zekâ hamlesini bitirene kadar bekle</string>
+    <string name="voice_not_your_turn">Henüz sıra sende değil</string>
+    <string name="voice_game_over">Oyun bitti</string>
+
+    <!-- Status -->
+    <string name="status_thinking">Yapay zekâ düşünüyor…</string>
+    <string name="status_your_turn">Hamle sırası sende</string>
+    <string name="status_check">Şah!</string>
+    <string name="status_checkmate">Mat!</string>
+    <string name="status_draw">Berabere</string>
+    <string name="status_resign">Terk edildi</string>
+    <string name="status_win">Zafer</string>
+    <string name="status_loss">Yenilgi</string>
+    <string name="status_stalemate">Pat</string>
+    <string name="status_engine_error">Yapay zekâ hatası, yedek motora geçildi</string>
+    <string name="game_over_checkmate_red">Siyah, Kırmızı\'yı mat etti</string>
+    <string name="game_over_checkmate_black">Kırmızı, Siyah\'ı mat etti</string>
+    <string name="game_over_repetition">Tekrar</string>
+    <string name="game_over_fifty_moves">50 hamle kuralı</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">Kazanma Oranı</string>
+    <string name="winrate_red">Kırmızı\'nın kazanma oranı</string>
+    <string name="winrate_black">Siyah\'ın kazanma oranı</string>
+    <string name="depth_label">Derinlik</string>
+    <string name="nodes_label">Düğüm</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">Süre</string>
+
+    <!-- Rating -->
+    <string name="rating_current">Mevcut Puan</string>
+    <string name="rating_total_games">Toplam Maç</string>
+    <string name="rating_wins">Galibiyet</string>
+    <string name="rating_losses">Mağlubiyet</string>
+    <string name="rating_draws">Beraberlik</string>
+    <string name="rating_winrate">Kazanma Oranı</string>
+    <string name="rating_rank">Rütbe</string>
+    <string name="rank_1">Acemi</string>
+    <string name="rank_2">Çırak</string>
+    <string name="rank_3">Amatör 1. Dan</string>
+    <string name="rank_4">Amatör 3. Dan</string>
+    <string name="rank_5">Amatör 5. Dan</string>
+    <string name="rank_6">Amatör 7. Dan</string>
+    <string name="rank_7">Bölge Ustası</string>
+    <string name="rank_8">Ulusal Usta</string>
+    <string name="rank_9">Büyükusta</string>
+    <string name="rank_10">Xiangqi Kralı</string>
+    <string name="rank_hall_title">Rütbe mühürleri</string>
+    <string name="rank_hall_intro">Acemiden krale on mühür. Mührü yalnızca puanlı maçlar ilerletir; antrenman ve dağ tırmanışı etkilemez.</string>
+    <string name="rank_hall_current">Mevcut</string>
+    <string name="rank_hall_reached">Ulaşıldı</string>
+    <string name="rank_hall_locked">Önünde</string>
+    <string name="rank_progress_next">%1$s için %2$d puan</string>
+    <string name="rank_progress_top">Xiangqi Kralı — bu merdivenin zirvesi</string>
+    <string name="rank_promoted">Yeni rütbe: %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">Rütbe mühürlerini aç</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">Yeni Oyun</string>
+    <string name="dialog_new_game_message">Yeni bir oyun başlatılsın mı?</string>
+    <string name="dialog_resign_title">Terk Et</string>
+    <string name="dialog_resign_message">Terk etmek istediğine emin misin?</string>
+    <string name="dialog_undo_title">Geri Al</string>
+    <string name="dialog_undo_message">Geri almak küçük bir puan kaybına mal olur. Yine de geri al?</string>
+    <string name="dialog_yes">Evet</string>
+    <string name="dialog_no">Hayır</string>
+    <string name="dialog_ok">Tamam</string>
+    <string name="dialog_cancel">İptal</string>
+    <string name="dialog_confirm">Onayla</string>
+
+    <!-- Review -->
+    <string name="replay_empty">Henüz maç yok</string>
+    <string name="replay_play">Otomatik oynat</string>
+    <string name="replay_pause">Duraklat</string>
+    <string name="replay_prev">Önceki</string>
+    <string name="replay_next">Sonraki</string>
+    <string name="replay_first">İlk hamle</string>
+    <string name="replay_last">Son hamle</string>
+    <string name="replay_move_number">Hamle %1$d</string>
+    <string name="result_win_short">G</string>
+    <string name="result_loss_short">M</string>
+    <string name="result_draw_short">B</string>
+    <string name="side_red_short">Kırmızı</string>
+    <string name="side_black_short">Siyah</string>
+    <string name="replay_moves_summary">%1$d hamle · %2$s</string>
+    <string name="replay_record_missing">Oyun kaydı bulunamadı</string>
+    <string name="replay_player_info">Sv.%1$d  %2$s  %3$d hamle</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">Hamle %1$d geri yüklenemedi</string>
+    <string name="replay_viewer_title">Oyun Tekrarı</string>
+    <string name="replay_share_report">Savaş Raporunu Paylaş</string>
+    <string name="replay_export_pgn">PGN Dışa Aktar</string>
+    <string name="replay_copy_fen">FEN Kopyala</string>
+    <string name="replay_copied_to_clipboard">Panoya kopyalandı</string>
+    <string name="puzzle_rush_title">Bulmaca Akını</string>
+    <string name="puzzle_rush_banner">3 dakika · en iyi %1$d</string>
+    <string name="tactics_banner_title">Mat kalıpları</string>
+    <string name="tactics_banner_sub">Klasik matlar</string>
+    <string name="tactics_banner_progress">%1$d / %2$d öğrenildi</string>
+    <string name="puzzle_rush_subtitle">3 Dakikalık Hızlı Çözüm</string>
+    <string name="puzzle_rush_start">Akını Başlat</string>
+    <string name="puzzle_rush_score">Puan</string>
+    <string name="puzzle_rush_high_score">En iyi: %1$d</string>
+    <string name="puzzle_rush_combo">Seri x%1$d</string>
+    <string name="puzzle_rush_pass">Atla (−1 can)</string>
+    <string name="puzzle_rush_time_up">Süre doldu!</string>
+    <string name="puzzle_rush_lives_out">Canlar bitti!</string>
+    <string name="puzzle_rush_new_record">🎉 Yeni Rekor!</string>
+    <string name="puzzle_rush_solved_count">%1$d bulmaca çözüldü</string>
+    <string name="puzzle_rush_play_again">Yeniden Oyna</string>
+    <string name="puzzle_rush_share">Puanı Paylaş</string>
+    <string name="puzzle_rush_report_title">【QiYan Xiangqi · Bulmaca Akını】</string>
+    <string name="puzzle_rush_score_line">Puan %1$d</string>
+    <string name="puzzle_rush_best_badge">En iyi %1$d</string>
+    <string name="puzzle_rush_mate_line">Mat · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">Unvan: %1$s</string>
+    <string name="puzzle_rush_record_line">Yeni rekor: %1$d</string>
+    <string name="puzzle_rush_previous_best">Şu ana kadarki en iyi: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\n3 dakikada %2$d bulmaca çözüldü.\nEn uzun seri %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">Akından ayrılmak istiyor musun? Puan kaydedilmez.</string>
+    <string name="puzzle_rush_leave_yes">Ayrıl</string>
+    <string name="puzzle_rush_honor_1">Aday</string>
+    <string name="puzzle_rush_honor_2">Kulüp oyuncusu</string>
+    <string name="puzzle_rush_honor_3">Keskin bıçak</string>
+    <string name="puzzle_rush_honor_4">Hesap ustası</string>
+    <string name="puzzle_rush_honor_5">Akın ustası</string>
+    <string name="stat_total_games_format">%1$d maç</string>
+    <string name="stat_wins_format">%1$d G</string>
+    <string name="stat_losses_format">%1$d M</string>
+    <string name="stat_draws_format">%1$d B</string>
+    <string name="game_illegal_move">Kurallara aykırı hamle</string>
+    <string name="game_undo_failed">Geri alınamıyor</string>
+    <string name="game_switched_to_black">Siyah tarafa geçildi</string>
+    <string name="game_switched_to_red">Kırmızı tarafa geçildi</string>
+    <string name="game_opponent_black">Yapay zekâ (Siyah)</string>
+    <string name="game_opponent_red">Yapay zekâ (Kırmızı)</string>
+    <string name="game_player_red">Ben (Kırmızı)</string>
+    <string name="game_player_black">Ben (Siyah)</string>
+    <string name="game_move_count">Hamle %1$d</string>
+    <string name="game_engine_start_failed">Yapay zekâ başlatılamadı</string>
+    <string name="unknown_label">Bilinmiyor</string>
+    <string name="default_nickname">Satranç Dostu</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Neden: %1$s\nPuan değişimi: %2$s\nMevcut rütbe: %3$s</string>
+    <string name="game_over_rating_detail">Puan değişimi: %1$s · Mevcut rütbe: %2$s</string>
+    <string name="game_over_win">Kazandın</string>
+    <string name="game_over_loss">Kaybettin</string>
+    <string name="game_over_draw">Berabere</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">İş Parçacıkları</string>
+    <string name="settings_hash">Hash Tablosu (MB)</string>
+    <string name="settings_sound">Ses Efektleri</string>
+    <string name="settings_vibrate">Titreşim</string>
+    <string name="settings_bgm">Arka Plan Müziği</string>
+    <string name="settings_board_flip">Varsayılan Olarak Çevir</string>
+    <string name="settings_show_coords">Koordinatları Göster</string>
+    <string name="settings_show_winrate">Kazanma Oranını Göster</string>
+    <string name="settings_animation">Hamle Animasyonu</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_desc_threads">Daha çok iş parçacığı hesaplamayı hızlandırır ama pili daha çok tüketir. Öneri: cihaz çekirdeklerinin yarısını geçmesin</string>
+    <string name="settings_desc_hash">Yapay zekânın düşünme önbelleği. Uzun düşüncelerde güçlensin diye artır; bellek darsa azalt</string>
+    <string name="settings_desc_sound">Hamle, alma ve şahta ses çalar</string>
+    <string name="settings_desc_vibrate">Hamlede hafif titreşim geri bildirimi</string>
+    <string name="settings_desc_bgm">Oyun sırasında dingin guqin ezgisi döngüde çalar; ses efektlerini bastırmasın diye seviyesi düşük tutulur</string>
+    <string name="settings_desc_coords">Tahta kenarlarında sütun ve sıra numaralarını gösterir</string>
+    <string name="settings_desc_winrate">Tahtanın üstünde canlı kazanma oranı çubuğu gösterir</string>
+    <string name="settings_desc_animation">Kapatırsan taşlar anında yerine oturur; düşük donanımlı cihazlarda daha akıcı</string>
+    <string name="settings_desc_flip">Oyuna Siyah tarafının bakış açısıyla başlanır</string>
+    <string name="settings_section_display">Görünüm</string>
+    <string name="settings_section_other">Diğer</string>
+    <string name="settings_theme_system">Sistemi İzle</string>
+    <string name="settings_theme_light">Açık</string>
+    <string name="settings_theme_dark">Koyu</string>
+    <string name="settings_clear_data">Tüm Verileri Sil</string>
+    <string name="dialog_clear_data_title">Verileri Sil</string>
+    <string name="dialog_clear_data_message">Bu işlem tüm oyun kayıtlarını ve puan verilerini siler. Devam edilsin mi?</string>
+    <!-- Live hints -->
+    <string name="live_title">Canlı İpuçları</string>
+    <string name="live_entry">Canlı İpuçları</string>
+    <string name="live_need_camera">Canlı tahta tanıma için kamera izni gerekiyor</string>
+    <string name="live_camera_failed">Kamera başlatılamadı</string>
+    <string name="live_locking">Tahta tespit ediliyor…</string>
+    <string name="live_board_invalid">Tahta henüz tam tanınmadı — dört köşenin de kadrajda olduğundan emin ol</string>
+    <string name="live_ready">Kilitlendi · %1$d ms içinde tanındı</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">Sıfırla</string>
+    <string name="editor_clear">Temizle</string>
+    <string name="settings_clear_data_desc">Tüm oyun kayıtlarını ve puan verilerini siler. Bu işlem geri alınamaz</string>
+    <string name="settings_piece_style">Taş Stili</string>
+    <string name="settings_board_style">Tahta Stili</string>
+    <string name="settings_about">Hakkında</string>
+    <string name="settings_engine_path">Yapay Zekâ Model Yolu</string>
+    <string name="settings_about_text">QiYan v1.0\n\nKendi geliştirdiğimiz yapay zekâ (NNUE sinir ağı değerlendirmesi)\nFotoğraftan tahta tanıma ve canlı ipuçları destekler</string>
+
+    <!-- About -->
+    <string name="about_engine_title">Yapay Zekâ Bilgisi</string>
+    <string name="about_engine_version">Kendi geliştirdiğimiz NNUE</string>
+    <string name="about_engine_desc">Çin satrancı yapay zekâsı</string>
+
+    <!-- Common -->
+    <string name="red">Kırmızı</string>
+    <string name="black">Siyah</string>
+    <string name="move_count">%1$d hamle</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">Tahtayı Tara</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">Yapay Zekâ Analizi</string>
+    <string name="advisor_send">Gönder</string>
+    <string name="advisor_input_hint">Ne istersen sor…</string>
+    <string name="advisor_error_generic">Analiz şu an kullanılamıyor, lütfen sonra tekrar dene</string>
+    <string name="advisor_no_config">Yapay zekâ özelliği yapılandırılmadı, lütfen geliştiriciyle iletişime geç</string>
+    <string name="advisor_unavailable">Yapay zekâ şu an kullanılamıyor, lütfen sonra tekrar dene</string>
+    <string name="advisor_waiting">Yapay zekâ hâlâ yanıt veriyor, lütfen biraz bekle</string>
+    <string name="advisor_key_rejected">Doğrulama anahtarı geçersiz veya iptal edilmiş. Lütfen proxy jetonunu yeniden yapılandır.</string>
+    <string name="advisor_clear">Sohbeti temizle</string>
+    <string name="advisor_context_replay">Hamle %1$d inceleniyor</string>
+    <string name="advisor_context_game">Hamle %1$d · hamle sırası: %2$s</string>
+    <string name="advisor_thinking">Yapay zekâ analiz ediyor…</string>
+    <string name="advisor_button">Yapay Zekâ Analizi</string>
+    <string name="advisor_empty_title">Bu oyunu yapay zekâya sor</string>
+    <string name="advisor_empty_subtitle">Mevcut pozisyonu görebilir — durumu, sıradaki hamleyi ya da önceki hamlede neyin ters gittiğini sor</string>
+    <string name="advisor_suggest_analyze">Mevcut pozisyonu analiz et</string>
+    <string name="advisor_suggest_next">Sıradaki hamlem ne olmalı</string>
+    <string name="advisor_suggest_review">Son hamlede bir sorun muydu</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">Atlamak için dokun</string>
+    <string name="analysis_summary_prompt">Mevcut pozisyonu 2-3 cümleyle özetle: durum, kimin üstün olduğu, kritik saldırı/savunma noktaları ve şu an en dikkat çekici hamle.</string>
+    <string name="advisor_send_desc">Gönder</string>
+    <string name="advisor_move_banner">Yapay zekâ bu hamleyi gösteriyor: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">Tahtayı Tara</string>
+    <string name="recognize_take_photo">Fotoğraf Çek</string>
+    <string name="recognize_pick_image">Galeriden Seç</string>
+    <string name="recognize_preview_desc">Düzeltilmiş tahta</string>
+    <string name="recognize_red_to_move">Hamle sırası: Kırmızı</string>
+    <string name="recognize_black_to_move">Hamle sırası: Siyah</string>
+    <string name="recognize_advise">Yapay zekâdan tavsiye al</string>
+    <string name="recognize_hint_start">Tahtanın fotoğrafını çek ya da galeriden bir kare seç. Dört köşe görünecek şekilde tam karşıdan çekmeyi dene.</string>
+    <string name="recognize_working">Tanınıyor…</string>
+    <string name="recognize_failed">Tanıma başarısız, başka bir fotoğraf dene</string>
+    <string name="recognize_model_failed">Tanıma modeli yüklenemedi</string>
+    <string name="recognize_no_camera">Kamera yok</string>
+    <string name="recognize_corner_warning">Tahtanın dört köşesi tam kadrajlanmadı, tanıma hatalı olabilir. Tam karşıdan yeniden çekmeyi dene.</string>
+    <string name="recognize_must_fix">Lütfen önce şu sorunları düzelt:</string>
+    <string name="recognize_ready">Tanıma tamamlandı. Sarı daireler belirsiz kareleri gösterir (toplam %1$d) — düzeltmek için bir kareye dokun. Tavsiye istemeden önce onayla.</string>
+    <string name="recognize_pick_piece">%1$c%2$d karesine hangi taş gelir</string>
+    <string name="recognize_empty">Boş</string>
+    <string name="recognize_flip">Çevir</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">Alındı: %1$s</string>
+    <string name="piece_king">General</string>
+    <string name="piece_advisor">Danışman</string>
+    <string name="piece_elephant">Fil</string>
+    <string name="piece_horse">At</string>
+    <string name="piece_rook">Araba</string>
+    <string name="piece_cannon">Top</string>
+    <string name="piece_pawn">Asker</string>
+    <string name="recognize_thinking">Yapay zekâ düşünüyor…</string>
+    <string name="recognize_engine_failed">Yapay zekâ başlatılamadı</string>
+    <string name="recognize_engine_error">Yapay zekâ hatası: %1$s</string>
+    <string name="recognize_no_move">Yapay zekâ hamle döndürmedi</string>
+    <string name="recognize_advice">Öneri: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">Kamerayı gerçek bir tahtaya tut, oyun sırasında öneriler al</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">Pozisyonun fotoğrafını çek</string>
+    <string name="recognize_start_camera_desc">Fiziksel tahtayı fotoğrafla</string>
+    <string name="recognize_start_gallery_desc">Ekran görüntüsü ya da mevcut fotoğraf kullan</string>
+    <string name="recognize_tips_title">İyi çek, iyi tanı</string>
+    <string name="recognize_tip_1">Tahtayı tam karşıdan çek, açılı çekme</string>
+    <string name="recognize_tip_2">Dört köşeyi de kadrajda tut</string>
+    <string name="recognize_tip_3">Dengeli ışık; parlama ve gölgeden kaçın</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">İpucu Gücü</string>
+    <string name="advice_level_fast">Hızlı</string>
+    <string name="advice_level_fast_desc">Anında önerir</string>
+    <string name="advice_level_normal">Standart</string>
+    <string name="advice_level_normal_desc">Bir iki saniye düşünür; çoğu durum için yeterli</string>
+    <string name="advice_level_deep">Derin</string>
+    <string name="advice_level_deep_desc">Daha uzun düşünür; kritik pozisyonlarda daha güvenilir</string>
+    <string name="advice_level_current">İpucu gücü: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+             挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Taş Etiketleri</string>
+    <string name="settings_piece_set_desc">Çince karakterler geleneksel görünüm; Latin harfleri (K/A/B/N/R/C/P) İngilizce hamle notasyonuyla eşleşir</string>
+    <string name="piece_set_hanzi">Çince karakterler</string>
+    <string name="piece_set_latin">Harfler K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Hamle Notasyonu</string>
+    <string name="settings_notation_desc">Çince notasyonda bu hamle 炮二平五 olarak yazılır; WXF aynı hamleyi C2.5 yazar</string>
+    <string name="notation_chinese">Çince notasyon</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Motor kurallara aykırı bir hamle döndürdü: %1$s</string>
+    <string name="engine_error">Motor hatası: %1$s</string>
+    <string name="must_answer_check">Şahdasın — savunmak zorundasın</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Tahta hazırlanıyor…</string>
+    <string name="settings_follow_language">Uygulama dilini izle</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">Yeni Oyun</string>
+    <string name="new_game_pick_opponent">Rakibini seç</string>
+    <string name="new_game_side">Oynayacak taraf</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Sv.%1$d %2$s</string>
+    <string name="new_game_level_short">Sv.%1$d</string>
+    <string name="side_red">Kırmızı</string>
+    <string name="side_black">Siyah</string>
+    <string name="side_random">Rastgele</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Rakip</string>
+    <string name="menu_change_opponent">Değiştir</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Dengeli</string>
+    <string name="style_balanced_desc">Her zaman motorun en iyi hamlesini oynar — salt güç</string>
+    <string name="style_aggressive">Saldırgan</string>
+    <string name="style_aggressive_desc">Almaları ve şahları sever, saldırı için fedakârlığa girer</string>
+    <string name="style_solid">Sağlam</string>
+    <string name="style_solid_desc">Asla akılsız değişim yapmaz, karmaşaya sakin pozisyonları tercih eder</string>
+    <string name="style_swarm">Öngörülemez</string>
+    <string name="style_swarm_desc">Neredeyse en iyi hamleler arasında gezinir — her seferinde farklı bir oyun</string>
+    <string name="new_game_style">Rakip stili</string>
+    <string name="new_game_style_line">Stil: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Şah!</string>
+    <string name="board_tag_mate">Mat</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Alma savaş efektleri</string>
+    <string name="settings_desc_capture_fx">Bir taş alındığında kılıç darbesi, kıvılcım ve mürekkep sıçraması animasyonu. Tahtadaki “Alındı…” etiketi her iki durumda da görünür kalır</string>
+    <string name="settings_board_skin">Tahta malzemesi</string>
+    <string name="settings_board_skin_desc">Dört çevrimdışı malzeme. Fildişi yüzeyde taş harfleri okunabilir kalsın diye koyu renkte kalır.</string>
+    <string name="skin_wood">Sıcak ahşap</string>
+    <string name="skin_black_gold">Siyah altın</string>
+    <string name="skin_porcelain">Mavi porselen</string>
+    <string name="skin_jade">Beyaz yeşim</string>
+
+    <string name="puzzle_1_name">1 hamlede mat · Boğulan saray</string>
+    <string name="puzzle_1_hint">Siyah at çivilenmiş. Generalini merkeze çek: Siyah patta kalır</string>
+    <string name="puzzle_2_name">1 hamlede mat · Çifte toplar</string>
+    <string name="puzzle_2_hint">Ön top perdedir — arka topu hatta taşı</string>
+    <string name="puzzle_3_name">1 hamlede mat · Araba &amp; At</string>
+    <string name="puzzle_3_hint">Arka araba son sıraya süzülüp çifte şah çeker</string>
+    <string name="puzzle_4_name">1 hamlede mat · Yüz yüze</string>
+    <string name="puzzle_4_hint">Generaller hatta karşılıklı bakıyor; arabayı son sıraya bırak</string>
+    <string name="puzzle_5_name">1 hamlede mat · Demir sürgü</string>
+    <string name="puzzle_5_hint">Merkez topu hattı tutar, araba son sıraya iner</string>
+    <string name="puzzle_6_name">1 hamlede mat · Kanat topu</string>
+    <string name="puzzle_6_hint">Top derine iner; araba kalkan olup kesin vuruşu sağlar</string>
+    <string name="puzzle_7_name">1 hamlede mat · Derin çifte arabalar</string>
+    <string name="puzzle_7_hint">Çifte arabalar top desteğiyle kaleyi kıskaç içine alır</string>
+    <string name="puzzle_8_name">1 hamlede mat · At &amp; Top</string>
+    <string name="puzzle_8_hint">Soylu atı top sehpası yap, anında mat olsun</string>
+    <string name="puzzle_9_name">2 hamlede mat · Aralıklı arabalar</string>
+    <string name="puzzle_9_hint">Şah çekecek şekilde arabayı indir; fil kapatırsa yön değiştir</string>
+    <string name="puzzle_10_name">2 hamlede mat · İki araba</string>
+    <string name="puzzle_10_hint">Bir araba hattı çiviler, öteki şahları yağdırır</string>
+    <string name="puzzle_11_name">2 hamlede mat · Dirsek atı</string>
+    <string name="puzzle_11_hint">At saray kanadını tutar; araba iner ve mat eder</string>
+    <string name="puzzle_12_name">2 hamlede mat · Trambolin şah</string>
+    <string name="puzzle_12_hint">At ileri sıçrayıp keşif şahı açar, arabayla uyum içinde</string>
+    <string name="puzzle_13_name">2 hamlede mat · Araba At Top</string>
+    <string name="puzzle_13_hint">At merkeze atlar, top ölümcül vuruşu tamamlar</string>
+    <string name="puzzle_14_name">2 hamlede mat · Asker yürüyüşü</string>
+    <string name="puzzle_14_hint">Top merkezi tutarken asker içeri yürür</string>
+    <string name="puzzle_15_name">2 hamlede mat · Peş peşe arabalar</string>
+    <string name="puzzle_15_hint">Hat boyunca iki araba saray savunmasını söker</string>
+    <string name="puzzle_16_name">2 hamlede mat · Gizli top</string>
+    <string name="puzzle_16_hint">Araba, arkadaki gizli topa yol açar</string>
+    <string name="puzzle_17_name">3 hamlede mat · Derin dirsek atı</string>
+    <string name="puzzle_17_hint">At saray köşesine saldırır, araba son sırayı mühürler</string>
+    <string name="puzzle_18_name">3 hamlede mat · Derin balıkçı atı</string>
+    <string name="puzzle_18_hint">Balıkçı atı generali kısar, araba 9. sırada bitirir</string>
+    <string name="puzzle_19_name">3 hamlede mat · Köşe atı</string>
+    <string name="puzzle_19_hint">Köşe atı çıkışları kontrol eder; arabanın matı durdurulamaz</string>
+    <string name="puzzle_20_name">3 hamlede mat · Kıskaç arabalar</string>
+    <string name="puzzle_20_hint">Kenetlenen çifte arabalar düşman generalinin etrafındaki ağı daraltır</string>
+    <string name="puzzle_21_name">2 hamlede mat · Balıkçı kıskacı</string>
+    <string name="puzzle_21_hint">Balıkçı atı sarayı mühürler; araba merkeze kayar ve mat eder</string>
+    <string name="puzzle_22_name">2 hamlede mat · Gök &amp; Yer</string>
+    <string name="puzzle_22_hint">Bir top merkezi yönetir, öteki derine inip işi bitirir</string>
+    <string name="puzzle_23_name">3 hamlede mat · Araba &amp; At kilidi</string>
+    <string name="puzzle_23_hint">Kilitlenmiş araba ve at, ard arda ölümcül şahlar yağdırır</string>
+    <string name="puzzle_24_name">3 hamlede mat · Çifte araba ağı</string>
+    <string name="puzzle_24_hint">Arabalar komşu hatlardan ilerleyip generali ağa alır</string>
+
+    <string name="puzzle_25_name">3 hamlede mat · Muhafız kırıcı</string>
+    <string name="puzzle_25_hint">Arabalar danışmanları aşarak savunmayı paramparça eder</string>
+    <string name="puzzle_26_name">3 hamlede mat · Çifte araba döngüsü</string>
+    <string name="puzzle_26_hint">Aralıklı arabalar, generalin varlığının da yardımıyla üst üste iner</string>
+    <string name="puzzle_27_name">3 hamlede mat · Araba tuzağı</string>
+    <string name="puzzle_28_hint">Öndeki arabayı kurban ver, generali kaleden dışarı çağır</string>
+    <string name="puzzle_28_name">3 hamlede mat · Sıçrayan köşe atı</string>
+    <string name="puzzle_27_hint">Düşman sarayını delmek için bir taş kurban ver</string>
+    <string name="puzzle_29_name">3 hamlede mat · Arabalar sarayı kuşatır</string>
+    <string name="puzzle_29_hint">Çifte arabalar sarayın kalbine geçer</string>
+    <string name="puzzle_30_name">3 hamlede mat · Kanat saldırısı</string>
+    <string name="puzzle_30_hint">Araba son sıraya inerken at dolanarak içeri girer</string>
+    <string name="puzzle_31_name">3 hamlede mat · Karşılıklı generaller</string>
+    <string name="puzzle_31_hint">Generaller açık hatta karşı karşıya; araba zaferi mühürler</string>
+    <string name="puzzle_32_name">3 hamlede mat · Dörtnala at</string>
+    <string name="puzzle_32_hint">At dirsek konumuna atlar ve matı infaz eder</string>
+
+    <string name="puzzle_33_name">4 hamlede mat · Balıkçı atılımı</string>
+    <string name="puzzle_33_hint">Balıkçı atı generali kısar, araba muhafızları soyar</string>
+    <string name="puzzle_34_name">4 hamlede mat · Kapıdaki asker</string>
+    <string name="puzzle_34_hint">Cesur kırmızı asker ilerleyip generalin sığınağını söker</string>
+    <string name="puzzle_35_name">4 hamlede mat · Köşe atı &amp; Araba</string>
+    <string name="puzzle_35_hint">Köşe atı danışmanları çiviler; araba derinden bitirir</string>
+    <string name="puzzle_36_name">4 hamlede mat · Çifte arabalar &amp; At</string>
+    <string name="puzzle_36_hint">Çifte kanat arabaları ve dörtnala bir at sarayı ezip geçer</string>
+    <string name="puzzle_37_name">4 hamlede mat · Saraydaki asker</string>
+    <string name="puzzle_37_hint">Asker, araba desteğiyle merkez saraya sızar</string>
+    <string name="puzzle_38_name">4 hamlede mat · Kanat atı &amp; Araba</string>
+    <string name="puzzle_38_hint">At kanattan vurur, araba son hattı mühürler</string>
+    <string name="puzzle_39_name">5 hamlede mat · Asker süpürmesi</string>
+    <string name="puzzle_39_hint">Yılmaz asker emin adımlarla ilerler, generali çiviler</string>
+    <string name="puzzle_40_name">3 hamlede mat · Toplar &amp; arabalar</string>
+    <string name="puzzle_40_hint">Çifte arabalar ve top, yılmaz bir batarya kurar</string>
+
+    <string name="puzzle_41_name">6 hamlede mat · Atılım askeri</string>
+    <string name="puzzle_41_hint">Kanat askeri derine yürür; araba ve top peşinden gelir</string>
+    <string name="puzzle_42_name">7 hamlede mat · Yandan geçiş</string>
+    <string name="puzzle_42_hint">At kurbanı savunmayı çeker, arabaya yol açar</string>
+    <string name="puzzle_43_name">6 hamlede mat · Merkez atı</string>
+    <string name="puzzle_43_hint">At merkezde hüküm sürer, matı koordine eder</string>
+    <string name="puzzle_44_name">6 hamlede mat · Tek araba finali</string>
+    <string name="puzzle_44_hint">Ustaca tek araba tekniği savunucuları tek tek soyar</string>
+    <string name="puzzle_45_name">2 hamlede mat · Hızlı çifte arabalar</string>
+    <string name="puzzle_45_hint">Hat boyu çifte arabalar adaleti hızla yerine getirir</string>
+    <string name="puzzle_46_name">3 hamlede mat · Soylu at</string>
+    <string name="puzzle_46_hint">At kaçış yollarını kilitler; araba sırada bitirir</string>
+    <string name="puzzle_47_name">3 hamlede mat · Kanat arabaları</string>
+    <string name="puzzle_47_hint">Çifte arabalar komşu hatlardan saldırıları eş zamanlı yürütür</string>
+    <string name="puzzle_48_name">2 hamlede mat · Uçan toplar</string>
+    <string name="puzzle_48_hint">Çifte toplar perdeyi atlayıp göz kamaştırıcı bir mat yapar</string>
+
+    <string name="puzzle_chapter_1">Cilt I. İlk Hamleler</string>
+    <string name="puzzle_chapter_sub_1">1 hamlede mat · Temel mat ağları</string>
+    <string name="puzzle_chapter_2">Cilt II. Taktik Kıvılcımlar</string>
+    <string name="puzzle_chapter_sub_2">2 hamlede mat · Koordineli saldırı taktik motifleri</string>
+    <string name="puzzle_chapter_3">Cilt III. Usta Stratejisi</string>
+    <string name="puzzle_chapter_sub_3">2-3 hamlede mat · Kapsamlı klasik taktikler</string>
+    <string name="puzzle_chapter_4">Cilt IV. Büyük Taarruz</string>
+    <string name="puzzle_chapter_sub_4">3 hamlede mat · Fedakârlıklar ve kesin vuruşlar</string>
+    <string name="puzzle_chapter_5">Cilt V. Epik Fetih</string>
+    <string name="puzzle_chapter_sub_5">3-4 hamlede mat · Usta düzeyi final manevraları</string>
+    <string name="puzzle_chapter_6">Cilt VI. Büyükusta Denemeleri</string>
+    <string name="puzzle_chapter_sub_6">4-7 hamlede mat · Efsanevi klasik Xiangqi şaheserleri</string>
+    <string name="campaign_entry">Dağa tırman</string>
+    <string name="campaign_entry_desc">Sekiz etap. Birini kazan, sonraki açılsın.</string>
+    <string name="puzzle_entry">Finaller</string>
+    <string name="puzzle_entry_desc">Klasik matlar, her birinde üç geri alma</string>
+    <string name="campaign_title">Dağ</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+<string name="campaign_goal">Bitiş</string>
+    <string name="campaign_level_format">Etap %1$d</string>
+    <string name="campaign_level_difficulty_format">Rakip gücü Sv.%1$d</string>
+    <string name="campaign_locked">Bu etabı açmak için öncekini kazan</string>
+    <string name="campaign_passed">Tamamlandı</string>
+    <string name="campaign_win_title">Etap tamamlandı</string>
+    <string name="campaign_next_level">Sonraki etap</string>
+    <string name="campaign_retry">Bu etabı yeniden dene</string>
+    <string name="campaign_back_list">Dağa geri dön</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">Etap %1$d · %2$s</string>
+    <string name="stage_1_name">İlk adımlar</string>
+    <string name="stage_1_brief">Bu rakip almaları sık sık kaçırır. Önce kuralları pekiştir.</string>
+    <string name="stage_2_name">Kapı</string>
+    <string name="stage_2_brief">Bir hamle ileriyi görür; yine de bir şeyler kaçırır.</string>
+    <string name="stage_3_name">Nehir</string>
+    <string name="stage_3_brief">Buradan itibaren motor devreye girer; düşünme süresi bir saniyeden biraz fazla.</string>
+    <string name="stage_4_name">Geçit</string>
+    <string name="stage_4_brief">Daha fazla zaman. Basit gözden kaçırmalar artık görülür.</string>
+    <string name="stage_5_name">Hatlar</string>
+    <string name="stage_5_brief">Daha derin arama. Açıkta kalan taş alınabilir.</string>
+    <string name="stage_6_name">Uzun bakış</string>
+    <string name="stage_6_brief">Bir ölçü daha düşünme süresi.</string>
+    <string name="stage_7_name">Derin arama</string>
+    <string name="stage_7_brief">Zirveye yakın; zaman açısından bir adım eksik.</string>
+    <string name="stage_8_name">Zirve</string>
+    <string name="stage_8_brief">Dağdaki en uzun arama.</string>
+    <string name="catalog_mate_title">Bir hamlede mat</string>
+    <string name="catalog_mate_hint">Kırmızı oynar. Bir hamlede mat.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">Çözülen: %1$d / %2$d</string>
+    <string name="catalog_filter_all">Tümü</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">Çözüldü</string>
+    <string name="catalog_open">Aç</string>
+    <string name="history_intro">Beş bölüm gerçek sefer. Her savaş tek hamlede bir matla biter. Pozisyon bir alıştırmadır; tarihsel oyunun birebir kurgusu değildir.</string>
+    <string name="history_ch_1">İlkbahar ve Sonbahar</string>
+    <string name="history_ch_2">Savaşan Devletler</string>
+    <string name="history_ch_3">Chu ve Han</string>
+    <string name="history_ch_4">Üç Krallık</string>
+    <string name="history_ch_5">Sonraki çağlar</string>
+    <string name="battle_1_name">Çangşao</string>
+    <string name="battle_1_brief">Lu, MÖ 684. Qi üç kez davul çaldırdı; Cao Gui bekledi ve vurdu. Tek hamlede mat: demir sürgü.</string>
+    <string name="battle_2_name">Çenpu</string>
+    <string name="battle_2_brief">MÖ 632. Jin, Chu merkezini öne çekti ve iki kanadı kapattı. Tek hamlede mat: çifte araba.</string>
+    <string name="battle_3_name">Boju</string>
+    <string name="battle_3_brief">MÖ 506. Wu derinlere akın edip Chu başkentini aldı. Tek hamlede mat: at arkası top.</string>
+    <string name="battle_4_name">Lize</string>
+    <string name="battle_4_brief">MÖ 478. Yue nehri iki kol hâlinde geçti ve Wu\'yu yendi. Tek hamlede mat: pusudaki at.</string>
+    <string name="battle_5_name">Guiling</string>
+    <string name="battle_5_brief">MÖ 354. Qi, Zhao\'yu kuşatmadan kurtarmak için Wei\'nin başkentine yürüdü. Tek hamlede mat: çifte top.</string>
+    <string name="battle_6_name">Maling</string>
+    <string name="battle_6_brief">MÖ 342. Sun Bin ateş sayısını azalttı ve geçitte pusu kurdu. Tek hamlede mat: balıkçı atı.</string>
+    <string name="battle_7_name">Çangping</string>
+    <string name="battle_7_brief">MÖ 260. Qin, Zhao ordusunu kuşatıp çemberi kapattı. Tek hamlede mat: çifte araba.</string>
+    <string name="battle_8_name">Cimo</string>
+    <string name="battle_8_brief">MÖ 279. Tian Dan şehri açtı ve gece Yan kampına daldı. Tek hamlede mat: pusudaki at.</string>
+    <string name="battle_9_name">Jingxing</string>
+    <string name="battle_9_brief">MÖ 204. Han Xin ordusunu nehir arkasına yerleştirdi, sonra döndü. Tek hamlede mat: yüzyüze generaller.</string>
+    <string name="battle_10_name">Çen Çang</string>
+    <string name="battle_10_brief">MÖ 206. Tahta yol yalnızca bir yanılsamaydı; ordu Chen Cang\'dan çıktı. Tek hamlede mat: çifte top.</string>
+    <string name="battle_11_name">Veyşui</string>
+    <string name="battle_11_brief">MÖ 204. Han Xin nehri setle kesti, düşmanı karşıya çağırdı, sonra suyu salıverdi. Tek hamlede mat: at arkası top.</string>
+    <string name="battle_12_name">Gayşa</string>
+    <string name="battle_12_brief">MÖ 202. Han orduları Xiang Yu\'yu her yönden sardı. Tek hamlede mat: çifte araba.</string>
+    <string name="battle_13_name">Guandu</string>
+    <string name="battle_13_brief">MS 200. Cao Cao, Wuchao\'da Yuan Shao\'nun erzakını yaktı. Tek hamlede mat: demir sürgü.</string>
+    <string name="battle_14_name">Kızıl Kayalıklar</string>
+    <string name="battle_14_brief">MS 208. Yangtze\'de zincirlenmiş filoyu ateş sardı. Tek hamlede mat: çifte top.</string>
+    <string name="battle_15_name">Hanzhong</string>
+    <string name="battle_15_brief">MS 219. Huang Zhong Dingjun Dağı\'nı aldı; Xiahou Yuan düştü. Tek hamlede mat: balıkçı atı.</string>
+    <string name="battle_16_name">Yiling</string>
+    <string name="battle_16_brief">MS 222. Lu Xun bekledi, sonra Shu kamplarını yaktı. Tek hamlede mat: pusudaki at.</string>
+    <string name="battle_17_name">Feişui</string>
+    <string name="battle_17_brief">383. Fu Jian\'in ordusu geri çekilmeye başladı ve durdurulamadı. Tek hamlede mat: yüzyüze generaller.</string>
+    <string name="battle_18_name">Hulao</string>
+    <string name="battle_18_brief">621. Li Shimin, Dou Jiande\'yi geçidin önünde kırdı. Tek hamlede mat: köşe atı.</string>
+    <string name="battle_19_name">Yançeng</string>
+    <string name="battle_19_brief">1140. Yue Fei\'nin akıncıları Yançeng\'de Jin süvarilerini dağıttı. Tek hamlede mat: at arkası top.</string>
+    <string name="battle_20_name">Poyang Gölü</string>
+    <string name="battle_20_brief">1363. Zhu Yuanzhang\'ın ateş gemileri Chen Youliang\'ın kule gemilerini kırdı. Tek hamlede mat: gök ve yer topları.</string>
+    <string name="tactic_label_mahoupao">At arkası top</string>
+    <string name="tactic_label_bolt">Demir sürgü</string>
+    <string name="tactic_label_double_cannon">Çifte top</string>
+    <string name="tactic_label_double_rook">Çifte araba</string>
+    <string name="tactic_label_pocket">Pusudaki at</string>
+    <string name="tactic_label_corner">Köşe atı</string>
+    <string name="tactic_label_fishing">Balıkçı atı</string>
+    <string name="tactic_label_face">Yüzyüze generaller</string>
+    <string name="tactic_label_heaven">Gök ve yer topları</string>
+    <string name="tactic_label_heart">Saraydaki araba</string>
+    <string name="tactic_label_smothered">Boğulan saray</string>
+    <string name="tactic_label_spring">Trambolin şah</string>
+    <string name="tactic_label_mate">Mat</string>
+    <string name="puzzle_title">Final</string>
+    <string name="puzzle_list_title">Finaller</string>
+    <string name="puzzle_solved">Çözüldü</string>
+    <string name="puzzle_unsolved">Çözülmedi</string>
+    <string name="puzzle_attempts_format">%1$d kez denendi</string>
+    <string name="puzzle_red_to_move">Hamle sırası: Kırmızı. Mat %1$d hamlede.</string>
+    <string name="puzzle_undo_left_format">Kalan geri alma: %1$d</string>
+    <string name="puzzle_moves_left_format">Kalan hamle: %1$d</string>
+    <string name="puzzle_retry">Baştan başla</string>
+    <string name="puzzle_undo">Geri al</string>
+    <string name="puzzle_undo_exhausted">Geri alma hakkı kalmadı</string>
+    <string name="puzzle_deviated">Bu hamle mata gitmiyor. Geri al ya da baştan başla.</string>
+    <string name="puzzle_solved_title">Çözüldü!</string>
+    <string name="puzzle_fail_title">Çözülemedi</string>
+    <string name="puzzle_fail_moves">Hamleler bitti. Siyah dayanıyor.</string>
+    <string name="puzzle_next_puzzle">Sonraki</string>
+    <string name="puzzle_retry_confirm">%1$d kez denendi. Üç geri alma hakkın var; hamleler biterse bulmaca başarısız olur. Baştan başlansın mı?</string>
+
+    <string name="campaign_unlocked">Oynanabilir</string>
+    <string name="campaign_fail_title">Etap Başarısız</string>
+    <string name="campaign_body_unlocked">Etap tamamlandı — sıradaki açıldı!</string>
+    <string name="campaign_stars_line">%1$d yıldız · %2$s · %3$s</string>
+    <string name="campaign_stars_record">Bu etapta en iyi: %1$d</string>
+    <string name="campaign_stars_cd">3 yıldızdan %1$d</string>
+    <string name="campaign_star_hint_kept">ipucu yok</string>
+    <string name="campaign_star_hint_used">ipucu kullanıldı</string>
+    <string name="campaign_star_undo_kept">geri alma yok</string>
+    <string name="campaign_star_undo_used">geri alındı</string>
+    <string name="campaign_body_all_clear">Sekiz etabın hepsi tamamlandı.</string>
+    <string name="campaign_body_retry">Bu sefer olmadı — tekrar dene!</string>
+    <string name="puzzle_stage_name">Etap %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · hamle %2$d/%3$d · kalan geri alma %4$d · deneme #%5$d</string>
+    <string name="puzzle_solved_body">Çözüldü — harika oynadın!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">İzle</string>
+    <string name="result_win_checkmate">Matla Zafer</string>
+    <string name="result_win_big">Tam Zafer</string>
+    <string name="result_win_tactic_fmt">Mat: %1$s</string>
+    <string name="result_lose_tactic_fmt">Yenilgi: %1$s</string>
+    <string name="result_lose_banner">Yenilgi</string>
+    <string name="result_draw_banner">Berabere</string>
+    <string name="result_reason_win_tactic_fmt">Etkileyici bir %1$s ile mat ettin</string>
+    <string name="result_reason_lose_tactic_fmt">Rakip seni %1$s ile mat etti</string>
+    <string name="result_reason_win_default">Zafer mühürlendi</string>
+    <string name="result_reason_lose_default">Çok yakındı — fark az bir yenilgi</string>
+    <string name="result_reason_draw_default">Oyun berabere bitti</string>
+    <string name="result_practice_detail">Antrenman maçı tamamlandı — puan değişmedi. Oyun kaydedildi.</string>
+    <string name="campaign_reason_clear">Etap tamamlandı</string>
+    <string name="campaign_reason_fail">Meydan okuma başarısız</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">Yapay zekâ oyunu analiz ediyor</string>
+    <string name="analysis_scanning_recognize">Tahta tanınıyor…</string>
+    <string name="analysis_scanning_advice">Yapay zekâ öneri hazırlıyor…</string>
+    <string name="recognize_loading_model">Tanıma modeli yükleniyor…</string>
+    <string name="live_starting">Model &amp; kamera başlatılıyor…</string>
+    <string name="action_retry">Tekrar dene</string>
+
+    <string name="puzzle_solved_tactic_title">Mat · %1$s</string>
+    <string name="puzzle_solved_tactic_body">%1$s ile çözüldü.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">Merkez topuna karşı perde atları</string>
+    <string name="opening_same_cannon">Aynı tarafta toplar</string>
+    <string name="opening_opposite_cannon">Karşı tarafta toplar</string>
+    <string name="opening_central_vs_reversed">Merkez topuna karşı ters saray atı</string>
+    <string name="opening_central_vs_single">Merkez topuna karşı tek at</string>
+    <string name="opening_central_vs_tiger">Merkez topuna karşı üç adımlı kaplan</string>
+    <string name="opening_pawn_vs_cannon">Asker açılışı, asker ardındaki topa karşı</string>
+    <string name="opening_mutual_pawn">Karşılıklı asker açılışı</string>
+    <string name="opening_pawn_vs_central">Asker açılışı, merkez topuna karşı</string>
+    <string name="opening_pawn_vs_horse">Asker açılışı, ata karşı</string>
+    <string name="opening_pawn_vs_elephant">Asker açılışı, file karşı</string>
+    <string name="opening_elephant_vs_left">Fil açılışı, sol merkez topuna karşı</string>
+    <string name="opening_elephant_vs_right">Fil açılışı, sağ merkez topuna karşı</string>
+    <string name="opening_elephant_vs_horse">Fil açılışı, ata karşı</string>
+    <string name="opening_elephant_vs_pawn">Fil açılışı, askere karşı</string>
+    <string name="opening_elephant_vs_corner">Fil açılışı, köşe topuna karşı</string>
+    <string name="opening_elephant_vs_crossing">Fil açılışı, saraydan geçen topa karşı</string>
+    <string name="opening_horse_vs_pawn">At açılışı, askere karşı</string>
+    <string name="opening_horse_vs_central">At açılışı, merkez topuna karşı</string>
+    <string name="opening_horse_vs_horse">At açılışı, ata karşı</string>
+    <string name="opening_central_cannon">Merkez topu</string>
+    <string name="opening_pawn">Asker açılışı</string>
+    <string name="opening_elephant">Fil açılışı</string>
+    <string name="opening_horse">At açılışı</string>
+    <string name="opening_crossing_cannon">Saraydan geçen top</string>
+    <string name="opening_corner_cannon">Köşe topu</string>
+    <string name="opening_hook_cannon">Kanca top</string>
+    <string name="opening_iron_roller">Demir silindir</string>
+    <string name="opening_edge_horse">Kenar atı</string>
+    <string name="opening_edge_pawn">Kenar askeri</string>
+    <string name="tactic_rhyme_mahoupao">Atın ardındaki top, generalin kaçışını kapatır</string>
+    <string name="tactic_desc_mahoupao">At topa siper olur. Top onun üzerinden şah çeker, ikisi birlikte bütün kaçış yollarını kapatır.</string>
+    <string name="tactic_rhyme_bolt">Merkez topu hatta, araba saraya sürgü olur</string>
+    <string name="tactic_desc_bolt">Merkez topu saray kapısını tutar. Araba son sıraya kayar ve kapıya sürgü vurur.</string>
+    <string name="tactic_rhyme_double_cannon">Ön top perdedir, arka top tam isabetle vurur</string>
+    <string name="tactic_desc_double_cannon">İki top aynı hatta. Ön top siper, arka top saraya şah çeker.</string>
+    <string name="tactic_rhyme_double_rook">İki araba, aralıklı hatlarda, sırayla sarayı yoklar</string>
+    <string name="tactic_desc_double_rook">İki araba komşu hatlara konar ve generali birer sıra keser.</string>
+    <string name="tactic_rhyme_pocket">Pusudaki at, son sıradaki araba</string>
+    <string name="tactic_desc_pocket">At, düşman sarayının yanı başındaki pusuya kurulur; araba son sıraya iner.</string>
+    <string name="tactic_rhyme_corner">At danışman köşesinde, gerisini araba bitirir</string>
+    <string name="tactic_desc_corner">At danışman köşesinden şah çeker, danışmanları ve generali olduğu yere çiviler.</string>
+    <string name="tactic_rhyme_face">Generaller açık hatta karşı karşıya bakar</string>
+    <string name="tactic_desc_face">Generaller birbirine bakamaz. Senin generalin hattı tutar; kural matı tamamlar.</string>
+    <string name="tactic_rhyme_heaven">Bir top son sırada, bir top merkez hatta</string>
+    <string name="tactic_desc_heaven">Bir top son sırayı mühürler. Diğeri merkez hattı tutar. İkisi birlikte vurur.</string>
+    <string name="tactic_rhyme_fishing">Kapıda balıkçı at, araba kapıyı kapatır</string>
+    <string name="tactic_desc_fishing">At balık karesinde durur ve saray çıkışını kapatır. Araba mata gelip iner.</string>
+    <string name="tactic_rhyme_heart">Arabayı merkez danışmana kurban ver</string>
+    <string name="tactic_desc_heart">Arabayı ver, merkez danışmanı al; generali yerinden oynat ve mat et.</string>
+    <string name="tactic_rhyme_smothered">Danışmanlar kendi generalini tıkar</string>
+    <string name="tactic_desc_smothered">İki danışman sarayı tıkar. Son sırada bir top, ya da bir araba ve bir asker, bu tıkanıklığın içinden mat eder.</string>
+    <string name="tactic_academy_sub">Varyantı öğren, sesini dinle, sonra çöz</string>
+    <string name="tactic_voice">Dinle</string>
+    <string name="tactic_challenge">Çöz</string>
+    <string name="tactic_mastered">Öğrenildi</string>
+    <string name="tactic_learning">Öğreniliyor</string>
+    <string name="puzzle_rush_result_title">Bulmaca Akını</string>
+    <string name="puzzle_rush_score_unit">bulmaca</string>
+    <string name="replay_start_position">Başlangıç pozisyonu</string>
+    <string name="replay_move_line">Hamle %1$d · %2$s</string>
+    <string name="replay_red_winrate">Kırmızı\'nın kazanma oranı: %1$d%%</string>
+    <string name="replay_try_variation">Dene</string>
+    <string name="replay_variation_undo">Geri al</string>
+    <string name="replay_variation_exit">Oyuna dön</string>
+    <string name="replay_variation_status">Varyant +%1$d · Kırmızı %2$d%%</string>
+    <string name="replay_variation_status_move">Varyant +%1$d · %2$s · Kırmızı %3$d%%</string>
+    <string name="replay_variation_step">Hamle %1$d</string>
+    <string name="replay_red_better">Kırmızı</string>
+    <string name="replay_black_better">Siyah</string>
+    <string name="move_quality_brilliant">Parlak</string>
+    <string name="move_quality_best">En iyi</string>
+    <string name="move_quality_inaccuracy">Küçük hata</string>
+    <string name="move_quality_mistake">Hata</string>
+    <string name="move_quality_blunder">Büyük hata</string>
+    <string name="move_quality_book">Teori</string>
+    <string name="analysis_scan_status">Derinlik %1$d · Kırmızı kazanma oranı %2$d%%</string>
+</resources>

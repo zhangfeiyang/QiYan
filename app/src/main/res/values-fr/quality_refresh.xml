@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Sur la montagne, les camps sont imposés.</string>
+    <string name="game_swap_rated_title">Changer de camp ?</string>
+    <string name="game_swap_rated_message">Tu reprendrais la position que l\'IA jouait. Cette partie devient un entraînement et ne changera pas ton classement.</string>
+    <string name="game_swap_rated_confirm">Changer et s\'entraîner</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Indice · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Tu as continué après le résultat, cette partie n\'est donc pas classée. Le premier résultat reste valable.</string>
+    <string name="result_resume">Continuer à jouer</string>
+    <string name="result_review">Analyser la partie</string>
+    <string name="result_review_unavailable">Cette partie n\'a pas été enregistrée, il n\'y a donc rien à analyser.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Trois minutes. Combien de mats ?</string>
+    <string name="puzzle_rush_intro_rules">• Les Rouges commencent dans chaque position. Trouve le mat.\n• Un coup erroné ou un passage coûte un cœur. Perds les trois et la chasse s\'arrête.\n• Les positions deviennent plus difficiles à mesure que le score grimpe.</string>
+    <string name="puzzle_rush_intro_best">Ton record : %1$d</string>
+    <string name="puzzle_rush_intro_first">Pas encore de record. Établis le premier.</string>
+    <string name="puzzle_rush_prompt_short">Rouge au trait · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Avancé · Moteur d\'IA</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d figures de mat classiques</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Placement</string>
+    <string name="rank_placement_chip">Placement %1$d/%2$d</string>
+    <string name="rank_placement_progress">Placement %1$d/%2$d · encore %3$d avant ton premier insigne</string>
+    <string name="result_placement_progress">Partie de placement %1$d sur %2$d terminée. Encore %3$d pour révéler ton premier insigne.</string>
+    <string name="result_placement_done">Placement terminé. Ton premier insigne : %1$s</string>
+    <string name="rank_hall_placement">Placement : %1$d parties classées jouées sur %2$d. Ton premier insigne est révélé après la partie %2$d.</string>
+</resources>

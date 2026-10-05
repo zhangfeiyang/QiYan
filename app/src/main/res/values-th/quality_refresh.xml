@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">ฝั่งตายตัวในภารกิจไต่ภูเขา</string>
+    <string name="game_swap_rated_title">สลับฝั่ง?</string>
+    <string name="game_swap_rated_message">คุณจะรับช่วงกระดานที่ AI กำลังเล่นอยู่ เกมนี้กลายเป็นการฝึกและไม่มีผลกับคะแนนคุณ</string>
+    <string name="game_swap_rated_confirm">สลับแล้วฝึก</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">คำใบ้ · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">คุณเล่นต่อหลังมีผลแล้ว ส่วนนี้ไม่นับคะแนน ผลแรกยังคงอยู่</string>
+    <string name="result_resume">เล่นต่อ</string>
+    <string name="result_review">ทบทวนเกม</string>
+    <string name="result_review_unavailable">เกมนี้ไม่ได้บันทึกไว้ จึงไม่มีอะไรให้ทบทวน</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">สามนาที รุกจนได้กี่กระดาน?</string>
+    <string name="puzzle_rush_intro_rules">• แดงเดินก่อนทุกกระดาน หาหมากที่รุกจน\n• หมากผิดหรือข้ามเสียหนึ่งหัวใจ หมดสามดวงจบรอบ\n• กระดานยากขึ้นเมื่อคะแนนสูงขึ้น</string>
+    <string name="puzzle_rush_intro_best">ดีสุดของคุณ: %1$d</string>
+    <string name="puzzle_rush_intro_first">ยังไม่มีสถิติ ลงสถิติแรกให้เป็น</string>
+    <string name="puzzle_rush_prompt_short">ถึงตาแดง · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">ขั้นสูง · เอนจิน AI</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d แบบแผนรุกจนคลาสสิก</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">จัดระดับ</string>
+    <string name="rank_placement_chip">จัดระดับ %1$d/%2$d</string>
+    <string name="rank_placement_progress">จัดระดับ %1$d/%2$d · อีก %3$d เกมก่อนได้ตราแรก</string>
+    <string name="result_placement_progress">กำลังเล่นเกมจัดระดับเกมที่ %1$d จาก %2$d อีก %3$d เกมจะเผยตราแรกของคุณ</string>
+    <string name="result_placement_done">จัดระดับเสร็จ ตราแรกของคุณ: %1$s</string>
+    <string name="rank_hall_placement">จัดระดับ: เล่นไป %1$d จาก %2$d เกมนับคะแนน ตราแรกจะเผยหลังเกมที่ %2$d</string>
+</resources>

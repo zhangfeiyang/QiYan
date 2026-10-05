@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">เพลงบรรเลงต้นฉบับ เสียงสายดีดนุ่มและคอร์ดกว้าง เปิดที่หน้าแรกและระหว่างเล่น เข้ามานุ่มนวลและหยุดเมื่อแอปไปอยู่เบื้องหลัง</string>
+    <string name="audio_music_volume">ระดับเสียงเพลง</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">ฟังเพลง · 12 วินาที</string>
+    <string name="audio_preview_stop">หยุดฟัง</string>
+    <string name="audio_motion_description">หมากเลื่อนนุ่มนวล คลื่นจองหมากจอน และจังหวะรุกสั้น ๆ ปิดแล้วหยุดอนิเมชันกินหมากด้วย เคารพตั้งค่าอนิเมชันของระบบ</string>
+</resources>

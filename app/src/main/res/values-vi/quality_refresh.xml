@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Không đổi phe khi leo núi.</string>
+    <string name="game_swap_rated_title">Đổi phe?</string>
+    <string name="game_swap_rated_message">Bạn sẽ tiếp quản thế cờ mà AI đang cầm. Ván này chuyển thành luyện tập và không ảnh hưởng điểm của bạn.</string>
+    <string name="game_swap_rated_confirm">Đổi phe và luyện</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Gợi ý · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Bạn đã chơi tiếp sau khi có kết quả, nên phần này không tính điểm. Kết quả đầu tiên vẫn được giữ.</string>
+    <string name="result_resume">Chơi tiếp</string>
+    <string name="result_review">Xem lại ván</string>
+    <string name="result_review_unavailable">Ván này không được lưu nên không có gì để xem lại.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Ba phút. Bí được mấy thế?</string>
+    <string name="puzzle_rush_intro_rules">• Đỏ đi trước ở mọi thế cờ. Tìm nước bí.\n• Nước sai hay bỏ qua mất một tim. Mất hết ba tim là hết màn.\n• Thế cờ càng lúc càng khó khi điểm tăng.</string>
+    <string name="puzzle_rush_intro_best">Kỷ lục của bạn: %1$d</string>
+    <string name="puzzle_rush_intro_first">Chưa có kỷ lục. Lập cái đầu tiên đi.</string>
+    <string name="puzzle_rush_prompt_short">Đỏ đi trước · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Nâng cao · Bộ máy AI</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d thế chiếu bí kinh điển</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Xếp hạng nhập môn</string>
+    <string name="rank_placement_chip">Nhập môn %1$d/%2$d</string>
+    <string name="rank_placement_progress">Nhập môn %1$d/%2$d · còn %3$d ván nữa tới dấu ấn đầu tiên</string>
+    <string name="result_placement_progress">Ván xếp hạng %1$d trên %2$d đang diễn ra. Thắng %3$d ván nữa sẽ hiện dấu ấn đầu tiên.</string>
+    <string name="result_placement_done">Hoàn tất xếp hạng. Dấu ấn đầu tiên của bạn: %1$s</string>
+    <string name="rank_hall_placement">Nhập môn: đã đánh %1$d trên %2$d ván có tính điểm. Dấu ấn đầu tiên hiện sau ván thứ %2$d.</string>
+</resources>

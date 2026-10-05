@@ -2,7 +2,6 @@ package com.zhongguoxiangqi
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import com.zhongguoxiangqi.ui.settings.AppSettings
 
 /**
@@ -12,16 +11,10 @@ class ZhongguoXiangqiApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // 默认英文, 除非用户自己在首页切过语言.
-        //
-        // getApplicationLocales() 返回空列表当且仅当从没设置过 per-app
-        // locale —— 包括全新安装、以及用户从未点过语言切换按钮的情况。
-        // 一旦用户点过(哪怕切回了跟系统一致的语言), AppCompat 会把选择
-        // 持久化, 这里就不会再是空列表, 也就不会覆盖用户的选择。不依赖
-        // 设备系统语言, 因为需求是"默认英文", 不是"跟随系统"。
-        if (AppCompatDelegate.getApplicationLocales().isEmpty) {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
-        }
+        // 默认跟随系统语言: getApplicationLocales() 为空时 AppCompat 直接
+        // 用系统 locale 去匹配 values-* 资源, 这里不做任何强制设置.
+        // 只有用户在首页语言选择器里主动选过语言, 才会持久化 per-app locale,
+        // 之后便覆盖系统语言; 选"跟随系统"则清空回空列表, 重新跟随系统.
         // 不再调用 DynamicColors.applyToActivitiesIfAvailable():
         // 那会用用户壁纸推导出的 Material You 配色去覆盖 colorPrimary 一类
         // 角色, 于是同一个 App 在不同手机上按钮是不同颜色的, 我们精心定的

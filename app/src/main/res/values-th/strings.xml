@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">เล่น</string>
+    <string name="title_replay">ทบทวน</string>
+    <string name="title_settings">ตั้งค่า</string>
+    <string name="title_board_editor">แก้กระดาน</string>
+    <string name="menu_play">เริ่มเกม</string>
+    <string name="menu_replay">ทบทวนเกม</string>
+    <string name="menu_settings">ตั้งค่า</string>
+    <string name="menu_about">เกี่ยวกับ</string>
+    <string name="menu_difficulty">เลือกระดับความยาก</string>
+    <string name="menu_side">เลือกฝ่าย</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">ภาษา</string>
+    <string name="language_dialog_title">เลือกภาษา</string>
+    <string name="language_system_default">ตามระบบ</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">มือใหม่</string>
+    <string name="difficulty_beginner">เริ่มต้น</string>
+    <string name="difficulty_lower_intermediate">กลางต้น</string>
+    <string name="difficulty_intermediate">กลาง</string>
+    <string name="difficulty_upper_intermediate">กลางสูง</string>
+    <string name="difficulty_advanced">สูง</string>
+    <string name="difficulty_amateur">มือสมัครเล่นเก่ง</string>
+    <string name="difficulty_district">นักเล่นระดับอำเภอ</string>
+    <string name="difficulty_city">นักเล่นระดับเมือง</string>
+    <string name="difficulty_provincial">มือเก่งระดับจังหวัด</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">จอมยุทธ์สมาคม</string>
+    <string name="difficulty_national_master">จอมยุทธ์แห่งชาติ</string>
+    <string name="difficulty_grandmaster">แกรนด์มาสเตอร์</string>
+    <string name="difficulty_international_master">มาสเตอร์นานาชาติ</string>
+    <string name="difficulty_legendary">ตำนาน</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">ผู้เริ่มเล่น</string>
+    <string name="difficulty_segment_beginner">มือใหม่เล่นเป็นงานอดิเรก</string>
+    <string name="difficulty_segment_lower_intermediate">นักเล่นทั่วไป</string>
+    <string name="difficulty_segment_intermediate">นักเล่นริมถนน</string>
+    <string name="difficulty_segment_upper_intermediate">นักเล่นเก่ง</string>
+    <string name="difficulty_segment_advanced">อเมเจอร์ แดน 1</string>
+    <string name="difficulty_segment_amateur">อเมเจอร์ แดน 3</string>
+    <string name="difficulty_segment_district">อเมเจอร์ แดน 5</string>
+    <string name="difficulty_segment_city">อเมเจอร์ แดน 6</string>
+    <string name="difficulty_segment_provincial">จอมยุทธ์ท้องถิ่น</string>
+    <string name="difficulty_segment_local_master">จอมยุทธ์สมาคม</string>
+    <string name="difficulty_segment_national_master">จอมยุทธ์แห่งชาติ</string>
+    <string name="difficulty_segment_grandmaster">แกรนด์มาสเตอร์ระดับชาติ</string>
+    <string name="difficulty_segment_international_master">มาสเตอร์นานาชาติ</string>
+    <string name="difficulty_segment_legendary">แกรนด์มาสเตอร์นานาชาติ</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">เพิ่งรู้กติกา มักปล่อยหมากให้ฟรี</string>
+    <string name="difficulty_desc_beginner">กินหมากฟรีที่เห็นชัด แต่พลาดกับดักง่าย ๆ</string>
+    <string name="difficulty_desc_lower_intermediate">รู้เทคนิคพื้นฐาน บางครั้งเห็นหมากคุมสองทาง</string>
+    <string name="difficulty_desc_intermediate">เปิดกระดานมั่นคง คำนวณล่วงหน้า 3-5 หมาก</string>
+    <string name="difficulty_desc_upper_intermediate">เดินหมากตามหลัก จัดการเกมเปิดได้ดี</string>
+    <string name="difficulty_desc_advanced">มือสมัครเล่นที่มั่นคง เกมปลายแน่น หมากพลาดน้อย</string>
+    <string name="difficulty_desc_amateur">เทคนิคเชื่อถือได้ ตั้งกับดักพื้นฐานได้</string>
+    <string name="difficulty_desc_district">รุกและรับสมดุล ลงโทษความผิดพลาดทันควัน</string>
+    <string name="difficulty_desc_city">มองภาพรวมเก่ง เตรียมกับดัก แทบไม่เสียหมากฟรี</string>
+    <string name="difficulty_desc_provincial">ระดับทัวร์นาเมนต์จังหวัด คำนวณแม่นยำ</string>
+    <string name="difficulty_desc_local_master">เล่นระดับจอมยุทธ์ ไล่เส้นลึกและเฉียบ</string>
+    <string name="difficulty_desc_national_master">เกมรุกคมกริด แทบไม่มีความผิดพลาด</string>
+    <string name="difficulty_desc_grandmaster">ระดับแกรนด์มาสเตอร์ชาติ เกมยุทธศาสตร์ลึกซึ้ง</string>
+    <string name="difficulty_desc_international_master">ระดับมาสเตอร์นานาชาติ แม่นยำทุกระยะของเกม</string>
+    <string name="difficulty_desc_legendary">ระดับแกรนด์มาสเตอร์นานาชาติ ที่แกร่งที่สุดในเครื่องนี้</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">คำใบ้</string>
+    <string name="action_undo">ย้อนกลับ</string>
+    <string name="action_new_game">เกมใหม่</string>
+    <string name="action_resign">ยอมแพ้</string>
+    <string name="action_draw">ขอเสมอ</string>
+    <string name="action_analysis">วิเคราะห์</string>
+    <string name="action_flip">พลิกกระดาน</string>
+    <string name="action_settings">ตั้งค่า</string>
+    <string name="action_back">กลับ</string>
+    <string name="action_save">บันทึก</string>
+    <string name="action_export">ส่งออก PGN</string>
+    <string name="action_play_red">เล่นฝ่ายแดง (เดินก่อน)</string>
+    <string name="action_play_black">เล่นฝ่ายดำ (เดินหลัง)</string>
+    <string name="action_two_player">สองผู้เล่น</string>
+    <string name="action_voice">เดินหมากด้วยเสียง</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">พูดหมาก เช่น 「车九进四」 (รถเก้าเดินหน้าสี่)</string>
+    <string name="voice_played">เดินแล้ว: %1$s</string>
+    <string name="voice_no_match">ไม่มีหมากที่ถูกต้องตรงกับ 「%1$s」</string>
+    <string name="voice_ambiguous">ไม่ชัดเจน — พูดให้เจาะจงขึ้นหน่อย</string>
+    <string name="voice_no_speech">ไม่ได้ยินเลย ลองใหม่นะ</string>
+    <string name="voice_error">การจดจำเสียงพูดล้มเหลว</string>
+    <string name="voice_unavailable">อุปกรณ์นี้ไม่รองรับการจดจำเสียงพูด</string>
+    <string name="voice_permission_denied">ต้องขอสิทธิ์ไมโครโฟนเพื่อเดินหมากด้วยเสียง</string>
+    <string name="voice_wait_engine">รอ AI เดินหมากให้เสร็จก่อน</string>
+    <string name="voice_not_your_turn">ยังไม่ถึงตาคุณ</string>
+    <string name="voice_game_over">เกมจบแล้ว</string>
+
+    <!-- Status -->
+    <string name="status_thinking">AI กำลังคิด…</string>
+    <string name="status_your_turn">ถึงตาคุณ</string>
+    <string name="status_check">รุก!</string>
+    <string name="status_checkmate">รุกจน!</string>
+    <string name="status_draw">เสมอ</string>
+    <string name="status_resign">ยอมแพ้แล้ว</string>
+    <string name="status_win">ชัยชนะ</string>
+    <string name="status_loss">ความพ่ายแพ้</string>
+    <string name="status_stalemate">อับ</string>
+    <string name="status_engine_error">AI ผิดพลาด สลับไปใช้เอนจินสำรอง</string>
+    <string name="game_over_checkmate_red">ดำรุกจนแดง</string>
+    <string name="game_over_checkmate_black">แดงรุกจนดำ</string>
+    <string name="game_over_repetition">เดินซ้ำ</string>
+    <string name="game_over_fifty_moves">กฎ 50 หมาก</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">โอกาสชนะ</string>
+    <string name="winrate_red">โอกาสชนะฝ่ายแดง</string>
+    <string name="winrate_black">โอกาสชนะฝ่ายดำ</string>
+    <string name="depth_label">ความลึก</string>
+    <string name="nodes_label">จำนวนโหนด</string>
+    <string name="nps_label">โหนด/วินาที</string>
+    <string name="time_label">เวลา</string>
+
+    <!-- Rating -->
+    <string name="rating_current">คะแนนปัจจุบัน</string>
+    <string name="rating_total_games">เกมทั้งหมด</string>
+    <string name="rating_wins">ชนะ</string>
+    <string name="rating_losses">แพ้</string>
+    <string name="rating_draws">เสมอ</string>
+    <string name="rating_winrate">โอกาสชนะ</string>
+    <string name="rating_rank">ระดับ</string>
+    <string name="rank_1">มือใหม่</string>
+    <string name="rank_2">เริ่มต้น</string>
+    <string name="rank_3">อเมเจอร์ แดน 1</string>
+    <string name="rank_4">อเมเจอร์ แดน 3</string>
+    <string name="rank_5">อเมเจอร์ แดน 5</string>
+    <string name="rank_6">อเมเจอร์ แดน 7</string>
+    <string name="rank_7">จอมยุทธ์ประจำแคว้น</string>
+    <string name="rank_8">จอมยุทธ์แห่งชาติ</string>
+    <string name="rank_9">แกรนด์มาสเตอร์</string>
+    <string name="rank_10">ราชาหมากรุก</string>
+    <string name="rank_hall_title">ตราระดับ</string>
+    <string name="rank_hall_intro">สิบตรา จากมือใหม่ถึงราชา เฉพาะเกมที่นับคะแนนเท่านั้นที่ขยับตรา ฝึกซ้อมและไต่ภูเขาไม่นับ</string>
+    <string name="rank_hall_current">ปัจจุบัน</string>
+    <string name="rank_hall_reached">ไปถึงแล้ว</string>
+    <string name="rank_hall_locked">รออยู่ข้างหน้า</string>
+    <string name="rank_progress_next">อีก %2$d แต้มถึง %1$s</string>
+    <string name="rank_progress_top">ราชาหมากรุก — ยอดของบันไดนี้</string>
+    <string name="rank_promoted">เลื่อนเป็น %1$s แล้ว</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">เปิดตราระดับ</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">เกมใหม่</string>
+    <string name="dialog_new_game_message">เริ่มเกมใหม่?</string>
+    <string name="dialog_resign_title">ยอมแพ้</string>
+    <string name="dialog_resign_message">แน่ใจหรือไม่ว่าต้องการยอมแพ้?</string>
+    <string name="dialog_undo_title">ย้อนกลับ</string>
+    <string name="dialog_undo_message">การย้อนกลับมีค่าปรับคะแนนเล็กน้อย ยังจะย้อนไหม?</string>
+    <string name="dialog_yes">ใช่</string>
+    <string name="dialog_no">ไม่</string>
+    <string name="dialog_ok">ตกลง</string>
+    <string name="dialog_cancel">ยกเลิก</string>
+    <string name="dialog_confirm">ยืนยัน</string>
+
+    <!-- Review -->
+    <string name="replay_empty">ยังไม่มีเกม</string>
+    <string name="replay_play">เล่นอัตโนมัติ</string>
+    <string name="replay_pause">พัก</string>
+    <string name="replay_prev">ก่อนหน้า</string>
+    <string name="replay_next">ถัดไป</string>
+    <string name="replay_first">หมากแรก</string>
+    <string name="replay_last">หมากสุดท้าย</string>
+    <string name="replay_move_number">หมากที่ %1$d</string>
+    <string name="result_win_short">ช</string>
+    <string name="result_loss_short">แ</string>
+    <string name="result_draw_short">ส</string>
+    <string name="side_red_short">แดง</string>
+    <string name="side_black_short">ดำ</string>
+    <string name="replay_moves_summary">%1$d หมาก · %2$s</string>
+    <string name="replay_record_missing">ไม่พบบันทึกเกม</string>
+    <string name="replay_player_info">เลเวล %1$d  %2$s  %3$d หมาก</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">กู้คืนหมากที่ %1$d ไม่ได้</string>
+    <string name="replay_viewer_title">ดูซ้ำเกม</string>
+    <string name="replay_share_report">แชร์รายงานสงคราม</string>
+    <string name="replay_export_pgn">ส่งออก PGN</string>
+    <string name="replay_copy_fen">คัดลอก FEN</string>
+    <string name="replay_copied_to_clipboard">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
+    <string name="puzzle_rush_title">ไขปริศนาด่วน</string>
+    <string name="puzzle_rush_banner">3 นาที · สถิติดีสุด %1$d</string>
+    <string name="tactics_banner_title">แบบแผนรุกจน</string>
+    <string name="tactics_banner_sub">รุกจนคลาสสิก</string>
+    <string name="tactics_banner_progress">เรียนแล้ว %1$d / %2$d</string>
+    <string name="puzzle_rush_subtitle">แก้เร็ว 3 นาที</string>
+    <string name="puzzle_rush_start">เริ่มด่วนเลย</string>
+    <string name="puzzle_rush_score">คะแนน</string>
+    <string name="puzzle_rush_high_score">ดีสุด: %1$d</string>
+    <string name="puzzle_rush_combo">ต่อเนื่อง ×%1$d</string>
+    <string name="puzzle_rush_pass">ข้าม (−1 หัวใจ)</string>
+    <string name="puzzle_rush_time_up">หมดเวลา!</string>
+    <string name="puzzle_rush_lives_out">หัวใจหมดแล้ว!</string>
+    <string name="puzzle_rush_new_record">🎉 สถิติใหม่!</string>
+    <string name="puzzle_rush_solved_count">แก้ได้ %1$d ปริศนา</string>
+    <string name="puzzle_rush_play_again">เล่นอีกครั้ง</string>
+    <string name="puzzle_rush_share">แชร์คะแนน</string>
+    <string name="puzzle_rush_report_title">【QiYan เซียงฉี · ไขปริศนาด่วน】</string>
+    <string name="puzzle_rush_score_line">คะแนน %1$d</string>
+    <string name="puzzle_rush_best_badge">ดีสุด %1$d</string>
+    <string name="puzzle_rush_mate_line">รุกจน · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">ฉายา: %1$s</string>
+    <string name="puzzle_rush_record_line">สถิติใหม่: %1$d</string>
+    <string name="puzzle_rush_previous_best">สถิติเดิม: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\nแก้ได้ %2$d ใน 3 นาที\nต่อเนื่องยาวสุด %3$d\n%4$s</string>
+    <string name="puzzle_rush_leave">ออกจากรอบนี้? คะแนนจะไม่ถูกบันทึก</string>
+    <string name="puzzle_rush_leave_yes">ออก</string>
+    <string name="puzzle_rush_honor_1">ผู้ฝึกฝน</string>
+    <string name="puzzle_rush_honor_2">นักเล่นสโมสร</string>
+    <string name="puzzle_rush_honor_3">มีดคม</string>
+    <string name="puzzle_rush_honor_4">เครื่องคำนวณ</string>
+    <string name="puzzle_rush_honor_5">เจ้าแห่งปริศนา</string>
+    <string name="stat_total_games_format">%1$d เกม</string>
+    <string name="stat_wins_format">ชนะ %1$d</string>
+    <string name="stat_losses_format">แพ้ %1$d</string>
+    <string name="stat_draws_format">เสมอ %1$d</string>
+    <string name="game_illegal_move">หมากไม่ถูกกติกา</string>
+    <string name="game_undo_failed">ย้อนกลับไม่ได้</string>
+    <string name="game_switched_to_black">เปลี่ยนไปเล่นฝ่ายดำ</string>
+    <string name="game_switched_to_red">เปลี่ยนไปเล่นฝ่ายแดง</string>
+    <string name="game_opponent_black">AI (ดำ)</string>
+    <string name="game_opponent_red">AI (แดง)</string>
+    <string name="game_player_red">ฉัน (แดง)</string>
+    <string name="game_player_black">ฉัน (ดำ)</string>
+    <string name="game_move_count">หมากที่ %1$d</string>
+    <string name="game_engine_start_failed">เริ่ม AI ไม่สำเร็จ</string>
+    <string name="unknown_label">ไม่ทราบ</string>
+    <string name="default_nickname">เพื่อนนักกระดาน</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">เหตุผล: %1$s\nคะแนนเปลี่ยน: %2$s\nระดับปัจจุบัน: %3$s</string>
+    <string name="game_over_rating_detail">คะแนนเปลี่ยน: %1$s · ระดับปัจจุบัน: %2$s</string>
+    <string name="game_over_win">คุณชนะ</string>
+    <string name="game_over_loss">คุณแพ้</string>
+    <string name="game_over_draw">เสมอ</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">จำนวนเธรด</string>
+    <string name="settings_hash">ตารางแฮช (MB)</string>
+    <string name="settings_sound">เสียงเอฟเฟกต์</string>
+    <string name="settings_vibrate">สั่น</string>
+    <string name="settings_bgm">เพลงประกอบ</string>
+    <string name="settings_board_flip">พลิกกระดานเป็นค่าเริ่มต้น</string>
+    <string name="settings_show_coords">แสดงพิกัด</string>
+    <string name="settings_show_winrate">แสดงโอกาสชนะ</string>
+    <string name="settings_animation">อนิเมชันหมาก</string>
+    <string name="settings_theme">ธีม</string>
+    <string name="settings_desc_threads">เธรดมากคำนวณเร็วขึ้นแต่กินแบตมากขึ้น แนะนำไม่เกินครึ่งหนึ่งของคอร์ในเครื่อง</string>
+    <string name="settings_desc_hash">แคชการคิดของ AI เพิ่มขึ้นเพื่อคิดลึกขึ้น ลดลงถ้าหน่วยความจำเหลือน้อย</string>
+    <string name="settings_desc_sound">เปิดเสียงเมื่อเดินหมาก กินหมาก และรุก</string>
+    <string name="settings_desc_vibrate">สั่นเบา ๆ ตอนเดินหมาก</string>
+    <string name="settings_desc_bgm">บรรเลงเสียงกู่ฉินหวาน ๆ ระหว่างเกม เสียงเบาไว้ไม่ให้กลบเสียงเอฟเฟกต์</string>
+    <string name="settings_desc_coords">แสดงหมายเลขแถวและไฟล์ริมขอบกระดาน</string>
+    <string name="settings_desc_winrate">แสดงแถบโอกาสชนะสดเหนือกระดาน</string>
+    <string name="settings_desc_animation">ปิดแล้วหมากวางลงทันที ลื่นกว่าบนเครื่องรุ่นเก่า</string>
+    <string name="settings_desc_flip">เริ่มเกมโดยมองจากฝั่งดำ</string>
+    <string name="settings_section_display">การแสดงผล</string>
+    <string name="settings_section_other">อื่น ๆ</string>
+    <string name="settings_theme_system">ตามระบบ</string>
+    <string name="settings_theme_light">สว่าง</string>
+    <string name="settings_theme_dark">มืด</string>
+    <string name="settings_clear_data">ล้างข้อมูลทั้งหมด</string>
+    <string name="dialog_clear_data_title">ล้างข้อมูล</string>
+    <string name="dialog_clear_data_message">การกระทำนี้จะล้างบันทึกเกมและคะแนนทั้งหมด ดำเนินการต่อ?</string>
+    <!-- Live hints -->
+    <string name="live_title">คำใบ้สด</string>
+    <string name="live_entry">คำใบ้สด</string>
+    <string name="live_need_camera">ต้องขอสิทธิ์กล้องเพื่อจดจำกระดานแบบสด</string>
+    <string name="live_camera_failed">เปิดกล้องไม่สำเร็จ</string>
+    <string name="live_locking">กำลังล็อกกระดาน…</string>
+    <string name="live_board_invalid">ยังจับกระดานไม่ครบ — ให้มุมทั้งสี่อยู่ในเฟรม</string>
+    <string name="live_ready">ล็อกแล้ว · จดจำใน %1$d มิลลิวินาที</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">รีเซ็ต</string>
+    <string name="editor_clear">ล้าง</string>
+    <string name="settings_clear_data_desc">ลบบันทึกเกมและคะแนนทั้งหมด ย้อนกลับไม่ได้</string>
+    <string name="settings_piece_style">รูปแบบหมาก</string>
+    <string name="settings_board_style">รูปแบบกระดาน</string>
+    <string name="settings_about">เกี่ยวกับ</string>
+    <string name="settings_engine_path">พาธโมเดล AI</string>
+    <string name="settings_about_text">QiYan v1.0\n\nAI พัฒนาเอง (ประเมินด้วยเครือข่ายประสาทเทียม NNUE)\nรองรับจดจำกระดานจากภาพถ่ายและคำใบ้แบบสด</string>
+
+    <!-- About -->
+    <string name="about_engine_title">ข้อมูล AI</string>
+    <string name="about_engine_version">NNUE พัฒนาเอง</string>
+    <string name="about_engine_desc">AI หมากรุกจีน</string>
+
+    <!-- Common -->
+    <string name="red">แดง</string>
+    <string name="black">ดำ</string>
+    <string name="move_count">%1$d หมาก</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">สแกนกระดาน</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">วิเคราะห์ด้วย AI</string>
+    <string name="advisor_send">ส่ง</string>
+    <string name="advisor_input_hint">ถามอะไรก็ได้…</string>
+    <string name="advisor_error_generic">ฟีเจอร์วิเคราะห์ใช้ไม่ได้ชั่วคราว ลองใหม่ภายหลัง</string>
+    <string name="advisor_no_config">ฟีเจอร์ AI ยังไม่ได้ตั้งค่า ติดต่อนักพัฒนา</string>
+    <string name="advisor_unavailable">AI ใช้ไม่ได้ชั่วคราว ลองใหม่ภายหลัง</string>
+    <string name="advisor_waiting">AI กำลังตอบอยู่ รอสักครู่</string>
+    <string name="advisor_key_rejected">คีย์ยืนยันไม่ถูกต้องหรือถูกเพิกถอน โปรดตั้งค่าโทเคนพร็อกซีใหม่</string>
+    <string name="advisor_clear">ล้างบทสนทนา</string>
+    <string name="advisor_context_replay">กำลังดูหมากที่ %1$d</string>
+    <string name="advisor_context_game">หมากที่ %1$d · ถึงตา %2$s</string>
+    <string name="advisor_thinking">AI กำลังวิเคราะห์…</string>
+    <string name="advisor_button">วิเคราะห์ด้วย AI</string>
+    <string name="advisor_empty_title">ถาม AI เรื่องเกมนี้</string>
+    <string name="advisor_empty_subtitle">มันเห็นกระดานปัจจุบัน — ถามเรื่องสถานการณ์ หมากถัดไป หรือหมากที่แล้วพลาดตรงไหน</string>
+    <string name="advisor_suggest_analyze">วิเคราะห์กระดานปัจจุบัน</string>
+    <string name="advisor_suggest_next">หมากถัดไปควรเดินอะไร</string>
+    <string name="advisor_suggest_review">หมากที่เพิ่งเดินไปมีปัญหาไหม</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">แตะเพื่อข้าม</string>
+    <string name="analysis_summary_prompt">สรุปกระดานปัจจุบันใน 2-3 ประโยค: สถานการณ์ ฝ่ายได้เปรียบ จุดรุก/รับสำคัญ และหมากที่เด่นที่สุดตอนนี้</string>
+    <string name="advisor_send_desc">ส่ง</string>
+    <string name="advisor_move_banner">AI สาธิตหมากนี้: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">สแกนกระดาน</string>
+    <string name="recognize_take_photo">ถ่ายรูป</string>
+    <string name="recognize_pick_image">เลือกจากแกลเลอรี</string>
+    <string name="recognize_preview_desc">กระดานที่ปรับแก้แล้ว</string>
+    <string name="recognize_red_to_move">ถึงตาแดง</string>
+    <string name="recognize_black_to_move">ถึงตาดำ</string>
+    <string name="recognize_advise">ขอคำแนะนำจาก AI</string>
+    <string name="recognize_hint_start">ถ่ายรูปกระดาน หรือเลือกจากแกลเลอรี ควรถ่ายตรง ๆ เห็นมุมทั้งสี่</string>
+    <string name="recognize_working">กำลังจดจำ…</string>
+    <string name="recognize_failed">จดจำไม่สำเร็จ ลองรูปอื่น</string>
+    <string name="recognize_model_failed">โหลดโมเดลจดจำไม่สำเร็จ</string>
+    <string name="recognize_no_camera">ไม่มีกล้องใช้งาน</string>
+    <string name="recognize_corner_warning">มุมกระดานทั้งสี่ถูกเฟรมไม่แม่น ผลอาจเพี้ยน ลองถ่ายใหม่ตรง ๆ</string>
+    <string name="recognize_must_fix">แก้ปัญหาเหล่านี้ก่อน:</string>
+    <string name="recognize_ready">จดจำเสร็จ วงกลมสีเหลืองคือตำแหน่งที่ไม่แน่ใจ (%1$d จุด) — แตะช่องเพื่อแก้ ยืนยันก่อนขอคำแนะนำ</string>
+    <string name="recognize_pick_piece">หมากอะไรวางที่ %1$c%2$d</string>
+    <string name="recognize_empty">ว่าง</string>
+    <string name="recognize_flip">พลิก</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">กิน %1$s</string>
+    <string name="piece_king">แม่ทัพ</string>
+    <string name="piece_advisor">ที่ปรึกษา</string>
+    <string name="piece_elephant">ช้าง</string>
+    <string name="piece_horse">ม้า</string>
+    <string name="piece_rook">รถ</string>
+    <string name="piece_cannon">ปืน</string>
+    <string name="piece_pawn">ทหาร</string>
+    <string name="recognize_thinking">AI กำลังคิด…</string>
+    <string name="recognize_engine_failed">เริ่ม AI ไม่สำเร็จ</string>
+    <string name="recognize_engine_error">AI ผิดพลาด: %1$s</string>
+    <string name="recognize_no_move">AI ไม่ได้ส่งหมากกลับมา</string>
+    <string name="recognize_advice">ข้อเสนอ: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">เล็งกล้องไปที่กระดานจริง รับคำแนะนำระหว่างเล่น</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">ถ่ายรูปกระดาน</string>
+    <string name="recognize_start_camera_desc">ถ่ายภาพกระดานจริง</string>
+    <string name="recognize_start_gallery_desc">ใช้ภาพหน้าจอหรือรูปที่มีอยู่</string>
+    <string name="recognize_tips_title">ถ่ายดี จดจำดี</string>
+    <string name="recognize_tip_1">ถ่ายตรงกระดาน อย่าถ่ายเฉียง</string>
+    <string name="recognize_tip_2">ให้มุมทั้งสี่อยู่ในเฟรม</string>
+    <string name="recognize_tip_3">แสงสม่ำเสมอ เลี่ยงแสงสะท้อนและเงา</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">ระดับคำใบ้</string>
+    <string name="advice_level_fast">เร็ว</string>
+    <string name="advice_level_fast_desc">เสนอทันที</string>
+    <string name="advice_level_normal">ปกติ</string>
+    <string name="advice_level_normal_desc">คิดหนึ่งสองวินาที เพียงพอส่วนใหญ่</string>
+    <string name="advice_level_deep">ลึก</string>
+    <string name="advice_level_deep_desc">คิดนานขึ้น น่าเชื่อถือในกระดานวิกฤต</string>
+    <string name="advice_level_current">ระดับคำใบ้: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">อักษรบนหมาก</string>
+    <string name="settings_piece_set_desc">อักษรจีนคือดั้งเดิม อักษรละติน (K/A/B/N/R/C/P) ตรงกับสัญกรณ์หมากภาษาอังกฤษ</string>
+    <string name="piece_set_hanzi">อักษรจีน</string>
+    <string name="piece_set_latin">ตัว K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">สัญกรณ์หมาก</string>
+    <string name="settings_notation_desc">สัญกรณ์จีนอ่านว่า 炮二平五 WXF เขียนหมากเดียวกันเป็น C2.5</string>
+    <string name="notation_chinese">สัญกรณ์จีน</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">เอนจินส่งหมากไม่ถูกกติกากลับมา: %1$s</string>
+    <string name="engine_error">เอนจินผิดพลาด: %1$s</string>
+    <string name="must_answer_check">คุณกำลังถูกรุก — ต้องแก้ก่อน</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">กำลังจัดกระดาน…</string>
+    <string name="settings_follow_language">ตามภาษาของแอป</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">เกมใหม่</string>
+    <string name="new_game_pick_opponent">เลือกคู่ต่อสู้</string>
+    <string name="new_game_side">เล่นฝ่ายไหน</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">เลเวล %1$d %2$s</string>
+    <string name="new_game_level_short">เลเวล %1$d</string>
+    <string name="side_red">แดง</string>
+    <string name="side_black">ดำ</string>
+    <string name="side_random">สุ่ม</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">คู่ต่อสู้</string>
+    <string name="menu_change_opponent">เปลี่ยน</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">สมดุล</string>
+    <string name="style_balanced_desc">เดินหมากที่ดีที่สุดของเอนจินเสมอ — พลังล้วน ๆ</string>
+    <string name="style_aggressive">รุกหนัก</string>
+    <string name="style_aggressive_desc">ชอบกินหมากและรุก กล้าสละหมากเพื่อเปิดเกมรุก</string>
+    <string name="style_solid">หนักแน่น</string>
+    <string name="style_solid_desc">ไม่แลกหมากอย่างขลาด เลือกกระดานเงียบกว่าความยุ่งเหยิง</string>
+    <string name="style_swarm">คาดเดายาก</string>
+    <string name="style_swarm_desc">สลับหมากใกล้ดีที่สุด — เกมไม่ซ้ำกันเลย</string>
+    <string name="new_game_style">สไตล์คู่ต่อสู้</string>
+    <string name="new_game_style_line">สไตล์: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">รุก!</string>
+    <string name="board_tag_mate">รุกจน</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">เอฟเฟกต์กินหมาก</string>
+    <string name="settings_desc_capture_fx">อนิเมชันฟัน ประกายไฟ และหมึกกระเซ็นเมื่อหมากถูกกิน ป้าย 「กิน…」บนกระดานแสดงเสมอไม่ว่าเปิดหรือปิด</string>
+    <string name="settings_board_skin">วัสดุกระดาน</string>
+    <string name="settings_board_skin_desc">สี่วัสดุออฟไลน์ ตัวอักษรบนหมากยังเข้มบนพื้นงาช้างจึงอ่านได้เสมอ</string>
+    <string name="skin_wood">ไม้อุ่น</string>
+    <string name="skin_black_gold">ดำทอง</string>
+    <string name="skin_porcelain">เครื่องเคลือบน้ำเงิน</string>
+    <string name="skin_jade">หยกขาว</string>
+
+    <string name="puzzle_1_name">รุกจน 1 หมาก · อับในวัง</string>
+    <string name="puzzle_1_hint">ม้าดำถูกตรึง เดินแม่ทัพเข้ากลาง: ดำอับ</string>
+    <string name="puzzle_2_name">รุกจน 1 หมาก · ปืนคู่</string>
+    <string name="puzzle_2_hint">ปืนหน้าเป็นฉาก — ย้ายปืนหลังไปไฟล์</string>
+    <string name="puzzle_3_name">รุกจน 1 หมาก · รถและม้า</string>
+    <string name="puzzle_3_hint">รถหลังกวาดไปแถวหลังรุกสองทาง</string>
+    <string name="puzzle_4_name">รุกจน 1 หมาก · เผชิญหน้า</string>
+    <string name="puzzle_4_hint">แม่ทัพเผชิญกันบนไฟล์เดียว วางรถแถวหลัง</string>
+    <string name="puzzle_5_name">รุกจน 1 หมาก · สลักเหล็ก</string>
+    <string name="puzzle_5_hint">ปืนกลางยึดเส้น รถตกแถวหลัง</string>
+    <string name="puzzle_6_name">รุกจน 1 หมาก · ปืนล้อมปีก</string>
+    <string name="puzzle_6_hint">ปืนลงลึก รถเป็นโล่เพื่อชี้ขาด</string>
+    <string name="puzzle_7_name">รุกจน 1 หมาก · รถคู่ลึก</string>
+    <string name="puzzle_7_hint">รถคู่บีบป้อมด้วยปืนคุ้ม</string>
+    <string name="puzzle_8_name">รุกจน 1 หมาก · ม้าและปืน</string>
+    <string name="puzzle_8_hint">ใช้ม้าผู้ดีเป็นที่ตั้งปืน รุกจนทันที</string>
+    <string name="puzzle_9_name">รุกจน 2 หมาก · รถสลับชั้น</string>
+    <string name="puzzle_9_hint">จมรถลงรุก ถ้าช้างบัง สลับทิศ</string>
+    <string name="puzzle_10_name">รุกจน 2 หมาก · รถคู่</string>
+    <string name="puzzle_10_hint">รถหนึ่งตรึงไฟล์ อีกลำเรียงรุกไปมา</string>
+    <string name="puzzle_11_name">รุกจน 2 หมาก · ม้าศอก</string>
+    <string name="puzzle_11_hint">ม้ายึดปีกป้อม รถจมลงรุกจน</string>
+    <string name="puzzle_12_name">รุกจน 2 หมาก · รุกจากที่พึ่ง</string>
+    <string name="puzzle_12_hint">พุ่งม้าไปเปิดรุก ประสานกับรถ</string>
+    <string name="puzzle_13_name">รุกจน 2 หมาก · รถม้าปืน</string>
+    <string name="puzzle_13_hint">ม้าพุ่งกลาง ปืนประสานชี้ขาด</string>
+    <string name="puzzle_14_name">รุกจน 2 หมาก · ทหารเดินหน้า</string>
+    <string name="puzzle_14_hint">ปืนยึดกลางขณะทหารเดินเข้า</string>
+    <string name="puzzle_15_name">รุกจน 2 หมาก · รถเรียงแถว</string>
+    <string name="puzzle_15_hint">รถสองตัวบนไฟล์แหลกลายแนวป้อม</string>
+    <string name="puzzle_16_name">รุกจน 2 หมาก · ปืนซ่อน</string>
+    <string name="puzzle_16_hint">รถเปิดทางให้ปืนที่ซุ่มอยู่หลัง</string>
+    <string name="puzzle_17_name">รุกจน 3 หมาก · ม้าศอกลึก</string>
+    <string name="puzzle_17_hint">ม้าโจมตีมุมป้อม รถปิดแถวหลัง</string>
+    <string name="puzzle_18_name">รุกจน 3 หมาก · ม้าตกปลาลึก</string>
+    <string name="puzzle_18_hint">ม้าตกปลาจำกัดกษัตริย์ รถจบที่แถว 9</string>
+    <string name="puzzle_19_name">รุกจน 3 หมาก · ม้ามุม</string>
+    <string name="puzzle_19_hint">ม้ามุมคุมทางออก รุกจนด้วยรถหยุดไม่ได้</string>
+    <string name="puzzle_20_name">รุกจน 3 หมาก · รถบีบสองข้าง</string>
+    <string name="puzzle_20_hint">รถคู่พันกันกระชับตาข่ายรอบกษัตริย์ศัตรู</string>
+    <string name="puzzle_21_name">รุกจน 2 หมาก · ตกปลาตรึง</string>
+    <string name="puzzle_21_hint">ม้าตกปลาปิดป้อม รถเลื่อนกลางรุกจน</string>
+    <string name="puzzle_22_name">รุกจน 2 หมาก · ฟ้าดิน</string>
+    <string name="puzzle_22_hint">ปืนหนึ่งคุมกลาง หนึ่งจมลึกปิดเกม</string>
+    <string name="puzzle_23_name">รุกจน 3 หมาก · ล็อกรถม้า</string>
+    <string name="puzzle_23_hint">รถม้าล็อกกันส่งรุกชี้ขาดต่อเนื่อง</string>
+    <string name="puzzle_24_name">รุกจน 3 หมาก · ตาข่ายรถคู่</string>
+    <string name="puzzle_24_hint">รถเดินไปตามไฟล์ติดกันกับดักกษัตริย์</string>
+
+    <string name="puzzle_25_name">รุกจน 3 หมาก · ทลายผู้พิทักษ์</string>
+    <string name="puzzle_25_hint">รถฝ่าที่ปรึกษาทลายแนวรับ</string>
+    <string name="puzzle_26_name">รุกจน 3 หมาก · วงจรรถคู่</string>
+    <string name="puzzle_26_hint">รถสลับชั้นจมลงตามกันโดยมีกษัตริย์ช่วย</string>
+    <string name="puzzle_27_name">รุกจน 3 หมาก · รถล่อ</string>
+    <string name="puzzle_28_hint">สละรถนำเพื่อล่อกษัตริย์ออกจากป้อม</string>
+    <string name="puzzle_28_name">รุกจน 3 หมาก · ม้ามุมพุ่ง</string>
+    <string name="puzzle_27_hint">สละหมากเจาะป้อมศัตรู</string>
+    <string name="puzzle_29_name">รุกจน 3 หมาก · รถล้อมป้อม</string>
+    <string name="puzzle_29_hint">รถคู่ข้ามเข้าหัวใจป้อม</string>
+    <string name="puzzle_30_name">รุกจน 3 หมาก · โจมตีปีก</string>
+    <string name="puzzle_30_hint">รถจมแถวหลังขณะม้าวนเข้า</string>
+    <string name="puzzle_31_name">รุกจน 3 หมาก · แม่ทัพเผชิญ</string>
+    <string name="puzzle_31_hint">แม่ทัพเผชิญกันบนไฟล์เปิด รถปิดชัย</string>
+    <string name="puzzle_32_name">รุกจน 3 หมาก · ม้าถลา</string>
+    <string name="puzzle_32_hint">ม้ากระโดดเข้าตำแหน่งศอกเพื่อรุกจน</string>
+
+    <string name="puzzle_33_name">รุกจน 4 หมาก · เจาะด้วยม้าตกปลา</string>
+    <string name="puzzle_33_hint">ม้าตกปลาจำกัดกษัตริย์ขณะรถลอกผู้พิทักษ์</string>
+    <string name="puzzle_34_name">รุกจน 4 หมาก · ทหารที่ประตู</string>
+    <string name="puzzle_34_hint">ทหารแดงกล้าเดินเข้าชำรุดที่หลบภัยของกษัตริย์</string>
+    <string name="puzzle_35_name">รุกจน 4 หมาก · ม้ามุมและรถ</string>
+    <string name="puzzle_35_hint">ม้ามุมตรึงที่ปรึกษา รถจบจากลึก</string>
+    <string name="puzzle_36_name">รุกจน 4 หมาก · รถคู่และม้า</string>
+    <string name="puzzle_36_hint">รถสองปีกกับม้าเต็มฝีเท้ายึดป้อม</string>
+    <string name="puzzle_37_name">รุกจน 4 หมาก · ทหารในป้อม</string>
+    <string name="puzzle_37_hint">เบี้ยลาดเข้าป้อมกลางโดยรถสนับสนุน</string>
+    <string name="puzzle_38_name">รุกจน 4 หมาก · ม้ารถปีก</string>
+    <string name="puzzle_38_hint">ม้ากระหน่ำจากปีกขณะรถปิดแนวหลัง</string>
+    <string name="puzzle_39_name">รุกจน 5 หมาก · ทหารกวาด</string>
+    <string name="puzzle_39_hint">ทหารดื้อรั้นเดินเข้าอย่างมั่นคง ตรึงกษัตริย์</string>
+    <string name="puzzle_40_name">รุกจน 3 หมาก · ปืนรถ</string>
+    <string name="puzzle_40_hint">รถคู่และปืนตั้งแนวรบไม่ยอมโก้ง</string>
+
+    <string name="puzzle_41_name">รุกจน 6 หมาก · ทหารเจาะ</string>
+    <string name="puzzle_41_hint">ทหารปีกเดินลึก รถและปืนตาม</string>
+    <string name="puzzle_42_name">รุกจน 7 หมาก · เจาะซี่โครง</string>
+    <string name="puzzle_42_hint">ม้าสละดูดแนวรับ เปิดทางรถ</string>
+    <string name="puzzle_43_name">รุกจน 6 หมาก · ม้ากลาง</string>
+    <string name="puzzle_43_hint">ม้าครองกลางกระดาน ประสานรุกจน</string>
+    <string name="puzzle_44_name">รุกจน 6 หมาก · ปลายรถเดี่ยว</string>
+    <string name="puzzle_44_hint">เทคนิครถเดี่ยวชำนาญลอกผู้ป้องกันทีละคน</string>
+    <string name="puzzle_45_name">รุกจน 2 หมาก · รถคู่ไว</string>
+    <string name="puzzle_45_hint">รถคู่ข้ามไฟล์ลงโทษอย่างรวดเร็ว</string>
+    <string name="puzzle_46_name">รุกจน 3 หมาก · ม้าราชสีห์</string>
+    <string name="puzzle_46_hint">ม้าล็อกทางหนี รถจบบนแถว</string>
+    <string name="puzzle_47_name">รุกจน 3 หมาก · รถสองปีก</string>
+    <string name="puzzle_47_hint">รถคู่ประสานรุกจากไฟล์ติดกัน</string>
+    <string name="puzzle_48_name">รุกจน 2 หมาก · ปืนคู่ร่อน</string>
+    <string name="puzzle_48_hint">ปืนคู่กระโดดข้ามฉากรุกจนตรึงใจ</string>
+
+    <string name="puzzle_chapter_1">เล่ม 1: ก้าวแรก</string>
+    <string name="puzzle_chapter_sub_1">รุกจน 1 หมาก · ตาข่ายรุกจนพื้นฐาน</string>
+    <string name="puzzle_chapter_2">เล่ม 2: ประกายเทคนิค</string>
+    <string name="puzzle_chapter_sub_2">รุกจน 2 หมาก · แผนรุกประสานกัน</string>
+    <string name="puzzle_chapter_3">เล่ม 3: ยุทธศาสตร์อาจารย์</string>
+    <string name="puzzle_chapter_sub_3">รุกจน 2-3 หมาก · เทคนิคคลาสสิกรวม</string>
+    <string name="puzzle_chapter_4">เล่ม 4: การรุกครั้งใหญ่</string>
+    <string name="puzzle_chapter_sub_4">รุกจน 3 หมาก · การสละและชี้ขาด</string>
+    <string name="puzzle_chapter_5">เล่ม 5: การพิชิตมหากาพย์</string>
+    <string name="puzzle_chapter_sub_5">รุกจน 3-4 หมาก · ปลายกระดานระดับอาจารย์</string>
+    <string name="puzzle_chapter_6">เล่ม 6: บททดสอบแกรนด์มาสเตอร์</string>
+    <string name="puzzle_chapter_sub_6">รุกจน 4-7 หมาก · บทเพลงคลาสสิกของยอดนักกระดานจีน</string>
+    <string name="campaign_entry">ไต่ภูเขา</string>
+    <string name="campaign_entry_desc">แปดด่าน ชนะด่านหนึ่งเปิดด่านถัดไป</string>
+    <string name="puzzle_entry">ปลายกระดาน</string>
+    <string name="puzzle_entry_desc">รุกจนคลาสสิก ย้อนได้สามครั้งต่อปริศนา</string>
+    <string name="campaign_title">ภูเขา</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">ยอด</string>
+    <string name="campaign_level_format">ด่าน %1$d</string>
+    <string name="campaign_level_difficulty_format">ความแกร่งคู่ต่อสู้ เลเวล %1$d</string>
+    <string name="campaign_locked">ชนะด่านก่อนหน้าเพื่อเปิดด่านนี้</string>
+    <string name="campaign_passed">ผ่านแล้ว</string>
+    <string name="campaign_win_title">ผ่านด่านแล้ว</string>
+    <string name="campaign_next_level">ด่านถัดไป</string>
+    <string name="campaign_retry">ลองด่านนี้อีกครั้ง</string>
+    <string name="campaign_back_list">กลับไปที่ภูเขา</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">ด่าน %1$d · %2$s</string>
+    <string name="stage_1_name">ก้าวแรก</string>
+    <string name="stage_1_brief">คู่ต่อสู้นี้มักพลาดหมากที่จะกิน ซาบซึ้งกติกาก่อน</string>
+    <string name="stage_2_name">ประตู</string>
+    <string name="stage_2_brief">มองล่วงหน้าหนึ่งหมาก และยังพลาดอะไรอีก</string>
+    <string name="stage_3_name">แม่น้ำ</string>
+    <string name="stage_3_brief">จากนี้เอนจินรับช่วง คิดมากกว่าหนึ่งวินาทีเล็กน้อย</string>
+    <string name="stage_4_name">ด่านผ่าน</string>
+    <string name="stage_4_brief">เวลามากขึ้น ความพลาดเล็ก ๆ ก็ถูกมองเห็น</string>
+    <string name="stage_5_name">เส้นทาง</string>
+    <string name="stage_5_brief">ค้นหาลึกขึ้น หมากหลวมต้องถูกกิน</string>
+    <string name="stage_6_name">มองยาวขึ้น</string>
+    <string name="stage_6_brief">ช่วงเวลาคิดอีกช่วง</string>
+    <string name="stage_7_name">ค้นลึก</string>
+    <string name="stage_7_brief">ใกล้ยอดแล้ว ขาดเวลาไปหนึ่งก้าว</string>
+    <string name="stage_8_name">ยอดเขา</string>
+    <string name="stage_8_brief">การค้นหาที่ยาวนานที่สุดบนภูเขา</string>
+    <string name="catalog_mate_title">รุกจนหนึ่งหมาก</string>
+    <string name="catalog_mate_hint">ถึงตาแดง รุกจนหนึ่งหมาก</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">แก้แล้ว %1$d / %2$d</string>
+    <string name="catalog_filter_all">ทั้งหมด</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">แก้แล้ว</string>
+    <string name="catalog_open">เปิด</string>
+    <string name="history_intro">ห้าบททัพจริง ทุกยุทธการจบด้วยรุกจนหนึ่งหมาก กระดานนี้เป็นแบบฝึก ไม่ใช่การฟื้นสมรภูมิประวัติศาสตร์</string>
+    <string name="history_ch_1">ชุนชิว</string>
+    <string name="history_ch_2">จ้านกั๋ว</string>
+    <string name="history_ch_3">ฉู่ฮั่น</string>
+    <string name="history_ch_4">สามก๊ก</string>
+    <string name="history_ch_5">สมรภูมิยุคหลัง</string>
+    <string name="battle_1_name">ฉางเช่า</string>
+    <string name="battle_1_brief">หลู่ 684 ปีก่อนคริสตกาล ชาวกุ้ยให้ฉีตีกลองสามครั้งแล้วจึงโจมตี รุกจน 1 หมาก: สลักเหล็ก</string>
+    <string name="battle_2_name">เฉิงผู่</string>
+    <string name="battle_2_brief">632 ปีก่อนคริสตกาล จิ้นดึงกองกลางฉู่ออกหน้าและปิดสองปีก รุกจน 1 หมาก: รถคู่</string>
+    <string name="battle_3_name">ปั๋วจวี๋</string>
+    <string name="battle_3_brief">506 ปีก่อนคริสตกาล อู๋บุกลึกเข้าฉู่และยึดอิง รุกจน 1 หมาก: ม้าหลังปืน</string>
+    <string name="battle_4_name">ลี่เจ๋อ</string>
+    <string name="battle_4_brief">478 ปีก่อนคริสตกาล เยฺว่ข้ามแม่น้ำสองทางแตกอู๋ รุกจน 1 หมาก: ม้าล้อม</string>
+    <string name="battle_5_name">กุ้ยหลิง</string>
+    <string name="battle_5_brief">354 ปีก่อนคริสตกาล ฉียกทัพไปเมืองหลวงเว่ยเพื่อคลายล้อมเจ้า รุกจน 1 หมาก: ปืนคู่</string>
+    <string name="battle_6_name">หม่าหลิง</string>
+    <string name="battle_6_brief">342 ปีก่อนคริสตกาล ซุนปินลดกองไฟรอที่ช่องเขา รุกจน 1 หมาก: ม้าตกปลา</string>
+    <string name="battle_7_name">ฉางผิง</string>
+    <string name="battle_7_brief">260 ปีก่อนคริสตกาล ฉินตัดกองทัพเจ้าและปิดวง รุกจน 1 หมาก: รถคู่</string>
+    <string name="battle_8_name">จี้โม่</string>
+    <string name="battle_8_brief">279 ปีก่อนคริสตกาล เถียนตานเปิดเมืองบุกค่ายเยียนยามค่ำ รุกจน 1 หมาก: ม้าล้อม</string>
+    <string name="battle_9_name">จิ้งสิง</string>
+    <string name="battle_9_brief">204 ปีก่อนคริสตกาล หันซินตั้งทัพหลังพิงแม่น้ำแล้วหันกลับ รุกจน 1 หมาก: แม่ทัพเผชิญ</string>
+    <string name="battle_10_name">เฉินชาง</string>
+    <string name="battle_10_brief">206 ปีก่อนคริสตกาล ทางไม้เป็นกลอุบาย ทัพออกจากเฉินชาง รุกจน 1 หมาก: ปืนคู่</string>
+    <string name="battle_11_name">เหวยสุ่ย</string>
+    <string name="battle_11_brief">204 ปีก่อนคริสตกาล หันซินกั้นน้ำ ล่อศัตรูข้ามแล้วปล่อยน้ำ รุกจน 1 หมาก: ม้าหลังปืน</string>
+    <string name="battle_12_name">ไก่เซีย</string>
+    <string name="battle_12_brief">202 ปีก่อนคริสตกาล ทัพฮั่นปิดล้อมเซียงอวี้ทุกด้าน รุกจน 1 หมาก: รถคู่</string>
+    <string name="battle_13_name">กวนตู้</string>
+    <string name="battle_13_brief">คริสตศักราช 200 ชาวโชวเผาเสบียงหยวนเชาที่อู๋เชา รุกจน 1 หมาก: สลักเหล็ก</string>
+    <string name="battle_14_name">กำแพงแดง</string>
+    <string name="battle_14_brief">คริสตศักราช 208 ไฟไหลผ่านเรือโซ่ร้อยเรือบนแยงซี รุกจน 1 หมาก: ปืนคู่</string>
+    <string name="battle_15_name">ฮั่นจง</string>
+    <string name="battle_15_brief">คริสตศักราช 219 หวงจงยึดเขาติงจุน เซี่ยโหวยวนล้ม รุกจน 1 หมาก: ม้าตกปลา</string>
+    <string name="battle_16_name">อี้หลิง</string>
+    <string name="battle_16_brief">คริสตศักราช 222 หลู่ซุนทนแล้วเผาค่ายจู รุกจน 1 หมาก: ม้าล้อม</string>
+    <string name="battle_17_name">ฝีสุ่ย</string>
+    <string name="battle_17_brief">ค.ศ. 383 ทัพฝูเจี้ยนเริ่มถอยแล้วหยุดไม่อยู่ รุกจน 1 หมาก: แม่ทัพเผชิญ</string>
+    <string name="battle_18_name">หูเลา</string>
+    <string name="battle_18_brief">ค.ศ. 621 หลี่ชื่อหมินแตกโต้วเจี้ยนเต้อหน้าด่าน รุกจน 1 หมาก: ม้ามุม</string>
+    <string name="battle_19_name">เหยียนเฉิง</string>
+    <string name="battle_19_brief">ค.ศ. 1140 ทหารม้ายฺเว่เฟย์ตีม้าเหล็กจินที่เหยียนเฉิง รุกจน 1 หมาก: ม้าหลังปืน</string>
+    <string name="battle_20_name">ทะเลสาบโปยหยาง</string>
+    <string name="battle_20_brief">ค.ศ. 1363 เรือไฟจูหยวนจางเผาเรือป้อมของเฉินโหยวเลียง รุกจน 1 หมาก: ปืนฟ้าดิน</string>
+    <string name="tactic_label_mahoupao">ม้าหลังปืน</string>
+    <string name="tactic_label_bolt">สลักเหล็ก</string>
+    <string name="tactic_label_double_cannon">ปืนคู่</string>
+    <string name="tactic_label_double_rook">รถคู่</string>
+    <string name="tactic_label_pocket">ม้าล้อม</string>
+    <string name="tactic_label_corner">ม้ามุม</string>
+    <string name="tactic_label_fishing">ม้าตกปลา</string>
+    <string name="tactic_label_face">แม่ทัพเผชิญ</string>
+    <string name="tactic_label_heaven">ปืนฟ้าดิน</string>
+    <string name="tactic_label_heart">รถในป้อม</string>
+    <string name="tactic_label_smothered">ป้อมอับ</string>
+    <string name="tactic_label_spring">รุกจากที่พึ่ง</string>
+    <string name="tactic_label_mate">รุกจน</string>
+    <string name="puzzle_title">ปลายกระดาน</string>
+    <string name="puzzle_list_title">ปลายกระดาน</string>
+    <string name="puzzle_solved">แก้แล้ว</string>
+    <string name="puzzle_unsolved">ยังไม่แก้</string>
+    <string name="puzzle_attempts_format">ลองแล้ว %1$d ครั้ง</string>
+    <string name="puzzle_red_to_move">ถึงตาแดง รุกจนใน %1$d หมาก</string>
+    <string name="puzzle_undo_left_format">ย้อนกลับได้อีก: %1$d</string>
+    <string name="puzzle_moves_left_format">หมากเหลือ: %1$d</string>
+    <string name="puzzle_retry">เริ่มใหม่</string>
+    <string name="puzzle_undo">เอาหมากคืน</string>
+    <string name="puzzle_undo_exhausted">หมดโอกาสย้อนกลับ</string>
+    <string name="puzzle_deviated">หมากนี้พลาดรุกจน ย้อนกลับหรือเริ่มใหม่</string>
+    <string name="puzzle_solved_title">แก้สำเร็จ!</string>
+    <string name="puzzle_fail_title">ยังไม่สำเร็จ</string>
+    <string name="puzzle_fail_moves">หมากหมด ดำยืนได้</string>
+    <string name="puzzle_next_puzzle">ถัดไป</string>
+    <string name="puzzle_retry_confirm">ลองแล้ว %1$d ครั้ง มีย้อนกลับสามครั้ง หมากหมดถือว่าไม่ผ่าน เริ่มใหม่?</string>
+
+    <string name="campaign_unlocked">เล่นได้</string>
+    <string name="campaign_fail_title">ไม่ผ่านด่าน</string>
+    <string name="campaign_body_unlocked">ผ่านด่านแล้ว — ด่านถัดไปเปิดแล้ว!</string>
+    <string name="campaign_stars_line">%1$d ดาว · %2$s · %3$s</string>
+    <string name="campaign_stars_record">ดีสุดของด่านนี้: %1$d</string>
+    <string name="campaign_stars_cd">%1$d จาก 3 ดาว</string>
+    <string name="campaign_star_hint_kept">ไม่ใช้คำใบ้</string>
+    <string name="campaign_star_hint_used">ใช้คำใบ้</string>
+    <string name="campaign_star_undo_kept">ไม่ย้อนหมาก</string>
+    <string name="campaign_star_undo_used">ย้อนหมาก</string>
+    <string name="campaign_body_all_clear">ผ่านครบแปดด่านแล้ว</string>
+    <string name="campaign_body_retry">รอบนี้ไม่ได้ — ลองใหม่!</string>
+    <string name="puzzle_stage_name">ด่าน %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · หมาก %2$d/%3$d · ย้อนเหลือ %4$d · ครั้งที่ #%5$d</string>
+    <string name="puzzle_solved_body">แก้แล้ว — เยี่ยมมาก!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">ดูกระดาน</string>
+    <string name="result_win_checkmate">ชัยชนะรุกจน</string>
+    <string name="result_win_big">ชนะขาดลอย</string>
+    <string name="result_win_tactic_fmt">รุกจนแบบ %1$s</string>
+    <string name="result_lose_tactic_fmt">แพ้ให้ %1$s</string>
+    <string name="result_lose_banner">ความพ่ายแพ้</string>
+    <string name="result_draw_banner">เสมอ</string>
+    <string name="result_reason_win_tactic_fmt">รุกจนด้วย %1$s อย่างสวยงาม</string>
+    <string name="result_reason_lose_tactic_fmt">คู่ต่อสู้รุกจนคุณด้วย %1$s</string>
+    <string name="result_reason_win_default">ปิดฝั่งชัยชนะ</string>
+    <string name="result_reason_lose_default">เกือบแล้ว — แพ้หวุดหวิด</string>
+    <string name="result_reason_draw_default">เกมจบลงด้วยการเสมอ</string>
+    <string name="result_practice_detail">จบเกมฝึก — คะแนนไม่เปลี่ยน เกมถูกบันทึกแล้ว</string>
+    <string name="campaign_reason_clear">ผ่านด่านแล้ว</string>
+    <string name="campaign_reason_fail">ท้าทายไม่สำเร็จ</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">AI กำลังวิเคราะห์เกม</string>
+    <string name="analysis_scanning_recognize">กำลังจดจำกระดาน…</string>
+    <string name="analysis_scanning_advice">AI กำลังเตรียมคำแนะนำ…</string>
+    <string name="recognize_loading_model">กำลังโหลดโมเดลจดจำ…</string>
+    <string name="live_starting">กำลังเริ่มโมเดลและกล้อง…</string>
+    <string name="action_retry">ลองใหม่</string>
+
+    <string name="puzzle_solved_tactic_title">รุกจน · %1$s</string>
+    <string name="puzzle_solved_tactic_body">แก้ได้ด้วย %1$s</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">ปืนกลางต่อม้าป้อม</string>
+    <string name="opening_same_cannon">ปืนฝั่งเดียวกัน</string>
+    <string name="opening_opposite_cannon">ปืนเผชิญกัน</string>
+    <string name="opening_central_vs_reversed">ปืนกลางต่อม้าป้อมกลับ</string>
+    <string name="opening_central_vs_single">ปืนกลางต่อม้าเดี่ยว</string>
+    <string name="opening_central_vs_tiger">ปืนกลางต่อเสือสามก้าว</string>
+    <string name="opening_pawn_vs_cannon">เปิดเบี้ยต่อปืนหลังเบี้ย</string>
+    <string name="opening_mutual_pawn">เบี้ยเดินตอบกัน</string>
+    <string name="opening_pawn_vs_central">เปิดเบี้ยต่อปืนกลาง</string>
+    <string name="opening_pawn_vs_horse">เปิดเบี้ยต่อม้า</string>
+    <string name="opening_pawn_vs_elephant">เปิดเบี้ยต่อช้าง</string>
+    <string name="opening_elephant_vs_left">ช้างต่อปืนกลางซ้าย</string>
+    <string name="opening_elephant_vs_right">ช้างต่อปืนกลางขวา</string>
+    <string name="opening_elephant_vs_horse">ช้างต่อม้า</string>
+    <string name="opening_elephant_vs_pawn">ช้างต่อเบี้ย</string>
+    <string name="opening_elephant_vs_corner">ช้างต่อปืนมุม</string>
+    <string name="opening_elephant_vs_crossing">ช้างต่อปืนข้ามป้อม</string>
+    <string name="opening_horse_vs_pawn">ม้าต่อเบี้ย</string>
+    <string name="opening_horse_vs_central">ม้าต่อปืนกลาง</string>
+    <string name="opening_horse_vs_horse">ม้าต่อม้า</string>
+    <string name="opening_central_cannon">ปืนกลาง</string>
+    <string name="opening_pawn">เปิดเบี้ย</string>
+    <string name="opening_elephant">เปิดช้าง</string>
+    <string name="opening_horse">เปิดม้า</string>
+    <string name="opening_crossing_cannon">ปืนข้ามป้อม</string>
+    <string name="opening_corner_cannon">ปืนมุม</string>
+    <string name="opening_hook_cannon">ปืนตะขอ</string>
+    <string name="opening_iron_roller">รถเหล็กกลิ้ง</string>
+    <string name="opening_edge_horse">ม้าริม</string>
+    <string name="opening_edge_pawn">เบี้ยริม</string>
+    <string name="tactic_rhyme_mahoupao">ปืนหลังม้า แม่ทัพไม่มีทางหนี</string>
+    <string name="tactic_desc_mahoupao">ม้าเป็นฉากให้ปืน ปืนรุกทะลุผ่าน และสองตัวปิดทุกทางหนี</string>
+    <string name="tactic_rhyme_bolt">ปืนกลางคุมไฟล์ รถลั่นข้ามป้อม</string>
+    <string name="tactic_desc_bolt">ปืนกลางยึดประตูป้อม รถเลื่อนแถวหลังลั่นประตูให้แน่น</string>
+    <string name="tactic_rhyme_double_cannon">ปืนหน้าเป็นฉาก ปืนหลังจบเกม</string>
+    <string name="tactic_desc_double_cannon">ปืนสองตัวบนเส้นเดียว ปืนหน้าเป็นฉาก ปืนหลังรุกเข้าป้อม</string>
+    <string name="tactic_rhyme_double_rook">รถสองตัวสองไฟล์ ผลัดกันเข้าป้อม</string>
+    <string name="tactic_desc_double_rook">รถสองตัวลงไฟล์ติดกัน ตัดแม่ทัพทีละแถว</string>
+    <string name="tactic_rhyme_pocket">ม้าในกระเป๋า รถบนแถวหลัง</string>
+    <string name="tactic_desc_pocket">ม้านั่งในกระเป๋าข้างป้อมศัตรู รถลงแถวหลัง</string>
+    <string name="tactic_rhyme_corner">ม้าบนมุมที่ปรึกษา รถชี้ขาด</string>
+    <string name="tactic_desc_corner">ม้ารุกจากมุมที่ปรึกษา ตรึงทั้งที่ปรึกษาและแม่ทัพ</string>
+    <string name="tactic_rhyme_face">แม่ทัพเผชิญกันบนไฟล์เปิด</string>
+    <string name="tactic_desc_face">แม่ทัพห้ามเผชิญหน้ากัน แม่ทัพคุณยึดไฟล์ไว้ กติกานั้นปิดรุกจน</string>
+    <string name="tactic_rhyme_heaven">ปืนหนึ่งบนแถวหลัง หนึ่งบนไฟล์กลาง</string>
+    <string name="tactic_desc_heaven">ปืนหนึ่งปิดแถวหลัง อีกตัวยึดไฟล์กลาง ทั้งสองฟาดพร้อมกัน</string>
+    <string name="tactic_rhyme_fishing">ม้าตกปลาที่ประตู รถหนึ่งตัวมาปิด</string>
+    <string name="tactic_desc_fishing">ม้ายืนที่ช่องตกปลาบังทางออกป้อม รถลงมารุกจน</string>
+    <string name="tactic_rhyme_heart">สละรถกินที่ปรึกษากลาง</string>
+    <string name="tactic_desc_heart">ยอมรถเพื่อกินที่ปรึกษากลาง ดึงแม่ทัพออกจากช่อง แล้วรุกจน</string>
+    <string name="tactic_rhyme_smothered">ที่ปรึกษาบังแม่ทัพของตัวเอง</string>
+    <string name="tactic_desc_smothered">ที่ปรึกษาทั้งคู่อุดตันป้อม ปืนแถวหลัง หรือรถกับเบี้ย รุกจนทะลุความแออัดนั้น</string>
+    <string name="tactic_academy_sub">เรียนเส้น ฟังเสียงเรียก แล้วแก้เอง</string>
+    <string name="tactic_voice">ฟัง</string>
+    <string name="tactic_challenge">แก้</string>
+    <string name="tactic_mastered">ชำนาญแล้ว</string>
+    <string name="tactic_learning">กำลังเรียน</string>
+    <string name="puzzle_rush_result_title">ไขปริศนาด่วน</string>
+    <string name="puzzle_rush_score_unit">ปริศนา</string>
+    <string name="replay_start_position">กระดานเริ่มต้น</string>
+    <string name="replay_move_line">หมาก %1$d · %2$s</string>
+    <string name="replay_red_winrate">โอกาสชนะแดง %1$d%%</string>
+    <string name="replay_try_variation">ลอง</string>
+    <string name="replay_variation_undo">ย้อนกลับ</string>
+    <string name="replay_variation_exit">กลับสู่เกม</string>
+    <string name="replay_variation_status">เส้น +%1$d · แดง %2$d%%</string>
+    <string name="replay_variation_status_move">เส้น +%1$d · %2$s · แดง %3$d%%</string>
+    <string name="replay_variation_step">หมาก %1$d</string>
+    <string name="replay_red_better">แดง</string>
+    <string name="replay_black_better">ดำ</string>
+    <string name="move_quality_brilliant">วิเศษ</string>
+    <string name="move_quality_best">ดีสุด</string>
+    <string name="move_quality_inaccuracy">ไม่แม่น</string>
+    <string name="move_quality_mistake">พลาด</string>
+    <string name="move_quality_blunder">พลาดหนัก</string>
+    <string name="move_quality_book">ตามตำรา</string>
+    <string name="analysis_scan_status">ความลึก %1$d · แดงชนะ %2$d%%</string>
+</resources>

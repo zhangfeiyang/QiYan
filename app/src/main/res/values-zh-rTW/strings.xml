@@ -1,0 +1,813 @@
+<resources>
+    <string name="app_name">棋眼</string>
+
+    <!-- 主菜单 -->
+    <string name="title_game">對局</string>
+    <string name="title_replay">覆盤</string>
+    <string name="title_settings">設定</string>
+    <string name="title_board_editor">編輯局面</string>
+    <string name="menu_play">開始對局</string>
+    <string name="menu_replay">對局覆盤</string>
+    <string name="menu_settings">設定</string>
+    <string name="menu_about">關於</string>
+    <string name="menu_difficulty">選擇難度</string>
+    <string name="menu_side">選擇執子</string>
+    <string name="menu_language_label">語言</string>
+    <string name="language_dialog_title">選擇語言</string>
+    <string name="language_system_default">跟隨系統</string>
+
+    <!-- 難度等級: 15 檔, 從絕對新手到傳奇級. 每一檔都有對應的"棋手段位"
+         標籤, 讓使用者能直接對著自己水平挑, 而不是憑感覺. -->
+    <string name="difficulty_easy">入門</string>
+    <string name="difficulty_beginner">初級</string>
+    <string name="difficulty_lower_intermediate">中級下</string>
+    <string name="difficulty_intermediate">中級</string>
+    <string name="difficulty_upper_intermediate">中級上</string>
+    <string name="difficulty_advanced">高級</string>
+    <string name="difficulty_amateur">業餘高手</string>
+    <string name="difficulty_district">區縣級高手</string>
+    <string name="difficulty_city">市級高手</string>
+    <string name="difficulty_provincial">省級高手</string>
+    <string name="difficulty_local_master">棋協大師</string>
+    <string name="difficulty_national_master">國家大師</string>
+    <string name="difficulty_grandmaster">特級大師</string>
+    <string name="difficulty_international_master">國際大師</string>
+    <string name="difficulty_legendary">傳奇級</string>
+
+    <!-- 棋手段位標籤: 與上面 15 檔一一對應, 擺一行讓使用者挑 -->
+    <string name="difficulty_segment_easy">新手</string>
+    <string name="difficulty_segment_beginner">初學愛好者</string>
+    <string name="difficulty_segment_lower_intermediate">普通愛好者</string>
+    <string name="difficulty_segment_intermediate">街道棋手</string>
+    <string name="difficulty_segment_upper_intermediate">資深愛好者</string>
+    <string name="difficulty_segment_advanced">業餘初段</string>
+    <string name="difficulty_segment_amateur">業餘三段</string>
+    <string name="difficulty_segment_district">業餘五段</string>
+    <string name="difficulty_segment_city">業餘六段</string>
+    <string name="difficulty_segment_provincial">地方大師</string>
+    <string name="difficulty_segment_local_master">棋協大師</string>
+    <string name="difficulty_segment_national_master">國家大師</string>
+    <string name="difficulty_segment_grandmaster">國家級特級大師</string>
+    <string name="difficulty_segment_international_master">國際大師</string>
+    <string name="difficulty_segment_legendary">國際特級大師</string>
+
+    <!-- 棋力描述 -->
+    <!-- 每檔一句, 說清"對手大概什麼水平", 並註明對應什麼級別的棋手. -->
+    <string name="difficulty_desc_easy">剛學會走子，經常白送子</string>
+    <string name="difficulty_desc_beginner">能吃明擺著的子，看不出明顯陷阱</string>
+    <string name="difficulty_desc_lower_intermediate">懂基礎戰術，偶爾能看穿簡單叫將</string>
+    <string name="difficulty_desc_intermediate">開局成套路，中局能算三五步</string>
+    <string name="difficulty_desc_upper_intermediate">走子有章法，開局不掉鏈子</string>
+    <string name="difficulty_desc_advanced">業餘硬手，殘局有章法，很少走軟手</string>
+    <string name="difficulty_desc_amateur">戰術紮實，會主動設陷阱</string>
+    <string name="difficulty_desc_district">攻守均衡，能抓住對手失誤</string>
+    <string name="difficulty_desc_city">全局觀強，備好陷阱，少有漏著</string>
+    <string name="difficulty_desc_provincial">省級比賽水準，計算精準</string>
+    <string name="difficulty_desc_local_master">大師級對弈，變化算得很深</string>
+    <string name="difficulty_desc_national_master">攻殺犀利，幾乎不失誤</string>
+    <string name="difficulty_desc_grandmaster">國家級特級大師水準，戰略深遠</string>
+    <string name="difficulty_desc_international_master">國際大師水準，三階段都精準</string>
+    <string name="difficulty_desc_legendary">國際特級大師水準，本機最強算力</string>
+
+    <!-- 遊戲控制 -->
+    <string name="action_hint">提示</string>
+    <string name="action_undo">悔棋</string>
+    <string name="action_new_game">新對局</string>
+    <string name="action_resign">認輸</string>
+    <string name="action_draw">求和</string>
+    <string name="action_analysis">分析</string>
+    <string name="action_flip">翻轉</string>
+    <string name="action_settings">設定</string>
+    <string name="action_back">返回</string>
+    <string name="action_save">儲存</string>
+    <string name="action_export">匯出棋譜</string>
+    <string name="action_play_red">執紅先手</string>
+    <string name="action_play_black">執黑後手</string>
+    <string name="action_two_player">雙人對戰</string>
+    <string name="action_voice">語音走子</string>
+
+    <!-- 語音指揮 &amp; 語音播報 -->
+    <string name="voice_listening">請說出著法，例如：車九進四</string>
+    <string name="voice_played">已走：%1$s</string>
+    <string name="voice_no_match">沒有匹配到合法著法：%1$s</string>
+    <string name="voice_ambiguous">有多個走法匹配，請說得更具體</string>
+    <string name="voice_no_speech">沒聽清，請再說一次</string>
+    <string name="voice_error">語音辨識失敗</string>
+    <string name="voice_unavailable">此裝置不支援語音辨識</string>
+    <string name="voice_permission_denied">需要麥克風權限才能用語音走子</string>
+    <string name="voice_wait_engine">等 AI 走完再下指令</string>
+    <string name="voice_not_your_turn">還沒輪到你走子</string>
+    <string name="voice_game_over">對局已結束</string>
+
+    <!-- 狀態資訊 -->
+    <string name="status_thinking">AI 思考中…</string>
+    <string name="status_your_turn">請走子</string>
+    <string name="status_check">將軍！</string>
+    <string name="status_checkmate">將死！</string>
+    <string name="status_draw">和棋</string>
+    <string name="status_resign">認輸</string>
+    <string name="status_win">勝利</string>
+    <string name="status_loss">失敗</string>
+    <string name="status_stalemate">困斃</string>
+    <string name="status_engine_error">AI 出錯，已切換到備用棋力</string>
+    <string name="game_over_checkmate_red">黑方將死紅方</string>
+    <string name="game_over_checkmate_black">紅方將死黑方</string>
+    <string name="game_over_repetition">重複局面</string>
+    <string name="game_over_fifty_moves">自然限著</string>
+
+    <!-- 勝率 -->
+    <string name="winrate_label">勝率</string>
+    <string name="winrate_red">紅方勝率</string>
+    <string name="winrate_black">黑方勝率</string>
+    <string name="depth_label">深度</string>
+    <string name="nodes_label">節點數</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">用時</string>
+
+    <!-- 棋力評定 -->
+    <string name="rating_current">目前棋力</string>
+    <string name="rating_total_games">總對局</string>
+    <string name="rating_wins">勝</string>
+    <string name="rating_losses">負</string>
+    <string name="rating_draws">和</string>
+    <string name="rating_winrate">勝率</string>
+    <string name="rating_rank">等級</string>
+    <string name="rank_1">初學者</string>
+    <string name="rank_2">入門棋友</string>
+    <string name="rank_3">業餘初段</string>
+    <string name="rank_4">業餘三段</string>
+    <string name="rank_5">業餘五段</string>
+    <string name="rank_6">業餘七段</string>
+    <string name="rank_7">地方大師</string>
+    <string name="rank_8">國家大師</string>
+    <string name="rank_9">特級大師</string>
+    <string name="rank_10">棋王</string>
+    <string name="rank_hall_title">段位印鑑</string>
+    <string name="rank_hall_intro">從初學到棋王共十枚印。只有排位對局會推動印鑑，輕鬆陪練和登峰棋路不計分。</string>
+    <string name="rank_hall_current">目前</string>
+    <string name="rank_hall_reached">已至</string>
+    <string name="rank_hall_locked">未至</string>
+    <string name="rank_progress_next">距%1$s還差 %2$d 分</string>
+    <string name="rank_progress_top">棋王印，已是這條階梯的頂端</string>
+    <string name="rank_promoted">段位晉升：%1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">查看段位印鑑</string>
+
+    <!-- 提示對話框 -->
+    <string name="dialog_new_game_title">新對局</string>
+    <string name="dialog_new_game_message">確定開始新對局？</string>
+    <string name="dialog_resign_title">認輸</string>
+    <string name="dialog_resign_message">確定認輸？</string>
+    <string name="dialog_undo_title">悔棋</string>
+    <string name="dialog_undo_message">悔棋會扣除少量棋力分，確定悔棋？</string>
+    <string name="dialog_yes">確定</string>
+    <string name="dialog_no">取消</string>
+    <string name="dialog_ok">好的</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_confirm">確定</string>
+
+    <!-- 覆盤 -->
+    <string name="replay_empty">暫無對局紀錄</string>
+    <string name="replay_play">自動播放</string>
+    <string name="replay_pause">暫停</string>
+    <string name="replay_prev">上一步</string>
+    <string name="replay_next">下一步</string>
+    <string name="replay_first">第一步</string>
+    <string name="replay_last">最後一步</string>
+    <string name="replay_move_number">第%1$d手</string>
+    <string name="result_win_short">勝</string>
+    <string name="result_loss_short">負</string>
+    <string name="result_draw_short">和</string>
+    <string name="side_red_short">執紅</string>
+    <string name="side_black_short">執黑</string>
+    <string name="replay_moves_summary">%1$d 手 · %2$s</string>
+    <string name="replay_record_missing">對局紀錄不存在</string>
+    <string name="replay_player_info">Lv.%1$d  %2$s  %3$d手</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">棋譜第%1$d手無法還原</string>
+    <string name="replay_viewer_title">對局回放</string>
+    <string name="replay_share_report">分享戰報</string>
+    <string name="replay_export_pgn">匯出標準PGN</string>
+    <string name="replay_copy_fen">複製局面FEN</string>
+    <string name="replay_copied_to_clipboard">已複製到剪貼簿</string>
+    <string name="puzzle_rush_title">殘局速拼</string>
+    <string name="puzzle_rush_banner">三分鐘衝榜 · 最佳 %1$d 局</string>
+    <string name="tactics_banner_title">殺法寶典</string>
+    <string name="tactics_banner_sub">經典絕殺</string>
+    <string name="tactics_banner_progress">已研習 %1$d / %2$d</string>
+    <string name="puzzle_rush_subtitle">3分鐘限時極速闖關</string>
+    <string name="puzzle_rush_start">開始速拼</string>
+    <string name="puzzle_rush_score">得分</string>
+    <string name="puzzle_rush_high_score">最高紀錄: %1$d 局</string>
+    <string name="puzzle_rush_combo">連擊 x%1$d</string>
+    <string name="puzzle_rush_pass">跳過（扣一顆心）</string>
+    <string name="puzzle_rush_time_up">時間耗盡！</string>
+    <string name="puzzle_rush_lives_out">生命耗盡！</string>
+    <string name="puzzle_rush_new_record">🎉 刷新歷史紀錄！</string>
+    <string name="puzzle_rush_solved_count">成功破解 %1$d 局</string>
+    <string name="puzzle_rush_play_again">再戰一局</string>
+    <string name="puzzle_rush_share">分享戰績</string>
+    <string name="puzzle_rush_report_title">【QiYan 象棋 · 殘局速拼戰報】</string>
+    <string name="puzzle_rush_score_line">得分 %1$d</string>
+    <string name="puzzle_rush_best_badge">最高 %1$d</string>
+    <string name="puzzle_rush_mate_line">絕殺 · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">稱號：%1$s</string>
+    <string name="puzzle_rush_record_line">新紀錄：%1$d 局</string>
+    <string name="puzzle_rush_previous_best">最高紀錄：%1$d 局</string>
+    <string name="puzzle_rush_share_body">%1$s\n三分鐘解出 %2$d 局。\n最高連擊 %3$d。\n%4$s</string>
+    <string name="puzzle_rush_leave">這局速拼還沒結束，現在離開不計成績。</string>
+    <string name="puzzle_rush_leave_yes">離開</string>
+    <string name="puzzle_rush_honor_1">殘局學童</string>
+    <string name="puzzle_rush_honor_2">弈林新秀</string>
+    <string name="puzzle_rush_honor_3">殘局快刀</string>
+    <string name="puzzle_rush_honor_4">妙算神機</string>
+    <string name="puzzle_rush_honor_5">一代宗師</string>
+    <string name="stat_total_games_format">共 %1$d 局</string>
+    <string name="stat_wins_format">勝 %1$d</string>
+    <string name="stat_losses_format">負 %1$d</string>
+    <string name="stat_draws_format">和 %1$d</string>
+    <string name="game_illegal_move">非法走子</string>
+    <string name="game_undo_failed">無法悔棋</string>
+    <string name="game_switched_to_black">已換為執黑</string>
+    <string name="game_switched_to_red">已換為執紅</string>
+    <string name="game_opponent_black">AI（執黑）</string>
+    <string name="game_opponent_red">AI（執紅）</string>
+    <string name="game_player_red">我（執紅）</string>
+    <string name="game_player_black">我（執黑）</string>
+    <string name="game_move_count">第%1$d手</string>
+    <string name="game_engine_start_failed">引擎啟動失敗</string>
+    <string name="unknown_label">未知</string>
+    <string name="default_nickname">棋友</string>
+    <!-- 標題現在報的是**結果**(你贏了/你輸了/和棋), 所以正文不再重複一遍
+         "對局結束" —— 一下舊版標題和正文第一行是同一句話, 而真正該說的"我到底
+         贏沒贏"一個字都沒有, 只能從"評分變化: -15"裡倒推。 -->
+    <string name="game_over_body">原因：%1$s\n評分變化：%2$s\n目前段位：%3$s</string>
+    <string name="game_over_rating_detail">評分變化：%1$s · 目前段位：%2$s</string>
+    <string name="game_over_win">你贏了</string>
+    <string name="game_over_loss">你輸了</string>
+    <string name="game_over_draw">和棋</string>
+
+    <!-- 設定 -->
+    <string name="settings_threads">思考執行緒</string>
+    <string name="settings_hash">雜湊表(MB)</string>
+    <string name="settings_sound">音效</string>
+    <string name="settings_vibrate">震動</string>
+    <string name="settings_bgm">背景音樂</string>
+    <string name="settings_board_flip">預設翻轉</string>
+    <string name="settings_show_coords">顯示座標</string>
+    <string name="settings_show_winrate">顯示勝率</string>
+    <string name="settings_animation">走子動畫</string>
+    <string name="settings_theme">主題</string>
+    <!-- 開關副標題: 原來每個開關只有兩個字的標題, "預設翻轉"翻轉什麼、
+         "雜湊表"調大調小有什麼後果, 使用者只能靠猜. -->
+    <string name="settings_desc_threads">越多算得越快，但更耗電。建議不超過裝置核心數的一半</string>
+    <string name="settings_desc_hash">AI 的思考快取。調大能提升長考棋力，記憶體不足時調小</string>
+    <string name="settings_desc_sound">落子、吃子、將軍時發出提示音</string>
+    <string name="settings_desc_vibrate">落子時輕微震動回饋</string>
+    <string name="settings_desc_bgm">對局時循環播放舒緩的古琴環境音，音量已壓低不影響提示音</string>
+    <string name="settings_desc_coords">在棋盤邊緣顯示縱線數字與橫線序號</string>
+    <string name="settings_desc_winrate">棋盤上方顯示即時勝率條</string>
+    <string name="settings_desc_animation">關閉後棋子瞬間到位，低階機種更流暢</string>
+    <string name="settings_desc_flip">開局即以黑方視角擺盤</string>
+    <string name="settings_section_display">介面</string>
+    <string name="settings_section_other">其他</string>
+    <string name="settings_theme_system">跟隨系統</string>
+    <string name="settings_theme_light">淺色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_clear_data">清除所有資料</string>
+    <string name="dialog_clear_data_title">清除資料</string>
+    <string name="dialog_clear_data_message">將清除所有對局紀錄和評分資料，確定？</string>
+    <!-- 即時指點 -->
+    <string name="live_title">即時指點</string>
+    <string name="live_entry">即時指點</string>
+    <string name="live_need_camera">需要相機權限才能即時辨識棋局</string>
+    <string name="live_camera_failed">相機啟動失敗</string>
+    <string name="live_locking">正在對準棋盤…</string>
+    <string name="live_board_invalid">棋局還認不全，讓棋盤四角都進畫面</string>
+    <string name="live_ready">已鎖定 · 識別 %1$d ms</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">重設</string>
+    <string name="editor_clear">清空</string>
+    <string name="settings_clear_data_desc">刪除全部對局紀錄與積分，不可復原</string>
+    <string name="settings_piece_style">棋子樣式</string>
+    <string name="settings_board_style">棋盤樣式</string>
+    <string name="settings_about">關於</string>
+    <string name="settings_engine_path">AI 模型路徑</string>
+    <string name="settings_about_text">QiYan v1.0\n\n自研對弈 AI（NNUE 神經網路評估）\n支援拍照辨識棋局、即時指點</string>
+
+    <!-- 關於 -->
+    <string name="about_engine_title">AI 資訊</string>
+    <string name="about_engine_version">Pikafish NNUE</string>
+    <string name="about_engine_desc">中國象棋 AI</string>
+
+    <!-- 通用 -->
+    <string name="red">紅方</string>
+    <string name="black">黑方</string>
+    <string name="move_count">%1$d手</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">拍照辨識棋局</string>
+
+    <!-- AI 分析功能 -->
+    <string name="advisor_title">AI 分析</string>
+    <string name="advisor_send">傳送</string>
+    <string name="advisor_input_hint">問點什麼…</string>
+    <string name="advisor_error_generic">分析暫時無法使用，稍後再試</string>
+    <string name="advisor_no_config">AI 功能未設定，請聯絡開發者</string>
+    <string name="advisor_unavailable">AI 暫時無法使用，請稍後再試</string>
+    <string name="advisor_waiting">AI 還在回覆上一則，稍等一下</string>
+    <string name="advisor_key_rejected">認證金鑰無效或已被撤銷。請重新設定代理權杖。</string>
+    <string name="advisor_clear">清空對話</string>
+    <string name="advisor_context_replay">覆盤第 %1$d 手</string>
+    <string name="advisor_context_game">對弈第 %1$d 手 · 輪到 %2$s</string>
+    <string name="advisor_thinking">AI 正在分析…</string>
+    <string name="advisor_button">AI 分析</string>
+    <!-- 空狀態: 舊版進來是一整螢幕空白, 使用者面對一個空輸入框不知道能問什麼.
+         給三個可直接點的常見問題, 省掉"想問題 + 打字"兩步. -->
+    <string name="advisor_empty_title">問問 AI 這局棋</string>
+    <string name="advisor_empty_subtitle">它能看到目前局面，可以直接問形勢、問下一步、問剛才那手虧在哪</string>
+    <string name="advisor_suggest_analyze">分析一下目前形勢</string>
+    <string name="advisor_suggest_next">我下一步該怎麼走</string>
+    <string name="advisor_suggest_review">剛才那手有問題嗎</string>
+
+    <!-- AI 分析 (對局內) -->
+    <string name="analysis_tap_to_skip">輕觸螢幕跳過</string>
+    <string name="analysis_summary_prompt">請用兩三句話總結目前局面：形勢如何、哪一方佔優、攻防要點、目前最值得注意的一步。用繁體中文。</string>
+    <string name="advisor_send_desc">傳送</string>
+    <string name="advisor_move_banner">AI 示範這一步: %1$s → %2$s</string>
+
+    <!-- 拍照辨識棋局 -->
+    <string name="title_recognize">拍照辨識棋局</string>
+    <string name="recognize_take_photo">拍照</string>
+    <string name="recognize_pick_image">從相簿選</string>
+    <string name="recognize_preview_desc">校正後的棋盤</string>
+    <string name="recognize_red_to_move">輪紅方走</string>
+    <string name="recognize_black_to_move">輪黑方走</string>
+    <string name="recognize_advise">讓 AI 指點</string>
+    <string name="recognize_hint_start">拍一張棋盤照片，或從相簿選一張。盡量正對棋盤、拍全四個角。</string>
+    <string name="recognize_working">辨識中…</string>
+    <string name="recognize_failed">辨識失敗，換一張試試</string>
+    <string name="recognize_model_failed">辨識模型載入失敗</string>
+    <string name="recognize_no_camera">沒有可用的相機</string>
+    <string name="recognize_corner_warning">棋盤四角沒框準，辨識可能不對。建議正對棋盤重拍一張。</string>
+    <string name="recognize_must_fix">下面的問題必須先改正：</string>
+    <string name="recognize_ready">辨識完成。黃圈是存疑的位置，共 %1$d 處 —— 點格子可以改子。確認無誤後再求招。</string>
+    <string name="recognize_pick_piece">%1$c%2$d 放什麼子</string>
+    <string name="recognize_empty">空</string>
+    <string name="recognize_flip">翻轉</string>
+
+    <!-- 吃子提示 (車/馬/砲/兵/士/象/將) -->
+    <string name="captured_piece_format">吃 %1$s</string>
+    <string name="piece_king">將帥</string>
+    <string name="piece_advisor">士</string>
+    <string name="piece_elephant">象</string>
+    <string name="piece_horse">馬</string>
+    <string name="piece_rook">車</string>
+    <string name="piece_cannon">砲</string>
+    <string name="piece_pawn">卒</string>
+    <string name="recognize_thinking">AI 思考中…</string>
+    <string name="recognize_engine_failed">AI 啟動失敗</string>
+    <string name="recognize_engine_error">AI 出錯: %1$s</string>
+    <string name="recognize_no_move">AI 沒有給出著法</string>
+    <string name="recognize_advice">建議: %1$s %2$s → %3$s</string>
+
+    <!-- 首頁的即時指點入口. 「即時指點」四個字本身說不清它是幹什麼的,
+         副標題要講清楚"舉著手機對準真實棋盤"這個用法. -->
+    <string name="menu_live_desc">鏡頭對準真實棋盤，邊下邊給建議</string>
+
+    <!-- 拍照識局的起始引導. 原來進來直接彈相機, 想從相簿選的人得先退出
+         相機再去翻選單; 現在兩條路並列擺著, 各自說明什麼時候用. -->
+    <string name="recognize_start_title">先給棋局拍張照</string>
+    <string name="recognize_start_camera_desc">對著實體棋盤拍</string>
+    <string name="recognize_start_gallery_desc">用截圖或已有照片</string>
+    <string name="recognize_tips_title">拍得準，辨得才準</string>
+    <string name="recognize_tip_1">正對棋盤，別斜著拍</string>
+    <string name="recognize_tip_2">四個角都要進畫面</string>
+    <string name="recognize_tip_3">光線均勻，避開反光和手影</string>
+
+    <!-- 指點等級. 不用「搜尋深度」「毫秒」這類說法 —— 使用者關心的是
+         "想得快還是想得好", 不是引擎內部參數. -->
+    <string name="advice_level_title">指點水準</string>
+    <string name="advice_level_fast">快速</string>
+    <string name="advice_level_fast_desc">立刻給出建議</string>
+    <string name="advice_level_normal">標準</string>
+    <string name="advice_level_normal_desc">想一兩秒，多數情況夠用</string>
+    <string name="advice_level_deep">深思</string>
+    <string name="advice_level_deep_desc">想久一點，關鍵局面更可靠</string>
+    <string name="advice_level_current">指點水準: %1$s</string>
+
+    <!-- 棋盤河界題字. 整串加引號: Android 會把資源裡連續的空格壓成一個,
+         不加引號"楚河漢界"就擠成置中的一句, 而它本該分列河的兩側. -->
+    <string name="board_river_text">"楚河          漢界"</string>
+
+    <!-- 棋子字元集 -->
+    <string name="settings_piece_set">棋子字元</string>
+    <string name="settings_piece_set_desc">漢字是象棋本來的樣子；拉丁字母（K/A/B/N/R/C/P）與英文記譜同源</string>
+    <string name="piece_set_hanzi">漢字</string>
+    <string name="piece_set_latin">字母 K A B N R C P</string>
+
+    <!-- 記譜法 -->
+    <string name="settings_notation">記譜法</string>
+    <string name="settings_notation_desc">中文記譜寫作「炮二平五」，WXF 寫作「C2.5」</string>
+    <string name="notation_chinese">中文記譜</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回報的異常, 對局中以 toast 提示 -->
+    <string name="engine_illegal_move">引擎給出非法著法: %1$s</string>
+    <string name="engine_error">引擎錯誤: %1$s</string>
+    <string name="must_answer_check">被將軍，必須應將或消除威脅</string>
+
+    <!-- 開局載入 -->
+    <string name="loading_engine">正在擺棋…</string>
+    <string name="settings_follow_language">跟隨介面語言</string>
+
+    <!-- ===== 新對局: 挑對手 + 選執子 ===== -->
+    <string name="new_game_title">新對局</string>
+    <string name="new_game_pick_opponent">挑一位對手</string>
+    <string name="new_game_side">我執</string>
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">紅</string>
+    <string name="side_black">黑</string>
+    <string name="side_random">隨機</string>
+    <!-- 首頁目前對手卡 -->
+    <string name="menu_current_opponent">目前對手</string>
+    <string name="menu_change_opponent">更換</string>
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 對手棋路風格 (PlayStyle) ====== -->
+    <string name="style_balanced">均衡型</string>
+    <string name="style_balanced_desc">永遠走引擎認定的最佳著法，純粹的強度</string>
+    <string name="style_aggressive">攻殺型</string>
+    <string name="style_aggressive_desc">熱愛吃子將軍，敢於棄子強攻</string>
+    <string name="style_solid">穩健型</string>
+    <string name="style_solid_desc">不做虧子的冒險，偏好平靜的局面</string>
+    <string name="style_swarm">靈動型</string>
+    <string name="style_swarm_desc">在接近最佳的著法裡隨機挑選，每盤都下得不一樣</string>
+    <string name="new_game_style">對手棋路</string>
+    <string name="new_game_style_line">棋路:%1$s</string>
+
+    <!-- ====== 棋盤浮動標籤 ====== -->
+    <string name="board_tag_check">將軍！</string>
+    <string name="board_tag_mate">絕殺</string>
+
+    <!-- ====== 吃子戰場特效 ====== -->
+    <string name="settings_capture_fx">吃子戰場特效</string>
+    <string name="settings_desc_capture_fx">吃子時播放刀光、火花與濺墨的廝殺動畫；關閉後棋盤上仍會彈出「吃 X」的文字提示</string>
+    <string name="settings_board_skin">棋盤材質</string>
+    <string name="settings_board_skin_desc">四種離線材質。棋子仍是象牙面加深色字，換材質不犧牲認子。</string>
+    <string name="skin_wood">黃花梨</string>
+    <string name="skin_black_gold">紫檀黑金</string>
+    <string name="skin_porcelain">青花瓷</string>
+    <string name="skin_jade">漢白玉</string>
+
+    <string name="puzzle_1_name">一步殺·悶宮</string>
+    <string name="puzzle_1_hint">黑馬被拴住不能動（動則露將），平帥歸中困斃</string>
+    <string name="puzzle_2_name">一步殺·重炮</string>
+    <string name="puzzle_2_hint">前砲作砲架，把後砲平到中路叫將</string>
+    <string name="puzzle_3_name">一步殺·車雙將</string>
+    <string name="puzzle_3_hint">後車掃底叫將，車馬雙將封門</string>
+    <string name="puzzle_4_name">一步殺·白臉將</string>
+    <string name="puzzle_4_hint">紅帥佔中宮照面，車沉底線絕殺</string>
+    <string name="puzzle_5_name">一步殺·鐵門栓</string>
+    <string name="puzzle_5_hint">中砲鎮中路，肋車沉底封門絕殺</string>
+    <string name="puzzle_6_name">一步殺·夾車砲</string>
+    <string name="puzzle_6_hint">沉底運砲，車砲配合一擊必殺</string>
+    <string name="puzzle_7_name">一步殺·雙車砲</string>
+    <string name="puzzle_7_hint">雙車夾擊，砲架穩固直取九宮</string>
+    <string name="puzzle_8_name">一步殺·馬後砲</string>
+    <string name="puzzle_8_hint">以神馬為砲架，底線平砲照將絕殺</string>
+    <string name="puzzle_9_name">兩步殺·雙車錯</string>
+    <string name="puzzle_9_hint">車沉底叫將，象攔後再換方向連殺</string>
+    <string name="puzzle_10_name">兩步殺·二鬼拍門</string>
+    <string name="puzzle_10_hint">一車佔肋控將，另一車輾轉連殺</string>
+    <string name="puzzle_11_name">兩步殺·臥槽馬</string>
+    <string name="puzzle_11_hint">躍馬臥槽鎖將門，沉車照將兩步殺</string>
+    <string name="puzzle_12_name">兩步殺·拔簧抽殺</string>
+    <string name="puzzle_12_hint">神馬拔簧抽將，策應強車合圍</string>
+    <string name="puzzle_13_name">兩步殺·車馬合攻</string>
+    <string name="puzzle_13_hint">馬躍中宮分邊，車砲借勢合圍</string>
+    <string name="puzzle_14_name">兩步殺·車砲進兵</string>
+    <string name="puzzle_14_hint">運砲入中，兵借砲勢逼入死角</string>
+    <string name="puzzle_15_name">兩步殺·雙車縱列</string>
+    <string name="puzzle_15_hint">兩車縱列配合，破宮追魂</string>
+    <string name="puzzle_16_name">兩步殺·車後藏砲</string>
+    <string name="puzzle_16_hint">車前開道，暗藏玄機後砲連殺</string>
+    <string name="puzzle_17_name">三步殺·臥槽深算</string>
+    <string name="puzzle_17_hint">馬臥士角叫將，車沉底線三步絕殺</string>
+    <string name="puzzle_18_name">三步殺·釣魚深算</string>
+    <string name="puzzle_18_hint">釣魚馬鎖死將門，車轉底線定乾坤</string>
+    <string name="puzzle_19_name">三步殺·掛角馬</string>
+    <string name="puzzle_19_hint">掛角鎖咽喉，車馬連環取勝</string>
+    <string name="puzzle_20_name">三步殺·夾車圍困</string>
+    <string name="puzzle_20_hint">雙車交錯圍困，收緊羅網三步取勝</string>
+    <string name="puzzle_21_name">兩步殺·釣魚點穴</string>
+    <string name="puzzle_21_hint">釣魚馬定乾坤，車平中路一劍封喉</string>
+    <string name="puzzle_22_name">兩步殺·天地合攻</string>
+    <string name="puzzle_22_hint">一砲鎮中天，一砲沉九地，天地合擊</string>
+    <string name="puzzle_23_name">三步殺·車馬相扣</string>
+    <string name="puzzle_23_hint">車馬相扣，連續叫將破士擒王</string>
+    <string name="puzzle_24_name">三步殺·雙車擒王</string>
+    <string name="puzzle_24_hint">雙車在相鄰通道層層推進破宮</string>
+    <string name="puzzle_25_name">三步殺·雙車破士</string>
+    <string name="puzzle_25_hint">雙車連環進逼破士擒王</string>
+    <string name="puzzle_26_name">三步殺·雙車錯連環</string>
+    <string name="puzzle_26_hint">雙車交錯下沉，借帥力連環取勝</string>
+    <string name="puzzle_27_name">三步殺·大刀剜心</string>
+    <string name="puzzle_28_hint">馬掛士角位，車馬配合破陣</string>
+    <string name="puzzle_28_name">三步殺·掛角飛馬</string>
+    <string name="puzzle_27_hint">捨車引將出宮，後車橫掃定乾坤</string>
+    <string name="puzzle_29_name">三步殺·二車鬧士</string>
+    <string name="puzzle_29_hint">雙車強渡九宮，搗毀防線</string>
+    <string name="puzzle_30_name">三步殺·車馬夾攻</string>
+    <string name="puzzle_30_hint">車沉底線催殺，神馬盤旋取勝</string>
+    <string name="puzzle_31_name">三步殺·白臉照面</string>
+    <string name="puzzle_31_hint">紅帥中路神威，強車沉底三步絕殺</string>
+    <string name="puzzle_32_name">三步殺·臥槽跳馬</string>
+    <string name="puzzle_32_hint">躍馬臥槽位，車馬協同直搗黃龍</string>
+    <string name="puzzle_33_name">四步殺·釣魚破士</string>
+    <string name="puzzle_33_hint">釣魚馬控制將門，強車層層破士</string>
+    <string name="puzzle_34_name">四步殺·兵臨城下</string>
+    <string name="puzzle_34_hint">紅兵逼近九宮心，配合車帥絕殺</string>
+    <string name="puzzle_35_name">四步殺·掛角單車</string>
+    <string name="puzzle_35_hint">掛角馬牽制雙士，強車沉底定勝負</string>
+    <string name="puzzle_36_name">四步殺·雙車單馬</string>
+    <string name="puzzle_36_hint">雙車巡肋配合神馬，精妙破陣</string>
+    <string name="puzzle_37_name">四步殺·老卒入宮</string>
+    <string name="puzzle_37_hint">勇兵長驅直入，車兵配合取勝</string>
+    <string name="puzzle_38_name">四步殺·側翼車馬</string>
+    <string name="puzzle_38_hint">馬伏側翼伺機而動，車沉九宮成殺</string>
+    <string name="puzzle_39_name">五步殺·老卒搜山</string>
+    <string name="puzzle_39_hint">兵步步緊逼，車在底線封鎖退路</string>
+    <string name="puzzle_40_name">三步殺·夾車砲攻</string>
+    <string name="puzzle_40_hint">雙車一砲合力夾擊，砲架穩固絕殺</string>
+    <string name="puzzle_41_name">六步殺·兵破敵陣</string>
+    <string name="puzzle_41_hint">邊兵疾進，車砲相隨破陣殺將</string>
+    <string name="puzzle_42_name">七步殺·棄馬穿肋</string>
+    <string name="puzzle_42_hint">棄馬穿肋調動敵士，強車大破連環</string>
+    <string name="puzzle_43_name">六步殺·馬踩中宮</string>
+    <string name="puzzle_43_hint">神馬躍入中宮腹地，車馬連環絞殺</string>
+    <string name="puzzle_44_name">六步殺·單車單士</string>
+    <string name="puzzle_44_hint">運車控中借帥力，抽絲剝繭破士擒王</string>
+    <string name="puzzle_45_name">兩步殺·雙車錯勝</string>
+    <string name="puzzle_45_hint">雙車錯落並進，兩步封喉</string>
+    <string name="puzzle_46_name">三步殺·神馬臥槽</string>
+    <string name="puzzle_46_hint">臥槽馬鎖住將門，強車轉底決勝</string>
+    <string name="puzzle_47_name">三步殺·側翼神將</string>
+    <string name="puzzle_47_hint">雙車翼側協同，沉底照將破宮</string>
+    <string name="puzzle_48_name">兩步殺·連珠飛砲</string>
+    <string name="puzzle_48_hint">重炮連發借架發力，兩步絕殺</string>
+    <string name="puzzle_chapter_1">第一卷 · 初試鋒芒</string>
+    <string name="puzzle_chapter_sub_1">1步必殺 · 掌握基礎殘局殺形</string>
+    <string name="puzzle_chapter_2">第二卷 · 妙手連珠</string>
+    <string name="puzzle_chapter_sub_2">2步精妙 · 進階戰術攻防連貫</string>
+    <string name="puzzle_chapter_3">第三卷 · 神機妙算</string>
+    <string name="puzzle_chapter_sub_3">2~3步深算 · 經典殺法綜合應用</string>
+    <string name="puzzle_chapter_4">第四卷 · 縱橫捭闔</string>
+    <string name="puzzle_chapter_sub_4">3步名局 · 棄子爭先調動防線</string>
+    <string name="puzzle_chapter_5">第五卷 · 氣吞山河</string>
+    <string name="puzzle_chapter_sub_5">3~4步殘局 · 兵車協同聚殲頑敵</string>
+    <string name="puzzle_chapter_6">第六卷 · 棋聖入化</string>
+    <string name="puzzle_chapter_sub_6">4~7步名著 · 傳世大破連環神局</string>
+    <string name="campaign_entry">對弈闖關</string>
+    <string name="campaign_entry_desc">八關由淺入深，贏下才開下一關</string>
+    <string name="puzzle_entry">殘局破解</string>
+    <string name="puzzle_entry_desc">經典殺局，每局限悔棋 3 次</string>
+    <string name="campaign_title">對弈闖關</string>
+    <!-- 闖關地圖山頂寶箱的題字 -->
+    <string name="campaign_goal">通關</string>
+    <string name="campaign_level_format">第 %1$d 關</string>
+    <string name="campaign_level_difficulty_format">對手強度 Lv.%1$d</string>
+    <string name="campaign_locked">上一關獲勝後解鎖</string>
+    <string name="campaign_passed">已通關</string>
+    <string name="campaign_win_title">闖關成功！</string>
+    <string name="campaign_next_level">下一關</string>
+    <string name="campaign_retry">重試本關</string>
+    <string name="campaign_back_list">返回關卡列表</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">第 %1$d 關 · %2$s</string>
+    <string name="stage_1_name">學步</string>
+    <string name="stage_1_brief">這一關常漏看吃子。先把棋規走順。</string>
+    <string name="stage_2_name">開門</string>
+    <string name="stage_2_brief">只會看眼前一步，仍會漏算。</string>
+    <string name="stage_3_name">過河</string>
+    <string name="stage_3_brief">從這裡換成引擎搜尋，大約想一秒多。</string>
+    <string name="stage_4_name">當關</string>
+    <string name="stage_4_brief">想得更久。簡單的漏著會被看到。</string>
+    <string name="stage_5_name">破陣</string>
+    <string name="stage_5_brief">搜尋更深。鬆著可能被直接吃掉。</string>
+    <string name="stage_6_name">凝神</string>
+    <string name="stage_6_brief">思考時間再長一截。</string>
+    <string name="stage_7_name">深算</string>
+    <string name="stage_7_brief">接近山頂，還差最後一截思考時間。</string>
+    <string name="stage_8_name">登頂</string>
+    <string name="stage_8_brief">山上思考時間最長的一關。</string>
+    <string name="catalog_mate_title">一步殺</string>
+    <string name="catalog_mate_hint">紅先，一步將死。</string>
+    <string name="catalog_item_title">%2$s · 第 %1$d 題</string>
+    <string name="catalog_progress">已解 %1$d / %2$d</string>
+    <string name="catalog_filter_all">全部</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">已解</string>
+    <string name="catalog_open">未解</string>
+    <string name="history_intro">五個篇章，都是史有其事的戰役。每一戰用一道已經驗過的一步殺收束。局面是練習題，不是那一仗的棋譜復原。</string>
+    <string name="history_ch_1">春秋</string>
+    <string name="history_ch_2">戰國</string>
+    <string name="history_ch_3">楚漢</string>
+    <string name="history_ch_4">三國</string>
+    <string name="history_ch_5">後世名戰</string>
+    <string name="battle_1_name">長勺之戰</string>
+    <string name="battle_1_brief">西元前684年，魯國曹劌等齊人三鼓氣竭再擊。這一局練鐵門栓，一步將死。</string>
+    <string name="battle_2_name">城濮之戰</string>
+    <string name="battle_2_brief">西元前632年，晉軍誘楚中軍前出，再從兩翼合圍。這一局練雙車錯。</string>
+    <string name="battle_3_name">柏舉之戰</string>
+    <string name="battle_3_brief">西元前506年，吳師長驅入郢。這一局練馬後砲。</string>
+    <string name="battle_4_name">笠澤之戰</string>
+    <string name="battle_4_brief">西元前478年，越軍分兩路渡江，擊破吳師。這一局練臥槽馬。</string>
+    <string name="battle_5_name">桂陵之戰</string>
+    <string name="battle_5_brief">西元前354年，齊軍直趨大梁，迫使圍趙的魏軍回救。這一局練重炮。</string>
+    <string name="battle_6_name">馬陵之戰</string>
+    <string name="battle_6_brief">西元前342年，孫臏逐日減灶，把龐涓引進狹道。這一局練釣魚馬。</string>
+    <string name="battle_7_name">長平之戰</string>
+    <string name="battle_7_brief">西元前260年，秦軍斷趙軍糧道，合圍四十餘萬眾。這一局練雙車錯。</string>
+    <string name="battle_8_name">即墨之戰</string>
+    <string name="battle_8_brief">西元前279年，田單夜開城門，衝進燕軍大營。這一局練臥槽馬。</string>
+    <string name="battle_9_name">井陘之戰</string>
+    <string name="battle_9_brief">西元前204年，韓信背水列陣，先示弱再反擊。這一局練白臉將。</string>
+    <string name="battle_10_name">暗度陳倉</string>
+    <string name="battle_10_brief">西元前206年，明修棧道，大軍另出陳倉。這一局練重炮。</string>
+    <string name="battle_11_name">濰水之戰</string>
+    <string name="battle_11_brief">西元前204年，韓信壅水誘敵半渡，再決堤。這一局練馬後砲。</string>
+    <string name="battle_12_name">垓下之戰</string>
+    <string name="battle_12_brief">西元前202年，漢軍四面合圍項羽。這一局練雙車錯。</string>
+    <string name="battle_13_name">官渡之戰</string>
+    <string name="battle_13_brief">建安五年，曹操襲燒袁紹在烏巢的軍糧。這一局練鐵門栓。</string>
+    <string name="battle_14_name">赤壁之戰</string>
+    <string name="battle_14_brief">建安十三年，火船衝進長江上連在一起的曹軍水寨。這一局練重炮。</string>
+    <string name="battle_15_name">漢中之戰</string>
+    <string name="battle_15_brief">建安二十四年，黃忠取定軍山，夏侯淵戰死。這一局練釣魚馬。</string>
+    <string name="battle_16_name">夷陵之戰</string>
+    <string name="battle_16_brief">章武二年，陸遜先避其鋒，再燒蜀軍連營。這一局練臥槽馬。</string>
+    <string name="battle_17_name">淝水之戰</string>
+    <string name="battle_17_brief">太元八年，苻堅的大軍一經後退就收不住。這一局練白臉將。</string>
+    <string name="battle_18_name">虎牢之戰</string>
+    <string name="battle_18_brief">武德四年，李世民在虎牢擊破竇建德。這一局練掛角馬。</string>
+    <string name="battle_19_name">郾城之戰</string>
+    <string name="battle_19_brief">紹興十年，岳家軍在郾城擊破金軍拐子馬。這一局練馬後砲。</string>
+    <string name="battle_20_name">鄱陽湖之戰</string>
+    <string name="battle_20_brief">元至正二十三年，朱元璋用火船破陳友諒的大艦。這一局練天地砲。</string>
+    <string name="tactic_label_mahoupao">馬後砲</string>
+    <string name="tactic_label_bolt">鐵門栓</string>
+    <string name="tactic_label_double_cannon">重炮</string>
+    <string name="tactic_label_double_rook">雙車錯</string>
+    <string name="tactic_label_pocket">臥槽馬</string>
+    <string name="tactic_label_corner">掛角馬</string>
+    <string name="tactic_label_fishing">釣魚馬</string>
+    <string name="tactic_label_face">白臉將</string>
+    <string name="tactic_label_heaven">天地砲</string>
+    <string name="tactic_label_heart">大刀剜心</string>
+    <string name="tactic_label_smothered">悶宮</string>
+    <string name="tactic_label_spring">拔簧</string>
+    <string name="tactic_label_mate">絕殺</string>
+    <string name="puzzle_title">殘局破解</string>
+    <string name="puzzle_list_title">殘局闖關</string>
+    <string name="puzzle_solved">已破解</string>
+    <string name="puzzle_unsolved">未破解</string>
+    <string name="puzzle_attempts_format">已嘗試 %1$d 次</string>
+    <string name="puzzle_red_to_move">紅先，%1$d 步內將死黑方</string>
+    <string name="puzzle_undo_left_format">剩餘悔棋 %1$d 次</string>
+    <string name="puzzle_moves_left_format">剩餘步數 %1$d</string>
+    <string name="puzzle_retry">重新開始</string>
+    <string name="puzzle_undo">悔棋</string>
+    <string name="puzzle_undo_exhausted">本局悔棋次數已用完</string>
+    <string name="puzzle_deviated">錯失殺機！悔棋或重新開始</string>
+    <string name="puzzle_solved_title">破解成功！</string>
+    <string name="puzzle_fail_title">闖關失敗</string>
+    <string name="puzzle_fail_moves">超出步數限制，黑方守住</string>
+    <string name="puzzle_next_puzzle">下一局</string>
+    <string name="puzzle_retry_confirm">已嘗試 %1$d 次，本局最多悔棋 3 次，超步即失敗。重新開始嗎？</string>
+
+    <string name="campaign_unlocked">可挑戰</string>
+    <string name="campaign_fail_title">闖關失敗</string>
+    <string name="campaign_body_unlocked">本關通過，已解鎖下一關！</string>
+    <string name="campaign_stars_line">%1$d 星 · %2$s · %3$s</string>
+    <string name="campaign_stars_record">本關最高 %1$d 星</string>
+    <string name="campaign_stars_cd">%1$d / 3 星</string>
+    <string name="campaign_star_hint_kept">未用提示</string>
+    <string name="campaign_star_hint_used">用過提示</string>
+    <string name="campaign_star_undo_kept">未悔棋</string>
+    <string name="campaign_star_undo_used">悔過棋</string>
+    <string name="campaign_body_all_clear">八關都過了。</string>
+    <string name="campaign_body_retry">本關未通過，再試一次吧。</string>
+    <string name="puzzle_stage_name">第 %1$d 關 · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · 已走 %2$d/%3$d 步 · 剩餘悔棋 %4$d 次 · 第 %5$d 次嘗試</string>
+    <string name="puzzle_solved_body">破解成功，恭喜！</string>
+
+    <!-- 結算對話框文案 (原 GameActivity 內的硬編碼中文, 提取以修 i18n 債) -->
+    <string name="result_watch_board">看盤</string>
+    <string name="result_win_checkmate">絕殺獲勝</string>
+    <string name="result_win_big">大獲全勝</string>
+    <string name="result_win_tactic_fmt">%1$s 絕殺</string>
+    <string name="result_lose_tactic_fmt">被 %1$s 絕殺</string>
+    <string name="result_lose_banner">棋差一著</string>
+    <string name="result_draw_banner">握手言和</string>
+    <string name="result_reason_win_tactic_fmt">以「%1$s」精妙絕殺對手</string>
+    <string name="result_reason_lose_tactic_fmt">對手以「%1$s」將死</string>
+    <string name="result_reason_win_default">勝局已定</string>
+    <string name="result_reason_lose_default">遺憾惜敗</string>
+    <string name="result_reason_draw_default">和棋成局</string>
+    <string name="result_practice_detail">練習對弈完成，棋力分保持不變。本局已完整儲存。</string>
+    <string name="campaign_reason_clear">闖關成功</string>
+    <string name="campaign_reason_fail">挑戰未成</string>
+
+    <!-- 掃描/載入態文案 (Phase 6: 功能頁轉場) -->
+    <string name="analysis_scanning_default">AI 正在分析棋局</string>
+    <string name="analysis_scanning_recognize">正在辨識棋局…</string>
+    <string name="analysis_scanning_advice">AI 正在指點…</string>
+    <string name="recognize_loading_model">正在載入辨識模型…</string>
+    <string name="live_starting">正在啟動模型與相機…</string>
+    <string name="action_retry">重試</string>
+
+    <string name="puzzle_solved_tactic_title">絕殺 · %1$s</string>
+    <string name="puzzle_solved_tactic_body">以「%1$s」精妙絕殺，成功破局！</string>
+    <string name="opening_chip">【%1$s】</string>
+    <string name="opening_central_vs_screen">中砲對屏風馬</string>
+    <string name="opening_same_cannon">順手砲</string>
+    <string name="opening_opposite_cannon">列手砲</string>
+    <string name="opening_central_vs_reversed">中砲對反宮馬</string>
+    <string name="opening_central_vs_single">中砲對單提馬</string>
+    <string name="opening_central_vs_tiger">中砲對三步虎</string>
+    <string name="opening_pawn_vs_cannon">仙人指路對卒底砲</string>
+    <string name="opening_mutual_pawn">仙人指路互進卒</string>
+    <string name="opening_pawn_vs_central">仙人指路對中砲</string>
+    <string name="opening_pawn_vs_horse">仙人指路對進馬</string>
+    <string name="opening_pawn_vs_elephant">仙人指路對飛相</string>
+    <string name="opening_elephant_vs_left">飛相局對左中砲</string>
+    <string name="opening_elephant_vs_right">飛相局對右中砲</string>
+    <string name="opening_elephant_vs_horse">飛相局對進馬</string>
+    <string name="opening_elephant_vs_pawn">飛相局對進卒</string>
+    <string name="opening_elephant_vs_corner">飛相局對士角砲</string>
+    <string name="opening_elephant_vs_crossing">飛相局對過宮砲</string>
+    <string name="opening_horse_vs_pawn">起馬局對挺卒</string>
+    <string name="opening_horse_vs_central">起馬局對中砲</string>
+    <string name="opening_horse_vs_horse">起馬局對進馬</string>
+    <string name="opening_central_cannon">當頭砲</string>
+    <string name="opening_pawn">仙人指路</string>
+    <string name="opening_elephant">飛相局</string>
+    <string name="opening_horse">起馬局</string>
+    <string name="opening_crossing_cannon">過宮砲</string>
+    <string name="opening_corner_cannon">士角砲</string>
+    <string name="opening_hook_cannon">金鉤砲</string>
+    <string name="opening_iron_roller">鐵滑車</string>
+    <string name="opening_edge_horse">邊馬局</string>
+    <string name="opening_edge_pawn">邊兵局</string>
+    <string name="tactic_rhyme_mahoupao">「馬後藏奇砲，當頭將莫逃」</string>
+    <string name="tactic_desc_mahoupao">以馬為砲架，砲隔馬將軍，馬砲協同封死敵將全部退路。</string>
+    <string name="tactic_rhyme_bolt">「中砲鎮腹心，肋車鎖死門」</string>
+    <string name="tactic_desc_bolt">中砲鎮中路威懾將門，肋道強車沉底直插九宮，如同鐵栓封門。</string>
+    <string name="tactic_rhyme_double_cannon">「前砲作砲架，後砲搗黃龍」</string>
+    <string name="tactic_desc_double_cannon">雙砲連環同線照將，前砲作砲架，後砲借勢直搗九宮取勝。</string>
+    <string name="tactic_rhyme_double_rook">「雙車錯落進，交替逼將門」</string>
+    <string name="tactic_desc_double_rook">兩隻強車在相鄰兩條通道交錯下沉，如剪刀般層層絞殺敵將。</string>
+    <string name="tactic_rhyme_pocket">「臥槽扼咽喉，沉底車絕殺」</string>
+    <string name="tactic_desc_pocket">神馬潛伏於對方底象臥槽位扼殺將門，強車沉底形成致命合圍。</string>
+    <string name="tactic_rhyme_corner">「馬掛士角位，車馬定乾坤」</string>
+    <string name="tactic_desc_corner">馬跳到對方九宮士角照將，強力牽制雙士與將，配合車兵破陣取勝。</string>
+    <string name="tactic_rhyme_face">「帥將中宮對，神威破萬軍」</string>
+    <string name="tactic_desc_face">借助「將帥不可照面」的棋規，我方紅帥中路對臉施壓，借帥力封殺。</string>
+    <string name="tactic_rhyme_heaven">「一砲沉九地，一砲鎮中天」</string>
+    <string name="tactic_desc_heaven">一砲沉底線鎖死退路，一砲鎮中路掌控命脈，天地合擊所向披靡。</string>
+    <string name="tactic_rhyme_fishing">「釣魚馬鎖門，沉車一劍封」</string>
+    <string name="tactic_desc_fishing">馬駐對方三分點釣魚位卡死九宮出口，強車沉底一招封喉。</string>
+    <string name="tactic_rhyme_heart">「車斬中心士，直搗敵營心」</string>
+    <string name="tactic_desc_heart">不惜棄車強行斬殺中士，摧毀防守核心樞紐，引誘敵將棄守成殺。</string>
+    <string name="tactic_rhyme_smothered">「雙士自閉塞，巧借敵力殺」</string>
+    <string name="tactic_desc_smothered">利用敵方雙士自塞將門的結構弱點，單砲點底或車兵壓頂強殺。</string>
+    <string name="tactic_academy_sub">熟記攻殺口訣 · 聆聽原聲號令 · 攻破專項實戰</string>
+    <string name="tactic_voice">大師原聲</string>
+    <string name="tactic_challenge">破局實戰</string>
+    <string name="tactic_mastered">已精通</string>
+    <string name="tactic_learning">研習中</string>
+    <string name="puzzle_rush_result_title">殘局速拼結算</string>
+    <string name="puzzle_rush_score_unit">局</string>
+    <string name="replay_start_position">起始局面</string>
+    <string name="replay_move_line">第 %1$d 手 · %2$s</string>
+    <string name="replay_red_winrate">紅勝率 %1$d%%</string>
+    <string name="replay_try_variation">試下</string>
+    <string name="replay_variation_undo">撤銷</string>
+    <string name="replay_variation_exit">返回原譜</string>
+    <string name="replay_variation_status">變著推演 +%1$d 步 · 紅勝率 %2$d%%</string>
+    <string name="replay_variation_status_move">變著推演 +%1$d 步 · %2$s · 紅勝率 %3$d%%</string>
+    <string name="replay_variation_step">第 %1$d 步</string>
+    <string name="replay_red_better">紅優</string>
+    <string name="replay_black_better">黑優</string>
+    <string name="move_quality_brilliant">妙著</string>
+    <string name="move_quality_best">正著</string>
+    <string name="move_quality_inaccuracy">疑問</string>
+    <string name="move_quality_mistake">失誤</string>
+    <string name="move_quality_blunder">漏著</string>
+    <string name="move_quality_book">定式</string>
+    <string name="analysis_scan_status">搜尋深度 %1$d · 紅方勝率 %2$d%%</string>
+</resources>

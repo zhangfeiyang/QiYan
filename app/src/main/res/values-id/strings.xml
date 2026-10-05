@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">Main</string>
+    <string name="title_replay">Tinjau</string>
+    <string name="title_settings">Pengaturan</string>
+    <string name="title_board_editor">Edit Posisi</string>
+    <string name="menu_play">Mulai Main</string>
+    <string name="menu_replay">Tinjau Pertandingan</string>
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_about">Tentang</string>
+    <string name="menu_difficulty">Pilih Tingkat</string>
+    <string name="menu_side">Pilih Sisi</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Bahasa</string>
+    <string name="language_dialog_title">Pilih bahasa</string>
+    <string name="language_system_default">Ikuti sistem</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">Pemula</string>
+    <string name="difficulty_beginner">Calon Pemain</string>
+    <string name="difficulty_lower_intermediate">Menengah Bawah</string>
+    <string name="difficulty_intermediate">Menengah</string>
+    <string name="difficulty_upper_intermediate">Menengah Atas</string>
+    <string name="difficulty_advanced">Mahir</string>
+    <string name="difficulty_amateur">Amatir Ahli</string>
+    <string name="difficulty_district">Pemain Kecamatan</string>
+    <string name="difficulty_city">Pemain Kota</string>
+    <string name="difficulty_provincial">Ahli Provinsi</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Master Asosiasi</string>
+    <string name="difficulty_national_master">Master Nasional</string>
+    <string name="difficulty_grandmaster">Grandmaster</string>
+    <string name="difficulty_international_master">Master Internasional</string>
+    <string name="difficulty_legendary">Legendaris</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">Pemain Baru</string>
+    <string name="difficulty_segment_beginner">Pemula Santai</string>
+    <string name="difficulty_segment_lower_intermediate">Hobiis Rata-rata</string>
+    <string name="difficulty_segment_intermediate">Pemain Pinggir Jalan</string>
+    <string name="difficulty_segment_upper_intermediate">Hobiis Kuat</string>
+    <string name="difficulty_segment_advanced">Amatir Dan 1</string>
+    <string name="difficulty_segment_amateur">Amatir Dan 3</string>
+    <string name="difficulty_segment_district">Amatir Dan 5</string>
+    <string name="difficulty_segment_city">Amatir Dan 6</string>
+    <string name="difficulty_segment_provincial">Master Lokal</string>
+    <string name="difficulty_segment_local_master">Master Asosiasi</string>
+    <string name="difficulty_segment_national_master">Master Nasional</string>
+    <string name="difficulty_segment_grandmaster">Grandmaster Nasional</string>
+    <string name="difficulty_segment_international_master">Master Internasional</string>
+    <string name="difficulty_segment_legendary">Grandmaster Internasional</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">Baru belajar aturan, sering memberi bidak gratis</string>
+    <string name="difficulty_desc_beginner">Mengambil bidak bebas yang jelas, melewatkan jebakan sederhana</string>
+    <string name="difficulty_desc_lower_intermediate">Tahu taktik dasar, sesekali melihat serangan garpu</string>
+    <string name="difficulty_desc_intermediate">Pembukaan solid, menghitung 3-5 langkah ke depan</string>
+    <string name="difficulty_desc_upper_intermediate">Bermain berdasar prinsip, menguasai pembukaan</string>
+    <string name="difficulty_desc_advanced">Amatir solid, akhir permainan sehat, langkah lemah jarang</string>
+    <string name="difficulty_desc_amateur">Taktik andal, memasang jebakan dasar</string>
+    <string name="difficulty_desc_district">Serang dan bertahan seimbang, menghukum kesalahan</string>
+    <string name="difficulty_desc_city">Pandangan luas kuat, menyiapkan jebakan, jarang salah fatal</string>
+    <string name="difficulty_desc_provincial">Level turnamen provinsi, kalkulasi presisi</string>
+    <string name="difficulty_desc_local_master">Permainan level master, garis hitungan dalam</string>
+    <string name="difficulty_desc_national_master">Permainan serang tajam, nyaris tanpa kesalahan</string>
+    <string name="difficulty_desc_grandmaster">Level grandmaster nasional, strategi dalam</string>
+    <string name="difficulty_desc_international_master">Level master internasional, presisi di semua fase</string>
+    <string name="difficulty_desc_legendary">Level grandmaster internasional, yang terkuat di perangkat ini</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">Petunjuk</string>
+    <string name="action_undo">Batalkan</string>
+    <string name="action_new_game">Pertandingan Baru</string>
+    <string name="action_resign">Menyerah</string>
+    <string name="action_draw">Serah Seri</string>
+    <string name="action_analysis">Analisis</string>
+    <string name="action_flip">Balik Papan</string>
+    <string name="action_settings">Pengaturan</string>
+    <string name="action_back">Kembali</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_export">Ekspor PGN</string>
+    <string name="action_play_red">Main Merah (Pertama)</string>
+    <string name="action_play_black">Main Hitam (Kedua)</string>
+    <string name="action_two_player">Dua Pemain</string>
+    <string name="action_voice">Langkah suara</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">Ucapkan langkah, mis. 「车九进四」 (kereta sembilan maju empat)</string>
+    <string name="voice_played">Dimainkan: %1$s</string>
+    <string name="voice_no_match">Tidak ada langkah sah yang cocok dengan 「%1$s」</string>
+    <string name="voice_ambiguous">Rancu — mohon lebih spesifik</string>
+    <string name="voice_no_speech">Tidak terdengar, coba lagi</string>
+    <string name="voice_error">Pengenalan suara gagal</string>
+    <string name="voice_unavailable">Pengenalan suara tidak tersedia di perangkat ini</string>
+    <string name="voice_permission_denied">Izin mikrofon diperlukan untuk langkah suara</string>
+    <string name="voice_wait_engine">Tunggu AI selesai melangkah</string>
+    <string name="voice_not_your_turn">Belum giliranmu</string>
+    <string name="voice_game_over">Pertandingan sudah berakhir</string>
+
+    <!-- Status -->
+    <string name="status_thinking">AI berpikir…</string>
+    <string name="status_your_turn">Giliranmu</string>
+    <string name="status_check">Skak!</string>
+    <string name="status_checkmate">Skakmat!</string>
+    <string name="status_draw">Seri</string>
+    <string name="status_resign">Menyerah</string>
+    <string name="status_win">Kemenangan</string>
+    <string name="status_loss">Kekalahan</string>
+    <string name="status_stalemate">Pat</string>
+    <string name="status_engine_error">AI bermasalah, beralih ke mesin cadangan</string>
+    <string name="game_over_checkmate_red">Hitam skakmat Merah</string>
+    <string name="game_over_checkmate_black">Merah skakmat Hitam</string>
+    <string name="game_over_repetition">Pengulangan</string>
+    <string name="game_over_fifty_moves">Aturan 50 langkah</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">Peluang Menang</string>
+    <string name="winrate_red">Peluang Menang Merah</string>
+    <string name="winrate_black">Peluang Menang Hitam</string>
+    <string name="depth_label">Kedalaman</string>
+    <string name="nodes_label">Node</string>
+    <string name="nps_label">Node/dtk</string>
+    <string name="time_label">Waktu</string>
+
+    <!-- Rating -->
+    <string name="rating_current">Peringkat Saat Ini</string>
+    <string name="rating_total_games">Total Pertandingan</string>
+    <string name="rating_wins">Menang</string>
+    <string name="rating_losses">Kalah</string>
+    <string name="rating_draws">Seri</string>
+    <string name="rating_winrate">Peluang Menang</string>
+    <string name="rating_rank">Peringkat</string>
+    <string name="rank_1">Pemula</string>
+    <string name="rank_2">Calon Pemain</string>
+    <string name="rank_3">Amatir Dan 1</string>
+    <string name="rank_4">Amatir Dan 3</string>
+    <string name="rank_5">Amatir Dan 5</string>
+    <string name="rank_6">Amatir Dan 7</string>
+    <string name="rank_7">Master Regional</string>
+    <string name="rank_8">Master Nasional</string>
+    <string name="rank_9">Grandmaster</string>
+    <string name="rank_10">Raja Catur</string>
+    <string name="rank_hall_title">Stempel peringkat</string>
+    <string name="rank_hall_intro">Sepuluh stempel, dari pemula hingga raja. Hanya pertandingan berperingkat yang menggeser stempel. Latihan dan pendakian gunung tidak.</string>
+    <string name="rank_hall_current">Saat ini</string>
+    <string name="rank_hall_reached">Tercapai</string>
+    <string name="rank_hall_locked">Di depan</string>
+    <string name="rank_progress_next">%2$d poin lagi ke %1$s</string>
+    <string name="rank_progress_top">Raja Catur — puncak tangga ini</string>
+    <string name="rank_promoted">Naik ke %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">Buka stempel peringkat</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">Pertandingan Baru</string>
+    <string name="dialog_new_game_message">Mulai pertandingan baru?</string>
+    <string name="dialog_resign_title">Menyerah</string>
+    <string name="dialog_resign_message">Yakin ingin menyerah?</string>
+    <string name="dialog_undo_title">Batalkan</string>
+    <string name="dialog_undo_message">Membatalkan langkah mengurangi sedikit poin peringkat. Tetap batalkan?</string>
+    <string name="dialog_yes">Ya</string>
+    <string name="dialog_no">Tidak</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Batal</string>
+    <string name="dialog_confirm">Konfirmasi</string>
+
+    <!-- Review -->
+    <string name="replay_empty">Belum ada pertandingan</string>
+    <string name="replay_play">Putar otomatis</string>
+    <string name="replay_pause">Jeda</string>
+    <string name="replay_prev">Sebelumnya</string>
+    <string name="replay_next">Berikutnya</string>
+    <string name="replay_first">Langkah pertama</string>
+    <string name="replay_last">Langkah terakhir</string>
+    <string name="replay_move_number">Langkah %1$d</string>
+    <string name="result_win_short">M</string>
+    <string name="result_loss_short">K</string>
+    <string name="result_draw_short">S</string>
+    <string name="side_red_short">Merah</string>
+    <string name="side_black_short">Hitam</string>
+    <string name="replay_moves_summary">%1$d langkah · %2$s</string>
+    <string name="replay_record_missing">Catatan pertandingan tidak ditemukan</string>
+    <string name="replay_player_info">Lv.%1$d  %2$s  %3$d langkah</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">Langkah %1$d tidak dapat dipulihkan</string>
+    <string name="replay_viewer_title">Putar Ulang Pertandingan</string>
+    <string name="replay_share_report">Bagikan Laporan Pertarungan</string>
+    <string name="replay_export_pgn">Ekspor PGN</string>
+    <string name="replay_copy_fen">Salin FEN</string>
+    <string name="replay_copied_to_clipboard">Disalin ke papan klip</string>
+    <string name="puzzle_rush_title">Teka-teki Kilat</string>
+    <string name="puzzle_rush_banner">3 menit · terbaik %1$d</string>
+    <string name="tactics_banner_title">Pola skakmat</string>
+    <string name="tactics_banner_sub">Skakmat klasik</string>
+    <string name="tactics_banner_progress">Dipelajari %1$d / %2$d</string>
+    <string name="puzzle_rush_subtitle">Menyelesaikan Kilat 3 Menit</string>
+    <string name="puzzle_rush_start">Mulai Kilat</string>
+    <string name="puzzle_rush_score">Skor</string>
+    <string name="puzzle_rush_high_score">Terbaik: %1$d</string>
+    <string name="puzzle_rush_combo">Beruntun ×%1$d</string>
+    <string name="puzzle_rush_pass">Lewati (−1 nyawa)</string>
+    <string name="puzzle_rush_time_up">Waktu habis!</string>
+    <string name="puzzle_rush_lives_out">Nyawa habis!</string>
+    <string name="puzzle_rush_new_record">🎉 Rekor Baru!</string>
+    <string name="puzzle_rush_solved_count">Menyelesaikan %1$d teka-teki</string>
+    <string name="puzzle_rush_play_again">Main Lagi</string>
+    <string name="puzzle_rush_share">Bagikan Skor</string>
+    <string name="puzzle_rush_report_title">【QiYan Xiangqi · Teka-teki Kilat】</string>
+    <string name="puzzle_rush_score_line">Skor %1$d</string>
+    <string name="puzzle_rush_best_badge">Terbaik %1$d</string>
+    <string name="puzzle_rush_mate_line">Mat · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">Gelar: %1$s</string>
+    <string name="puzzle_rush_record_line">Rekor baru: %1$d</string>
+    <string name="puzzle_rush_previous_best">Rekor sejauh ini: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\nMenyelesaikan %2$d dalam 3 menit.\nBeruntun terbaik %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">Tinggalkan ronde ini? Skor tidak akan disimpan.</string>
+    <string name="puzzle_rush_leave_yes">Tinggalkan</string>
+    <string name="puzzle_rush_honor_1">Murid</string>
+    <string name="puzzle_rush_honor_2">Pemain klub</string>
+    <string name="puzzle_rush_honor_3">Pisau tajam</string>
+    <string name="puzzle_rush_honor_4">Kalkulator</string>
+    <string name="puzzle_rush_honor_5">Penguasa kilat</string>
+    <string name="stat_total_games_format">%1$d pertandingan</string>
+    <string name="stat_wins_format">%1$d M</string>
+    <string name="stat_losses_format">%1$d K</string>
+    <string name="stat_draws_format">%1$d S</string>
+    <string name="game_illegal_move">Langkah tidak sah</string>
+    <string name="game_undo_failed">Tidak bisa membatalkan</string>
+    <string name="game_switched_to_black">Beralih ke Hitam</string>
+    <string name="game_switched_to_red">Beralih ke Merah</string>
+    <string name="game_opponent_black">AI (Hitam)</string>
+    <string name="game_opponent_red">AI (Merah)</string>
+    <string name="game_player_red">Saya (Merah)</string>
+    <string name="game_player_black">Saya (Hitam)</string>
+    <string name="game_move_count">Langkah %1$d</string>
+    <string name="game_engine_start_failed">Gagal menjalankan AI</string>
+    <string name="unknown_label">Tidak diketahui</string>
+    <string name="default_nickname">Sahabat Papan</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Alasan: %1$s\nPerubahan peringkat: %2$s\nPeringkat saat ini: %3$s</string>
+    <string name="game_over_rating_detail">Perubahan peringkat: %1$s · Peringkat saat ini: %2$s</string>
+    <string name="game_over_win">Kamu menang</string>
+    <string name="game_over_loss">Kamu kalah</string>
+    <string name="game_over_draw">Seri</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">Thread</string>
+    <string name="settings_hash">Tabel Hash (MB)</string>
+    <string name="settings_sound">Efek Suara</string>
+    <string name="settings_vibrate">Getaran</string>
+    <string name="settings_bgm">Musik Latar</string>
+    <string name="settings_board_flip">Balik secara Bawaan</string>
+    <string name="settings_show_coords">Tampilkan Koordinat</string>
+    <string name="settings_show_winrate">Tampilkan Peluang Menang</string>
+    <string name="settings_animation">Animasi Langkah</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_desc_threads">Lebih banyak thread menghitung lebih cepat tapi boros baterai. Disarankan tidak lebih dari separuh inti perangkat</string>
+    <string name="settings_desc_hash">Cache berpikir AI. Besarkan untuk permainan berpikir panjang; kecilkan bila memori sempit</string>
+    <string name="settings_desc_sound">Bunyikan saat melangkah, mengambil, dan skak</string>
+    <string name="settings_desc_vibrate">Getaran ringan setiap langkah</string>
+    <string name="settings_desc_bgm">Memutar suasana guqin menenangkan selama pertandingan; volumenya dijaga rendah agar tidak menenggelamkan efek suara</string>
+    <string name="settings_desc_coords">Tampilkan nomor kolom dan baris di sepanjang tepi papan</string>
+    <string name="settings_desc_winrate">Tampilkan bilah peluang menang langsung di atas papan</string>
+    <string name="settings_desc_animation">Dimatikan, bidak langsung menempel di tempat, lebih halus di perangkat kelas bawah</string>
+    <string name="settings_desc_flip">Mulai permainan dilihat dari sisi Hitam</string>
+    <string name="settings_section_display">Tampilan</string>
+    <string name="settings_section_other">Lainnya</string>
+    <string name="settings_theme_system">Ikuti Sistem</string>
+    <string name="settings_theme_light">Terang</string>
+    <string name="settings_theme_dark">Gelap</string>
+    <string name="settings_clear_data">Hapus Semua Data</string>
+    <string name="dialog_clear_data_title">Hapus Data</string>
+    <string name="dialog_clear_data_message">Tindakan ini menghapus semua catatan pertandingan dan data peringkat. Lanjutkan?</string>
+    <!-- Live hints -->
+    <string name="live_title">Petunjuk Langsung</string>
+    <string name="live_entry">Petunjuk Langsung</string>
+    <string name="live_need_camera">Izin kamera diperlukan untuk pengenalan papan langsung</string>
+    <string name="live_camera_failed">Gagal menjalankan kamera</string>
+    <string name="live_locking">Mengunci papan…</string>
+    <string name="live_board_invalid">Papan belum terbaca penuh — pastikan keempat sudut masuk bidikan</string>
+    <string name="live_ready">Terkunci · dikenali dalam %1$d md</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">Reset</string>
+    <string name="editor_clear">Bersihkan</string>
+    <string name="settings_clear_data_desc">Menghapus semua catatan pertandingan dan data peringkat. Tidak dapat dibatalkan</string>
+    <string name="settings_piece_style">Gaya Bidak</string>
+    <string name="settings_board_style">Gaya Papan</string>
+    <string name="settings_about">Tentang</string>
+    <string name="settings_engine_path">Lokasi Model AI</string>
+    <string name="settings_about_text">QiYan v1.0\n\nAI kembangan sendiri (evaluasi jaringan saraf NNUE)\nMendukung pengenalan papan dari foto dan petunjuk langsung</string>
+
+    <!-- About -->
+    <string name="about_engine_title">Info AI</string>
+    <string name="about_engine_version">NNUE kembangan sendiri</string>
+    <string name="about_engine_desc">AI Catur Tiongkok</string>
+
+    <!-- Common -->
+    <string name="red">Merah</string>
+    <string name="black">Hitam</string>
+    <string name="move_count">%1$d langkah</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">Pindai Papan</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">Analisis AI</string>
+    <string name="advisor_send">Kirim</string>
+    <string name="advisor_input_hint">Tanya apa saja…</string>
+    <string name="advisor_error_generic">Analisis sementara tidak tersedia, coba lagi nanti</string>
+    <string name="advisor_no_config">Fitur AI belum dikonfigurasi, hubungi pengembang</string>
+    <string name="advisor_unavailable">AI sementara tidak tersedia, coba lagi nanti</string>
+    <string name="advisor_waiting">AI masih menjawab, mohon tunggu sebentar</string>
+    <string name="advisor_key_rejected">Kunci autentikasi tidak valid atau dicabut. Konfigurasi ulang token proksi.</string>
+    <string name="advisor_clear">Hapus percakapan</string>
+    <string name="advisor_context_replay">Meninjau langkah %1$d</string>
+    <string name="advisor_context_game">Langkah %1$d · giliran %2$s</string>
+    <string name="advisor_thinking">AI sedang menganalisis…</string>
+    <string name="advisor_button">Analisis AI</string>
+    <string name="advisor_empty_title">Tanya AI tentang pertandingan ini</string>
+    <string name="advisor_empty_subtitle">Ia dapat melihat posisi saat ini — tanyakan situasinya, langkah berikutnya, atau apa yang salah pada langkah terakhir</string>
+    <string name="advisor_suggest_analyze">Analisis posisi saat ini</string>
+    <string name="advisor_suggest_next">Langkah berikutnya apa yang sebaiknya kumainkan</string>
+    <string name="advisor_suggest_review">Apakah langkah terakhir tadi bermasalah</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">Ketuk untuk lewati</string>
+    <string name="analysis_summary_prompt">Ringkas posisi saat ini dalam 2-3 kalimat: situasinya, siapa yang unggul, titik serang/bertahan kunci, dan langkah paling mencolok saat ini.</string>
+    <string name="advisor_send_desc">Kirim</string>
+    <string name="advisor_move_banner">AI memperagakan langkah ini: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">Pindai Papan</string>
+    <string name="recognize_take_photo">Ambil Foto</string>
+    <string name="recognize_pick_image">Pilih dari Galeri</string>
+    <string name="recognize_preview_desc">Papan terkoreksi</string>
+    <string name="recognize_red_to_move">Giliran Merah</string>
+    <string name="recognize_black_to_move">Giliran Hitam</string>
+    <string name="recognize_advise">Minta saran AI</string>
+    <string name="recognize_hint_start">Foto papan, atau pilih dari galeri. Ambil tegak lurus dengan keempat sudut terlihat.</string>
+    <string name="recognize_working">Mengenali…</string>
+    <string name="recognize_failed">Pengenalan gagal, coba foto lain</string>
+    <string name="recognize_model_failed">Gagal memuat model pengenalan</string>
+    <string name="recognize_no_camera">Tidak ada kamera</string>
+    <string name="recognize_corner_warning">Empat sudut papan tidak terbingkai akurat, pengenalan bisa meleset. Coba foto ulang tegak lurus.</string>
+    <string name="recognize_must_fix">Perbaiki dulu masalah berikut:</string>
+    <string name="recognize_ready">Pengenalan selesai. Lingkaran kuning menandai posisi yang belum pasti (total %1$d) — ketuk kotak untuk mengoreksinya. Konfirmasi sebelum meminta saran.</string>
+    <string name="recognize_pick_piece">Bidak apa yang ditaruh di %1$c%2$d</string>
+    <string name="recognize_empty">Kosong</string>
+    <string name="recognize_flip">Balik</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">Mengambil %1$s</string>
+    <string name="piece_king">Jenderal</string>
+    <string name="piece_advisor">Penasihat</string>
+    <string name="piece_elephant">Gajah</string>
+    <string name="piece_horse">Kuda</string>
+    <string name="piece_rook">Kereta</string>
+    <string name="piece_cannon">Meriam</string>
+    <string name="piece_pawn">Tentara</string>
+    <string name="recognize_thinking">AI berpikir…</string>
+    <string name="recognize_engine_failed">Gagal menjalankan AI</string>
+    <string name="recognize_engine_error">Kesalahan AI: %1$s</string>
+    <string name="recognize_no_move">AI tidak mengembalikan langkah</string>
+    <string name="recognize_advice">Saran: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">Arahkan kamera ke papan sungguhan, dapatkan saran saat bermain</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">Foto posisinya</string>
+    <string name="recognize_start_camera_desc">Memotret papan fisik</string>
+    <string name="recognize_start_gallery_desc">Gunakan tangkapan layar atau foto yang ada</string>
+    <string name="recognize_tips_title">Foto bagus, hasil bagus</string>
+    <string name="recognize_tip_1">Bidik papan tegak lurus, jangan dari samping</string>
+    <string name="recognize_tip_2">Pastikan keempat sudut dalam bidikan</string>
+    <string name="recognize_tip_3">Pencahayaan merata; hindari pantulan dan bayangan</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">Tingkat Petunjuk</string>
+    <string name="advice_level_fast">Cepat</string>
+    <string name="advice_level_fast_desc">Menyarankan seketika</string>
+    <string name="advice_level_normal">Standar</string>
+    <string name="advice_level_normal_desc">Berpikir satu-dua detik, cukup untuk kebanyakan kasus</string>
+    <string name="advice_level_deep">Dalam</string>
+    <string name="advice_level_deep_desc">Berpikir lebih lama, lebih andal di posisi kritis</string>
+    <string name="advice_level_current">Tingkat petunjuk: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Huruf Bidak</string>
+    <string name="settings_piece_set_desc">Aksara Tionghoa adalah tampilan tradisional; huruf Latin (K/A/B/N/R/C/P) cocok dengan notasi langkah bahasa Inggris</string>
+    <string name="piece_set_hanzi">Aksara Tionghoa</string>
+    <string name="piece_set_latin">Huruf K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Notasi Langkah</string>
+    <string name="settings_notation_desc">Notasi Tionghoa membaca 炮二平五; WXF menulis langkah yang sama sebagai C2.5</string>
+    <string name="notation_chinese">Notasi Tionghoa</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Mesin mengembalikan langkah tidak sah: %1$s</string>
+    <string name="engine_error">Kesalahan mesin: %1$s</string>
+    <string name="must_answer_check">Kamu sedang skak — wajib mengatasinya</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Menyiapkan papan…</string>
+    <string name="settings_follow_language">Mengikuti bahasa aplikasi</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">Pertandingan Baru</string>
+    <string name="new_game_pick_opponent">Pilih lawanmu</string>
+    <string name="new_game_side">Main sebagai</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">Merah</string>
+    <string name="side_black">Hitam</string>
+    <string name="side_random">Acak</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Lawan</string>
+    <string name="menu_change_opponent">Ganti</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Seimbang</string>
+    <string name="style_balanced_desc">Selalu memainkan langkah terbaik mesin — kemurnian kekuatan</string>
+    <string name="style_aggressive">Agresif</string>
+    <string name="style_aggressive_desc">Menyukai perebutan dan skak, berani berkorban demi serangan</string>
+    <string name="style_solid">Solid</string>
+    <string name="style_solid_desc">Tidak pernah bertukar dengan gegabah, memilih posisi tenang daripada rumit</string>
+    <string name="style_swarm">Sulit Ditebak</string>
+    <string name="style_swarm_desc">Bervariasi di antara langkah hampir terbaik — permainan berbeda setiap kali</string>
+    <string name="new_game_style">Gaya lawan</string>
+    <string name="new_game_style_line">Gaya: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Skak!</string>
+    <string name="board_tag_mate">Skakmat</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Efek medan ambil bidak</string>
+    <string name="settings_desc_capture_fx">Animasi tebasan, percikan api dan semburan tinta saat bidak diambil. Label 「Mengambil…」 di papan tetap tampil apa pun pengaturannya</string>
+    <string name="settings_board_skin">Material papan</string>
+    <string name="settings_board_skin_desc">Empat material offline. Huruf bidak tetap gelap di bidang gading agar tetap terbaca.</string>
+    <string name="skin_wood">Kayu hangat</string>
+    <string name="skin_black_gold">Hitam emas</string>
+    <string name="skin_porcelain">Porselen biru</string>
+    <string name="skin_jade">Giok putih</string>
+
+    <string name="puzzle_1_name">Mat 1 langkah · Pat di kandang</string>
+    <string name="puzzle_1_hint">Kuda hitam terikat. Pusatkan jenderalmu: hitam pat</string>
+    <string name="puzzle_2_name">Mat 1 langkah · Meriam Kembar</string>
+    <string name="puzzle_2_hint">Meriam depan jadi layar — pindahkan meriam belakang ke kolom</string>
+    <string name="puzzle_3_name">Mat 1 langkah · Kereta &amp; Kuda</string>
+    <string name="puzzle_3_hint">Kereta belakang menyapu baris belakang untuk skak ganda</string>
+    <string name="puzzle_4_name">Mat 1 langkah · Berhadapan</string>
+    <string name="puzzle_4_hint">Dua jenderal berhadapan di kolom, turunkan kereta ke baris belakang</string>
+    <string name="puzzle_5_name">Mat 1 langkah · Baut Besi</string>
+    <string name="puzzle_5_hint">Meriam tengah menahan garis saat kereta turun ke baris belakang</string>
+    <string name="puzzle_6_name">Mat 1 langkah · Meriam Sayap</string>
+    <string name="puzzle_6_hint">Meriam turun dalam, kereta menaungi pukulan penentu</string>
+    <string name="puzzle_7_name">Mat 1 langkah · Kereta Kembar Dalam</string>
+    <string name="puzzle_7_hint">Kereta kembar mencengkeram benteng didukung meriam</string>
+    <string name="puzzle_8_name">Mat 1 langkah · Kuda &amp; Meriam</string>
+    <string name="puzzle_8_hint">Gunakan kuda mulia sebagai tiang meriam untuk skakmat seketika</string>
+    <string name="puzzle_9_name">Mat 2 langkah · Kereta Berselang</string>
+    <string name="puzzle_9_hint">Tenggelamkan kereta untuk skak; bila gajah menghalangi, ubah arah</string>
+    <string name="puzzle_10_name">Mat 2 langkah · Dua Kereta</string>
+    <string name="puzzle_10_hint">Satu kereta menahan kolom, yang lain bersilang skak</string>
+    <string name="puzzle_11_name">Mat 2 langkah · Kuda Siku</string>
+    <string name="puzzle_11_hint">Kuda menambat sisi benteng; kereta tenggelam menamatkan</string>
+    <string name="puzzle_12_name">Mat 2 langkah · Skak Trampolin</string>
+    <string name="puzzle_12_hint">Lompatkan kuda maju untuk membuka skak, berpadu dengan kereta</string>
+    <string name="puzzle_13_name">Mat 2 langkah · Kereta Kuda Meriam</string>
+    <string name="puzzle_13_hint">Kuda melompat ke tengah, meriam mengoordinasi pukulan pamungkas</string>
+    <string name="puzzle_14_name">Mat 2 langkah · Mars Tentara</string>
+    <string name="puzzle_14_hint">Meriam menambat tengah saat tentara merangsek masuk</string>
+    <string name="puzzle_15_name">Mat 2 langkah · Kereta Gandeng</string>
+    <string name="puzzle_15_hint">Dua kereta di kolom membongkar pertahanan benteng</string>
+    <string name="puzzle_16_name">Mat 2 langkah · Meriam Tersembunyi</string>
+    <string name="puzzle_16_hint">Kereta membuka jalan bagi meriam yang bersembunyi di belakang</string>
+    <string name="puzzle_17_name">Mat 3 langkah · Kuda Siku Dalam</string>
+    <string name="puzzle_17_hint">Kuda menyerang sudut benteng, kereta menutup baris belakang</string>
+    <string name="puzzle_18_name">Mat 3 langkah · Kuda Pemancing Dalam</string>
+    <string name="puzzle_18_hint">Kuda pemancing mengekang jenderal, kereta menamatkan di baris 9</string>
+    <string name="puzzle_19_name">Mat 3 langkah · Kuda Sudut</string>
+    <string name="puzzle_19_hint">Kuda sudut menguasai pintu keluar bagi skakmat kereta yang mustahil ditahan</string>
+    <string name="puzzle_20_name">Mat 3 langkah · Kereta Menjepit</string>
+    <string name="puzzle_20_hint">Kereta kembar berjalin mengencangkan jaring di sekeliling raja musuh</string>
+    <string name="puzzle_21_name">Mat 2 langkah · Jangkar Pemancing</string>
+    <string name="puzzle_21_hint">Kuda pemancing menyegel benteng; kereta meluncur ke tengah untuk skakmat</string>
+    <string name="puzzle_22_name">Mat 2 langkah · Langit &amp; Bumi</string>
+    <string name="puzzle_22_hint">Satu meriam menguasai tengah, satu tenggelam dalam menutup</string>
+    <string name="puzzle_23_name">Mat 3 langkah · Kunci Kereta-Kuda</string>
+    <string name="puzzle_23_hint">Kereta dan kuda terkunci mengirim skak mematikan berturut-turut</string>
+    <string name="puzzle_24_name">Mat 3 langkah · Jaring Kereta Kembar</string>
+    <string name="puzzle_24_hint">Kereta maju di kolom bersebelahan menjebak jenderal</string>
+
+    <string name="puzzle_25_name">Mat 3 langkah · Perombak Penjaga</string>
+    <string name="puzzle_25_hint">Kereta menerobos para penasihat meruntuhkan pertahanan</string>
+    <string name="puzzle_26_name">Mat 3 langkah · Siklus Kereta Ganda</string>
+    <string name="puzzle_26_hint">Kereta berselang tenggelam bergantian dibantu kehadiran jenderal</string>
+    <string name="puzzle_27_name">Mat 3 langkah · Kereta Umpan</string>
+    <string name="puzzle_28_hint">Korbankan kereta terdepan untuk memancing jenderal keluar benteng</string>
+    <string name="puzzle_28_name">Mat 3 langkah · Kuda Sudut Melompat</string>
+    <string name="puzzle_27_hint">Korbankan bidak untuk menembus benteng musuh</string>
+    <string name="puzzle_29_name">Mat 3 langkah · Kereta Pengepung Benteng</string>
+    <string name="puzzle_29_hint">Dua kereta menyeberang ke jantung benteng</string>
+    <string name="puzzle_30_name">Mat 3 langkah · Serangan Sayap</string>
+    <string name="puzzle_30_hint">Kereta turun ke baris belakang saat kuda berputar masuk</string>
+    <string name="puzzle_31_name">Mat 3 langkah · Jenderal Berhadapan</string>
+    <string name="puzzle_31_hint">Dua jenderal berhadapan di kolom terbuka; kereta menyegel kemenangan</string>
+    <string name="puzzle_32_name">Mat 3 langkah · Kuda Berlari</string>
+    <string name="puzzle_32_hint">Kuda melompat ke posisi siku untuk mengeksekusi skakmat</string>
+
+    <string name="puzzle_33_name">Mat 4 langkah · Terobosan Pemancing</string>
+    <string name="puzzle_33_hint">Kuda pemancing mengekang jenderal saat kereta melucuti penjaga</string>
+    <string name="puzzle_34_name">Mat 4 langkah · Tentara di Gerbang</string>
+    <string name="puzzle_34_hint">Tentara merah berani maju membongkar perlindungan sang jenderal</string>
+    <string name="puzzle_35_name">Mat 4 langkah · Kuda Sudut &amp; Kereta</string>
+    <string name="puzzle_35_hint">Kuda sudut menambat para penasihat; kereta menamatkan dari dalam</string>
+    <string name="puzzle_36_name">Mat 4 langkah · Kereta Kembar &amp; Kuda</string>
+    <string name="puzzle_36_hint">Dua kereta sayap dan kuda berlari menyerbu benteng</string>
+    <string name="puzzle_37_name">Mat 4 langkah · Tentara di Benteng</string>
+    <string name="puzzle_37_hint">Pion menembus benteng tengah didukung kereta</string>
+    <string name="puzzle_38_name">Mat 4 langkah · Kuda &amp; Kereta Sayap</string>
+    <string name="puzzle_38_hint">Kuda menyerang dari sayap saat kereta menutup garis belakang</string>
+    <string name="puzzle_39_name">Mat 5 langkah · Sapuan Tentara</string>
+    <string name="puzzle_39_hint">Tentara pantang menyerah maju mantap, menambat jenderal</string>
+    <string name="puzzle_40_name">Mat 3 langkah · Meriam &amp; Kereta</string>
+    <string name="puzzle_40_hint">Kereta kembar dan meriam membentuk baterai yang tak gentar</string>
+
+    <string name="puzzle_41_name">Mat 6 langkah · Tentara Perusak</string>
+    <string name="puzzle_41_hint">Tentara sayap bergerak dalam; kereta dan meriam menyusul</string>
+    <string name="puzzle_42_name">Mat 7 langkah · Perembusan Rusuk</string>
+    <string name="puzzle_42_hint">Korban kuda menarik pertahanan, meratakan jalan bagi kereta</string>
+    <string name="puzzle_43_name">Mat 6 langkah · Kuda Tengah</string>
+    <string name="puzzle_43_hint">Kuda menguasai tengah papan, mengoordinasi skakmat</string>
+    <string name="puzzle_44_name">Mat 6 langkah · Akhir Kereta Tunggal</string>
+    <string name="puzzle_44_hint">Teknik kereta tunggal yang maha ulung melucuti pembela satu per satu</string>
+    <string name="puzzle_45_name">Mat 2 langkah · Kereta Kembar Kilat</string>
+    <string name="puzzle_45_hint">Kereta kembar lintas kolom menjatuhkan keadilan seketika</string>
+    <string name="puzzle_46_name">Mat 3 langkah · Kuda Mulia</string>
+    <string name="puzzle_46_hint">Kuda mengunci jalur kabur; kereta menamatkan di baris</string>
+    <string name="puzzle_47_name">Mat 3 langkah · Kereta Sayap</string>
+    <string name="puzzle_47_hint">Dua kereta tersinkron menyerang dari kolom bersebelahan</string>
+    <string name="puzzle_48_name">Mat 2 langkah · Meriam Terbang</string>
+    <string name="puzzle_48_hint">Dua meriam melompati layar untuk skakmat menakjubkan</string>
+
+    <string name="puzzle_chapter_1">Jilid I: Langkah Awal</string>
+    <string name="puzzle_chapter_sub_1">Mat 1 langkah · Jaring skakmat dasar</string>
+    <string name="puzzle_chapter_2">Jilid II: Percikan Taktik</string>
+    <string name="puzzle_chapter_sub_2">Mat 2 langkah · Motif serangan terpadu</string>
+    <string name="puzzle_chapter_3">Jilid III: Strategi Master</string>
+    <string name="puzzle_chapter_sub_3">Mat 2-3 langkah · Taktik klasik menyeluruh</string>
+    <string name="puzzle_chapter_4">Jilid IV: Serangan Agung</string>
+    <string name="puzzle_chapter_sub_4">Mat 3 langkah · Pengorbanan dan pukulan penentu</string>
+    <string name="puzzle_chapter_5">Jilid V: Penaklukan Epik</string>
+    <string name="puzzle_chapter_sub_5">Mat 3-4 langkah · Manuver akhir level master</string>
+    <string name="puzzle_chapter_6">Jilid VI: Ujian Grandmaster</string>
+    <string name="puzzle_chapter_sub_6">Mat 4-7 langkah · Mahakarya klasik para besar xiangqi</string>
+    <string name="campaign_entry">Mendaki gunung</string>
+    <string name="campaign_entry_desc">Delapan tahap. Menangkan satu untuk membuka berikutnya.</string>
+    <string name="puzzle_entry">Akhir permainan</string>
+    <string name="puzzle_entry_desc">Skakmat klasik, tiga pembatalan tiap teka-teki</string>
+    <string name="campaign_title">Gunung</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">Puncak</string>
+    <string name="campaign_level_format">Tahap %1$d</string>
+    <string name="campaign_level_difficulty_format">Kekuatan lawan Lv.%1$d</string>
+    <string name="campaign_locked">Menangkan tahap sebelumnya untuk membuka tahap ini</string>
+    <string name="campaign_passed">Lolos</string>
+    <string name="campaign_win_title">Tahap selesai</string>
+    <string name="campaign_next_level">Tahap berikutnya</string>
+    <string name="campaign_retry">Coba tahap ini lagi</string>
+    <string name="campaign_back_list">Kembali ke gunung</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">Tahap %1$d · %2$s</string>
+    <string name="stage_1_name">Langkah pertama</string>
+    <string name="stage_1_brief">Lawan ini sering melewatkan perebutan. Tenangkan diri dengan aturannya dulu.</string>
+    <string name="stage_2_name">Gerbang</string>
+    <string name="stage_2_brief">Memandang satu langkah ke depan, dan masih melewatkan sesuatu.</string>
+    <string name="stage_3_name">Sungai</string>
+    <string name="stage_3_brief">Mesin mengambil alih di sini, dengan waktu berpikir sedikit lewat satu detik.</string>
+    <string name="stage_4_name">Gerbang Lintas</string>
+    <string name="stage_4_brief">Lebih banyak waktu. Kelalaian kecil mulai terlihat.</string>
+    <string name="stage_5_name">Garis-garis</string>
+    <string name="stage_5_brief">Pencarian lebih dalam. Bidak yang longgar bisa diambil.</string>
+    <string name="stage_6_name">Pandangan lebih panjang</string>
+    <string name="stage_6_brief">Sekali lagi, segmen waktu berpikir.</string>
+    <string name="stage_7_name">Pencarian dalam</string>
+    <string name="stage_7_brief">Dekat puncak, kekurangan satu langkah waktu.</string>
+    <string name="stage_8_name">Puncak</string>
+    <string name="stage_8_brief">Pencarian terlama di gunung.</string>
+    <string name="catalog_mate_title">Mat satu langkah</string>
+    <string name="catalog_mate_hint">Giliran Merah. Mat satu langkah.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">%1$d / %2$d selesai</string>
+    <string name="catalog_filter_all">Semua</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">Selesai</string>
+    <string name="catalog_open">Terbuka</string>
+    <string name="history_intro">Lima bab kampanye nyata. Setiap pertempuran berakhir dengan mat satu langkah. Posisinya adalah latihan, bukan rekonstruksi pertempuran sejarah.</string>
+    <string name="history_ch_1">Musim Semi-Gugur</string>
+    <string name="history_ch_2">Negeri-Negeri Berperang</string>
+    <string name="history_ch_3">Chu dan Han</string>
+    <string name="history_ch_4">Tiga Kerajaan</string>
+    <string name="history_ch_5">Medan setelahnya</string>
+    <string name="battle_1_name">Changshao</string>
+    <string name="battle_1_brief">Lu, 684 SM. Cao Gui membiarkan Qi menabuh genderang tiga kali, lalu menyerang. Mat satu langkah: baut besi.</string>
+    <string name="battle_2_name">Chengpu</string>
+    <string name="battle_2_brief">632 SM. Jin menarik pusat Chu ke depan dan menutup kedua sayap. Mat satu langkah: kereta kembar.</string>
+    <string name="battle_3_name">Boju</string>
+    <string name="battle_3_brief">506 SM. Wu menembus jauh ke Chu dan merebut Ying. Mat satu langkah: kuda di belakang meriam.</string>
+    <string name="battle_4_name">Lize</string>
+    <string name="battle_4_brief">478 SM. Yue menyeberangi sungai dua barisan dan memecah Wu. Mat satu langkah: kuda mengepung.</string>
+    <string name="battle_5_name">Guiling</string>
+    <string name="battle_5_brief">354 SM. Qi berbaris ke ibu kota Wei mengangkat pengepungan Zhao. Mat satu langkah: meriam ganda.</string>
+    <string name="battle_6_name">Maling</string>
+    <string name="battle_6_brief">342 SM. Sun Bin mengurangi api unggun dan menunggu di celah gunung. Mat satu langkah: kuda pemancing.</string>
+    <string name="battle_7_name">Changping</string>
+    <string name="battle_7_brief">260 SM. Qin memutus pasukan Zhao dan menutup cincin. Mat satu langkah: kereta kembar.</string>
+    <string name="battle_8_name">Jimo</string>
+    <string name="battle_8_brief">279 SM. Tian Dan membuka kota dan menyerbu kamp Yan malam hari. Mat satu langkah: kuda mengepung.</string>
+    <string name="battle_9_name">Jingxing</string>
+    <string name="battle_9_brief">204 SM. Han Xin membentangkan pasukan punggung ke sungai, lalu berbalik. Mat satu langkah: jenderal berhadapan.</string>
+    <string name="battle_10_name">Chen Cang</string>
+    <string name="battle_10_brief">206 SM. Jalan papan hanyalah umpan. Pasukan keluar dari Chen Cang. Mat satu langkah: meriam ganda.</string>
+    <string name="battle_11_name">Weishui</string>
+    <string name="battle_11_brief">204 SM. Han Xin membendung sungai, memancing musuh menyeberang, lalu melepas air. Mat satu langkah: kuda di belakang meriam.</string>
+    <string name="battle_12_name">Gaixia</string>
+    <string name="battle_12_brief">202 SM. Pasukan Han menutup Xiang Yu dari segala arah. Mat satu langkah: kereta kembar.</string>
+    <string name="battle_13_name">Guandu</string>
+    <string name="battle_13_brief">200 M. Cao Cao membakar logistik Yuan Shao di Wuchao. Mat satu langkah: baut besi.</string>
+    <string name="battle_14_name">Tembok Merah</string>
+    <string name="battle_14_brief">208 M. Api berjalan menyusuri armada terantai di Sungai Panjang. Mat satu langkah: meriam ganda.</string>
+    <string name="battle_15_name">Hanzhong</string>
+    <string name="battle_15_brief">219 M. Huang Zhong merebut Gunung Dingjun, Xiahou Yuan tumbang. Mat satu langkah: kuda pemancing.</string>
+    <string name="battle_16_name">Yiling</string>
+    <string name="battle_16_brief">222 M. Lu Xun menahan diri, lalu membakar kamp Shu. Mat satu langkah: kuda mengepung.</string>
+    <string name="battle_17_name">Feishui</string>
+    <string name="battle_17_brief">383. Bala Fu Jian mulai mundur dan tak bisa dihentikan. Mat satu langkah: jenderal berhadapan.</string>
+    <string name="battle_18_name">Hulao</string>
+    <string name="battle_18_brief">621. Li Shimin memecah Dou Jiande di depan gerbang. Mat satu langkah: kuda sudut.</string>
+    <string name="battle_19_name">Yancheng</string>
+    <string name="battle_19_brief">1140. Pasukan berkuda Yue Fei mematahkan kavaleri besi Jin di Yancheng. Mat satu langkah: kuda di belakang meriam.</string>
+    <string name="battle_20_name">Danau Poyang</string>
+    <string name="battle_20_brief">1363. Kapal api Zhu Yuanzhang meruntuhkan kapal menara Chen Youliang. Mat satu langkah: meriam langit-bumi.</string>
+    <string name="tactic_label_mahoupao">Kuda di belakang meriam</string>
+    <string name="tactic_label_bolt">Baut besi</string>
+    <string name="tactic_label_double_cannon">Meriam ganda</string>
+    <string name="tactic_label_double_rook">Kereta ganda</string>
+    <string name="tactic_label_pocket">Kuda mengepung</string>
+    <string name="tactic_label_corner">Kuda sudut</string>
+    <string name="tactic_label_fishing">Kuda pemancing</string>
+    <string name="tactic_label_face">Jenderal berhadapan</string>
+    <string name="tactic_label_heaven">Meriam langit-bumi</string>
+    <string name="tactic_label_heart">Kereta di benteng</string>
+    <string name="tactic_label_smothered">Benteng tercekik</string>
+    <string name="tactic_label_spring">Skak trampolin</string>
+    <string name="tactic_label_mate">Mat</string>
+    <string name="puzzle_title">Akhir permainan</string>
+    <string name="puzzle_list_title">Akhir permainan</string>
+    <string name="puzzle_solved">Selesai</string>
+    <string name="puzzle_unsolved">Belum selesai</string>
+    <string name="puzzle_attempts_format">Dicoba %1$d kali</string>
+    <string name="puzzle_red_to_move">Giliran Merah, mat dalam %1$d</string>
+    <string name="puzzle_undo_left_format">Sisa pembatalan: %1$d</string>
+    <string name="puzzle_moves_left_format">Sisa langkah: %1$d</string>
+    <string name="puzzle_retry">Mulai ulang</string>
+    <string name="puzzle_undo">Tarik kembali</string>
+    <string name="puzzle_undo_exhausted">Pembatalan habis</string>
+    <string name="puzzle_deviated">Itu meleset dari matnya. Tarik kembali atau mulai ulang.</string>
+    <string name="puzzle_solved_title">Selesai!</string>
+    <string name="puzzle_fail_title">Belum berhasil</string>
+    <string name="puzzle_fail_moves">Langkah habis. Hitam bertahan.</string>
+    <string name="puzzle_next_puzzle">Berikutnya</string>
+    <string name="puzzle_retry_confirm">Dicoba %1$d kali. Tiga kali tarik kembali; langkah habis berarti gagal. Mulai ulang?</string>
+
+    <string name="campaign_unlocked">Bisa dimainkan</string>
+    <string name="campaign_fail_title">Tahap Gagal</string>
+    <string name="campaign_body_unlocked">Tahap selesai — tahap berikutnya terbuka!</string>
+    <string name="campaign_stars_line">%1$d bintang · %2$s · %3$s</string>
+    <string name="campaign_stars_record">Terbaik di tahap ini: %1$d</string>
+    <string name="campaign_stars_cd">%1$d dari 3 bintang</string>
+    <string name="campaign_star_hint_kept">tanpa petunjuk</string>
+    <string name="campaign_star_hint_used">pakai petunjuk</string>
+    <string name="campaign_star_undo_kept">tanpa tarik kembali</string>
+    <string name="campaign_star_undo_used">menarik kembali</string>
+    <string name="campaign_body_all_clear">Kedelapan tahap selesai.</string>
+    <string name="campaign_body_retry">Kali ini belum — coba lagi!</string>
+    <string name="puzzle_stage_name">Tahap %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · langkah %2$d/%3$d · sisa tarik %4$d · percobaan #%5$d</string>
+    <string name="puzzle_solved_body">Selesai — main bagus!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">Lihat</string>
+    <string name="result_win_checkmate">Kemenangan Skakmat</string>
+    <string name="result_win_big">Kemenangan Total</string>
+    <string name="result_win_tactic_fmt">Mat %1$s</string>
+    <string name="result_lose_tactic_fmt">Kalah oleh %1$s</string>
+    <string name="result_lose_banner">Kekalahan</string>
+    <string name="result_draw_banner">Seri</string>
+    <string name="result_reason_win_tactic_fmt">Skakmat dengan %1$s brilian</string>
+    <string name="result_reason_lose_tactic_fmt">Lawan menamatkanmu dengan %1$s</string>
+    <string name="result_reason_win_default">Kemenangan tersegel</string>
+    <string name="result_reason_lose_default">Nyaris saja — kekalahan tipis</string>
+    <string name="result_reason_draw_default">Pertandingan berakhir seri</string>
+    <string name="result_practice_detail">Pertandingan latihan selesai — peringkat tidak berubah. Pertandingan sudah disimpan.</string>
+    <string name="campaign_reason_clear">Tahap selesai</string>
+    <string name="campaign_reason_fail">Tantangan gagal</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">AI sedang menganalisis pertandingan</string>
+    <string name="analysis_scanning_recognize">Mengenali papan…</string>
+    <string name="analysis_scanning_advice">AI menyiapkan saran…</string>
+    <string name="recognize_loading_model">Memuat model pengenalan…</string>
+    <string name="live_starting">Menjalankan model &amp; kamera…</string>
+    <string name="action_retry">Coba lagi</string>
+
+    <string name="puzzle_solved_tactic_title">Mat · %1$s</string>
+    <string name="puzzle_solved_tactic_body">Selesai dengan %1$s.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">Meriam tengah vs kuda tameng</string>
+    <string name="opening_same_cannon">Meriam sepihak</string>
+    <string name="opening_opposite_cannon">Meriam berhadapan</string>
+    <string name="opening_central_vs_reversed">Meriam tengah vs kuda istana terbalik</string>
+    <string name="opening_central_vs_single">Meriam tengah vs kuda tunggal</string>
+    <string name="opening_central_vs_tiger">Meriam tengah vs harimau tiga langkah</string>
+    <string name="opening_pawn_vs_cannon">Pembukaan pion vs meriam di belakang pion</string>
+    <string name="opening_mutual_pawn">Kedua pion maju</string>
+    <string name="opening_pawn_vs_central">Pembukaan pion vs meriam tengah</string>
+    <string name="opening_pawn_vs_horse">Pembukaan pion vs kuda</string>
+    <string name="opening_pawn_vs_elephant">Pembukaan pion vs gajah</string>
+    <string name="opening_elephant_vs_left">Gajah vs meriam tengah kiri</string>
+    <string name="opening_elephant_vs_right">Gajah vs meriam tengah kanan</string>
+    <string name="opening_elephant_vs_horse">Gajah vs kuda</string>
+    <string name="opening_elephant_vs_pawn">Gajah vs pion</string>
+    <string name="opening_elephant_vs_corner">Gajah vs meriam sudut</string>
+    <string name="opening_elephant_vs_crossing">Gajah vs meriam lintas istana</string>
+    <string name="opening_horse_vs_pawn">Kuda vs pion</string>
+    <string name="opening_horse_vs_central">Kuda vs meriam tengah</string>
+    <string name="opening_horse_vs_horse">Kuda vs kuda</string>
+    <string name="opening_central_cannon">Meriam tengah</string>
+    <string name="opening_pawn">Pembukaan pion</string>
+    <string name="opening_elephant">Pembukaan gajah</string>
+    <string name="opening_horse">Pembukaan kuda</string>
+    <string name="opening_crossing_cannon">Meriam lintas istana</string>
+    <string name="opening_corner_cannon">Meriam sudut</string>
+    <string name="opening_hook_cannon">Meriam kail</string>
+    <string name="opening_iron_roller">Penggulung besi</string>
+    <string name="opening_edge_horse">Kuda pinggir</string>
+    <string name="opening_edge_pawn">Pion pinggir</string>
+    <string name="tactic_rhyme_mahoupao">Meriam di belakang kuda, jenderal tak lolos</string>
+    <string name="tactic_desc_mahoupao">Kuda menjadi layar meriam. Meriam skak menembusnya, dan keduanya menutup setiap jalan keluar.</string>
+    <string name="tactic_rhyme_bolt">Meriam tengah di kolom, kereta berpalang menutup istana</string>
+    <string name="tactic_desc_bolt">Meriam tengah menjaga gerbang istana. Kereta meluncur ke baris belakang dan memalangi pintu.</string>
+    <string name="tactic_rhyme_double_cannon">Meriam depan layar, meriam belakang menembus sasaran</string>
+    <string name="tactic_desc_double_cannon">Dua meriam di satu garis. Yang depan jadi layar, yang belakang skak masuk istana.</string>
+    <string name="tactic_rhyme_double_rook">Dua kereta, kolom berselang, bergiliran ke istana</string>
+    <string name="tactic_desc_double_rook">Dua kereta turun di kolom bertetangga dan memisahkan jenderal baris demi baris.</string>
+    <string name="tactic_rhyme_pocket">Kuda di saku, kereta di baris belakang</string>
+    <string name="tactic_desc_pocket">Kuda duduk di saku sebelah istana musuh dan kereta turun ke baris belakang.</string>
+    <string name="tactic_rhyme_corner">Kuda di sudut penasihat, kereta yang menentukan</string>
+    <string name="tactic_desc_corner">Kuda skak dari sudut penasihat, menambat penasihat dan jenderal.</string>
+    <string name="tactic_rhyme_face">Jenderal saling berhadapan di kolom terbuka</string>
+    <string name="tactic_desc_face">Kedua jenderal dilarang saling berhadapan. Jenderalmu menahan kolom, dan aturan itu menamatkan skakmatnya.</string>
+    <string name="tactic_rhyme_heaven">Satu meriam di baris belakang, satu meriam di kolom tengah</string>
+    <string name="tactic_desc_heaven">Satu meriam menutup baris belakang. Yang lain menahan kolom tengah. Keduanya menyerang bersama.</string>
+    <string name="tactic_rhyme_fishing">Kuda pemancing di gerbang, satu kereta menutupnya</string>
+    <string name="tactic_desc_fishing">Kuda berdiri di petak pemancing memblokir pintu keluar istana. Kereta turun untuk skakmat.</string>
+    <string name="tactic_rhyme_heart">Korbankan kereta pada penasihat tengah</string>
+    <string name="tactic_desc_heart">Lepaskan kereta untuk mengambil penasihat tengah, tarik jenderal dari petaknya, lalu skakmat.</string>
+    <string name="tactic_rhyme_smothered">Penasihat menjerumuskan jenderal mereka sendiri</string>
+    <string name="tactic_desc_smothered">Kedua penasihat menyumbat istana. Meriam di baris belakang, atau kereta dan pion, menamatkan lewat sumbatan itu.</string>
+    <string name="tactic_academy_sub">Pelajari garisnya, dengar seruannya, lalu pecahkan</string>
+    <string name="tactic_voice">Dengarkan</string>
+    <string name="tactic_challenge">Pecahkan</string>
+    <string name="tactic_mastered">Dikuasai</string>
+    <string name="tactic_learning">Dipelajari</string>
+    <string name="puzzle_rush_result_title">Teka-teki Kilat</string>
+    <string name="puzzle_rush_score_unit">teka-teki</string>
+    <string name="replay_start_position">Posisi awal</string>
+    <string name="replay_move_line">Langkah %1$d · %2$s</string>
+    <string name="replay_red_winrate">Peluang menang Merah %1$d%%</string>
+    <string name="replay_try_variation">Coba</string>
+    <string name="replay_variation_undo">Batalkan</string>
+    <string name="replay_variation_exit">Kembali ke permainan</string>
+    <string name="replay_variation_status">Jalur +%1$d · Merah %2$d%%</string>
+    <string name="replay_variation_status_move">Jalur +%1$d · %2$s · Merah %3$d%%</string>
+    <string name="replay_variation_step">Langkah %1$d</string>
+    <string name="replay_red_better">Merah</string>
+    <string name="replay_black_better">Hitam</string>
+    <string name="move_quality_brilliant">Cemerlang</string>
+    <string name="move_quality_best">Terbaik</string>
+    <string name="move_quality_inaccuracy">Kurang tepat</string>
+    <string name="move_quality_mistake">Kesalahan</string>
+    <string name="move_quality_blunder">Kesalahan fatal</string>
+    <string name="move_quality_book">Menurut teori</string>
+    <string name="analysis_scan_status">Kedalaman %1$d · Merah menang %2$d%%</string>
+</resources>

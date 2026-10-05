@@ -12,9 +12,11 @@
     <string name="menu_about">About</string>
     <string name="menu_difficulty">Select Difficulty</string>
     <string name="menu_side">Choose Side</string>
-    <!-- Language toggle on the home screen. Label shows the language you'd
-         switch TO, not the current one. -->
-    <string name="menu_language">中文</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Language</string>
+    <string name="language_dialog_title">Choose language</string>
+    <string name="language_system_default">Follow system</string>
 
     <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
          Each tier maps to a clearly labeled player segment so you can pick the

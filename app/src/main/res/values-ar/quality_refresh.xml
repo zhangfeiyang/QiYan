@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">الأطراف ثابتة في صعود الجبل.</string>
+    <string name="game_swap_rated_title">أتبادل الطرفين؟</string>
+    <string name="game_swap_rated_message">ستتولى الوضع الذي كان الذكاء الاصطناعي يلعبه. تصبح هذه المباراة تدريبًا ولن تغيّر تصنيفك.</string>
+    <string name="game_swap_rated_confirm">تبادل وتدريب</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">تلميح · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">واصلت اللعب بعد النتيجة، فهذا الجزء غير مصنف. تبقى النتيجة الأولى معتمدة.</string>
+    <string name="result_resume">تابع اللعب</string>
+    <string name="result_review">راجع المباراة</string>
+    <string name="result_review_unavailable">لم تُحفظ هذه المباراة، فلا شيء لمراجعته.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">ثلاث دقائق. كم ماتًا؟</string>
+    <string name="puzzle_rush_intro_rules">• يبدأ الأحمر في كل وضع. جد المات.\n• النقسة الخاطئة أو التجاوز يكلف قلبًا. افقد الثلاثة وينتهي السباق.\n• تصعب الأوضاع مع صعود نقاطك.</string>
+    <string name="puzzle_rush_intro_best">أفضل نتيجة لك: %1$d</string>
+    <string name="puzzle_rush_intro_first">لا رقم قياسي بعد. سجّل أول واحد.</string>
+    <string name="puzzle_rush_prompt_short">الدور على الأحمر · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">متقدم · محرك الذكاء الاصطناعي</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d نمط مات كلاسيكي</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">التصنيف التمهيدي</string>
+    <string name="rank_placement_chip">تمهيدي %1$d/%2$d</string>
+    <string name="rank_placement_progress">تمهيدي %1$d/%2$d · %3$d قبل ختمك الأول</string>
+    <string name="result_placement_progress">جارٍ تلع مباراة التمهيد %1$d من %2$d. %3$d أخرى لكشف ختمك الأول.</string>
+    <string name="result_placement_done">اكتمل التمهيد. ختمك الأول: %1$s</string>
+    <string name="rank_hall_placement">تمهيد: لُعبت %1$d من %2$d مباراة مصنفة. يُكشف ختمك الأول بعد المباراة %2$d.</string>
+</resources>

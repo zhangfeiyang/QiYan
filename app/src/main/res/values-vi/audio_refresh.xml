@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Bản nhạc khí giao hưởng gốc với tiếng đàn tỳ bạt nhẹ nhàng và hợp âm khoáng đạt, phát ở màn hình chính và trong lúc chơi. Nhập dịu dàng và tạm dừng khi ứng dụng vào nền.</string>
+    <string name="audio_music_volume">Âm lượng nhạc</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Nghe thử nhạc · 12 giây</string>
+    <string name="audio_preview_stop">Dừng nghe thử</string>
+    <string name="audio_motion_description">Nước đi mượt, gợn sóng khi quân đáp và nhịp chiếu ngắn. Tắt đi cũng tắt luôn hiệu ứng ăn quân. Tôn trọng cài đặt hoạt động của hệ thống.</string>
+</resources>

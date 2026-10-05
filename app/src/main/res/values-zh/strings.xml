@@ -12,7 +12,9 @@
     <string name="menu_about">关于</string>
     <string name="menu_difficulty">选择难度</string>
     <string name="menu_side">选择执子</string>
-    <string name="menu_language">English</string>
+    <string name="menu_language_label">语言</string>
+    <string name="language_dialog_title">选择语言</string>
+    <string name="language_system_default">跟随系统</string>
 
     <!-- 难度等级: 15 档, 从绝对新手到传奇级. 每一档都有对应的"棋手段位"
          标签, 让用户能直接对着自己水平挑, 而不是凭感觉. -->

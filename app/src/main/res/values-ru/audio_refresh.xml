@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Оригинальная инструментальная композиция с мягкими переборами струн и просторными аккордами — на главном экране и во время игры. Плавно нарастает и приостанавливается, когда приложение уходит в фон.</string>
+    <string name="audio_music_volume">Громкость музыки</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Прослушать музыку · 12 секунд</string>
+    <string name="audio_preview_stop">Остановить прослушивание</string>
+    <string name="audio_motion_description">Плавные ходы, едва заметная рябь при постановке фигуры и короткий пульс при шахе. Отключение также убирает анимацию взятия. Учитывается системная настройка анимации.</string>
+</resources>

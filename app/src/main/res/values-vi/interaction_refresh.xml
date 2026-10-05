@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Chơi</string>
+    <string name="nav_learn">Học</string>
+    <string name="nav_tools">Công cụ</string>
+    <string name="nav_me">Tôi</string>
+    <string name="difficulty_6">Đại sư</string>
+    <string name="difficulty_6_tag">Đòn thế sâu hơn</string>
+    <string name="difficulty_6_desc">Nhiều thời gian hơn để lộ các đòn phối hợp.</string>
+    <string name="difficulty_7">Huyền thoại</string>
+    <string name="difficulty_7_tag">Đánh chuẩn xác</string>
+    <string name="difficulty_7_desc">Tính toán kiên nhẫn cho kỳ thủ kỳ cựu.</string>
+    <string name="difficulty_8">Đỉnh cao</string>
+    <string name="difficulty_8_tag">Thử thách trọn vẹn</string>
+    <string name="difficulty_8_desc">Ngân sách tìm kiếm dài nhất. Từ từ mà chơi.</string>
+    <string name="confirm_setup">Chốt lựa chọn</string>
+    <string name="style_choose">Phong cách: %1$s  ▾</string>
+    <string name="puzzle_collection">Đồ tàn cuộc</string>
+    <string name="puzzle_collection_desc">Đọc thế cờ. Tìm nước thắng.</string>
+    <string name="puzzle_page">Tập %1$d / %2$d</string>
+    <string name="page_previous">Trước</string>
+    <string name="page_next">Sau</string>
+    <string name="puzzle_collection_progress">Đã giải %1$d · %2$d thế cờ</string>
+    <string name="puzzle_family_rook">Đòn xe</string>
+    <string name="puzzle_family_cannon">Đòn pháo</string>
+    <string name="puzzle_family_horse">Đòn mã</string>
+    <string name="puzzle_family_mixed">Công hỗn hợp</string>
+    <string name="result_close">Đóng kết quả, xem bàn cờ</string>
+    <string name="result_win">CHIẾN THẮNG</string>
+    <string name="result_loss">THẤT BẠI</string>
+    <string name="result_draw">HÒA</string>
+    <string name="result_undo">Hoàn tác và chơi tiếp</string>
+    <string name="result_replay_hint">Thế cờ cuối vẫn nằm trên bàn. Đóng bảng này để ngắm nghía.</string>
+    <string name="game_mode_ranked">Trận có tính điểm</string>
+</resources>

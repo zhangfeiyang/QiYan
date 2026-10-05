@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">تدريب · بلا تصنيف</string>
+    <string name="game_search_no_move">لم تُرجع أي نقسة. جرّب التلميح مجددًا، أو غيّر مستوى الخصم لاستئناف اللعب.</string>
+    <string name="puzzle_engine_error">تعذّر على محرك الألغاز الاستجابة. جرّب إعادة تشغيل هذا اللغز.</string>
+    <string name="game_coach_start">خذ وقتك. انقر قطعة لترى نقساتها القانونية؛ ويريكك التلميح نقسة مقترحة.</string>
+    <string name="game_coach_practice">تدريب مريح · التلميحات والتراجعات مجانية. يبقى تصنيفك دون تغيير.</string>
+    <string name="game_coach_check">قائدك في كش. خذ المهاجم، أو اعترض الهجوم، أو حرّك قائدك.</string>
+    <string name="game_coach_thinking">راقب نقسة خصمك، ثم تحقق هل أي من قطعك مهدد.</string>
+    <string name="game_coach_opening">جرّب تنمية خيولك وعرباتك. احمِ قطعك قبل الهجوم.</string>
+    <string name="game_coach_selected">%1$s · المواضع المضيئة نقسات قانونية.</string>
+    <string name="game_coach_blocked">هذه القطعة بلا نقسة قانونية. جرّب قطعة أخرى، أو استخدم التلميح.</string>
+    <string name="game_rule_rook">تتحرك العربات مستقيمة على صفوف أو أعمدة خالية</string>
+    <string name="game_rule_cannon">يقفز المدفع فوق قطعة واحدة بالضبط عند الأخذ</string>
+    <string name="game_rule_horse">يتحرك الحصان على شكل L؛ والساق المسدودة تمنع النقسة</string>
+    <string name="game_rule_elephant">يتحرك الفيل قطعتين قطريًا ولا يعبر إلى جهة الخصم</string>
+    <string name="game_rule_advisor">يتحرك المستشارون خطوة قطرية واحدة داخل الحصن</string>
+    <string name="game_rule_king">يتحرك القادة خطوة مستقيمة واحدة داخل الحصن</string>
+    <string name="game_rule_pawn">يتقدم الجنود أمامًا؛ وبعد عبور النهر يمكنهم التحرك جانبيًا أيضًا</string>
+    <string name="game_undo_no_penalty">تأخذ نقستك الأخيرة؟ التراجع لا يخصم نقاط التصنيف.</string>
+    <string name="game_practice_undone">نُقلت النقسة. جرّب فكرة أخرى.</string>
+    <string name="game_play_again">العب مجددًا</string>
+    <string name="game_try_easier">جرّب أسهل</string>
+    <string name="game_try_challenge">لغز اليوم</string>
+    <string name="game_practice_result">%1$s\n\nاكتمل التدريب. تصنيفك دون تغيير؛ وحُفظت المباراة للمراجعة.</string>
+    <string name="game_practice_record_reason">تدريب · %1$s</string>
+    <string name="daily_puzzle_title">لغز اليوم</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">اكتمل لغز اليوم!\n%1$d أيام تدريب · متتالية %2$d يوم\n\nإكمال واحد في اليوم. لغز جديد يصل غدًا.</string>
+    <string name="daily_puzzle_expired">حُلّ اللغز. بدأ يوم جديد؛ ولغز اليوم جاهز على الشاشة الرئيسية.</string>
+    <string name="daily_puzzle_more">ألغاز أكثر</string>
+    <string name="puzzle_clue">إيحاء</string>
+    <string name="puzzle_undo_unavailable">التراجع غير متاح لهذا الوضع.</string>
+</resources>

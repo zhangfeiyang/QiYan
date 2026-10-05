@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">ソフトな撥弦と広がりのあるコードのオリジナルインストゥルメンタル。ホーム画面と対局中に流れます。ふんわりフェードインし、アプリがバックグラウンドに回ると一時停止します。</string>
+    <string name="audio_music_volume">音楽の音量</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">音楽を試聴 · 12秒</string>
+    <string name="audio_preview_stop">試聴を停止</string>
+    <string name="audio_motion_description">なめらかな駒の動き、ほのかな着地の波紋、短い王手の演出。オフにすると駒取りの動きも止まります。システムのアニメーション設定に従います。</string>
+</resources>

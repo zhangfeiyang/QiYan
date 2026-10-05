@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">اللعب</string>
+    <string name="title_replay">المراجعة</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="title_board_editor">تحرير الوضع</string>
+    <string name="menu_play">ابدأ اللعب</string>
+    <string name="menu_replay">مراجعة المباراة</string>
+    <string name="menu_settings">الإعدادات</string>
+    <string name="menu_about">حول</string>
+    <string name="menu_difficulty">اختر الصعوبة</string>
+    <string name="menu_side">اختر طرفك</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">اللغة</string>
+    <string name="language_dialog_title">اختر اللغة</string>
+    <string name="language_system_default">لغة النظام</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">مبتدئ</string>
+    <string name="difficulty_beginner">ناشئ</string>
+    <string name="difficulty_lower_intermediate">متوسط منخفض</string>
+    <string name="difficulty_intermediate">متوسط</string>
+    <string name="difficulty_upper_intermediate">متوسط مرتفع</string>
+    <string name="difficulty_advanced">متقدم</string>
+    <string name="difficulty_amateur">هاوي خبير</string>
+    <string name="difficulty_district">لاعب الحي</string>
+    <string name="difficulty_city">لاعب المدينة</string>
+    <string name="difficulty_provincial">خبير إقليمي</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">أستاذ الجمعية</string>
+    <string name="difficulty_national_master">أستاذ وطني</string>
+    <string name="difficulty_grandmaster">أستاذ كبير</string>
+    <string name="difficulty_international_master">أستاذ دولي</string>
+    <string name="difficulty_legendary">أسطوري</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">لاعب جديد</string>
+    <string name="difficulty_segment_beginner">مبتدئ عادي</string>
+    <string name="difficulty_segment_lower_intermediate">هاوي متوسط</string>
+    <string name="difficulty_segment_intermediate">لاعب الشارع</string>
+    <string name="difficulty_segment_upper_intermediate">هاوي قوي</string>
+    <string name="difficulty_segment_advanced">دان هاوي 1</string>
+    <string name="difficulty_segment_amateur">دان هاوي 3</string>
+    <string name="difficulty_segment_district">دان هاوي 5</string>
+    <string name="difficulty_segment_city">دان هاوي 6</string>
+    <string name="difficulty_segment_provincial">أستاذ محلي</string>
+    <string name="difficulty_segment_local_master">أستاذ الجمعية</string>
+    <string name="difficulty_segment_national_master">أستاذ وطني</string>
+    <string name="difficulty_segment_grandmaster">أستاذ كبير وطني</string>
+    <string name="difficulty_segment_international_master">أستاذ دولي</string>
+    <string name="difficulty_segment_legendary">أستاذ كبير دولي</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">تعلّم القواعد للتو، وكثيرًا ما يهدي قطعًا مجانًا</string>
+    <string name="difficulty_desc_beginner">يأخذ القطع المجانية الواضحة، ويفوت الفخاخ البسيطة</string>
+    <string name="difficulty_desc_lower_intermediate">يعرف التكتيكات الأساسية، ويلتقط الشوكات أحيانًا</string>
+    <string name="difficulty_desc_intermediate">افتتاحات متينة، ويحسب من 3 إلى 5 نقسات أمامًا</string>
+    <string name="difficulty_desc_upper_intermediate">يلعب نقسات مبدئية، ويتعامل جيدًا مع الافتتاحات</string>
+    <string name="difficulty_desc_advanced">هاوي متين، نهايات سليمة، ونقسات ضعيفة قليلة</string>
+    <string name="difficulty_desc_amateur">تكتيكات موثوقة، وينصب فخاخًا أساسية</string>
+    <string name="difficulty_desc_district">هجوم ودفاع متوازنان، ويعاقب الأخطاء</string>
+    <string name="difficulty_desc_city">رؤية شاملة قوية، يحضّر الفخاخ، ونادرًا ما يخطئ خطأً فادحًا</string>
+    <string name="difficulty_desc_provincial">مستوى بطولات المقاطعات، حساب دقيق</string>
+    <string name="difficulty_desc_local_master">لعب بمستوى الأستاذية، خطوط محسوبة بعمق</string>
+    <string name="difficulty_desc_national_master">لعب هجومي حاد، وأخطاء تكاد تكون معدومة</string>
+    <string name="difficulty_desc_grandmaster">مستوى أستاذ كبير وطني، لعب استراتيجي عميق</string>
+    <string name="difficulty_desc_international_master">مستوى أستاذ دولي، دقيق في كل الأطوار</string>
+    <string name="difficulty_desc_legendary">مستوى أستاذ كبير دولي، الأقوى على هذا الجهاز</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">تلميح</string>
+    <string name="action_undo">تراجع</string>
+    <string name="action_new_game">لعبة جديدة</string>
+    <string name="action_resign">استسلام</string>
+    <string name="action_draw">تعادل</string>
+    <string name="action_analysis">تحليل</string>
+    <string name="action_flip">قلب اللوح</string>
+    <string name="action_settings">الإعدادات</string>
+    <string name="action_back">رجوع</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_export">تصدير PGN</string>
+    <string name="action_play_red">اللعب بالأحمر (الأول)</string>
+    <string name="action_play_black">اللعب بالأسود (الثاني)</string>
+    <string name="action_two_player">لاعبان</string>
+    <string name="action_voice">نقسة صوتية</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">انطق نقسة، مثل «车九进四» (العربة تسعة تتقدم أربعة)</string>
+    <string name="voice_played">النقسة: %1$s</string>
+    <string name="voice_no_match">لا نقسة قانونية تطابق «%1$s»</string>
+    <string name="voice_ambiguous">غامضة — كن أكثر تحديدًا من فضلك</string>
+    <string name="voice_no_speech">لم نلتقط ذلك، حاول مجددًا</string>
+    <string name="voice_error">فشل التعرف على الكلام</string>
+    <string name="voice_unavailable">التعرف على الكلام غير متاح على هذا الجهاز</string>
+    <string name="voice_permission_denied">إذن الميكروفون ضروري للنقسات الصوتية</string>
+    <string name="voice_wait_engine">انتظر حتى ينتهي الذكاء الاصطناعي من النقسة</string>
+    <string name="voice_not_your_turn">لم يحن دورك بعد</string>
+    <string name="voice_game_over">انتهت المباراة</string>
+
+    <!-- Status -->
+    <string name="status_thinking">الذكاء الاصطناعي يفكر…</string>
+    <string name="status_your_turn">دورك</string>
+    <string name="status_check">كش!</string>
+    <string name="status_checkmate">كش مات!</string>
+    <string name="status_draw">تعادل</string>
+    <string name="status_resign">مستسلم</string>
+    <string name="status_win">فوز</string>
+    <string name="status_loss">خسارة</string>
+    <string name="status_stalemate">حصار تام</string>
+    <string name="status_engine_error">خطأ في الذكاء الاصطناعي، تم التحويل إلى المحرك الاحتياطي</string>
+    <string name="game_over_checkmate_red">الأسود يُمات الأحمر</string>
+    <string name="game_over_checkmate_black">الأحمر يُمات الأسود</string>
+    <string name="game_over_repetition">تكرار</string>
+    <string name="game_over_fifty_moves">قاعدة الخمسين نقسة</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">نسبة الفوز</string>
+    <string name="winrate_red">نسبة فوز الأحمر</string>
+    <string name="winrate_black">نسبة فوز الأسود</string>
+    <string name="depth_label">العمق</string>
+    <string name="nodes_label">العقد</string>
+    <string name="nps_label">نقسة/ث</string>
+    <string name="time_label">الوقت</string>
+
+    <!-- Rating -->
+    <string name="rating_current">التصنيف الحالي</string>
+    <string name="rating_total_games">إجمالي المباريات</string>
+    <string name="rating_wins">فوز</string>
+    <string name="rating_losses">خسارة</string>
+    <string name="rating_draws">تعادل</string>
+    <string name="rating_winrate">نسبة الفوز</string>
+    <string name="rating_rank">الرتبة</string>
+    <string name="rank_1">مبتدئ</string>
+    <string name="rank_2">ناشئ</string>
+    <string name="rank_3">دان هاوي 1</string>
+    <string name="rank_4">دان هاوي 3</string>
+    <string name="rank_5">دان هاوي 5</string>
+    <string name="rank_6">دان هاوي 7</string>
+    <string name="rank_7">أستاذ إقليمي</string>
+    <string name="rank_8">أستاذ وطني</string>
+    <string name="rank_9">أستاذ كبير</string>
+    <string name="rank_10">ملك الشطرنج الصيني</string>
+    <string name="rank_hall_title">أختام الرتب</string>
+    <string name="rank_hall_intro">عشرة أختام من المبتدئ إلى الملك. الأختام تتحرك بالمباريات المصنفة فقط؛ التدريب وصعود الجبل لا تؤثر فيها.</string>
+    <string name="rank_hall_current">الحالي</string>
+    <string name="rank_hall_reached">تم بلوغه</string>
+    <string name="rank_hall_locked">أمامك</string>
+    <string name="rank_progress_next">%2$d نقطة للوصول إلى %1$s</string>
+    <string name="rank_progress_top">ملك الشطرنج الصيني — قمة السلم</string>
+    <string name="rank_promoted">تمت ترقيتك إلى %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">افتح أختام الرتب</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">لعبة جديدة</string>
+    <string name="dialog_new_game_message">أتبدأ لعبة جديدة؟</string>
+    <string name="dialog_resign_title">استسلام</string>
+    <string name="dialog_resign_message">هل تريد الاستسلام فعلًا؟</string>
+    <string name="dialog_undo_title">تراجع</string>
+    <string name="dialog_undo_message">التراجع يكلّف نقاط تصنيف صغيرة. أتراجع رغم ذلك؟</string>
+    <string name="dialog_yes">نعم</string>
+    <string name="dialog_no">لا</string>
+    <string name="dialog_ok">حسنًا</string>
+    <string name="dialog_cancel">إلغاء</string>
+    <string name="dialog_confirm">تأكيد</string>
+
+    <!-- Review -->
+    <string name="replay_empty">لا مباريات بعد</string>
+    <string name="replay_play">تشغيل تلقائي</string>
+    <string name="replay_pause">إيقاف مؤقت</string>
+    <string name="replay_prev">السابق</string>
+    <string name="replay_next">التالي</string>
+    <string name="replay_first">النقسة الأولى</string>
+    <string name="replay_last">النقسة الأخيرة</string>
+    <string name="replay_move_number">النقسة %1$d</string>
+    <string name="result_win_short">ف</string>
+    <string name="result_loss_short">خ</string>
+    <string name="result_draw_short">ت</string>
+    <string name="side_red_short">أحمر</string>
+    <string name="side_black_short">أسود</string>
+    <string name="replay_moves_summary">%1$d نقسة · %2$s</string>
+    <string name="replay_record_missing">لم يُعثر على سجل المباراة</string>
+    <string name="replay_player_info">مستوى %1$d  %2$s  %3$d نقسة</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">تعذر استعادة النقسة %1$d</string>
+    <string name="replay_viewer_title">إعادة عرض المباراة</string>
+    <string name="replay_share_report">شارك تقرير المعركة</string>
+    <string name="replay_export_pgn">تصدير PGN</string>
+    <string name="replay_copy_fen">نسخ FEN</string>
+    <string name="replay_copied_to_clipboard">نُسخ إلى الحافظة</string>
+    <string name="puzzle_rush_title">سباق الألغاز</string>
+    <string name="puzzle_rush_banner">3 دقائق · أفضل %1$d</string>
+    <string name="tactics_banner_title">أنماط المات</string>
+    <string name="tactics_banner_sub">ماتات كلاسيكية</string>
+    <string name="tactics_banner_progress">%1$d / %2$d متعلم</string>
+    <string name="puzzle_rush_subtitle">حل سريع في 3 دقائق</string>
+    <string name="puzzle_rush_start">ابدأ السباق</string>
+    <string name="puzzle_rush_score">النقاط</string>
+    <string name="puzzle_rush_high_score">الأفضل: %1$d</string>
+    <string name="puzzle_rush_combo">متتالية ×%1$d</string>
+    <string name="puzzle_rush_pass">تجاوز (−1 قلب)</string>
+    <string name="puzzle_rush_time_up">انتهى الوقت!</string>
+    <string name="puzzle_rush_lives_out">نفدت القلوب!</string>
+    <string name="puzzle_rush_new_record">🎉 رقم قياسي جديد!</string>
+    <string name="puzzle_rush_solved_count">حللت %1$d ألغاز</string>
+    <string name="puzzle_rush_play_again">العب مجددًا</string>
+    <string name="puzzle_rush_share">شارك النتيجة</string>
+    <string name="puzzle_rush_report_title">【QiYan شيانغتشي · سباق الألغاز】</string>
+    <string name="puzzle_rush_score_line">النقاط %1$d</string>
+    <string name="puzzle_rush_best_badge">الأفضل %1$d</string>
+    <string name="puzzle_rush_mate_line">مات · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">اللقب: %1$s</string>
+    <string name="puzzle_rush_record_line">رقم قياسي جديد: %1$d</string>
+    <string name="puzzle_rush_previous_best">الأفضل حتى الآن: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\nحللت %2$d في 3 دقائق.\nأفضل متتالية %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">أتترك السباق؟ لن تُحفظ النتيجة.</string>
+    <string name="puzzle_rush_leave_yes">ترك</string>
+    <string name="puzzle_rush_honor_1">متدرب</string>
+    <string name="puzzle_rush_honor_2">لاعب نادٍ</string>
+    <string name="puzzle_rush_honor_3">سكين حاد</string>
+    <string name="puzzle_rush_honor_4">حاسبة</string>
+    <string name="puzzle_rush_honor_5">سيّد السباق</string>
+    <string name="stat_total_games_format">%1$d مباريات</string>
+    <string name="stat_wins_format">%1$d فوز</string>
+    <string name="stat_losses_format">%1$d خسارة</string>
+    <string name="stat_draws_format">%1$d تعادل</string>
+    <string name="game_illegal_move">نقسة غير قانونية</string>
+    <string name="game_undo_failed">لا يمكن التراجع</string>
+    <string name="game_switched_to_black">تم التبديل إلى الأسود</string>
+    <string name="game_switched_to_red">تم التبديل إلى الأحمر</string>
+    <string name="game_opponent_black">الذكاء الاصطناعي (الأسود)</string>
+    <string name="game_opponent_red">الذكاء الاصطناعي (الأحمر)</string>
+    <string name="game_player_red">أنا (الأحمر)</string>
+    <string name="game_player_black">أنا (الأسود)</string>
+    <string name="game_move_count">النقسة %1$d</string>
+    <string name="game_engine_start_failed">فشل بدء الذكاء الاصطناعي</string>
+    <string name="unknown_label">غير معروف</string>
+    <string name="default_nickname">صديق الشطرنج</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">السبب: %1$s\nتغيير التصنيف: %2$s\nالرتبة الحالية: %3$s</string>
+    <string name="game_over_rating_detail">تغيير التصنيف: %1$s · الرتبة الحالية: %2$s</string>
+    <string name="game_over_win">لقد فزت</string>
+    <string name="game_over_loss">لقد خسرت</string>
+    <string name="game_over_draw">تعادل</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">سلاح التنفيذ</string>
+    <string name="settings_hash">جدول التجزئة (ميغابايت)</string>
+    <string name="settings_sound">المؤثرات الصوتية</string>
+    <string name="settings_vibrate">الاهتزاز</string>
+    <string name="settings_bgm">موسيقى الخلفية</string>
+    <string name="settings_board_flip">القلب افتراضيًا</string>
+    <string name="settings_show_coords">إظهار الإحداثيات</string>
+    <string name="settings_show_winrate">إظهار نسبة الفوز</string>
+    <string name="settings_animation">حركة النقسة</string>
+    <string name="settings_theme">المظهر</string>
+    <string name="settings_desc_threads">سلاح أكثر تعني حسابًا أسرع واستهلاك بطارية أكبر. يُنصح بألا تتجاوز نحوّى جهازك</string>
+    <string name="settings_desc_hash">ذاكرة تفكير الذكاء الاصطناعي. زِدها للعب أعمق، وقلّلها إن كانت الذاكرة ضيقة</string>
+    <string name="settings_desc_sound">تشغيل صوت عند النقسة والأخذ والكش</string>
+    <string name="settings_desc_vibrate">اهتزاز خفيف عند كل نقسة</string>
+    <string name="settings_desc_bgm">يعزف أجواء القن الصيني الهادئة أثناء المباريات؛ بمستوى صوت منخفض حتى لا يطغى على المؤثرات</string>
+    <string name="settings_desc_coords">إظهار أرقام الأعمدة والصفوف على أطراف اللوح</string>
+    <string name="settings_desc_winrate">إظهار شريط نسبة الفوز المباشر فوق اللوح</string>
+    <string name="settings_desc_animation">إيقافه يجعل القطع تستقر فورًا، وألسع على الأجهزة الضعيفة</string>
+    <string name="settings_desc_flip">بدء اللعب من جهة الأسود</string>
+    <string name="settings_section_display">العرض</string>
+    <string name="settings_section_other">أخرى</string>
+    <string name="settings_theme_system">حسب النظام</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+    <string name="settings_clear_data">مسح كل البيانات</string>
+    <string name="dialog_clear_data_title">مسح البيانات</string>
+    <string name="dialog_clear_data_message">سيُمسح كل سجل المباريات وبيانات التصنيف. أمتابع؟</string>
+    <!-- Live hints -->
+    <string name="live_title">تلميحات مباشرة</string>
+    <string name="live_entry">تلميحات مباشرة</string>
+    <string name="live_need_camera">إذن الكاميرا مطلوب للتعرف المباشر على اللوح</string>
+    <string name="live_camera_failed">فشل تشغيل الكاميرا</string>
+    <string name="live_locking">جارٍ تحديد اللوح…</string>
+    <string name="live_board_invalid">لم يُتعرف على اللوح كاملًا — تأكد من ظهور الزوايا الأربع في الكادر</string>
+    <string name="live_ready">مثبّت · تعرف خلال %1$d م.ث</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">إعادة ضبط</string>
+    <string name="editor_clear">تفريغ</string>
+    <string name="settings_clear_data_desc">حذف كل سجلات المباريات وبيانات التصنيف. لا يمكن التراجع عنه</string>
+    <string name="settings_piece_style">نمط القطع</string>
+    <string name="settings_board_style">نمط اللوح</string>
+    <string name="settings_about">حول</string>
+    <string name="settings_engine_path">مسار نموذج الذكاء الاصطناعي</string>
+    <string name="settings_about_text">QiYan v1.0\n\nذكاء اصطناعي مطوّر ذاتيًا (تقييم شبكة NNUE العصبية)\nيدعم التعرف على اللوح من الصورة والتلميحات المباشرة</string>
+
+    <!-- About -->
+    <string name="about_engine_title">معلومات الذكاء الاصطناعي</string>
+    <string name="about_engine_version">NNUE مطوّر ذاتيًا</string>
+    <string name="about_engine_desc">ذكاء اصطناعي للشطرنج الصيني</string>
+
+    <!-- Common -->
+    <string name="red">الأحمر</string>
+    <string name="black">الأسود</string>
+    <string name="move_count">%1$d نقسات</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">مسح اللوح</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">تحليل الذكاء الاصطناعي</string>
+    <string name="advisor_send">إرسال</string>
+    <string name="advisor_input_hint">اسأل أي شيء…</string>
+    <string name="advisor_error_generic">التحليل غير متاح مؤقتًا، حاول لاحقًا</string>
+    <string name="advisor_no_config">ميزة الذكاء الاصطناعي غير مهيأة، تواصل مع المطوّر</string>
+    <string name="advisor_unavailable">الذكاء الاصطناعي غير متاح مؤقتًا، حاول لاحقًا</string>
+    <string name="advisor_waiting">الذكاء الاصطناعي ما يزال يجيب، انتظر قليلًا</string>
+    <string name="advisor_key_rejected">مفتاح المصادقة غير صالح أو أُلغي. أعد تهيئة رمز الوسيط.</string>
+    <string name="advisor_clear">مسح المحادثة</string>
+    <string name="advisor_context_replay">جارٍ مراجعة النقسة %1$d</string>
+    <string name="advisor_context_game">النقسة %1$d · الدور على %2$s</string>
+    <string name="advisor_thinking">الذكاء الاصطناعي يحلل…</string>
+    <string name="advisor_button">تحليل الذكاء الاصطناعي</string>
+    <string name="advisor_empty_title">اسأل الذكاء الاصطناعي عن هذه المباراة</string>
+    <string name="advisor_empty_subtitle">يرى الوضع الحالي — اسأل عن الموقف، أو النقسة التالية، أو ما الخطأ في النقسة الماضية</string>
+    <string name="advisor_suggest_analyze">حلّل الوضع الحالي</string>
+    <string name="advisor_suggest_next">ماذا ألعب في النقسة التالية؟</string>
+    <string name="advisor_suggest_review">هل كانت في النقسة الماضية مشكلة؟</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">انقر للتخطي</string>
+    <string name="analysis_summary_prompt">لخص الوضع الحالي في 2-3 جمل: الموقف، من الأفضل، نقاط الهجوم/الدفاع الرئيسية، وأبرز نقسة الآن.</string>
+    <string name="advisor_send_desc">إرسال</string>
+    <string name="advisor_move_banner">يستعرض الذكاء الاصطناعي هذه النقسة: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">مسح اللوح</string>
+    <string name="recognize_take_photo">التقط صورة</string>
+    <string name="recognize_pick_image">اختر من المعرض</string>
+    <string name="recognize_preview_desc">اللوح المصحّح</string>
+    <string name="recognize_red_to_move">الأحمر يلعب</string>
+    <string name="recognize_black_to_move">الأسود يلعب</string>
+    <string name="recognize_advise">اطلب نصيحة الذكاء الاصطناعي</string>
+    <string name="recognize_hint_start">التقط صورة للوح، أو اختر واحدة من المعرض. صوّر من الأمام مباشرة مع ظهور الزوايا الأربع.</string>
+    <string name="recognize_working">جارٍ التعرف…</string>
+    <string name="recognize_failed">فشل التعرف، جرّب صورة أخرى</string>
+    <string name="recognize_model_failed">فشل تحميل نموذج التعرف</string>
+    <string name="recognize_no_camera">لا توجد كاميرا متاحة</string>
+    <string name="recognize_corner_warning">لم تُؤطَّر زوايا اللوح الأربع بدقة، فقد يكون التعرف غير مضبوط. حاول إعادة التصوير من الأمام.</string>
+    <string name="recognize_must_fix">صحّح المشكلات التالية أولًا:</string>
+    <string name="recognize_ready">اكتمل التعرف. الدوائر الصفراء تدل على مواضع غير مؤكدة (%1$d إجمالًا) — انقر المربع لتصحيحه. أكّد قبل طلب النصيحة.</string>
+    <string name="recognize_pick_piece">أي قطعة توضع على %1$c%2$d</string>
+    <string name="recognize_empty">فارغ</string>
+    <string name="recognize_flip">قلب</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">أُخذت %1$s</string>
+    <string name="piece_king">القائد</string>
+    <string name="piece_advisor">المستشار</string>
+    <string name="piece_elephant">الفيل</string>
+    <string name="piece_horse">الحصان</string>
+    <string name="piece_rook">العربة</string>
+    <string name="piece_cannon">المدفع</string>
+    <string name="piece_pawn">الجندي</string>
+    <string name="recognize_thinking">الذكاء الاصطناعي يفكر…</string>
+    <string name="recognize_engine_failed">فشل بدء الذكاء الاصطناعي</string>
+    <string name="recognize_engine_error">خطأ الذكاء الاصطناعي: %1$s</string>
+    <string name="recognize_no_move">لم يُرجع الذكاء الاصطناعي نقسة</string>
+    <string name="recognize_advice">اقتراح: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">وجّه الكاميرا إلى لوح حقيقي واحصل على اقتراحات أثناء اللعب</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">صوّر الوضع</string>
+    <string name="recognize_start_camera_desc">صوّر لوحًا حقيقيًا</string>
+    <string name="recognize_start_gallery_desc">استخدم لقطة شاشة أو صورة جاهزة</string>
+    <string name="recognize_tips_title">صوّر جيدًا ليكون التعرف جيدًا</string>
+    <string name="recognize_tip_1">صوّر من الأمام مباشرة، لا بزاوية مائلة</string>
+    <string name="recognize_tip_2">أبقِ الزوايا الأربع داخل الكادر</string>
+    <string name="recognize_tip_3">إضاءة متساوية؛ تجنّب الانعكاسات والظلال</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">قوة التلميح</string>
+    <string name="advice_level_fast">سريع</string>
+    <string name="advice_level_fast_desc">يقترح فورًا</string>
+    <string name="advice_level_normal">قياسي</string>
+    <string name="advice_level_normal_desc">يفكر ثانية أو اثنتين، يكفي في معظم الحالات</string>
+    <string name="advice_level_deep">عميق</string>
+    <string name="advice_level_deep_desc">يفكر أطول، أكثر موثوقية في المواضع الحرجة</string>
+    <string name="advice_level_current">قوة التلميح: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">حروف القطع</string>
+    <string name="settings_piece_set_desc">الحروف الصينية هي المظهر التقليدي؛ الحروف اللاتينية (K/A/B/N/R/C/P) تطابق تدوين النقسات الإنجليزي</string>
+    <string name="piece_set_hanzi">حروف صينية</string>
+    <string name="piece_set_latin">حروف K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">تدوين النقسات</string>
+    <string name="settings_notation_desc">التدوين الصيني يقرأ 炮二平五؛ وXF يكتب النقسة نفسها C2.5</string>
+    <string name="notation_chinese">تدوين صيني</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">أرجع المحرك نقسة غير قانونية: %1$s</string>
+    <string name="engine_error">خطأ المحرك: %1$s</string>
+    <string name="must_answer_check">أنت في كش — يجب أن ترد عليه</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">جارٍ تجهيز اللوح…</string>
+    <string name="settings_follow_language">حسب لغة التطبيق</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">لعبة جديدة</string>
+    <string name="new_game_pick_opponent">اختر خصمك</string>
+    <string name="new_game_side">اللعب بصفة</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">مستوى %1$d %2$s</string>
+    <string name="new_game_level_short">مستوى %1$d</string>
+    <string name="side_red">الأحمر</string>
+    <string name="side_black">الأسود</string>
+    <string name="side_random">عشوائي</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">الخصم</string>
+    <string name="menu_change_opponent">تغيير</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">متوازن</string>
+    <string name="style_balanced_desc">يلعب دائمًا أفضل نقسة للمحرك — قوة خالصة</string>
+    <string name="style_aggressive">هجومي</string>
+    <string name="style_aggressive_desc">يعشق الأخذ والكش، ويجرؤ على التضحية من أجل الهجوم</string>
+    <string name="style_solid">متين</string>
+    <string name="style_solid_desc">لا يستبدل بحماقة أبدًا، ويفضّل المواضع الهادئة على التعقيدات</string>
+    <string name="style_swarm">غير متوقع</string>
+    <string name="style_swarm_desc">يتنوع بين نقسات شبه مثالية — مباراة مختلفة كل مرة</string>
+    <string name="new_game_style">أسلوب الخصم</string>
+    <string name="new_game_style_line">الأسلوب: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">كش!</string>
+    <string name="board_tag_mate">كش مات</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">مؤثرات معركة الأخذ</string>
+    <string name="settings_desc_capture_fx">حركة ضربة وشرر ورشّ حبر عند أخذ قطعة. تبقى تسمية «أُخذت…» على اللوح في الحالين</string>
+    <string name="settings_board_skin">خامة اللوح</string>
+    <string name="settings_board_skin_desc">أربع خامات دون اتصال. تبقى حروف القطع داكنة على وجه عاجي لتبقى مقروءة.</string>
+    <string name="skin_wood">خشب دافئ</string>
+    <string name="skin_black_gold">أسود ذهبي</string>
+    <string name="skin_porcelain">بورسلين أزرق</string>
+    <string name="skin_jade">يشب أبيض</string>
+
+    <string name="puzzle_1_name">مات في 1 · حصار تام</string>
+    <string name="puzzle_1_hint">الحصان الأسود مربوط. وسّط ملكك: الأسود محاصر</string>
+    <string name="puzzle_2_name">مات في 1 · مدافع مزدوجة</string>
+    <string name="puzzle_2_hint">المدفع الأمامي حجاب — انقل المدفع الخلفي إلى العمود</string>
+    <string name="puzzle_3_name">مات في 1 · عربة وحصان</string>
+    <string name="puzzle_3_hint">تنسحب العربة الخلفية إلى الصف الأخير لكش مزدوج</string>
+    <string name="puzzle_4_name">مات في 1 · وجهًا لوجه</string>
+    <string name="puzzle_4_hint">القائدان يواجهان في العمود نفسه، أنزل العربة إلى الصف الأخير</string>
+    <string name="puzzle_5_name">مات في 1 · المسمار الحديدي</string>
+    <string name="puzzle_5_hint">المدفع المركزي يثبّت الخط بينما تنزل العربة إلى الصف الأخير</string>
+    <string name="puzzle_6_name">مات في 1 · مدفع الجانب</string>
+    <string name="puzzle_6_hint">ينزل المدفع عميقًا، وتحتضن العربة لضربة حاسمة</string>
+    <string name="puzzle_7_name">مات في 1 · عربتان عميقتان</string>
+    <string name="puzzle_7_hint">عربتان يقبضان على الحصن بدعم المدفع</string>
+    <string name="puzzle_8_name">مات في 1 · حصان ومدفع</string>
+    <string name="puzzle_8_hint">استخدم الحصان النبيل قاعدةً للمدفع لكش مات فوري</string>
+    <string name="puzzle_9_name">مات في 2 · عربتان متعاكسان</string>
+    <string name="puzzle_9_hint">أنزل عربة للكش؛ وإذا حاجب الفيل، غيّر الاتجاه</string>
+    <string name="puzzle_10_name">مات في 2 · عربتان</string>
+    <string name="puzzle_10_hint">عربة تربط العمود، والأخرى تناوب الكشات</string>
+    <string name="puzzle_11_name">مات في 2 · حصان المرفق</string>
+    <string name="puzzle_11_hint">يثبّت الحصان جناح الحصن؛ وتنزل العربة للكش مات</string>
+    <string name="puzzle_12_name">مات في 2 · كش الوسادة</string>
+    <string name="puzzle_12_hint">اقفز بالحصان أمامًا لكشف الكش، منسجمًا مع العربة</string>
+    <string name="puzzle_13_name">مات في 2 · عربة وحصان ومدفع</string>
+    <string name="puzzle_13_hint">يقفز الحصان للوسط، وينسق المدفع الضربة القاضية</string>
+    <string name="puzzle_14_name">مات في 2 · زحف الجندي</string>
+    <string name="puzzle_14_hint">يرسو المدفع في الوسط بينما يزحف الجندي للداخل</string>
+    <string name="puzzle_15_name">مات في 2 · عربتان متتاليان</string>
+    <string name="puzzle_15_hint">عربتان في العمود تنزعان دفاع الحصن قطعة قطعة</string>
+    <string name="puzzle_16_name">مات في 2 · المدفع المختبئ</string>
+    <string name="puzzle_16_hint">تمهّد العربة الطريق للمدفع المتخفي خلفها</string>
+    <string name="puzzle_17_name">مات في 3 · حصان المرفق العميق</string>
+    <string name="puzzle_17_hint">يهاجم الحصان زاوية الحصن، ويختم العربة الصف الأخير</string>
+    <string name="puzzle_18_name">مات في 3 · حصان الصياد العميق</string>
+    <string name="puzzle_18_hint">يقيد حصان الصياد القائد، وتختم العربة على الصف 9</string>
+    <string name="puzzle_19_name">مات في 3 · حصان الزاوية</string>
+    <string name="puzzle_19_hint">يحرس حصان الزاوية المخارج ليكتمل مات العربة الحتمي</string>
+    <string name="puzzle_20_name">مات في 3 · عربتان مقبضان</string>
+    <string name="puzzle_20_hint">عربتان متشابكان يشددان الشبكة حول ملك العدو</string>
+    <string name="puzzle_21_name">مات في 2 · ربط الصياد</string>
+    <string name="puzzle_21_hint">يغلق حصان الصياد الحصن؛ تنزلق العربة للوسط للكش مات</string>
+    <string name="puzzle_22_name">مات في 2 · السماء والأرض</string>
+    <string name="puzzle_22_hint">مدفع يسيطر على الوسط، وآخر ينزل عميقًا للختام</string>
+    <string name="puzzle_23_name">مات في 3 · قفل العربة والحصان</string>
+    <string name="puzzle_23_hint">عربة وحصان متشابكان يوجّهان كشات قاتلة متتالية</string>
+    <string name="puzzle_24_name">مات في 3 · شبكة عربتين</string>
+    <string name="puzzle_24_hint">تتقدم العربتان في عمودين متجاورين ليحاصرا الملك</string>
+
+    <string name="puzzle_25_name">مات في 3 · كاسر الحراسة</string>
+    <string name="puzzle_25_hint">تخترق العربتان المستشارين لتحطما الدفاعات</string>
+    <string name="puzzle_26_name">مات في 3 · دورة عربتين</string>
+    <string name="puzzle_26_hint">عربتان متعاكسان يهبطان تباعًا مستعينين بحضور الملك</string>
+    <string name="puzzle_27_name">مات في 3 · عربة الإغراء</string>
+    <string name="puzzle_28_hint">اضحِ بالعربة القائدة لإغراء الملك بالخروج من الحصن</string>
+    <string name="puzzle_28_name">مات في 3 · حصان الزاوية القافز</string>
+    <string name="puzzle_27_hint">اضحِ بقطعة لاختراق حصن العدو</string>
+    <string name="puzzle_29_name">مات في 3 · عربتان تحاصران الحصن</string>
+    <string name="puzzle_29_hint">عربتان يعبران إلى قلب الحصن</string>
+    <string name="puzzle_30_name">مات في 3 · هجوم جانبي</string>
+    <string name="puzzle_30_hint">تنزل العربة للصف الأخير بينما يدور الحصان للداخل</string>
+    <string name="puzzle_31_name">مات في 3 · قائدان متقابلان</string>
+    <string name="puzzle_31_hint">يواجه القائدان في العمود المفتوح؛ تختم العربة النصر</string>
+    <string name="puzzle_32_name">مات في 3 · حصان العدو</string>
+    <string name="puzzle_32_hint">يقفز الحصان إلى موقع المرفق لينفذ المات</string>
+
+    <string name="puzzle_33_name">مات في 4 · اختراق الصياد</string>
+    <string name="puzzle_33_hint">يقيد حصان الصياد الملك بينما تجرد العربة الحرّاس</string>
+    <string name="puzzle_34_name">مات في 4 · جندي عند البوابة</string>
+    <string name="puzzle_34_hint">يتقدم الجندي الأحمر الشجاع لتفكيك ملاذ الملك</string>
+    <string name="puzzle_35_name">مات في 4 · حصان الزاوية والعربة</string>
+    <string name="puzzle_35_hint">يربط حصان الزاوية المستشارين؛ تختم العربة من العمق</string>
+    <string name="puzzle_36_name">مات في 4 · عربتان وحيّان</string>
+    <string name="puzzle_36_hint">عربتان جانبيتان وحصان عدّاء يجتاحون الحصن</string>
+    <string name="puzzle_37_name">مات في 4 · جندي في الحصن</string>
+    <string name="puzzle_37_hint">يتسلل الجندي إلى حصن الوسط بدعم العربة</string>
+    <string name="puzzle_38_name">مات في 4 · حصان وعربة الجانب</string>
+    <string name="puzzle_38_hint">يضرب الحصان من الجانب بينما تختم العربة الصف الأخير</string>
+    <string name="puzzle_39_name">مات في 5 · زحف الجندي</string>
+    <string name="puzzle_39_hint">يتقدم الجندي العنيد بثبات مربطًا الملك</string>
+    <string name="puzzle_40_name">مات في 3 · مدافع وعربات</string>
+    <string name="puzzle_40_hint">عربتان ومدفع يشكلان بطارية لا تلين</string>
+
+    <string name="puzzle_41_name">مات في 6 · جندي الاختراق</string>
+    <string name="puzzle_41_hint">يزحف جندي الجانب عميقًا؛ وتتبعه العربة والمدفع</string>
+    <string name="puzzle_42_name">مات في 7 · اختراق الضلع</string>
+    <string name="puzzle_42_hint">تضحية الحصان تستنزف الدفاع وتمهد الطريق للعربة</string>
+    <string name="puzzle_43_name">مات في 6 · حصان الوسط</string>
+    <string name="puzzle_43_hint">يهمين الحصان على وسط اللوح منسقًا الكش مات</string>
+    <string name="puzzle_44_name">مات في 6 · نهاية العربة الوحيدة</string>
+    <string name="puzzle_44_hint">تقنية عربة وحيدة متقنة تجرد المدافعين واحدًا تلو الآخر</string>
+    <string name="puzzle_45_name">مات في 2 · عربتان سريعتان</string>
+    <string name="puzzle_45_hint">عربتان عبر العمودين ينفذان العدالة السريعة</string>
+    <string name="puzzle_46_name">مات في 3 · الحصان النبيل</string>
+    <string name="puzzle_46_hint">يغلق الحصان طرق الهروب؛ وتختم العربة على الصف</string>
+    <string name="puzzle_47_name">مات في 3 · عربتا الجانب</string>
+    <string name="puzzle_47_hint">عربتان تنسقان الهجوم من عمودين متجاورين</string>
+    <string name="puzzle_48_name">مات في 2 · مدافع طائرتان</string>
+    <string name="puzzle_48_hint">مدفعان يقفزان فوق الحجاب لكش مات مذهل</string>
+
+    <string name="puzzle_chapter_1">المجلد الأول: الخطوات الأولى</string>
+    <string name="puzzle_chapter_sub_1">مات في 1 · شبكات مات أساسية</string>
+    <string name="puzzle_chapter_2">المجلد الثاني: شرارات تكتيكية</string>
+    <string name="puzzle_chapter_sub_2">مات في 2 · تكتيكات هجوم منسق</string>
+    <string name="puzzle_chapter_3">المجلد الثالث: استراتيجية الأستاذ</string>
+    <string name="puzzle_chapter_sub_3">مات في 2-3 · تكتيكات كلاسيكية شاملة</string>
+    <string name="puzzle_chapter_4">المجلد الرابع: الهجوم الكبير</string>
+    <string name="puzzle_chapter_sub_4">مات في 3 · تضحيات وضربات حاسمة</string>
+    <string name="puzzle_chapter_5">المجلد الخامس: غزو ملحمي</string>
+    <string name="puzzle_chapter_sub_5">مات في 3-4 · مناورات نهايات بمستوى الأستاذ</string>
+    <string name="puzzle_chapter_6">المجلد السادس: اختبارات الأساتذة</string>
+    <string name="puzzle_chapter_sub_6">مات في 4-7 · روائع كلاسيكية من أساتذة الشطرنج الصيني</string>
+    <string name="campaign_entry">اصعد الجبل</string>
+    <string name="campaign_entry_desc">ثماني مراحل. اربح واحدة لتنفتح التالية.</string>
+    <string name="puzzle_entry">نهايات</string>
+    <string name="puzzle_entry_desc">ماتات كلاسيكية، بثلاث تراجعات لكل لغز</string>
+    <string name="campaign_title">الجبل</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">القمة</string>
+    <string name="campaign_level_format">المرحلة %1$d</string>
+    <string name="campaign_level_difficulty_format">قوة الخصم مستوى %1$d</string>
+    <string name="campaign_locked">اربح المرحلة السابقة لتنفتح هذه</string>
+    <string name="campaign_passed">اجتياز</string>
+    <string name="campaign_win_title">اكتملت المرحلة</string>
+    <string name="campaign_next_level">المرحلة التالية</string>
+    <string name="campaign_retry">أعد محاولة هذه المرحلة</string>
+    <string name="campaign_back_list">عد إلى الجبل</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">المرحلة %1$d · %2$s</string>
+    <string name="stage_1_name">الخطوات الأولى</string>
+    <string name="stage_1_brief">هذا الخصم يفوّت الأخذ كثيرًا. اطمئن إلى القواعد أولًا.</string>
+    <string name="stage_2_name">البوابة</string>
+    <string name="stage_2_brief">يفكر نقسة أمامًا، ومع ذلك يفوّت أشياء.</string>
+    <string name="stage_3_name">النهر</string>
+    <string name="stage_3_brief">يتولى المحرك من هنا، بوقتٍ يزيد قليلًا عن ثانية للتفكير.</string>
+    <string name="stage_4_name">الممر</string>
+    <string name="stage_4_brief">وقت أطول. الإغفالات البسيطة تصبح مرئية.</string>
+    <string name="stage_5_name">الخطوط</string>
+    <string name="stage_5_brief">بحث أعمق. القطعة المكشوفة تؤخذ.</string>
+    <string name="stage_6_name">نظرة أطول</string>
+    <string name="stage_6_brief">شريحة أخرى من وقت التفكير.</string>
+    <string name="stage_7_name">بحث عميق</string>
+    <string name="stage_7_brief">قرب القمة، نقصه خطوة واحدة من الوقت.</string>
+    <string name="stage_8_name">القمة</string>
+    <string name="stage_8_brief">أطول بحث على الجبل.</string>
+    <string name="catalog_mate_title">مات في نقسة</string>
+    <string name="catalog_mate_hint">الدور على الأحمر. مات في نقسة.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">%1$d / %2$d محلول</string>
+    <string name="catalog_filter_all">الكل</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">محلول</string>
+    <string name="catalog_open">مفتوح</string>
+    <string name="history_intro">خمسة فصول من حملات حقيقية. تنتهي كل معركة بمات في نقسة. الوضع تمرين، وليس إعادة بناء للمعركة التاريخية.</string>
+    <string name="history_ch_1">الربيع والخريف</string>
+    <string name="history_ch_2">الممالك المتحاربة</string>
+    <string name="history_ch_3">تشو وهان</string>
+    <string name="history_ch_4">الممالك الثلاث</string>
+    <string name="history_ch_5">حقول لاحقة</string>
+    <string name="battle_1_name">تشانغشاو</string>
+    <string name="battle_1_brief">لو، 684 ق.م. ترك تساو قوي دولة تشي تقرع الطبول ثلاث مرات، ثم ضرب. المات: المسمار الحديدي.</string>
+    <string name="battle_2_name">تشنغبو</string>
+    <string name="battle_2_brief">632 ق.م. سحب جين مركز تشو أمامًا وأغلق الجناحين. المات: عربتان.</string>
+    <string name="battle_3_name">بو جو</string>
+    <string name="battle_3_brief">506 ق.م. اندفع وو عمقًا في تشو وأخذ ينغ. المات: حصان خلف المدفع.</string>
+    <string name="battle_4_name">لي تزي</string>
+    <string name="battle_4_brief">478 ق.م. عبرت يوي النهر في كتيبتين وحطمت وو. المات: حصان محاصِر.</string>
+    <string name="battle_5_name">قوي لينغ</string>
+    <string name="battle_5_brief">354 ق.م. زحفت تشي على عاصمة وي لرفع الحصار عن تشاو. المات: مدفع مزدوج.</string>
+    <string name="battle_6_name">ما لينغ</string>
+    <string name="battle_6_brief">342 ق.م. قلّص صن بن مخيماته وترقب في الممر. المات: حصان الصياد.</string>
+    <string name="battle_7_name">تشانغ بينغ</string>
+    <string name="battle_7_brief">260 ق.م. قطعت تشين جيش تشاو وأغلقت الحلقة. المات: عربتان.</string>
+    <string name="battle_8_name">جي مو</string>
+    <string name="battle_8_brief">279 ق.م. فتح تيان دان المدينة واندفع ليلًا إلى معسكر يان. المات: حصان محاصِر.</string>
+    <string name="battle_9_name">جينغ شينغ</string>
+    <string name="battle_9_brief">204 ق.م. اصطف هان شين بجيشه ظهرًا إلى النهر ثم انقلب. المات: قائدان وجهًا لوجه.</string>
+    <string name="battle_10_name">تشن تسانغ</string>
+    <string name="battle_10_brief">206 ق.م. كان طريق الألواح خديعة. خرج الجيش من تشن تسانغ. المات: مدفع مزدوج.</string>
+    <string name="battle_11_name">وي شوي</string>
+    <string name="battle_11_brief">204 ق.م. سدّ هان شين النهر، وجرّ العدو للعبور، ثم أطلق الماء. المات: حصان خلف المدفع.</string>
+    <string name="battle_12_name">قايتشيا</string>
+    <string name="battle_12_brief">202 ق.م. أطبقت جيوش هان على شيانغ يو من كل جانب. المات: عربتان.</string>
+    <string name="battle_13_name">غوان دو</string>
+    <string name="battle_13_brief">200 م. أحرق تساو تساو مؤن يوان شاو في ووتشاو. المات: المسمار الحديدي.</string>
+    <string name="battle_14_name">الجدران الحمراء</string>
+    <string name="battle_14_brief">208 م. جرّ النار في الأسطول المقيد على نهر اليانغتسي. المات: مدفع مزدوج.</string>
+    <string name="battle_15_name">هان تشونغ</string>
+    <string name="battle_15_brief">219 م. استولى هوانغ تشونغ على جبل دينغ جون وسقط شيا هوي يوان. المات: حصان الصياد.</string>
+    <string name="battle_16_name">يي لينغ</string>
+    <string name="battle_16_brief">222 م. تمهّل لو شون ثم أحرق مخيمات شو. المات: حصان محاصِر.</string>
+    <string name="battle_17_name">في شوي</string>
+    <string name="battle_17_brief">383 م. انسحب جيش فو جيان ولم يعد يمكن إيقافه. المات: قائدان وجهًا لوجه.</string>
+    <string name="battle_18_name">هو لاو</string>
+    <string name="battle_18_brief">621 م. حطّم لي شيمين دو جياندى أمام الممر. المات: حصان الزاوية.</string>
+    <string name="battle_19_name">يان تشنغ</string>
+    <string name="battle_19_brief">1140 م. كسر فرسان يوي في سلاحين فرسان جين في يان تشنغ. المات: حصان خلف المدفع.</string>
+    <string name="battle_20_name">بحر بو يانغ</string>
+    <string name="battle_20_brief">1363 م. كسرت سفن النار لجو يوان تشانغ سفن الأبراج لتشين يو ليانغ. المات: مدافع السماء والأرض.</string>
+    <string name="tactic_label_mahoupao">حصان خلف المدفع</string>
+    <string name="tactic_label_bolt">المسمار الحديدي</string>
+    <string name="tactic_label_double_cannon">مدفع مزدوج</string>
+    <string name="tactic_label_double_rook">عربة مزدوجة</string>
+    <string name="tactic_label_pocket">حصان محاصِر</string>
+    <string name="tactic_label_corner">حصان الزاوية</string>
+    <string name="tactic_label_fishing">حصان الصياد</string>
+    <string name="tactic_label_face">قائدان وجهًا لوجه</string>
+    <string name="tactic_label_heaven">مدافع السماء والأرض</string>
+    <string name="tactic_label_heart">العربة في الحصن</string>
+    <string name="tactic_label_smothered">حصن محاصر</string>
+    <string name="tactic_label_spring">كش الوسادة</string>
+    <string name="tactic_label_mate">مات</string>
+    <string name="puzzle_title">نهاية</string>
+    <string name="puzzle_list_title">النهايات</string>
+    <string name="puzzle_solved">محلول</string>
+    <string name="puzzle_unsolved">غير محلول</string>
+    <string name="puzzle_attempts_format">جُرّب %1$d مرات</string>
+    <string name="puzzle_red_to_move">الدور على الأحمر، مات في %1$d</string>
+    <string name="puzzle_undo_left_format">التراجعات المتبقية: %1$d</string>
+    <string name="puzzle_moves_left_format">النقسات المتبقية: %1$d</string>
+    <string name="puzzle_retry">ابدأ من جديد</string>
+    <string name="puzzle_undo">خذ النقسة</string>
+    <string name="puzzle_undo_exhausted">لا تراجعات متبقية</string>
+    <string name="puzzle_deviated">هذه تفوت المات. تراجع أو ابدأ من جديد.</string>
+    <string name="puzzle_solved_title">محلول!</string>
+    <string name="puzzle_fail_title">غير محلول</string>
+    <string name="puzzle_fail_moves">نفدت النقسات. الأسود صامد.</string>
+    <string name="puzzle_next_puzzle">التالي</string>
+    <string name="puzzle_retry_confirm">جُرّب %1$d مرات. ثلاث تراجعات؛ ونفاد النقسات يعني رسوب اللغز. أتبدأ من جديد؟</string>
+
+    <string name="campaign_unlocked">لعب</string>
+    <string name="campaign_fail_title">فشلت المرحلة</string>
+    <string name="campaign_body_unlocked">اكتملت المرحلة — انفتحت التالية!</string>
+    <string name="campaign_stars_line">%1$d نجوم · %2$s · %3$s</string>
+    <string name="campaign_stars_record">الأفضل في هذه المرحلة: %1$d</string>
+    <string name="campaign_stars_cd">%1$d من 3 نجوم</string>
+    <string name="campaign_star_hint_kept">بلا تلميح</string>
+    <string name="campaign_star_hint_used">استُخدم تلميح</string>
+    <string name="campaign_star_undo_kept">بلا تراجع</string>
+    <string name="campaign_star_undo_used">تم التراجع</string>
+    <string name="campaign_body_all_clear">اكتملت المراحل الثماني.</string>
+    <string name="campaign_body_retry">ليست هذه المرة — حاول مجددًا!</string>
+    <string name="puzzle_stage_name">المرحلة %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · نقسات %2$d/%3$d · تراجعات متبقية %4$d · محاولة #%5$d</string>
+    <string name="puzzle_solved_body">محلول — أُحسنت!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">مشاهدة</string>
+    <string name="result_win_checkmate">نصر كش مات</string>
+    <string name="result_win_big">نصر ساحق</string>
+    <string name="result_win_tactic_fmt">%1$s مات</string>
+    <string name="result_lose_tactic_fmt">خسرت أمام %1$s</string>
+    <string name="result_lose_banner">هزيمة</string>
+    <string name="result_draw_banner">تعادل</string>
+    <string name="result_reason_win_tactic_fmt">أماتت بنقسة %1$s رائعة</string>
+    <string name="result_reason_lose_tactic_fmt">أماتك الخصم بـ %1$s</string>
+    <string name="result_reason_win_default">تم تثبيت النصر</string>
+    <string name="result_reason_lose_default">كدت تفوز — خسارة ضيقة</string>
+    <string name="result_reason_draw_default">تنتهي المباراة بالتعادل</string>
+    <string name="result_practice_detail">اكتملت مباراة التدريب — التصنيف لم يتغير. حُفظت المباراة.</string>
+    <string name="campaign_reason_clear">اكتملت المرحلة</string>
+    <string name="campaign_reason_fail">فشل التحدي</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">الذكاء الاصطناعي يحلل المباراة</string>
+    <string name="analysis_scanning_recognize">جارٍ التعرف على اللوح…</string>
+    <string name="analysis_scanning_advice">الذكاء الاصطناعي يحضّر النصيحة…</string>
+    <string name="recognize_loading_model">جارٍ تحميل نموذج التعرف…</string>
+    <string name="live_starting">جارٍ تشغيل النموذج والكاميرا…</string>
+    <string name="action_retry">إعادة المحاولة</string>
+
+    <string name="puzzle_solved_tactic_title">مات · %1$s</string>
+    <string name="puzzle_solved_tactic_body">حُلّ بـ %1$s.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">المدفع المركزي ضد خيول الحجاب</string>
+    <string name="opening_same_cannon">مدافع بنفس الجهة</string>
+    <string name="opening_opposite_cannon">مدافع متقابلة</string>
+    <string name="opening_central_vs_reversed">المدفع المركزي ضد حصان الحصن المعكوس</string>
+    <string name="opening_central_vs_single">المدفع المركزي ضد حصان مفرد</string>
+    <string name="opening_central_vs_tiger">المدفع المركزي ضد نمر الخطوات الثلاث</string>
+    <string name="opening_pawn_vs_cannon">افتتاح الجندي ضد المدفع خلف الجندي</string>
+    <string name="opening_mutual_pawn">تقدم جندي متبادل</string>
+    <string name="opening_pawn_vs_central">افتتاح الجندي ضد المدفع المركزي</string>
+    <string name="opening_pawn_vs_horse">افتتاح الجندي ضد الحصان</string>
+    <string name="opening_pawn_vs_elephant">افتتاح الجندي ضد الفيل</string>
+    <string name="opening_elephant_vs_left">الفيل ضد المدفع المركزي الأيسر</string>
+    <string name="opening_elephant_vs_right">الفيل ضد المدفع المركزي الأيمن</string>
+    <string name="opening_elephant_vs_horse">الفيل ضد الحصان</string>
+    <string name="opening_elephant_vs_pawn">الفيل ضد الجندي</string>
+    <string name="opening_elephant_vs_corner">الفيل ضد مدفع الزاوية</string>
+    <string name="opening_elephant_vs_crossing">الفيل ضد مدفع عبور الحصن</string>
+    <string name="opening_horse_vs_pawn">الحصان ضد الجندي</string>
+    <string name="opening_horse_vs_central">الحصان ضد المدفع المركزي</string>
+    <string name="opening_horse_vs_horse">الحصان ضد الحصان</string>
+    <string name="opening_central_cannon">المدفع المركزي</string>
+    <string name="opening_pawn">افتتاح الجندي</string>
+    <string name="opening_elephant">افتتاح الفيل</string>
+    <string name="opening_horse">افتتاح الحصان</string>
+    <string name="opening_crossing_cannon">مدفع عبور الحصن</string>
+    <string name="opening_corner_cannon">مدفع الزاوية</string>
+    <string name="opening_hook_cannon">مدفع الخطاف</string>
+    <string name="opening_iron_roller">الأسطوانة الحديدية</string>
+    <string name="opening_edge_horse">حصان الحافة</string>
+    <string name="opening_edge_pawn">جندي الحافة</string>
+    <string name="tactic_rhyme_mahoupao">المدفع خلف الحصان، والقائد لا يعرف مهربًا</string>
+    <string name="tactic_desc_mahoupao">يحجب الحصان المدفع. يكش المدفع من خلفه، والاثنان يغلقان كل مخرج.</string>
+    <string name="tactic_rhyme_bolt">مدفع مركزي في العمود، وعربة مثبتة عبر الحصن</string>
+    <string name="tactic_desc_bolt">يحرس المدفع المركزي بوابة الحصن. تنسحب عربة إلى الصف الأخير وتقفل الباب.</string>
+    <string name="tactic_rhyme_double_cannon">الأمامي حجاب، والخلفي يضرب الهدف</string>
+    <string name="tactic_desc_double_cannon">مدفعان على خط واحد. الأمامي حجاب، والخلفي يكش داخل الحصن.</string>
+    <string name="tactic_rhyme_double_rook">عربتان في عمودين متبادلين، تناوب على الحصن</string>
+    <string name="tactic_desc_double_rook">تهبط عربتان على عمودين متجاورين وتعزلان القائد صفًا بعد صف.</string>
+    <string name="tactic_rhyme_pocket">حصان في الجيب، وعربة على الصف الأخير</string>
+    <string name="tactic_desc_pocket">يجلس الحصان في الجيب بجوار حصن العدو وتنزل العربة إلى الصف الأخير.</string>
+    <string name="tactic_rhyme_corner">حصان على زاوية المستشار، والعربة تحسمها</string>
+    <string name="tactic_desc_corner">يكش الحصان من زاوية مستشار، مربطًا المستشارين والقائد.</string>
+    <string name="tactic_rhyme_face">القائدان يواجهان في العمود المفتوح</string>
+    <string name="tactic_desc_face">لا يجوز أن يواجه القائدان بعضهما. قائدك يحرس العمود، وتلك القاعدة تكمل المات.</string>
+    <string name="tactic_rhyme_heaven">مدفع على الصف الأخير، ومدفع على العمود المركزي</string>
+    <string name="tactic_desc_heaven">مدفع يغلق الصف الأخير. والآخر يحرس العمود المركزي. يضربان معًا.</string>
+    <string name="tactic_rhyme_fishing">حصان صياد على البوابة، وعربة تغلقها</string>
+    <string name="tactic_desc_fishing">يقف الحصان على مربع الصياد ويسد مخرج الحصن. تهبط العربة للمات.</string>
+    <string name="tactic_rhyme_heart">اضحِ بالعربة على المستشار المركزي</string>
+    <string name="tactic_desc_heart">تخلى عن العربة لتأخذ المستشار المركزي، فتُخرج القائد من مربعه، ثم مات.</string>
+    <string name="tactic_rhyme_smothered">المستشارون يسدون قائدهم بأنفسهم</string>
+    <string name="tactic_desc_smothered">يسد كلا المستشارين الحصن. مدفع على الصف الأخير، أو عربة وجندي، يكملان المات عبر هذا الاختناق.</string>
+    <string name="tactic_academy_sub">تعلّم الخط، واسمع النداء، ثم حلّه</string>
+    <string name="tactic_voice">اسمعه</string>
+    <string name="tactic_challenge">حلّه</string>
+    <string name="tactic_mastered">أتقن</string>
+    <string name="tactic_learning">يتعلم</string>
+    <string name="puzzle_rush_result_title">سباق الألغاز</string>
+    <string name="puzzle_rush_score_unit">ألغاز</string>
+    <string name="replay_start_position">الوضع الافتتاحي</string>
+    <string name="replay_move_line">النقسة %1$d · %2$s</string>
+    <string name="replay_red_winrate">نسبة فوز الأحمر %1$d%%</string>
+    <string name="replay_try_variation">جرّب</string>
+    <string name="replay_variation_undo">تراجع</string>
+    <string name="replay_variation_exit">عد إلى المباراة</string>
+    <string name="replay_variation_status">خط +%1$d · الأحمر %2$d%%</string>
+    <string name="replay_variation_status_move">خط +%1$d · %2$s · الأحمر %3$d%%</string>
+    <string name="replay_variation_step">النقسة %1$d</string>
+    <string name="replay_red_better">الأحمر</string>
+    <string name="replay_black_better">الأسود</string>
+    <string name="move_quality_brilliant">لامع</string>
+    <string name="move_quality_best">الأفضل</string>
+    <string name="move_quality_inaccuracy">عدم دقة</string>
+    <string name="move_quality_mistake">خطأ</string>
+    <string name="move_quality_blunder">خطأ فادح</string>
+    <string name="move_quality_book">من الكتاب</string>
+    <string name="analysis_scan_status">العمق %1$d · نسبة فوز الأحمر %2$d%%</string>
+</resources>

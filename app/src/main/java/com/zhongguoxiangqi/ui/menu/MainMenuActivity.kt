@@ -144,15 +144,10 @@ class MainMenuActivity : AppCompatActivity() {
         binding.profileCard.setOnClickListener {
             startActivity(Intent(this, RankHallActivity::class.java))
         }
-        // 中英文切换. 按钮文字始终显示"切过去会变成的语言", 不是当前语言 ——
-        // 所以这里不用改按钮文字, strings.xml 里中英两份 menu_language 已经
-        // 各自写死了对方的名字。
-        binding.btnLanguage.setOnClickListener {
-            val current = AppCompatDelegate.getApplicationLocales()
-            val currentTag = if (current.isEmpty) "en" else current[0]?.language
-            val next = if (currentTag == "zh") "en" else "zh"
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(next))
-        }
+        // 多语言选择器. 列表项用语言的自名(English / 简体中文 / …)而不是按
+        // 当前界面语言翻译 —— 用户要在看不懂当前语言的情况下也能认出自己要的语言。
+        // "跟随系统"清空 per-app locale, 之后 AppCompat 直接用系统 locale 匹配资源。
+        binding.btnLanguage.setOnClickListener { showLanguagePicker() }
     }
 
     override fun onResume() {
@@ -331,6 +326,46 @@ class MainMenuActivity : AppCompatActivity() {
             .setMessage(R.string.settings_about_text)
             .setPositiveButton(R.string.dialog_ok, null)
             .show()
+    }
+
+    /** 语言选择器: 下标 0 是"跟随系统", 其余与 [LANGUAGE_TAGS] 一一对应. */
+    private fun showLanguagePicker() {
+        val names = arrayOf(
+            getString(R.string.language_system_default),
+            "English", "简体中文", "繁體中文", "Français", "Deutsch", "Español",
+            "Português (Brasil)", "Русский", "日本語", "한국어", "Italiano",
+            "ไทย", "Türkçe", "Bahasa Indonesia", "Tiếng Việt", "العربية",
+        )
+        val locales = AppCompatDelegate.getApplicationLocales()
+        val currentTag = if (locales.isEmpty) "sys" else locales[0]?.let { loc ->
+            // 只比 language+region: 系统设置里选"繁體中文"会得到 zh-Hant-TW,
+            // 去掉 script 才能对上选择器里的 zh-TW.
+            val region = loc.country?.takeIf { it.isNotEmpty() }?.let { "-$it" } ?: ""
+            loc.language + region
+        } ?: "sys"
+        val checked = LANGUAGE_TAGS.withIndex()
+            .firstOrNull { it.value.equals(currentTag, ignoreCase = true) }?.index ?: 0
+        AlertDialog.Builder(this)
+            .setTitle(R.string.language_dialog_title)
+            .setSingleChoiceItems(names, checked) { dialog, which ->
+                dialog.dismiss()
+                if (which == 0) {
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                } else {
+                    AppCompatDelegate.setApplicationLocales(
+                        LocaleListCompat.forLanguageTags(LANGUAGE_TAGS[which])
+                    )
+                }
+            }
+            .setNegativeButton(R.string.dialog_cancel, null)
+            .show()
+    }
+
+    companion object {
+        private val LANGUAGE_TAGS = arrayOf(
+            "sys", "en", "zh", "zh-TW", "fr", "de", "es", "pt-BR", "ru",
+            "ja", "ko", "it", "th", "tr", "id", "vi", "ar",
+        )
     }
 }
 

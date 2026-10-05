@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">Partie</string>
+    <string name="title_replay">Analyse</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="title_board_editor">Position bearbeiten</string>
+    <string name="menu_play">Partie starten</string>
+    <string name="menu_replay">Partieanalyse</string>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_about">Über</string>
+    <string name="menu_difficulty">Schwierigkeit wählen</string>
+    <string name="menu_side">Seite wählen</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Sprache</string>
+    <string name="language_dialog_title">Sprache wählen</string>
+    <string name="language_system_default">System folgen</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">Anfänger</string>
+    <string name="difficulty_beginner">Neuling</string>
+    <string name="difficulty_lower_intermediate">Untere Mittelstufe</string>
+    <string name="difficulty_intermediate">Mittelstufe</string>
+    <string name="difficulty_upper_intermediate">Obere Mittelstufe</string>
+    <string name="difficulty_advanced">Fortgeschritten</string>
+    <string name="difficulty_amateur">Erfahrener Amateur</string>
+    <string name="difficulty_district">Bezirksspieler</string>
+    <string name="difficulty_city">Stadtspieler</string>
+    <string name="difficulty_provincial">Provinzexperte</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Verbandsmeister</string>
+    <string name="difficulty_national_master">Nationalmeister</string>
+    <string name="difficulty_grandmaster">Großmeister</string>
+    <string name="difficulty_international_master">Internationaler Meister</string>
+    <string name="difficulty_legendary">Legende</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">Neuer Spieler</string>
+    <string name="difficulty_segment_beginner">Gelegenheitsspieler</string>
+    <string name="difficulty_segment_lower_intermediate">Hobbyspieler</string>
+    <string name="difficulty_segment_intermediate">Straßenspieler</string>
+    <string name="difficulty_segment_upper_intermediate">Starker Hobbyspieler</string>
+    <string name="difficulty_segment_advanced">1. Amateur-Dan</string>
+    <string name="difficulty_segment_amateur">3. Amateur-Dan</string>
+    <string name="difficulty_segment_district">5. Amateur-Dan</string>
+    <string name="difficulty_segment_city">6. Amateur-Dan</string>
+    <string name="difficulty_segment_provincial">Lokaler Meister</string>
+    <string name="difficulty_segment_local_master">Verbandsmeister</string>
+    <string name="difficulty_segment_national_master">Nationalmeister</string>
+    <string name="difficulty_segment_grandmaster">Nationaler Großmeister</string>
+    <string name="difficulty_segment_international_master">Internationaler Meister</string>
+    <string name="difficulty_segment_legendary">Internationaler Großmeister</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">Kennt die Regeln gerade erst, verschenkt oft Figuren</string>
+    <string name="difficulty_desc_beginner">Nimmt offensichtliche Gratisfiguren, übersieht einfache Fallen</string>
+    <string name="difficulty_desc_lower_intermediate">Kennt Grundtaktiken, sieht manchmal Gabeln</string>
+    <string name="difficulty_desc_intermediate">Solide Eröffnungen, rechnet 3-5 Züge voraus</string>
+    <string name="difficulty_desc_upper_intermediate">Spielt grundsätzliche Züge, meistert Eröffnungen</string>
+    <string name="difficulty_desc_advanced">Solider Amateur, solide Endspiele, wenige schwache Züge</string>
+    <string name="difficulty_desc_amateur">Verlässliche Taktiken, stellt einfache Fallen</string>
+    <string name="difficulty_desc_district">Ausgeglichener Angriff und Verteidigung, bestraft Fehler</string>
+    <string name="difficulty_desc_city">Starker Überblick, bereitet Fallen vor, macht selten grobe Fehler</string>
+    <string name="difficulty_desc_provincial">Provinzturnier-Niveau, präzise Berechnung</string>
+    <string name="difficulty_desc_local_master">Spiel auf Meisterniveau, tief berechnete Varianten</string>
+    <string name="difficulty_desc_national_master">Scharfes Angriffsspiel, fast keine Fehler</string>
+    <string name="difficulty_desc_grandmaster">Nationales Großmeisterniveau, tiefes strategisches Spiel</string>
+    <string name="difficulty_desc_international_master">Internationales Meisterniveau, präzise in jeder Phase</string>
+    <string name="difficulty_desc_legendary">Internationales Großmeisterniveau, der Stärkste auf diesem Gerät</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">Hinweis</string>
+    <string name="action_undo">Zug zurück</string>
+    <string name="action_new_game">Neue Partie</string>
+    <string name="action_resign">Aufgeben</string>
+    <string name="action_draw">Remis anbieten</string>
+    <string name="action_analysis">Analyse</string>
+    <string name="action_flip">Drehen</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_back">Zurück</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_export">PGN exportieren</string>
+    <string name="action_play_red">Rot spielen (zuerst)</string>
+    <string name="action_play_black">Schwarz spielen (zweitens)</string>
+    <string name="action_two_player">Zwei Spieler</string>
+    <string name="action_voice">Zug per Sprache</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">Sage einen Zug, z. B. \"车九进四\" (Wagen neun rückt vier)</string>
+    <string name="voice_played">Gespielt: %1$s</string>
+    <string name="voice_no_match">Kein gültiger Zug passt zu \"%1$s\"</string>
+    <string name="voice_ambiguous">Mehrdeutig — bitte präziser</string>
+    <string name="voice_no_speech">Nicht verstanden, bitte nochmal versuchen</string>
+    <string name="voice_error">Spracherkennung fehlgeschlagen</string>
+    <string name="voice_unavailable">Spracherkennung ist auf diesem Gerät nicht verfügbar</string>
+    <string name="voice_permission_denied">Für Sprachzüge wird die Mikrofonberechtigung benötigt</string>
+    <string name="voice_wait_engine">Warte, bis die KI ihren Zug beendet hat</string>
+    <string name="voice_not_your_turn">Du bist noch nicht am Zug</string>
+    <string name="voice_game_over">Die Partie ist vorbei</string>
+
+    <!-- Status -->
+    <string name="status_thinking">KI denkt…</string>
+    <string name="status_your_turn">Du bist am Zug</string>
+    <string name="status_check">Schach!</string>
+    <string name="status_checkmate">Schachmatt!</string>
+    <string name="status_draw">Remis</string>
+    <string name="status_resign">Aufgegeben</string>
+    <string name="status_win">Sieg</string>
+    <string name="status_loss">Niederlage</string>
+    <string name="status_stalemate">Patt</string>
+    <string name="status_engine_error">KI-Fehler, zur Ersatzengine gewechselt</string>
+    <string name="game_over_checkmate_red">Schwarz setzt Rot matt</string>
+    <string name="game_over_checkmate_black">Rot setzt Schwarz matt</string>
+    <string name="game_over_repetition">Stellungswiederholung</string>
+    <string name="game_over_fifty_moves">50-Züge-Regel</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">Siegquote</string>
+    <string name="winrate_red">Siegquote Rot</string>
+    <string name="winrate_black">Siegquote Schwarz</string>
+    <string name="depth_label">Tiefe</string>
+    <string name="nodes_label">Knoten</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">Zeit</string>
+
+    <!-- Rating -->
+    <string name="rating_current">Aktuelle Wertung</string>
+    <string name="rating_total_games">Partien gesamt</string>
+    <string name="rating_wins">Siege</string>
+    <string name="rating_losses">Niederlagen</string>
+    <string name="rating_draws">Remis</string>
+    <string name="rating_winrate">Siegquote</string>
+    <string name="rating_rank">Rang</string>
+    <string name="rank_1">Anfänger</string>
+    <string name="rank_2">Neuling</string>
+    <string name="rank_3">1. Amateur-Dan</string>
+    <string name="rank_4">3. Amateur-Dan</string>
+    <string name="rank_5">5. Amateur-Dan</string>
+    <string name="rank_6">7. Amateur-Dan</string>
+    <string name="rank_7">Regionalmeister</string>
+    <string name="rank_8">Nationalmeister</string>
+    <string name="rank_9">Großmeister</string>
+    <string name="rank_10">Schachkönig</string>
+    <string name="rank_hall_title">Rangsiegel</string>
+    <string name="rank_hall_intro">Zehn Siegel, vom Anfänger bis zum König. Nur gewertete Partien bewegen das Siegel. Übung und Bergbesteigung nicht.</string>
+    <string name="rank_hall_current">Aktuell</string>
+    <string name="rank_hall_reached">Erreicht</string>
+    <string name="rank_hall_locked">Ausstehend</string>
+    <string name="rank_progress_next">%2$d Punkte bis %1$s</string>
+    <string name="rank_progress_top">Schachkönig — die Spitze dieser Leiter</string>
+    <string name="rank_promoted">Befördert zu %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">Rangsiegel öffnen</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">Neue Partie</string>
+    <string name="dialog_new_game_message">Neue Partie starten?</string>
+    <string name="dialog_resign_title">Aufgeben</string>
+    <string name="dialog_resign_message">Möchtest du wirklich aufgeben?</string>
+    <string name="dialog_undo_title">Zug zurücknehmen</string>
+    <string name="dialog_undo_message">Das Zurücknehmen kostet einen kleinen Wertungsabzug. Trotzdem zurücknehmen?</string>
+    <string name="dialog_yes">Ja</string>
+    <string name="dialog_no">Nein</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_confirm">Bestätigen</string>
+
+    <!-- Review -->
+    <string name="replay_empty">Noch keine Partien</string>
+    <string name="replay_play">Autoplay</string>
+    <string name="replay_pause">Pause</string>
+    <string name="replay_prev">Zurück</string>
+    <string name="replay_next">Weiter</string>
+    <string name="replay_first">Erster Zug</string>
+    <string name="replay_last">Letzter Zug</string>
+    <string name="replay_move_number">Zug %1$d</string>
+    <string name="result_win_short">S</string>
+    <string name="result_loss_short">N</string>
+    <string name="result_draw_short">R</string>
+    <string name="side_red_short">Rot</string>
+    <string name="side_black_short">Schwarz</string>
+    <string name="replay_moves_summary">%1$d Züge · %2$s</string>
+    <string name="replay_record_missing">Partieaufzeichnung nicht gefunden</string>
+    <string name="replay_player_info">Lv. %1$d  %2$s  %3$d Züge</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">Zug %1$d konnte nicht wiederhergestellt werden</string>
+    <string name="replay_viewer_title">Partie-Replay</string>
+    <string name="replay_share_report">Gefechtsbericht teilen</string>
+    <string name="replay_export_pgn">PGN exportieren</string>
+    <string name="replay_copy_fen">FEN kopieren</string>
+    <string name="replay_copied_to_clipboard">In die Zwischenablage kopiert</string>
+    <string name="puzzle_rush_title">Puzzle Rush</string>
+    <string name="puzzle_rush_banner">3 Minuten · Bestwert %1$d</string>
+    <string name="tactics_banner_title">Mattmuster</string>
+    <string name="tactics_banner_sub">Klassische Mattmotive</string>
+    <string name="tactics_banner_progress">%1$d / %2$d gelernt</string>
+    <string name="puzzle_rush_subtitle">Schnelllösen in 3 Minuten</string>
+    <string name="puzzle_rush_start">Rush starten</string>
+    <string name="puzzle_rush_score">Punkte</string>
+    <string name="puzzle_rush_high_score">Bestwert: %1$d</string>
+    <string name="puzzle_rush_combo">Serie x%1$d</string>
+    <string name="puzzle_rush_pass">Überspringen (−1 Herz)</string>
+    <string name="puzzle_rush_time_up">Die Zeit ist um!</string>
+    <string name="puzzle_rush_lives_out">Keine Leben mehr!</string>
+    <string name="puzzle_rush_new_record">🎉 Neuer Rekord!</string>
+    <string name="puzzle_rush_solved_count">%1$d Puzzle gelöst</string>
+    <string name="puzzle_rush_play_again">Nochmal spielen</string>
+    <string name="puzzle_rush_share">Punkte teilen</string>
+    <string name="puzzle_rush_report_title">【QiYan Xiangqi · Puzzle Rush】</string>
+    <string name="puzzle_rush_score_line">Punkte %1$d</string>
+    <string name="puzzle_rush_best_badge">Bestwert %1$d</string>
+    <string name="puzzle_rush_mate_line">Matt · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">Titel: %1$s</string>
+    <string name="puzzle_rush_record_line">Neuer Rekord: %1$d</string>
+    <string name="puzzle_rush_previous_best">Bisheriger Bestwert: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\n%2$d Puzzle in 3 Minuten gelöst.\nBeste Serie %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">Diesen Rush verlassen? Die Punkte werden nicht gespeichert.</string>
+    <string name="puzzle_rush_leave_yes">Verlassen</string>
+    <string name="puzzle_rush_honor_1">Lehrling</string>
+    <string name="puzzle_rush_honor_2">Vereinsspieler</string>
+    <string name="puzzle_rush_honor_3">Scharfes Messer</string>
+    <string name="puzzle_rush_honor_4">Rechenkünstler</string>
+    <string name="puzzle_rush_honor_5">Rush-Meister</string>
+    <string name="stat_total_games_format">%1$d Partien</string>
+    <string name="stat_wins_format">%1$d S</string>
+    <string name="stat_losses_format">%1$d N</string>
+    <string name="stat_draws_format">%1$d R</string>
+    <string name="game_illegal_move">Unzulässiger Zug</string>
+    <string name="game_undo_failed">Zurücknehmen nicht möglich</string>
+    <string name="game_switched_to_black">Zu Schwarz gewechselt</string>
+    <string name="game_switched_to_red">Zu Rot gewechselt</string>
+    <string name="game_opponent_black">KI (Schwarz)</string>
+    <string name="game_opponent_red">KI (Rot)</string>
+    <string name="game_player_red">Ich (Rot)</string>
+    <string name="game_player_black">Ich (Schwarz)</string>
+    <string name="game_move_count">Zug %1$d</string>
+    <string name="game_engine_start_failed">KI konnte nicht gestartet werden</string>
+    <string name="unknown_label">Unbekannt</string>
+    <string name="default_nickname">Schachfreund</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Grund: %1$s\nWertungsänderung: %2$s\nAktueller Rang: %3$s</string>
+    <string name="game_over_rating_detail">Wertungsänderung: %1$s · Aktueller Rang: %2$s</string>
+    <string name="game_over_win">Du hast gewonnen</string>
+    <string name="game_over_loss">Du hast verloren</string>
+    <string name="game_over_draw">Remis</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">Threads</string>
+    <string name="settings_hash">Hashtabelle (MB)</string>
+    <string name="settings_sound">Soundeffekte</string>
+    <string name="settings_vibrate">Vibration</string>
+    <string name="settings_bgm">Hintergrundmusik</string>
+    <string name="settings_board_flip">Standardmäßig drehen</string>
+    <string name="settings_show_coords">Koordinaten anzeigen</string>
+    <string name="settings_show_winrate">Siegquote anzeigen</string>
+    <string name="settings_animation">Zuganimation</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_desc_threads">Mehr Threads rechnen schneller, verbrauchen aber mehr Akku. Empfohlen: höchstens die Hälfte der Kerne des Geräts</string>
+    <string name="settings_desc_hash">Der Denkcache der KI. Erhöhen für stärkeres langes Nachdenken; verringern, wenn der Speicher knapp ist</string>
+    <string name="settings_desc_sound">Spielt einen Ton bei Zug, Schlag und Schach</string>
+    <string name="settings_desc_vibrate">Leichtes Vibrationsfeedback bei jedem Zug</string>
+    <string name="settings_desc_bgm">Spielt in Partien beruhigende Guqin-Klänge in Schleife; die Lautstärke bleibt niedrig, damit Soundeffekte hörbar bleiben</string>
+    <string name="settings_desc_coords">Zeigt Linien- und Reihennummern am Rand des Bretts</string>
+    <string name="settings_desc_winrate">Zeigt eine Live-Siegquotenleiste über dem Brett</string>
+    <string name="settings_desc_animation">Ausgeschaltet springen Figuren sofort an ihren Platz — flüssiger auf schwächeren Geräten</string>
+    <string name="settings_desc_flip">Partie aus Sicht von Schwarz starten</string>
+    <string name="settings_section_display">Anzeige</string>
+    <string name="settings_section_other">Sonstiges</string>
+    <string name="settings_theme_system">System folgen</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_clear_data">Alle Daten löschen</string>
+    <string name="dialog_clear_data_title">Daten löschen</string>
+    <string name="dialog_clear_data_message">Alle Partieaufzeichnungen und Wertungsdaten werden gelöscht. Fortfahren?</string>
+    <!-- Live hints -->
+    <string name="live_title">Live-Hinweise</string>
+    <string name="live_entry">Live-Hinweise</string>
+    <string name="live_need_camera">Für die Live-Bretterkennung wird die Kameraberechtigung benötigt</string>
+    <string name="live_camera_failed">Kamera konnte nicht gestartet werden</string>
+    <string name="live_locking">Brett wird gesucht…</string>
+    <string name="live_board_invalid">Brett noch nicht vollständig erkannt — stelle sicher, dass alle vier Ecken im Bild sind</string>
+    <string name="live_ready">Gesperrt · erkannt in %1$d ms</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">Zurücksetzen</string>
+    <string name="editor_clear">Leeren</string>
+    <string name="settings_clear_data_desc">Löscht alle Partieaufzeichnungen und Wertungsdaten. Kann nicht rückgängig gemacht werden</string>
+    <string name="settings_piece_style">Figurenstil</string>
+    <string name="settings_board_style">Brettstil</string>
+    <string name="settings_about">Über</string>
+    <string name="settings_engine_path">KI-Modellpfad</string>
+    <string name="settings_about_text">QiYan v1.0\n\nSelbst entwickelte KI (NNUE-Bewertung)\nUnterstützt Foto-Bretterkennung und Live-Hinweise</string>
+
+    <!-- About -->
+    <string name="about_engine_title">KI-Info</string>
+    <string name="about_engine_version">Selbst entwickeltes NNUE</string>
+    <string name="about_engine_desc">KI für chinesisches Schach</string>
+
+    <!-- Common -->
+    <string name="red">Rot</string>
+    <string name="black">Schwarz</string>
+    <string name="move_count">%1$d Züge</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">Brett scannen</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">KI-Analyse</string>
+    <string name="advisor_send">Senden</string>
+    <string name="advisor_input_hint">Frag alles…</string>
+    <string name="advisor_error_generic">Die Analyse ist vorübergehend nicht verfügbar, bitte später erneut versuchen</string>
+    <string name="advisor_no_config">KI-Funktion nicht konfiguriert, bitte den Entwickler kontaktieren</string>
+    <string name="advisor_unavailable">Die KI ist vorübergehend nicht verfügbar, bitte später erneut versuchen</string>
+    <string name="advisor_waiting">Die KI antwortet noch, bitte kurz warten</string>
+    <string name="advisor_key_rejected">Der Authentifizierungsschlüssel ist ungültig oder wurde widerrufen. Bitte konfiguriere das Proxy-Token neu.</string>
+    <string name="advisor_clear">Unterhaltung löschen</string>
+    <string name="advisor_context_replay">Zug %1$d wird analysiert</string>
+    <string name="advisor_context_game">Zug %1$d · %2$s am Zug</string>
+    <string name="advisor_thinking">Die KI analysiert…</string>
+    <string name="advisor_button">KI-Analyse</string>
+    <string name="advisor_empty_title">Frag die KI zu dieser Partie</string>
+    <string name="advisor_empty_subtitle">Sie sieht die aktuelle Stellung — frag nach der Lage, dem nächsten Zug oder dem Fehler im letzten Zug</string>
+    <string name="advisor_suggest_analyze">Aktuelle Stellung analysieren</string>
+    <string name="advisor_suggest_next">Was soll ich als Nächstes spielen?</string>
+    <string name="advisor_suggest_review">War mit dem letzten Zug etwas nicht in Ordnung?</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">Tippen zum Überspringen</string>
+    <string name="analysis_summary_prompt">Fasse die aktuelle Stellung in 2-3 Sätzen zusammen: die Lage, wer besser steht, wichtige Angriffs- und Verteidigungspunkte und den derzeit auffälligsten Zug.</string>
+    <string name="advisor_send_desc">Senden</string>
+    <string name="advisor_move_banner">Die KI zeigt diesen Zug: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">Brett scannen</string>
+    <string name="recognize_take_photo">Foto aufnehmen</string>
+    <string name="recognize_pick_image">Aus Galerie wählen</string>
+    <string name="recognize_preview_desc">Korrigiertes Brett</string>
+    <string name="recognize_red_to_move">Rot am Zug</string>
+    <string name="recognize_black_to_move">Schwarz am Zug</string>
+    <string name="recognize_advise">KI um Rat fragen</string>
+    <string name="recognize_hint_start">Fotografiere das Brett oder wähle ein Bild aus der Galerie. Fotografiere frontal, sodass alle vier Ecken sichtbar sind.</string>
+    <string name="recognize_working">Erkennung läuft…</string>
+    <string name="recognize_failed">Erkennung fehlgeschlagen, versuche ein anderes Foto</string>
+    <string name="recognize_model_failed">Erkennungsmodell konnte nicht geladen werden</string>
+    <string name="recognize_no_camera">Keine Kamera verfügbar</string>
+    <string name="recognize_corner_warning">Die vier Ecken des Bretts waren nicht genau gerahmt, die Erkennung kann ungenau sein. Fotografiere frontal neu.</string>
+    <string name="recognize_must_fix">Bitte zuerst folgende Probleme beheben:</string>
+    <string name="recognize_ready">Erkennung abgeschlossen. Gelbe Kreise markieren unsichere Felder (%1$d insgesamt) — tippe auf ein Feld, um es zu korrigieren. Bestätige, bevor du Rat einholst.</string>
+    <string name="recognize_pick_piece">Welche Figur gehört auf %1$c%2$d</string>
+    <string name="recognize_empty">Leer</string>
+    <string name="recognize_flip">Drehen</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">%1$s geschlagen</string>
+    <string name="piece_king">General</string>
+    <string name="piece_advisor">Wächter</string>
+    <string name="piece_elephant">Elefant</string>
+    <string name="piece_horse">Pferd</string>
+    <string name="piece_rook">Wagen</string>
+    <string name="piece_cannon">Kanone</string>
+    <string name="piece_pawn">Soldat</string>
+    <string name="recognize_thinking">KI denkt…</string>
+    <string name="recognize_engine_failed">KI konnte nicht gestartet werden</string>
+    <string name="recognize_engine_error">KI-Fehler: %1$s</string>
+    <string name="recognize_no_move">Die KI hat keinen Zug zurückgegeben</string>
+    <string name="recognize_advice">Vorschlag: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">Richte die Kamera auf ein echtes Brett und erhalte Vorschläge beim Spielen</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">Fotografiere die Stellung</string>
+    <string name="recognize_start_camera_desc">Ein echtes Brett fotografieren</string>
+    <string name="recognize_start_gallery_desc">Screenshot oder vorhandenes Foto verwenden</string>
+    <string name="recognize_tips_title">Gut fotografiert, gut erkannt</string>
+    <string name="recognize_tip_1">Fotografiere frontal aufs Brett, nicht schräg</string>
+    <string name="recognize_tip_2">Halte alle vier Ecken im Bild</string>
+    <string name="recognize_tip_3">Gleichmäßiges Licht; Reflexionen und Schatten vermeiden</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">Hinweisstärke</string>
+    <string name="advice_level_fast">Schnell</string>
+    <string name="advice_level_fast_desc">Schlägt sofort vor</string>
+    <string name="advice_level_normal">Standard</string>
+    <string name="advice_level_normal_desc">Denkt ein bis zwei Sekunden, reicht für die meisten Fälle</string>
+    <string name="advice_level_deep">Tief</string>
+    <string name="advice_level_deep_desc">Denkt länger, verlässlicher in kritischen Stellungen</string>
+    <string name="advice_level_current">Hinweisstärke: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Figurenbeschriftung</string>
+    <string name="settings_piece_set_desc">Chinesische Schriftzeichen sind der traditionelle Look; lateinische Buchstaben (K/A/B/N/R/C/P) passen zur englischen Zugnotation</string>
+    <string name="piece_set_hanzi">Chinesische Schriftzeichen</string>
+    <string name="piece_set_latin">Buchstaben K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Zugnotation</string>
+    <string name="settings_notation_desc">Die chinesische Notation schreibt 炮二平五; die WXF schreibt denselben Zug als C2.5</string>
+    <string name="notation_chinese">Chinesische Notation</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Die Engine gab einen unzulässigen Zug zurück: %1$s</string>
+    <string name="engine_error">Engine-Fehler: %1$s</string>
+    <string name="must_answer_check">Du stehst im Schach — du musst darauf reagieren</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Brett wird aufgebaut…</string>
+    <string name="settings_follow_language">Appsprache folgen</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">Neue Partie</string>
+    <string name="new_game_pick_opponent">Wähle deinen Gegner</string>
+    <string name="new_game_side">Deine Seite</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Lv. %1$d %2$s</string>
+    <string name="new_game_level_short">Lv. %1$d</string>
+    <string name="side_red">Rot</string>
+    <string name="side_black">Schwarz</string>
+    <string name="side_random">Zufällig</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Gegner</string>
+    <string name="menu_change_opponent">Ändern</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Ausgewogen</string>
+    <string name="style_balanced_desc">Spielt immer den besten Zug der Engine — pure Stärke</string>
+    <string name="style_aggressive">Aggressiv</string>
+    <string name="style_aggressive_desc">Liebt Schläge und Schachgebote, wagt Opfer für den Angriff</string>
+    <string name="style_solid">Solide</string>
+    <string name="style_solid_desc">Tauscht nie unklug, zieht ruhige Stellungen Komplikationen vor</string>
+    <string name="style_swarm">Unberechenbar</string>
+    <string name="style_swarm_desc">Wechselt zwischen fast besten Zügen — jedes Mal eine andere Partie</string>
+    <string name="new_game_style">Gegnerstil</string>
+    <string name="new_game_style_line">Stil: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Schach!</string>
+    <string name="board_tag_mate">Schachmatt</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Schlacht-Effekte beim Schlagen</string>
+    <string name="settings_desc_capture_fx">Hieb, Funken und Tusch-Spritzer beim Schlagen einer Figur. Das „geschlagen“-Schild bleibt auf dem Brett in jedem Fall sichtbar</string>
+    <string name="settings_board_skin">Brettmaterial</string>
+    <string name="settings_board_skin_desc">Vier Offline-Materialien. Die Figurenbuchstaben bleiben auf Elfenbein dunkel und dadurch lesbar.</string>
+    <string name="skin_wood">Warmes Holz</string>
+    <string name="skin_black_gold">Schwarzgold</string>
+    <string name="skin_porcelain">Blaues Porzellan</string>
+    <string name="skin_jade">Weißer Jade</string>
+
+    <string name="puzzle_1_name">Matt in 1 · Erstickter Palast</string>
+    <string name="puzzle_1_hint">Das schwarze Pferd ist gefesselt. Zieh deinen General in die Mitte: Schwarz ist patt</string>
+    <string name="puzzle_2_name">Matt in 1 · Doppelkanonen</string>
+    <string name="puzzle_2_hint">Die vordere Kanone ist der Schirm — bring die hintere Kanone auf die Linie</string>
+    <string name="puzzle_3_name">Matt in 1 · Wagen &amp; Pferd</string>
+    <string name="puzzle_3_hint">Der hintere Wagen fegt zur hintersten Reihe für Doppelschach</string>
+    <string name="puzzle_4_name">Matt in 1 · General gegen General</string>
+    <string name="puzzle_4_hint">Die Generale stehen auf der Linie einander gegenüber, stell den Wagen auf die hinterste Reihe</string>
+    <string name="puzzle_5_name">Matt in 1 · Eisenriegel</string>
+    <string name="puzzle_5_hint">Die Zentralkanone verankert die Linie, während der Wagen auf die hinterste Reihe sinkt</string>
+    <string name="puzzle_6_name">Matt in 1 · Kanone am Flügel</string>
+    <string name="puzzle_6_hint">Die Kanone stößt tief vor, der Wagen sichert den entscheidenden Schlag</string>
+    <string name="puzzle_7_name">Matt in 1 · Tiefe Doppelwagen</string>
+    <string name="puzzle_7_hint">Zwei Wagen umklammern die Festung, abgesichert von der Kanone</string>
+    <string name="puzzle_8_name">Matt in 1 · Pferd &amp; Kanone</string>
+    <string name="puzzle_8_hint">Nutze das edle Ross als Lafette der Kanone für das sofortige Matt</string>
+    <string name="puzzle_9_name">Matt in 2 · Versetzte Wagen</string>
+    <string name="puzzle_9_hint">Stelle einen Wagen zum Schach; blockt der Elefant, wechsle die Richtung</string>
+    <string name="puzzle_10_name">Matt in 2 · Zwei Wagen</string>
+    <string name="puzzle_10_hint">Ein Wagen fesselt die Linie, der andere fährt die Schachs hin und her</string>
+    <string name="puzzle_11_name">Matt in 2 · Ellbogenpferd</string>
+    <string name="puzzle_11_hint">Das Pferd verankert den Palastflügel; der Wagen sinkt zum Matt herab</string>
+    <string name="puzzle_12_name">Matt in 2 · Sprungbrett-Schach</string>
+    <string name="puzzle_12_hint">Springe mit dem Pferd vor und decke so das Schach auf, abgestimmt mit dem Wagen</string>
+    <string name="puzzle_13_name">Matt in 2 · Wagen, Pferd, Kanone</string>
+    <string name="puzzle_13_hint">Das Pferd springt ins Zentrum, die Kanone koordiniert den tödlichen Schlag</string>
+    <string name="puzzle_14_name">Matt in 2 · Soldatenvormarsch</string>
+    <string name="puzzle_14_hint">Die Kanone hält das Zentrum, während der Soldat einrückt</string>
+    <string name="puzzle_15_name">Matt in 2 · Wagen im Tandem</string>
+    <string name="puzzle_15_hint">Zwei Wagen entlang der Linie zerlegen die Palastverteidigung</string>
+    <string name="puzzle_16_name">Matt in 2 · Versteckte Kanone</string>
+    <string name="puzzle_16_hint">Der Wagen räumt den Weg für die dahinter lauernde Kanone</string>
+    <string name="puzzle_17_name">Matt in 3 · Ellbogenpferd in der Tiefe</string>
+    <string name="puzzle_17_hint">Das Pferd greift die Palastecke an, der Wagen versiegelt die hinterste Reihe</string>
+    <string name="puzzle_18_name">Matt in 3 · Anglerpferd in der Tiefe</string>
+    <string name="puzzle_18_hint">Das Anglerpferd schnürt den General ein, der Wagen vollendet auf Reihe 9</string>
+    <string name="puzzle_19_name">Matt in 3 · Eckpferd</string>
+    <string name="puzzle_19_hint">Das Eckpferd kontrolliert die Ausgänge für das unaufhaltsame Wagenmatt</string>
+    <string name="puzzle_20_name">Matt in 3 · Wagen in der Zange</string>
+    <string name="puzzle_20_hint">Zwei ineinander greifende Wagen ziehen die Schlinge um den feindlichen General zu</string>
+    <string name="puzzle_21_name">Matt in 2 · Anglerfesselung</string>
+    <string name="puzzle_21_hint">Das Anglerpferd versiegelt den Palast; der Wagen gleitet zum Matt ins Zentrum</string>
+    <string name="puzzle_22_name">Matt in 2 · Himmel &amp; Erde</string>
+    <string name="puzzle_22_hint">Eine Kanone beherrscht das Zentrum, die andere stößt tief vor zum Schluss</string>
+    <string name="puzzle_23_name">Matt in 3 · Wagen-und-Pferd-Riegel</string>
+    <string name="puzzle_23_hint">Verbundener Wagen und Pferd liefern ununterbrochen tödliche Schachs</string>
+    <string name="puzzle_24_name">Matt in 3 · Netz der Doppelwagen</string>
+    <string name="puzzle_24_hint">Die Wagen rücken auf Nachbarlinien vor und fangen den General</string>
+
+    <string name="puzzle_25_name">Matt in 3 · Wächterbrecher</string>
+    <string name="puzzle_25_hint">Die Wagen brechen durch die Wächter und zerschmettern die Verteidigung</string>
+    <string name="puzzle_26_name">Matt in 3 · Doppelwagen-Zyklus</string>
+    <string name="puzzle_26_hint">Versetzte Wagen sinken nacheinander herab, unterstützt durch den General</string>
+    <string name="puzzle_27_name">Matt in 3 · Lockwagen</string>
+    <string name="puzzle_28_hint">Opfere den vorderen Wagen, um den General aus der Festung zu locken</string>
+    <string name="puzzle_28_name">Matt in 3 · Springendes Eckpferd</string>
+    <string name="puzzle_27_hint">Opfere eine Figur, um in den feindlichen Palast einzudringen</string>
+    <string name="puzzle_29_name">Matt in 3 · Wagen belagern den Palast</string>
+    <string name="puzzle_29_hint">Zwei Wagen dringen ins Herz des Palasts vor</string>
+    <string name="puzzle_30_name">Matt in 3 · Flügelangriff</string>
+    <string name="puzzle_30_hint">Der Wagen sinkt auf die hinterste Reihe, während das Pferd herumkreist</string>
+    <string name="puzzle_31_name">Matt in 3 · Generale gegenüber</string>
+    <string name="puzzle_31_hint">Die Generale stehen auf der offenen Linie einander gegenüber; der Wagen besiegelt den Sieg</string>
+    <string name="puzzle_32_name">Matt in 3 · Galoppierendes Pferd</string>
+    <string name="puzzle_32_hint">Das Pferd springt auf die Ellbogenposition und setzt matt</string>
+
+    <string name="puzzle_33_name">Matt in 4 · Anglerdurchbruch</string>
+    <string name="puzzle_33_hint">Das Anglerpferd bindet den General, während der Wagen die Wächter abträgt</string>
+    <string name="puzzle_34_name">Matt in 4 · Soldat vor den Toren</string>
+    <string name="puzzle_34_hint">Der mutige rote Soldat rückt vor und zerlegt das Heiligtum des Generals</string>
+    <string name="puzzle_35_name">Matt in 4 · Eckpferd &amp; Wagen</string>
+    <string name="puzzle_35_hint">Das Eckpferd fesselt die Wächter; der Wagen vollendet aus der Tiefe</string>
+    <string name="puzzle_36_name">Matt in 4 · Doppelwagen &amp; Ross</string>
+    <string name="puzzle_36_hint">Flügelwagen und ein galoppierendes Pferd überrennen den Palast</string>
+    <string name="puzzle_37_name">Matt in 4 · Soldat im Palast</string>
+    <string name="puzzle_37_hint">Der Soldat dringt vom Wagen gedeckt in den mittleren Palast ein</string>
+    <string name="puzzle_38_name">Matt in 4 · Flügelpferd &amp; Wagen</string>
+    <string name="puzzle_38_hint">Das Pferd schlägt vom Flügel zu, während der Wagen die Hinterlinie versiegelt</string>
+    <string name="puzzle_39_name">Matt in 5 · Soldatenvorstoß</string>
+    <string name="puzzle_39_hint">Der zähe Soldat rückt stetig vor und fesselt den General</string>
+    <string name="puzzle_40_name">Matt in 3 · Kanonen &amp; Wagen</string>
+    <string name="puzzle_40_hint">Doppelwagen und Kanone bilden eine unbeugsame Batterie</string>
+
+    <string name="puzzle_41_name">Matt in 6 · Durchbruchssoldat</string>
+    <string name="puzzle_41_hint">Der Flügelsoldat marschiert tief; Wagen und Kanone folgen</string>
+    <string name="puzzle_42_name">Matt in 7 · Rippenstoß</string>
+    <string name="puzzle_42_hint">Das Pferdopfer bindet die Verteidigung und ebnet dem Wagen den Weg</string>
+    <string name="puzzle_43_name">Matt in 6 · Zentralpferd</string>
+    <string name="puzzle_43_hint">Das Pferd beherrscht das Zentrum und orchestriert das Matt</string>
+    <string name="puzzle_44_name">Matt in 6 · Endspiel mit einzelnem Wagen</string>
+    <string name="puzzle_44_hint">Meisterhafte Einzelwagen-Technik entfernt die Verteidiger einen nach dem anderen</string>
+    <string name="puzzle_45_name">Matt in 2 · Schnelle Doppelwagen</string>
+    <string name="puzzle_45_hint">Zwei Wagen auf gekreuzten Linien vollstrecken schnelle Gerechtigkeit</string>
+    <string name="puzzle_46_name">Matt in 3 · Edles Ross</string>
+    <string name="puzzle_46_hint">Das Pferd sperrt alle Fluchtwege; der Wagen vollendet auf der Reihe</string>
+    <string name="puzzle_47_name">Matt in 3 · Flügelwagen</string>
+    <string name="puzzle_47_hint">Zwei Wagen synchronisieren ihre Angriffe von Nachbarlinien</string>
+    <string name="puzzle_48_name">Matt in 2 · Fliegende Kanonen</string>
+    <string name="puzzle_48_hint">Die Doppelkanonen springen über den Schirm zu einem verblüffenden Matt</string>
+
+    <string name="puzzle_chapter_1">Band I: Erste Schritte</string>
+    <string name="puzzle_chapter_sub_1">Matt in 1 · Grundlegende Mattnetze</string>
+    <string name="puzzle_chapter_2">Band II: Taktische Funken</string>
+    <string name="puzzle_chapter_sub_2">Matt in 2 · Koordinierte Angriffsmotive</string>
+    <string name="puzzle_chapter_3">Band III: Meisterstrategie</string>
+    <string name="puzzle_chapter_sub_3">Matt in 2-3 · Umfassende klassische Taktiken</string>
+    <string name="puzzle_chapter_4">Band IV: Große Offensive</string>
+    <string name="puzzle_chapter_sub_4">Matt in 3 · Opfer und entscheidende Schläge</string>
+    <string name="puzzle_chapter_5">Band V: Epische Eroberung</string>
+    <string name="puzzle_chapter_sub_5">Matt in 3-4 · Endspielmanöver auf Meisterniveau</string>
+    <string name="puzzle_chapter_6">Band VI: Großmeister-Proben</string>
+    <string name="puzzle_chapter_sub_6">Matt in 4-7 · Legendäre klassische Xiangqi-Meisterwerke</string>
+    <string name="campaign_entry">Besteige den Berg</string>
+    <string name="campaign_entry_desc">Acht Etappen. Gewinne eine, um die nächste zu öffnen.</string>
+    <string name="puzzle_entry">Endspiele</string>
+    <string name="puzzle_entry_desc">Klassische Matts, drei Rücknahmen pro Puzzle</string>
+    <string name="campaign_title">Der Berg</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">Ziel</string>
+    <string name="campaign_level_format">Etappe %1$d</string>
+    <string name="campaign_level_difficulty_format">Gegnerstärke: Lv. %1$d</string>
+    <string name="campaign_locked">Gewinne die vorherige Etappe, um diese zu öffnen</string>
+    <string name="campaign_passed">Geschafft</string>
+    <string name="campaign_win_title">Etappe geschafft</string>
+    <string name="campaign_next_level">Nächste Etappe</string>
+    <string name="campaign_retry">Etappe erneut versuchen</string>
+    <string name="campaign_back_list">Zurück zum Berg</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">Etappe %1$d · %2$s</string>
+    <string name="stage_1_name">Erste Schritte</string>
+    <string name="stage_1_brief">Dieser Gegner übersieht oft Schläge. Mach dich erst mit den Regeln vertraut.</string>
+    <string name="stage_2_name">Das Tor</string>
+    <string name="stage_2_brief">Denkt einen Zug voraus und übersieht trotzdem einiges.</string>
+    <string name="stage_3_name">Der Fluss</string>
+    <string name="stage_3_brief">Hier übernimmt die Engine, mit gut einer Sekunde Denkzeit.</string>
+    <string name="stage_4_name">Der Pass</string>
+    <string name="stage_4_brief">Mehr Zeit. Einfache Flüchtigkeitsfehler werden gesehen.</string>
+    <string name="stage_5_name">Die Linien</string>
+    <string name="stage_5_brief">Eine tiefere Suche. Eine ungedeckte Figur kann fallen.</string>
+    <string name="stage_6_name">Ein längerer Blick</string>
+    <string name="stage_6_brief">Noch eine Runde mehr Denkzeit.</string>
+    <string name="stage_7_name">Tiefe Suche</string>
+    <string name="stage_7_brief">Knapp unter dem Gipfel, ein Schritt Denkzeit fehlt.</string>
+    <string name="stage_8_name">Der Gipfel</string>
+    <string name="stage_8_brief">Die längste Suche auf dem Berg.</string>
+    <string name="catalog_mate_title">Matt in einem</string>
+    <string name="catalog_mate_hint">Rot am Zug. Matt in einem.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">%1$d / %2$d gelöst</string>
+    <string name="catalog_filter_all">Alle</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">Gelöst</string>
+    <string name="catalog_open">Öffnen</string>
+    <string name="history_intro">Fünf Kapitel echter Feldzüge. Jede Schlacht endet mit einem Matt in einem. Die Stellung ist eine Übung, keine Rekonstruktion der historischen Schlacht.</string>
+    <string name="history_ch_1">Frühling und Herbst</string>
+    <string name="history_ch_2">Streitende Reiche</string>
+    <string name="history_ch_3">Chu und Han</string>
+    <string name="history_ch_4">Drei Reiche</string>
+    <string name="history_ch_5">Spätere Schlachtfelder</string>
+    <string name="battle_1_name">Changshao</string>
+    <string name="battle_1_brief">Lu, 684 v. Chr. Cao Gui lässt Qi dreimal die Trommel schlagen, dann schlägt er zu. Matt in einem: der Eisenriegel.</string>
+    <string name="battle_2_name">Chengpu</string>
+    <string name="battle_2_brief">632 v. Chr. Jin rückt auf Chus Zentrum vor und schließt beide Flügel. Matt in einem: der Doppelwagen.</string>
+    <string name="battle_3_name">Boju</string>
+    <string name="battle_3_brief">506 v. Chr. Wu stößt tief in Chu vor und nimmt Ying. Matt in einem: das Pferd hinter der Kanone.</string>
+    <string name="battle_4_name">Lize</string>
+    <string name="battle_4_brief">478 v. Chr. Yue überquert den Fluss in zwei Kolonnen und bricht Wu. Matt in einem: das Taschenpferd.</string>
+    <string name="battle_5_name">Guiling</string>
+    <string name="battle_5_brief">354 v. Chr. Qi marschiert auf Weis Hauptstadt, um Zhaos Belagerung zu lösen. Matt in einem: die Doppelkanone.</string>
+    <string name="battle_6_name">Maling</string>
+    <string name="battle_6_brief">342 v. Chr. Sun Bin verringert seine Lagerfeuer und wartet im Pass. Matt in einem: das Anglerpferd.</string>
+    <string name="battle_7_name">Changping</string>
+    <string name="battle_7_brief">260 v. Chr. Qin schneidet Zhaos Armee ab und schließt den Ring. Matt in einem: der Doppelwagen.</string>
+    <string name="battle_8_name">Jimo</string>
+    <string name="battle_8_brief">279 v. Chr. Tian Dan öffnet die Stadt und reitet nachts ins Lager von Yan. Matt in einem: das Taschenpferd.</string>
+    <string name="battle_9_name">Jingxing</string>
+    <string name="battle_9_brief">204 v. Chr. Han Xin stellt sein Heer mit dem Rücken zum Fluss auf, dann schlägt er zurück. Matt in einem: General gegen General.</string>
+    <string name="battle_10_name">Chen Cang</string>
+    <string name="battle_10_brief">206 v. Chr. Der Bohlenweg war nur ein Täuschungsmanöver. Das Heer kam durch Chen Cang. Matt in einem: die Doppelkanone.</string>
+    <string name="battle_11_name">Weishui</string>
+    <string name="battle_11_brief">204 v. Chr. Han Xin staut den Fluss, lässt den Feind herüber und gibt dann das Wasser frei. Matt in einem: das Pferd hinter der Kanone.</string>
+    <string name="battle_12_name">Gaixia</string>
+    <string name="battle_12_brief">202 v. Chr. Hans Heere umschließen Xiang Yu von allen Seiten. Matt in einem: der Doppelwagen.</string>
+    <string name="battle_13_name">Guandu</string>
+    <string name="battle_13_brief">200 n. Chr. Cao Cao verbrennt Yuan Shaos Vorräte bei Wuchao. Matt in einem: der Eisenriegel.</string>
+    <string name="battle_14_name">Rote Klippen</string>
+    <string name="battle_14_brief">208 n. Chr. Feuer läuft über die verkettete Flotte am Jangtse. Matt in einem: die Doppelkanone.</string>
+    <string name="battle_15_name">Hanzhong</string>
+    <string name="battle_15_brief">219 n. Chr. Huang Zhong nimmt den Dingjun-Berg, Xiahou Yuan fällt. Matt in einem: das Anglerpferd.</string>
+    <string name="battle_16_name">Yiling</string>
+    <string name="battle_16_brief">222 n. Chr. Lu Xun wartet ab, dann verbrennt er Shus Lager. Matt in einem: das Taschenpferd.</string>
+    <string name="battle_17_name">Feishui</string>
+    <string name="battle_17_brief">383. Fu Jians Heer beginnt zu weichen und lässt sich nicht mehr aufhalten. Matt in einem: General gegen General.</string>
+    <string name="battle_18_name">Hulao</string>
+    <string name="battle_18_brief">621. Li Shimin schlägt Dou Jiande vor dem Pass. Matt in einem: das Eckpferd.</string>
+    <string name="battle_19_name">Yancheng</string>
+    <string name="battle_19_brief">1140. Yue Feis Reiter brechen die Jin-Kavallerie bei Yancheng. Matt in einem: das Pferd hinter der Kanone.</string>
+    <string name="battle_20_name">Poyang-See</string>
+    <string name="battle_20_brief">1363. Zhu Yuanzhangs Feuerschiffe brechen Chen Youliangs Turmschiffe. Matt in einem: die Himmel-und-Erde-Kanonen.</string>
+    <string name="tactic_label_mahoupao">Pferd hinter der Kanone</string>
+    <string name="tactic_label_bolt">Eisenriegel</string>
+    <string name="tactic_label_double_cannon">Doppelkanone</string>
+    <string name="tactic_label_double_rook">Doppelwagen</string>
+    <string name="tactic_label_pocket">Taschenpferd</string>
+    <string name="tactic_label_corner">Eckpferd</string>
+    <string name="tactic_label_fishing">Anglerpferd</string>
+    <string name="tactic_label_face">General gegen General</string>
+    <string name="tactic_label_heaven">Himmel-und-Erde-Kanonen</string>
+    <string name="tactic_label_heart">Wagen im Palast</string>
+    <string name="tactic_label_smothered">Erstickter Palast</string>
+    <string name="tactic_label_spring">Sprungbrett-Schach</string>
+    <string name="tactic_label_mate">Matt</string>
+    <string name="puzzle_title">Endspiel</string>
+    <string name="puzzle_list_title">Endspiele</string>
+    <string name="puzzle_solved">Gelöst</string>
+    <string name="puzzle_unsolved">Ungelöst</string>
+    <string name="puzzle_attempts_format">%1$d-mal versucht</string>
+    <string name="puzzle_red_to_move">Rot am Zug, Matt in %1$d</string>
+    <string name="puzzle_undo_left_format">Rücknahmen übrig: %1$d</string>
+    <string name="puzzle_moves_left_format">Züge übrig: %1$d</string>
+    <string name="puzzle_retry">Neu starten</string>
+    <string name="puzzle_undo">Zug zurück</string>
+    <string name="puzzle_undo_exhausted">Keine Rücknahmen mehr</string>
+    <string name="puzzle_deviated">Dieser Zug verfehlt das Matt. Zurücknehmen oder neu starten.</string>
+    <string name="puzzle_solved_title">Gelöst!</string>
+    <string name="puzzle_fail_title">Nicht gelöst</string>
+    <string name="puzzle_fail_moves">Keine Züge mehr. Schwarz verteidigt.</string>
+    <string name="puzzle_next_puzzle">Weiter</string>
+    <string name="puzzle_retry_confirm">%1$d-mal versucht. Drei Rücknahmen; ohne Züge gilt das Puzzle als verloren. Neu starten?</string>
+
+    <string name="campaign_unlocked">Spielbar</string>
+    <string name="campaign_fail_title">Etappe verloren</string>
+    <string name="campaign_body_unlocked">Etappe geschafft — die nächste ist freigeschaltet!</string>
+    <string name="campaign_stars_line">%1$d Sterne · %2$s · %3$s</string>
+    <string name="campaign_stars_record">Bestwert auf dieser Etappe: %1$d</string>
+    <string name="campaign_stars_cd">%1$d von 3 Sternen</string>
+    <string name="campaign_star_hint_kept">ohne Hinweis</string>
+    <string name="campaign_star_hint_used">Hinweis genutzt</string>
+    <string name="campaign_star_undo_kept">ohne Rücknahme</string>
+    <string name="campaign_star_undo_used">Rücknahme genutzt</string>
+    <string name="campaign_body_all_clear">Alle acht Etappen geschafft.</string>
+    <string name="campaign_body_retry">Nicht dieses Mal — versuch es nochmal!</string>
+    <string name="puzzle_stage_name">Etappe %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · Züge %2$d/%3$d · Rücknahmen übrig %4$d · Versuch Nr. %5$d</string>
+    <string name="puzzle_solved_body">Gelöst — gut gespielt!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">Brett ansehen</string>
+    <string name="result_win_checkmate">Sieg durch Matt</string>
+    <string name="result_win_big">Großer Sieg</string>
+    <string name="result_win_tactic_fmt">%1$s-Matt</string>
+    <string name="result_lose_tactic_fmt">Geschlagen durch %1$s</string>
+    <string name="result_lose_banner">Niederlage</string>
+    <string name="result_draw_banner">Remis</string>
+    <string name="result_reason_win_tactic_fmt">Mit einem brillanten %1$s mattgesetzt</string>
+    <string name="result_reason_lose_tactic_fmt">Der Gegner hat dich mit %1$s mattgesetzt</string>
+    <string name="result_reason_win_default">Sieg besiegelt</string>
+    <string name="result_reason_lose_default">So nah — eine knappe Niederlage</string>
+    <string name="result_reason_draw_default">Die Partie endet remis</string>
+    <string name="result_practice_detail">Übungspartie beendet — Wertung unverändert. Die Partie wurde gespeichert.</string>
+    <string name="campaign_reason_clear">Etappe geschafft</string>
+    <string name="campaign_reason_fail">Herausforderung verloren</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">Die KI analysiert die Partie</string>
+    <string name="analysis_scanning_recognize">Brett wird erkannt…</string>
+    <string name="analysis_scanning_advice">Die KI bereitet einen Hinweis vor…</string>
+    <string name="recognize_loading_model">Erkennungsmodell wird geladen…</string>
+    <string name="live_starting">Modell &amp; Kamera werden gestartet…</string>
+    <string name="action_retry">Erneut versuchen</string>
+
+    <string name="puzzle_solved_tactic_title">Matt · %1$s</string>
+    <string name="puzzle_solved_tactic_body">Gelöst mit %1$s.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">Zentralkanone gegen Pferdeschirm</string>
+    <string name="opening_same_cannon">Kanonen auf derselben Seite</string>
+    <string name="opening_opposite_cannon">Kanonen auf entgegengesetzten Seiten</string>
+    <string name="opening_central_vs_reversed">Zentralkanone gegen umgekehrtes Palastpferd</string>
+    <string name="opening_central_vs_single">Zentralkanone gegen einzelnes Pferd</string>
+    <string name="opening_central_vs_tiger">Zentralkanone gegen Dreischritt-Tiger</string>
+    <string name="opening_pawn_vs_cannon">Soldateneröffnung gegen Kanone hinter dem Soldaten</string>
+    <string name="opening_mutual_pawn">Gegenseitiger Soldatenvormarsch</string>
+    <string name="opening_pawn_vs_central">Soldateneröffnung gegen Zentralkanone</string>
+    <string name="opening_pawn_vs_horse">Soldateneröffnung gegen Pferd</string>
+    <string name="opening_pawn_vs_elephant">Soldateneröffnung gegen Elefanten</string>
+    <string name="opening_elephant_vs_left">Elefant gegen linke Zentralkanone</string>
+    <string name="opening_elephant_vs_right">Elefant gegen rechte Zentralkanone</string>
+    <string name="opening_elephant_vs_horse">Elefant gegen Pferd</string>
+    <string name="opening_elephant_vs_pawn">Elefant gegen Soldaten</string>
+    <string name="opening_elephant_vs_corner">Elefant gegen Eckkanone</string>
+    <string name="opening_elephant_vs_crossing">Elefant gegen Palastwechsel-Kanone</string>
+    <string name="opening_horse_vs_pawn">Pferd gegen Soldaten</string>
+    <string name="opening_horse_vs_central">Pferd gegen Zentralkanone</string>
+    <string name="opening_horse_vs_horse">Pferd gegen Pferd</string>
+    <string name="opening_central_cannon">Zentralkanone</string>
+    <string name="opening_pawn">Soldateneröffnung</string>
+    <string name="opening_elephant">Elefanteneröffnung</string>
+    <string name="opening_horse">Pferdeeröffnung</string>
+    <string name="opening_crossing_cannon">Palastwechsel-Kanone</string>
+    <string name="opening_corner_cannon">Eckkanone</string>
+    <string name="opening_hook_cannon">Hakenkanone</string>
+    <string name="opening_iron_roller">Eisenwagen</string>
+    <string name="opening_edge_horse">Randpferd</string>
+    <string name="opening_edge_pawn">Randsoldat</string>
+    <string name="tactic_rhyme_mahoupao">Kanone hinter dem Pferd, und der General kann nicht entkommen</string>
+    <string name="tactic_desc_mahoupao">Das Pferd deckt die Kanone. Die Kanone bietet durch es Schach, und beide verschließen jeden Fluchtweg.</string>
+    <string name="tactic_rhyme_bolt">Zentralkanone auf der Linie, Wagen verriegelt vor dem Palast</string>
+    <string name="tactic_desc_bolt">Die Zentralkanone hält das Palasttor. Ein Wagen gleitet auf die hinterste Reihe und verriegelt die Tür.</string>
+    <string name="tactic_rhyme_double_cannon">Die vordere Kanone ist der Schirm, die hintere Kanone trifft ins Herz</string>
+    <string name="tactic_desc_double_cannon">Zwei Kanonen auf einer Linie. Die vordere ist der Schirm, die hintere bietet im Palast Schach.</string>
+    <string name="tactic_rhyme_double_rook">Zwei Wagen, versetzte Linien, im Wechsel am Palast</string>
+    <string name="tactic_desc_double_rook">Zwei Wagen landen auf Nachbarlinien und schneiden den General Reihe um Reihe ab.</string>
+    <string name="tactic_rhyme_pocket">Ein Pferd in der Tasche, ein Wagen auf der hintersten Reihe</string>
+    <string name="tactic_desc_pocket">Das Pferd sitzt in der Tasche neben dem feindlichen Palast, und der Wagen fällt auf die hinterste Reihe.</string>
+    <string name="tactic_rhyme_corner">Ein Pferd auf der Wächterecke, und der Wagen entscheidet</string>
+    <string name="tactic_desc_corner">Das Pferd bietet von einer Wächterecke Schach und fesselt Wächter und General.</string>
+    <string name="tactic_rhyme_face">Die Generale stehen auf der offenen Linie einander gegenüber</string>
+    <string name="tactic_desc_face">Die Generale dürfen einander nicht gegenüberstehen. Dein General hält die Linie, und diese Regel vollendet das Matt.</string>
+    <string name="tactic_rhyme_heaven">Eine Kanone auf der hintersten Reihe, eine Kanone auf der Mittellinie</string>
+    <string name="tactic_desc_heaven">Eine Kanone versiegelt die hinterste Reihe, die andere hält die Mittellinie. Gemeinsam schlagen sie zu.</string>
+    <string name="tactic_rhyme_fishing">Ein Anglerpferd am Tor, ein Wagen, um es zu schließen</string>
+    <string name="tactic_desc_fishing">Das Pferd steht auf dem Anglerfeld und blockt den Palastausgang. Der Wagen kommt zum Matt herab.</string>
+    <string name="tactic_rhyme_heart">Opfere den Wagen auf dem mittleren Wächter</string>
+    <string name="tactic_desc_heart">Gib den Wagen für den mittleren Wächter, zieh den General von seinem Feld und setze matt.</string>
+    <string name="tactic_rhyme_smothered">Die Wächter blockieren ihren eigenen General</string>
+    <string name="tactic_desc_smothered">Beide Wächter verstopfen den Palast. Eine Kanone auf der hintersten Reihe oder Wagen und Soldat setzt durch den Stau matt.</string>
+    <string name="tactic_academy_sub">Lerne die Variante, hör sie dir an, dann löse sie</string>
+    <string name="tactic_voice">Anhören</string>
+    <string name="tactic_challenge">Lösen</string>
+    <string name="tactic_mastered">Gemeistert</string>
+    <string name="tactic_learning">Am Lernen</string>
+    <string name="puzzle_rush_result_title">Puzzle Rush</string>
+    <string name="puzzle_rush_score_unit">Puzzle</string>
+    <string name="replay_start_position">Ausgangsstellung</string>
+    <string name="replay_move_line">Zug %1$d · %2$s</string>
+    <string name="replay_red_winrate">Siegquote Rot %1$d%%</string>
+    <string name="replay_try_variation">Testen</string>
+    <string name="replay_variation_undo">Zurücknehmen</string>
+    <string name="replay_variation_exit">Zurück zur Partie</string>
+    <string name="replay_variation_status">Variante +%1$d · Rot %2$d%%</string>
+    <string name="replay_variation_status_move">Variante +%1$d · %2$s · Rot %3$d%%</string>
+    <string name="replay_variation_step">Zug %1$d</string>
+    <string name="replay_red_better">Rot</string>
+    <string name="replay_black_better">Schwarz</string>
+    <string name="move_quality_brilliant">Brillant</string>
+    <string name="move_quality_best">Bester</string>
+    <string name="move_quality_inaccuracy">Ungenauigkeit</string>
+    <string name="move_quality_mistake">Fehler</string>
+    <string name="move_quality_blunder">Grober Fehler</string>
+    <string name="move_quality_book">Theorie</string>
+    <string name="analysis_scan_status">Tiefe %1$d · Siegquote Rot %2$d%%</string>
+</resources>

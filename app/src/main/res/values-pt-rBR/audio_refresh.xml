@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Um instrumental original com cordas dedilhadas suaves e acordes amplos, na tela inicial e durante a partida. Entra suavemente e pausa quando o app vai para segundo plano.</string>
+    <string name="audio_music_volume">Volume da música</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Ouvir prévia · 12 segundos</string>
+    <string name="audio_preview_stop">Parar prévia</string>
+    <string name="audio_motion_description">Jogadas suaves, uma ondulação sutil ao pousar e um breve pulso de xeque. Desativar também interrompe a animação de captura. Respeita a configuração de animação do sistema.</string>
+</resources>

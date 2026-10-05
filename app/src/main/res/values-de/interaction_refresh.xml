@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Spielen</string>
+    <string name="nav_learn">Lernen</string>
+    <string name="nav_tools">Werkzeuge</string>
+    <string name="nav_me">Ich</string>
+    <string name="difficulty_6">Großmeister</string>
+    <string name="difficulty_6_tag">Tiefere Taktiken</string>
+    <string name="difficulty_6_desc">Mehr Zeit, um taktische Kombinationen aufzudecken.</string>
+    <string name="difficulty_7">Legende</string>
+    <string name="difficulty_7_tag">Präzises Spiel</string>
+    <string name="difficulty_7_desc">Geduldige Berechnung für erfahrene Spieler.</string>
+    <string name="difficulty_8">Höhepunkt</string>
+    <string name="difficulty_8_tag">Volle Herausforderung</string>
+    <string name="difficulty_8_desc">Das längste Rechenbudget. Lass dir Zeit.</string>
+    <string name="confirm_setup">Auswahl bestätigen</string>
+    <string name="style_choose">Stil: %1$s  ▾</string>
+    <string name="puzzle_collection">Endspiel-Atlas</string>
+    <string name="puzzle_collection_desc">Lies die Stellung. Finde den Gewinnzug.</string>
+    <string name="puzzle_page">Band %1$d / %2$d</string>
+    <string name="page_previous">Zurück</string>
+    <string name="page_next">Weiter</string>
+    <string name="puzzle_collection_progress">%1$d gelöst · %2$d Stellungen</string>
+    <string name="puzzle_family_rook">Wagentaktiken</string>
+    <string name="puzzle_family_cannon">Kanonentaktiken</string>
+    <string name="puzzle_family_horse">Pferdtaktiken</string>
+    <string name="puzzle_family_mixed">Kombinierter Angriff</string>
+    <string name="result_close">Schließen und Brett ansehen</string>
+    <string name="result_win">SIEG</string>
+    <string name="result_loss">NIEDERLAGE</string>
+    <string name="result_draw">REMIS</string>
+    <string name="result_undo">Zurücknehmen und weiterspielen</string>
+    <string name="result_replay_hint">Die Endstellung bleibt auf dem Brett. Schließe dieses Panel, um sie zu untersuchen.</string>
+    <string name="game_mode_ranked">Gewertete Partie</string>
+</resources>

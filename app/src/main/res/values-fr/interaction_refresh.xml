@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Jouer</string>
+    <string name="nav_learn">Étudier</string>
+    <string name="nav_tools">Outils</string>
+    <string name="nav_me">Moi</string>
+    <string name="difficulty_6">Grand maître</string>
+    <string name="difficulty_6_tag">Tactiques plus profondes</string>
+    <string name="difficulty_6_desc">Plus de temps pour déceler les combinaisons tactiques.</string>
+    <string name="difficulty_7">Légende</string>
+    <string name="difficulty_7_tag">Jeu de précision</string>
+    <string name="difficulty_7_desc">Calcul patient pour joueurs expérimentés.</string>
+    <string name="difficulty_8">Sommet</string>
+    <string name="difficulty_8_tag">Défi maximal</string>
+    <string name="difficulty_8_desc">Le budget de recherche le plus long. Prends ton temps.</string>
+    <string name="confirm_setup">Confirmer la sélection</string>
+    <string name="style_choose">Style : %1$s  ▾</string>
+    <string name="puzzle_collection">Atlas de finales</string>
+    <string name="puzzle_collection_desc">Lis la position. Trouve le coup gagnant.</string>
+    <string name="puzzle_page">Tome %1$d / %2$d</string>
+    <string name="page_previous">Précédent</string>
+    <string name="page_next">Suivant</string>
+    <string name="puzzle_collection_progress">%1$d résolus · %2$d positions</string>
+    <string name="puzzle_family_rook">Tactiques du char</string>
+    <string name="puzzle_family_cannon">Tactiques du canon</string>
+    <string name="puzzle_family_horse">Tactiques du cheval</string>
+    <string name="puzzle_family_mixed">Attaque combinée</string>
+    <string name="result_close">Fermer et voir le plateau</string>
+    <string name="result_win">VICTOIRE</string>
+    <string name="result_loss">DÉFAITE</string>
+    <string name="result_draw">MATCH NUL</string>
+    <string name="result_undo">Annuler et continuer</string>
+    <string name="result_replay_hint">La position finale reste sur le plateau. Ferme ce panneau pour l\'examiner.</string>
+    <string name="game_mode_ranked">Match classé</string>
+</resources>

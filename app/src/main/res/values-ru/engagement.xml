@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Тренировка · без рейтинга</string>
+    <string name="game_search_no_move">Движок не вернул ход. Попробуйте ещё раз нажать подсказку или смените уровень соперника, чтобы продолжить.</string>
+    <string name="puzzle_engine_error">Движок задач не ответил. Попробуйте перезапустить эту задачу.</string>
+    <string name="game_coach_start">Не торопитесь. Коснитесь фигуры, чтобы увидеть её ходы; подсказка покажет рекомендуемый ход.</string>
+    <string name="game_coach_practice">Спокойная тренировка · подсказки и отмены бесплатны. Рейтинг не изменится.</string>
+    <string name="game_coach_check">Ваш генерал под шахом. Возьмите атакующую фигуру, перекройте удар или уведите генерала.</string>
+    <string name="game_coach_thinking">Понаблюдайте за ходом соперника, а затем проверьте, не попали ли ваши фигуры под удар.</string>
+    <string name="game_coach_opening">Развивайте коней и ладьи. Прежде чем атаковать, защитите свои фигуры.</string>
+    <string name="game_coach_selected">%1$s · Подсвеченные поля — допустимые ходы.</string>
+    <string name="game_coach_blocked">У этой фигуры нет допустимых ходов. Возьмите другую фигуру или используйте подсказку.</string>
+    <string name="game_rule_rook">Ладьи ходят по прямой по свободным вертикалям или рядам</string>
+    <string name="game_rule_cannon">Пушки при взятии перепрыгивают ровно одну фигуру</string>
+    <string name="game_rule_horse">Кони ходят буквой Г; закрытая нога отменяет ход</string>
+    <string name="game_rule_elephant">Слоны ходят по диагонали через поле и не переходят реку</string>
+    <string name="game_rule_advisor">Советники ходят на одну клетку по диагонали внутри дворца</string>
+    <string name="game_rule_king">Генералы делают один шаг по прямой внутри дворца</string>
+    <string name="game_rule_pawn">Солдаты ходят вперёд; после перехода реки могут двигаться и вбок</string>
+    <string name="game_undo_no_penalty">Вернуть последний ход? Отмена не вычитает очки рейтинга.</string>
+    <string name="game_practice_undone">Ход возвращён. Попробуйте другую идею.</string>
+    <string name="game_play_again">Играть снова</string>
+    <string name="game_try_easier">Попробовать полегче</string>
+    <string name="game_try_challenge">Задача дня</string>
+    <string name="game_practice_result">%1$s\n\nТренировка завершена. Рейтинг не изменился; партия сохранена для разбора.</string>
+    <string name="game_practice_record_reason">Тренировка · %1$s</string>
+    <string name="daily_puzzle_title">Задача дня</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">Задача дня решена!\nДней тренировок: %1$d · серия: %2$d\n\nОдно решение в день. Завтра придёт новая задача.</string>
+    <string name="daily_puzzle_expired">Задача решена. Начался новый день; сегодняшняя задача уже на главном экране.</string>
+    <string name="daily_puzzle_more">Больше задач</string>
+    <string name="puzzle_clue">Подсказка</string>
+    <string name="puzzle_undo_unavailable">Для этой позиции отмена недоступна.</string>
+</resources>

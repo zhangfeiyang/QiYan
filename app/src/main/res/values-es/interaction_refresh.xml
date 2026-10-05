@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Jugar</string>
+    <string name="nav_learn">Estudiar</string>
+    <string name="nav_tools">Herramientas</string>
+    <string name="nav_me">Perfil</string>
+    <string name="difficulty_6">Gran maestro</string>
+    <string name="difficulty_6_tag">Tácticas más profundas</string>
+    <string name="difficulty_6_desc">Más tiempo para descubrir combinaciones tácticas.</string>
+    <string name="difficulty_7">Leyenda</string>
+    <string name="difficulty_7_tag">Juego de precisión</string>
+    <string name="difficulty_7_desc">Cálculo paciente para jugadores con experiencia.</string>
+    <string name="difficulty_8">Cima</string>
+    <string name="difficulty_8_tag">Desafío total</string>
+    <string name="difficulty_8_desc">El presupuesto de búsqueda más largo. Tómate tu tiempo.</string>
+    <string name="confirm_setup">Confirmar selección</string>
+    <string name="style_choose">Estilo: %1$s  ▾</string>
+    <string name="puzzle_collection">Atlas de finales</string>
+    <string name="puzzle_collection_desc">Lee la posición. Encuentra el movimiento ganador.</string>
+    <string name="puzzle_page">Tomo %1$d / %2$d</string>
+    <string name="page_previous">Anterior</string>
+    <string name="page_next">Siguiente</string>
+    <string name="puzzle_collection_progress">%1$d resueltos · %2$d posiciones</string>
+    <string name="puzzle_family_rook">Tácticas de carro</string>
+    <string name="puzzle_family_cannon">Tácticas de cañón</string>
+    <string name="puzzle_family_horse">Tácticas de caballo</string>
+    <string name="puzzle_family_mixed">Ataque combinado</string>
+    <string name="result_close">Cerrar resultado y ver el tablero</string>
+    <string name="result_win">VICTORIA</string>
+    <string name="result_loss">DERROTA</string>
+    <string name="result_draw">TABLAS</string>
+    <string name="result_undo">Deshacer y continuar</string>
+    <string name="result_replay_hint">La posición final se queda en el tablero. Cierra este panel para examinarla.</string>
+    <string name="game_mode_ranked">Partida rankeada</string>
+</resources>

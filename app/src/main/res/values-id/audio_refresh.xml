@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Instrumen asli dengan petikan senar lembut dan akord lega, di layar utama dan selama bermain. Masuk dengan lembut dan berhenti saat aplikasi ke latar belakang.</string>
+    <string name="audio_music_volume">Volume musik</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Putar musik · 12 detik</string>
+    <string name="audio_preview_stop">Hentikan putaran</string>
+    <string name="audio_motion_description">Langkah mulus, riak pendar halus dan denyut skak singkat. Mematikannya juga menghentikan gerakan pengambilan. Menghormati pengaturan animasi sistemmu.</string>
+</resources>

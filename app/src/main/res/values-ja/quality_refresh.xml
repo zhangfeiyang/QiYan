@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">登山モードでは担当の色は固定です。</string>
+    <string name="game_swap_rated_title">交代しますか？</string>
+    <string name="game_swap_rated_message">AI が指していた側を引き継ぎます。この対局は練習扱いとなり、レートは変わりません。</string>
+    <string name="game_swap_rated_confirm">交代して練習</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">ヒント · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">結果が出たあとも対局を続けたため、この部分はレート外です。最初の結果が有効です。</string>
+    <string name="result_resume">対局を続ける</string>
+    <string name="result_review">対局を復盤</string>
+    <string name="result_review_unavailable">この対局は保存されていないため、復盤できるものがありません。</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">3分で、何問詰められる？</string>
+    <string name="puzzle_rush_intro_rules">• すべての局面で赤が先手。詰みを見つけよう。\n• 誤った手やスキップでハートを1つ失う。3つ失うと終了。\n• スコアが上がるほど局面は難しくなる。</string>
+    <string name="puzzle_rush_intro_best">ベスト: %1$d</string>
+    <string name="puzzle_rush_intro_first">まだ記録がありません。最初の記録を作ろう。</string>
+    <string name="puzzle_rush_prompt_short">赤の番 · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">詳細 · AI エンジン</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">古典の詰みパターン %1$d種</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">認定戦</string>
+    <string name="rank_placement_chip">認定戦 %1$d/%2$d</string>
+    <string name="rank_placement_progress">認定戦 %1$d/%2$d · 最初の印まであと %3$d戦</string>
+    <string name="result_placement_progress">認定戦 %1$d/%2$d 終了。あと %3$d 戦で最初の印が明らかになります。</string>
+    <string name="result_placement_done">認定戦完了。最初の印: %1$s</string>
+    <string name="rank_hall_placement">認定戦: レート戦 %2$d戦のうち %1$d戦プレイ済み。%2$d戦目のあとに最初の印が明らかになります。</string>
+</resources>

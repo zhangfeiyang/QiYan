@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Un brano strumentale originale con corde pizzicate delicate e accordi ampi, nella schermata iniziale e durante il gioco. Entra dolcemente e si mette in pausa quando l\'app va in background.</string>
+    <string name="audio_music_volume">Volume musica</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Ascolta l\'anteprima · 12 secondi</string>
+    <string name="audio_preview_stop">Ferma l\'anteprima</string>
+    <string name="audio_motion_description">Mosse fluide, un\'onda sottile all\'atterraggio e un breve impulso di scacco. Disattivandolo si ferma anche l\'animazione di cattura. Rispetta l\'impostazione di animazione di sistema.</string>
+</resources>

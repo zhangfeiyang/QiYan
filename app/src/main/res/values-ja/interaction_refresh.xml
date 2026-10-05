@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">対局</string>
+    <string name="nav_learn">学ぶ</string>
+    <string name="nav_tools">ツール</string>
+    <string name="nav_me">マイページ</string>
+    <string name="difficulty_6">特級マスター</string>
+    <string name="difficulty_6_tag">より深い戦術</string>
+    <string name="difficulty_6_desc">戦術的な連係を見抜く時間が増えます。</string>
+    <string name="difficulty_7">レジェンド</string>
+    <string name="difficulty_7_tag">精密な指し回し</string>
+    <string name="difficulty_7_desc">経験者向けの、粘り強い読み。</string>
+    <string name="difficulty_8">頂点</string>
+    <string name="difficulty_8_tag">フルチャレンジ</string>
+    <string name="difficulty_8_desc">最長の探索時間。じっくりどうぞ。</string>
+    <string name="confirm_setup">選択を確定</string>
+    <string name="style_choose">スタイル: %1$s  ▾</string>
+    <string name="puzzle_collection">終盤図鑑</string>
+    <string name="puzzle_collection_desc">局面を読む。勝ち筋を見つける。</string>
+    <string name="puzzle_page">第%1$d巻 / %2$d</string>
+    <string name="page_previous">前へ</string>
+    <string name="page_next">次へ</string>
+    <string name="puzzle_collection_progress">%1$d問解答 · %2$d局面</string>
+    <string name="puzzle_family_rook">車の戦術</string>
+    <string name="puzzle_family_cannon">炮の戦術</string>
+    <string name="puzzle_family_horse">馬の戦術</string>
+    <string name="puzzle_family_mixed">複合攻撃</string>
+    <string name="result_close">結果を閉じて盤面を見る</string>
+    <string name="result_win">勝利</string>
+    <string name="result_loss">敗北</string>
+    <string name="result_draw">引き分け</string>
+    <string name="result_undo">待ったして続ける</string>
+    <string name="result_replay_hint">最終局面は盤面に残ります。このパネルを閉じると確認できます。</string>
+    <string name="game_mode_ranked">ランクマッチ</string>
+</resources>

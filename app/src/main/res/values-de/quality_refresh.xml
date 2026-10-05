@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Am Berg sind die Seiten fest vorgegeben.</string>
+    <string name="game_swap_rated_title">Seiten wechseln?</string>
+    <string name="game_swap_rated_message">Du würdest die Stellung übernehmen, die die KI bisher gespielt hat. Diese Partie wird zur Übung und ändert deine Wertung nicht.</string>
+    <string name="game_swap_rated_confirm">Wechseln und üben</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Hinweis · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Du hast nach dem Ergebnis weitergespielt, daher zählt dieser Teil nicht für die Wertung. Das erste Ergebnis bleibt bestehen.</string>
+    <string name="result_resume">Weiterspielen</string>
+    <string name="result_review">Partie analysieren</string>
+    <string name="result_review_unavailable">Diese Partie wurde nicht gespeichert, daher gibt es nichts zu analysieren.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Drei Minuten. Wie viele Matts?</string>
+    <string name="puzzle_rush_intro_rules">• Rot beginnt in jeder Stellung. Finde das Matt.\n• Ein falscher Zug oder Überspringen kostet ein Herz. Sind alle drei weg, endet der Rush.\n• Die Stellungen werden mit steigendem Punktestand schwieriger.</string>
+    <string name="puzzle_rush_intro_best">Dein Bestwert: %1$d</string>
+    <string name="puzzle_rush_intro_first">Noch kein Bestwert. Setze den ersten.</string>
+    <string name="puzzle_rush_prompt_short">Rot am Zug · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Erweitert · KI-Engine</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d klassische Mattmuster</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Einstufung</string>
+    <string name="rank_placement_chip">Einstufung %1$d/%2$d</string>
+    <string name="rank_placement_progress">Einstufung %1$d/%2$d · noch %3$d bis zum ersten Siegel</string>
+    <string name="result_placement_progress">Einstufungspartie %1$d von %2$d gespielt. Noch %3$d, dann wird dein erstes Siegel enthüllt.</string>
+    <string name="result_placement_done">Einstufung abgeschlossen. Dein erstes Siegel: %1$s</string>
+    <string name="rank_hall_placement">Einstufung: %1$d von %2$d gewerteten Partien gespielt. Dein erstes Siegel wird nach Partie %2$d enthüllt.</string>
+</resources>

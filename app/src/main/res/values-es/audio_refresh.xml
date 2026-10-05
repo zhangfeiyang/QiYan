@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Un instrumental original de cuerdas pulsadas suaves y acordes amplios, en la pantalla de inicio y durante la partida. Entra con suavidad y se pausa cuando la app pasa a segundo plano.</string>
+    <string name="audio_music_volume">Volumen de la música</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Escuchar muestra · 12 segundos</string>
+    <string name="audio_preview_stop">Detener muestra</string>
+    <string name="audio_motion_description">Movimientos suaves, una onda sutil al aterrizar y un pulso breve de jaque. Al desactivarlo también se detiene la animación de captura. Respeta la configuración de animación del sistema.</string>
+</resources>

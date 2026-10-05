@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">대국</string>
+    <string name="title_replay">복기</string>
+    <string name="title_settings">설정</string>
+    <string name="title_board_editor">국면 편집</string>
+    <string name="menu_play">대국 시작</string>
+    <string name="menu_replay">기보 복기</string>
+    <string name="menu_settings">설정</string>
+    <string name="menu_about">정보</string>
+    <string name="menu_difficulty">난이도 선택</string>
+    <string name="menu_side">진영 선택</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">언어</string>
+    <string name="language_dialog_title">언어 선택</string>
+    <string name="language_system_default">시스템 언어 따르기</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">초보</string>
+    <string name="difficulty_beginner">입문</string>
+    <string name="difficulty_lower_intermediate">중급 하</string>
+    <string name="difficulty_intermediate">중급</string>
+    <string name="difficulty_upper_intermediate">중급 상</string>
+    <string name="difficulty_advanced">고급</string>
+    <string name="difficulty_amateur">아마추어 고수</string>
+    <string name="difficulty_district">동네 기사</string>
+    <string name="difficulty_city">시군 기사</string>
+    <string name="difficulty_provincial">도 기사</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">협회 마스터</string>
+    <string name="difficulty_national_master">국가 마스터</string>
+    <string name="difficulty_grandmaster">그랜드마스터</string>
+    <string name="difficulty_international_master">국제 마스터</string>
+    <string name="difficulty_legendary">전설</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">첫판 두는 사람</string>
+    <string name="difficulty_segment_beginner">취미 입문자</string>
+    <string name="difficulty_segment_lower_intermediate">평범한 취미꾼</string>
+    <string name="difficulty_segment_intermediate">길거리 기사</string>
+    <string name="difficulty_segment_upper_intermediate">실력 있는 취미꾼</string>
+    <string name="difficulty_segment_advanced">아마추어 1단</string>
+    <string name="difficulty_segment_amateur">아마추어 3단</string>
+    <string name="difficulty_segment_district">아마추어 5단</string>
+    <string name="difficulty_segment_city">아마추어 6단</string>
+    <string name="difficulty_segment_provincial">지역 마스터</string>
+    <string name="difficulty_segment_local_master">협회 마스터</string>
+    <string name="difficulty_segment_national_master">국가 마스터</string>
+    <string name="difficulty_segment_grandmaster">국가 그랜드마스터</string>
+    <string name="difficulty_segment_international_master">국제 마스터</string>
+    <string name="difficulty_segment_legendary">국제 그랜드마스터</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">규칙을 막 배웠고 잦은 기물 낭비</string>
+    <string name="difficulty_desc_beginner">뻔히 보이는 공짜 기물은 잡지만 허술한 함정은 못 봄</string>
+    <string name="difficulty_desc_lower_intermediate">기본 수지를 알고 가끔 쌍두마를 봄</string>
+    <string name="difficulty_desc_intermediate">든든한 오프닝, 3~5수 앞을 계산</string>
+    <string name="difficulty_desc_upper_intermediate">원칙 있는 수, 오프닝 운용이 안정적</string>
+    <string name="difficulty_desc_advanced">탄탄한 아마추어, 종반도 튼튼, 실수가 적음</string>
+    <string name="difficulty_desc_amateur">믿을 만한 수지, 기본 함정도 설치</string>
+    <string name="difficulty_desc_district">공방의 균형이 좋고 상대의 실수를 놓치지 않음</string>
+    <string name="difficulty_desc_city">전체 시야가 넓고 함정을 준비하며 큰 실수가 드묾</string>
+    <string name="difficulty_desc_provincial">도 단위 대회급, 정밀한 계산</string>
+    <string name="difficulty_desc_local_master">마스터급 대국, 깊이 계산한 수순</string>
+    <string name="difficulty_desc_national_master">날카로운 공격형, 실수가 거의 없음</string>
+    <string name="difficulty_desc_grandmaster">국가 그랜드마스터급, 깊은 전략 대국</string>
+    <string name="difficulty_desc_international_master">국제 마스터급, 모든 국면에서 정밀</string>
+    <string name="difficulty_desc_legendary">국제 그랜드마스터급, 이 기기에서 가장 강함</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">힌트</string>
+    <string name="action_undo">무르기</string>
+    <string name="action_new_game">새 대국</string>
+    <string name="action_resign">기권</string>
+    <string name="action_draw">무승부 신흑</string>
+    <string name="action_analysis">분석</string>
+    <string name="action_flip">판 뒤집기</string>
+    <string name="action_settings">설정</string>
+    <string name="action_back">뒤로</string>
+    <string name="action_save">저장</string>
+    <string name="action_export">PGN 내보내기</string>
+    <string name="action_play_red">홍(선수)으로 대국</string>
+    <string name="action_play_black">흑(후수)으로 대국</string>
+    <string name="action_two_player">2인 대국</string>
+    <string name="action_voice">음성 착수</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">수를 말해 주세요. 예: 「车九进四」 (차가 9번 줄에서 4칸 전진)</string>
+    <string name="voice_played">착수: %1$s</string>
+    <string name="voice_no_match">「%1$s」에 맞는 합법 수가 없습니다</string>
+    <string name="voice_ambiguous">모호합니다 — 조금 더 구체적으로 말해 주세요</string>
+    <string name="voice_no_speech">잘 안 들렸어요. 다시 시도해 주세요</string>
+    <string name="voice_error">음성 인식 실패</string>
+    <string name="voice_unavailable">이 기기에서는 음성 인식을 사용할 수 없습니다</string>
+    <string name="voice_permission_denied">음성 착수에는 마이크 권한이 필요합니다</string>
+    <string name="voice_wait_engine">AI가 둔 뒤에 시도하세요</string>
+    <string name="voice_not_your_turn">아직 당신 차례가 아닙니다</string>
+    <string name="voice_game_over">대국이 이미 끝났습니다</string>
+
+    <!-- Status -->
+    <string name="status_thinking">AI 생각 중…</string>
+    <string name="status_your_turn">당신 차례</string>
+    <string name="status_check">장군!</string>
+    <string name="status_checkmate">외통!</string>
+    <string name="status_draw">무승부</string>
+    <string name="status_resign">기권</string>
+    <string name="status_win">승리</string>
+    <string name="status_loss">패배</string>
+    <string name="status_stalemate">스테일메이트</string>
+    <string name="status_engine_error">AI 오류, 백업 엔진으로 전환합니다</string>
+    <string name="game_over_checkmate_red">흑이 홍을 외통으로</string>
+    <string name="game_over_checkmate_black">홍이 흑을 외통으로</string>
+    <string name="game_over_repetition">동일 국면 반복</string>
+    <string name="game_over_fifty_moves">50수 규칙</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">승률</string>
+    <string name="winrate_red">홍 승률</string>
+    <string name="winrate_black">흑 승률</string>
+    <string name="depth_label">탐색 깊이</string>
+    <string name="nodes_label">노드</string>
+    <string name="nps_label">노드/초</string>
+    <string name="time_label">시간</string>
+
+    <!-- Rating -->
+    <string name="rating_current">현재 점수</string>
+    <string name="rating_total_games">총 대국 수</string>
+    <string name="rating_wins">승</string>
+    <string name="rating_losses">패</string>
+    <string name="rating_draws">무</string>
+    <string name="rating_winrate">승률</string>
+    <string name="rating_rank">등급</string>
+    <string name="rank_1">초보</string>
+    <string name="rank_2">입문</string>
+    <string name="rank_3">아마추어 1단</string>
+    <string name="rank_4">아마추어 3단</string>
+    <string name="rank_5">아마추어 5단</string>
+    <string name="rank_6">아마추어 7단</string>
+    <string name="rank_7">지역 마스터</string>
+    <string name="rank_8">국가 마스터</string>
+    <string name="rank_9">그랜드마스터</string>
+    <string name="rank_10">기왕</string>
+    <string name="rank_hall_title">등급 인장</string>
+    <string name="rank_hall_intro">초보에서 기왕까지 열 개의 인장. 점수가 매겨지는 대국만 인장을 움직입니다. 연습과 등산(캠페인)은 제외입니다.</string>
+    <string name="rank_hall_current">현재</string>
+    <string name="rank_hall_reached">달성</string>
+    <string name="rank_hall_locked">앞으로</string>
+    <string name="rank_progress_next">%1$s까지 %2$d점</string>
+    <string name="rank_progress_top">기왕 — 이 사다리의 정점</string>
+    <string name="rank_promoted">%1$s(으)로 승급</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">등급 인장 열기</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">새 대국</string>
+    <string name="dialog_new_game_message">새 대국을 시작할까요?</string>
+    <string name="dialog_resign_title">기권</string>
+    <string name="dialog_resign_message">정말 기권하시겠어요?</string>
+    <string name="dialog_undo_title">무르기</string>
+    <string name="dialog_undo_message">무르기는 점수를 조금 깎습니다. 그래도 되돌릴까요?</string>
+    <string name="dialog_yes">예</string>
+    <string name="dialog_no">아니요</string>
+    <string name="dialog_ok">확인</string>
+    <string name="dialog_cancel">취소</string>
+    <string name="dialog_confirm">확인</string>
+
+    <!-- Review -->
+    <string name="replay_empty">아직 대국이 없습니다</string>
+    <string name="replay_play">자동 진행</string>
+    <string name="replay_pause">일시정지</string>
+    <string name="replay_prev">이전 수</string>
+    <string name="replay_next">다음 수</string>
+    <string name="replay_first">첫 수</string>
+    <string name="replay_last">마지막 수</string>
+    <string name="replay_move_number">%1$d수째</string>
+    <string name="result_win_short">승</string>
+    <string name="result_loss_short">패</string>
+    <string name="result_draw_short">무</string>
+    <string name="side_red_short">홍</string>
+    <string name="side_black_short">흑</string>
+    <string name="replay_moves_summary">%1$d수 · %2$s</string>
+    <string name="replay_record_missing">기보를 찾을 수 없습니다</string>
+    <string name="replay_player_info">Lv.%1$d  %2$s  %3$d수</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">%1$d수를 복원하지 못했습니다</string>
+    <string name="replay_viewer_title">기보 재생</string>
+    <string name="replay_share_report">전과 공유</string>
+    <string name="replay_export_pgn">PGN 내보내기</string>
+    <string name="replay_copy_fen">FEN 복사</string>
+    <string name="replay_copied_to_clipboard">클립보드에 복사했습니다</string>
+    <string name="puzzle_rush_title">문제 스퍼트</string>
+    <string name="puzzle_rush_banner">3분 · 최고 %1$d</string>
+    <string name="tactics_banner_title">살법 패턴</string>
+    <string name="tactics_banner_sub">고전 외통수</string>
+    <string name="tactics_banner_progress">%1$d / %2$d 학습</string>
+    <string name="puzzle_rush_subtitle">3분 스피드 풀이</string>
+    <string name="puzzle_rush_start">스퍼트 시작</string>
+    <string name="puzzle_rush_score">점수</string>
+    <string name="puzzle_rush_high_score">최고: %1$d</string>
+    <string name="puzzle_rush_combo">연속 ×%1$d</string>
+    <string name="puzzle_rush_pass">건너뛰기 (생명 −1)</string>
+    <string name="puzzle_rush_time_up">시간 종료!</string>
+    <string name="puzzle_rush_lives_out">생명 소진!</string>
+    <string name="puzzle_rush_new_record">🎉 신기록!</string>
+    <string name="puzzle_rush_solved_count">%1$d문제 해결</string>
+    <string name="puzzle_rush_play_again">다시 하기</string>
+    <string name="puzzle_rush_share">점수 공유</string>
+    <string name="puzzle_rush_report_title">【QiYan 샹치 · 문제 스퍼트】</string>
+    <string name="puzzle_rush_score_line">%1$d점</string>
+    <string name="puzzle_rush_best_badge">최고 %1$d</string>
+    <string name="puzzle_rush_mate_line">외통 · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">칭호: %1$s</string>
+    <string name="puzzle_rush_record_line">신기록: %1$d</string>
+    <string name="puzzle_rush_previous_best">기존 최고: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\n3분 동안 %2$d문제 해결.\n최고 연속 %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">이 라운드를 떠날까요? 점수는 저장되지 않습니다.</string>
+    <string name="puzzle_rush_leave_yes">떠나기</string>
+    <string name="puzzle_rush_honor_1">견습</string>
+    <string name="puzzle_rush_honor_2">동호회 기사</string>
+    <string name="puzzle_rush_honor_3">날카로운 칼날</string>
+    <string name="puzzle_rush_honor_4">계산기</string>
+    <string name="puzzle_rush_honor_5">스퍼트의 달인</string>
+    <string name="stat_total_games_format">%1$d국</string>
+    <string name="stat_wins_format">%1$d승</string>
+    <string name="stat_losses_format">%1$d패</string>
+    <string name="stat_draws_format">%1$d무</string>
+    <string name="game_illegal_move">합법적이지 않은 수</string>
+    <string name="game_undo_failed">되돌릴 수 없습니다</string>
+    <string name="game_switched_to_black">흑으로 전환했습니다</string>
+    <string name="game_switched_to_red">홍으로 전환했습니다</string>
+    <string name="game_opponent_black">AI (흑)</string>
+    <string name="game_opponent_red">AI (홍)</string>
+    <string name="game_player_red">나 (홍)</string>
+    <string name="game_player_black">나 (흑)</string>
+    <string name="game_move_count">%1$d수째</string>
+    <string name="game_engine_start_failed">AI 시작 실패</string>
+    <string name="unknown_label">알 수 없음</string>
+    <string name="default_nickname">기우</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">사유: %1$s\n점수 변화: %2$s\n현재 등급: %3$s</string>
+    <string name="game_over_rating_detail">점수 변화: %1$s · 현재 등급: %2$s</string>
+    <string name="game_over_win">승리했습니다</string>
+    <string name="game_over_loss">패배했습니다</string>
+    <string name="game_over_draw">무승부</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">스레드 수</string>
+    <string name="settings_hash">해시 테이블 (MB)</string>
+    <string name="settings_sound">효과음</string>
+    <string name="settings_vibrate">진동</string>
+    <string name="settings_bgm">배경음악</string>
+    <string name="settings_board_flip">기본 뒤집어 보기</string>
+    <string name="settings_show_coords">좌표 표시</string>
+    <string name="settings_show_winrate">승률 표시</string>
+    <string name="settings_animation">착수 애니메이션</string>
+    <string name="settings_theme">테마</string>
+    <string name="settings_desc_threads">스레드가 많을수록 계산이 빨라지지만 배터리가 더 듭니다. 기기 코어의 절반 이하를 권장합니다</string>
+    <string name="settings_desc_hash">AI의 사고 캐시입니다. 깊은 장시간 대국엔 늘리고, 메모리가 빠듯하면 줄이세요</string>
+    <string name="settings_desc_sound">착수, 기물 잡기, 장군 시 소리를 재생합니다</string>
+    <string name="settings_desc_vibrate">착수할 때 가벼운 진동 피드백</string>
+    <string name="settings_desc_bgm">대국 중 잔잔한 고금 연주를 깔아 줍니다. 효과음을 묻지 않도록 볼륨은 낮게 유지합니다</string>
+    <string name="settings_desc_coords">판 가장자리에 줄과 칸 번호를 표시합니다</string>
+    <string name="settings_desc_winrate">판 위에 실시간 승률 막대를 표시합니다</string>
+    <string name="settings_desc_animation">끄면 기물이 즉시 자리에 놓여 저사양 기기에서도 부드럽습니다</string>
+    <string name="settings_desc_flip">흑 쪽에서 바라보는 시점으로 시작합니다</string>
+    <string name="settings_section_display">화면</string>
+    <string name="settings_section_other">기타</string>
+    <string name="settings_theme_system">시스템 따르기</string>
+    <string name="settings_theme_light">라이트</string>
+    <string name="settings_theme_dark">다크</string>
+    <string name="settings_clear_data">전체 데이터 삭제</string>
+    <string name="dialog_clear_data_title">데이터 삭제</string>
+    <string name="dialog_clear_data_message">모든 기보와 점수 데이터가 지워집니다. 계속할까요?</string>
+    <!-- Live hints -->
+    <string name="live_title">실시간 힌트</string>
+    <string name="live_entry">실시간 힌트</string>
+    <string name="live_need_camera">실시간 판 인식에는 카메라 권한이 필요합니다</string>
+    <string name="live_camera_failed">카메라 시작 실패</string>
+    <string name="live_locking">판 위치 잡는 중…</string>
+    <string name="live_board_invalid">판이 온전히 인식되지 않았습니다 — 네 모서리가 모두 화면 안에 있어야 합니다</string>
+    <string name="live_ready">고정됨 · %1$dms 만에 인식</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">초기화</string>
+    <string name="editor_clear">비우기</string>
+    <string name="settings_clear_data_desc">모든 기보와 점수 데이터를 삭제합니다. 되돌릴 수 없습니다</string>
+    <string name="settings_piece_style">기물 글자</string>
+    <string name="settings_board_style">판 스타일</string>
+    <string name="settings_about">정보</string>
+    <string name="settings_engine_path">AI 모델 경로</string>
+    <string name="settings_about_text">QiYan v1.0\n\n자체 개발 AI (NNUE 신경망 평가)\n사진 판 인식 및 실시간 힌트 지원</string>
+
+    <!-- About -->
+    <string name="about_engine_title">AI 정보</string>
+    <string name="about_engine_version">자체 개발 NNUE</string>
+    <string name="about_engine_desc">샹치 AI</string>
+
+    <!-- Common -->
+    <string name="red">홍</string>
+    <string name="black">흑</string>
+    <string name="move_count">%1$d수</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">판 스캔</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">AI 분석</string>
+    <string name="advisor_send">보내기</string>
+    <string name="advisor_input_hint">무엇이든 물어보세요…</string>
+    <string name="advisor_error_generic">분석 기능이 일시적으로 사용 불가합니다. 잠시 후 다시 시도하세요</string>
+    <string name="advisor_no_config">AI 기능이 구성되지 않았습니다. 개발자에게 문의하세요</string>
+    <string name="advisor_unavailable">AI가 일시적으로 사용 불가합니다. 잠시 후 다시 시도하세요</string>
+    <string name="advisor_waiting">AI가 아직 답변 중입니다. 조금만 기다려 주세요</string>
+    <string name="advisor_key_rejected">인증 키가 잘못되었거나 취소되었습니다. 프록시 토큰을 다시 설정하세요.</string>
+    <string name="advisor_clear">대화 지우기</string>
+    <string name="advisor_context_replay">%1$d수 복기 중</string>
+    <string name="advisor_context_game">%1$d수 · %2$s 차례</string>
+    <string name="advisor_thinking">AI 분석 중…</string>
+    <string name="advisor_button">AI 분석</string>
+    <string name="advisor_empty_title">이 대국에 대해 AI에게 물어보세요</string>
+    <string name="advisor_empty_subtitle">현재 국면을 볼 수 있습니다 — 상황, 다음 수, 방금 수의 문제점 등을 물어보세요</string>
+    <string name="advisor_suggest_analyze">현재 국면 분석해 줘</string>
+    <string name="advisor_suggest_next">다음엔 뭘 두면 좋을까</string>
+    <string name="advisor_suggest_review">방금 그 수에 문제가 있었나</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">탭하여 건너뛰기</string>
+    <string name="analysis_summary_prompt">현재 국면을 2~3문장으로 요약해 주세요: 상황, 어느 쪽이 유리한지, 핵심 공/방 포인트, 지금 가장 주목할 수.</string>
+    <string name="advisor_send_desc">보내기</string>
+    <string name="advisor_move_banner">AI가 이 수를 시연합니다: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">판 스캔</string>
+    <string name="recognize_take_photo">사진 촬영</string>
+    <string name="recognize_pick_image">갤러리에서 선택</string>
+    <string name="recognize_preview_desc">보정된 판</string>
+    <string name="recognize_red_to_move">홍 차례</string>
+    <string name="recognize_black_to_move">흑 차례</string>
+    <string name="recognize_advise">AI 조언 받기</string>
+    <string name="recognize_hint_start">판을 촬영하거나 갤러리에서 선택하세요. 정면에서 네 모서리가 보이게 찍는 게 좋습니다.</string>
+    <string name="recognize_working">인식 중…</string>
+    <string name="recognize_failed">인식 실패, 다른 사진으로 시도하세요</string>
+    <string name="recognize_model_failed">인식 모델 로드 실패</string>
+    <string name="recognize_no_camera">사용 가능한 카메라가 없습니다</string>
+    <string name="recognize_corner_warning">판의 네 모서리가 정확히 잡히지 않아 인식이 어긋날 수 있습니다. 정면에서 다시 찍어 보세요.</string>
+    <string name="recognize_must_fix">먼저 다음 문제를 해결하세요:</string>
+    <string name="recognize_ready">인식 완료. 노란 원은 불확실한 자리입니다(총 %1$d곳) — 칸을 탭해 수정하세요. 조언을 받기 전에 확인하세요.</string>
+    <string name="recognize_pick_piece">%1$c%2$d에 놓일 기물은?</string>
+    <string name="recognize_empty">빈 칸</string>
+    <string name="recognize_flip">뒤집기</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">%1$s 잡음</string>
+    <string name="piece_king">장(총수)</string>
+    <string name="piece_advisor">사</string>
+    <string name="piece_elephant">상</string>
+    <string name="piece_horse">마</string>
+    <string name="piece_rook">차</string>
+    <string name="piece_cannon">포</string>
+    <string name="piece_pawn">병/졸</string>
+    <string name="recognize_thinking">AI 생각 중…</string>
+    <string name="recognize_engine_failed">AI 시작 실패</string>
+    <string name="recognize_engine_error">AI 오류: %1$s</string>
+    <string name="recognize_no_move">AI가 수를 반환하지 않았습니다</string>
+    <string name="recognize_advice">제안: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">실제 판에 카메라를 대고 두는 동안 제안을 받으세요</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">국면을 촬영하세요</string>
+    <string name="recognize_start_camera_desc">실물 판을 촬영</string>
+    <string name="recognize_start_gallery_desc">스크린샷이나 기존 사진 사용</string>
+    <string name="recognize_tips_title">잘 찍어야 잘 인식합니다</string>
+    <string name="recognize_tip_1">판을 정면에서, 비스듬히 찍지 마세요</string>
+    <string name="recognize_tip_2">네 모서리가 모두 화면에 들어오게</string>
+    <string name="recognize_tip_3">빛이 고르게; 반사광과 그림자 피하기</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">힌트 강도</string>
+    <string name="advice_level_fast">빠름</string>
+    <string name="advice_level_fast_desc">즉시 제안</string>
+    <string name="advice_level_normal">표준</string>
+    <string name="advice_level_normal_desc">1~2초 생각, 대부분의 경우에 충분</string>
+    <string name="advice_level_deep">깊음</string>
+    <string name="advice_level_deep_desc">더 오래 생각, 위기 국면에서 더 믿을 만함</string>
+    <string name="advice_level_current">힌트 강도: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">기물 글자체</string>
+    <string name="settings_piece_set_desc">한자는 전통적인 모습이고, 라틴 글자(K/A/B/N/R/C/P)는 영어 기보 표기와 맞습니다</string>
+    <string name="piece_set_hanzi">한자</string>
+    <string name="piece_set_latin">글자 K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">기보 표기법</string>
+    <string name="settings_notation_desc">중국식 기보는 炮二平五로 읽고, WXF는 같은 수를 C2.5로 씁니다</string>
+    <string name="notation_chinese">중국식 기보</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">엔진이 합법적이지 않은 수를 반환했습니다: %1$s</string>
+    <string name="engine_error">엔진 오류: %1$s</string>
+    <string name="must_answer_check">장군 상태입니다 — 반드시 응수해야 합니다</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">판을 준비하는 중…</string>
+    <string name="settings_follow_language">앱 언어 따르기</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">새 대국</string>
+    <string name="new_game_pick_opponent">상대 선택</string>
+    <string name="new_game_side">진영 고르기</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Lv.%1$d %2$s</string>
+    <string name="new_game_level_short">Lv.%1$d</string>
+    <string name="side_red">홍</string>
+    <string name="side_black">흑</string>
+    <string name="side_random">무작위</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">상대</string>
+    <string name="menu_change_opponent">변경</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">균형</string>
+    <string name="style_balanced_desc">항상 엔진 최선의 수 — 순수한 실력</string>
+    <string name="style_aggressive">공격적</string>
+    <string name="style_aggressive_desc">기물 잡기와 장군을 좋아하고 공격을 위해 희생도 감행</string>
+    <string name="style_solid">수비적</string>
+    <string name="style_solid_desc">무모한 교환은 하지 않고 복잡한 것보다 차분한 국면을 선호</string>
+    <string name="style_swarm">예측 불가</string>
+    <string name="style_swarm_desc">준최선 수들을 오가며 — 할 때마다 다른 대국</string>
+    <string name="new_game_style">상대 스타일</string>
+    <string name="new_game_style_line">스타일: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">장군!</string>
+    <string name="board_tag_mate">외통</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">기물 잡기 전투 효과</string>
+    <string name="settings_desc_capture_fx">기물이 잡힐 때 베기·불똥·먹물 애니메이션. 판의 「잡음…」 라벨은 설정과 무관하게 항상 표시됩니다</string>
+    <string name="settings_board_skin">판 재질</string>
+    <string name="settings_board_skin_desc">오프라인 재질 4가지. 기물 글자는 상아 바탕 위에서 어둡게 유지되어 항상 읽기 쉽습니다.</string>
+    <string name="skin_wood">따뜻한 목재</string>
+    <string name="skin_black_gold">흑금</string>
+    <string name="skin_porcelain">흑자</string>
+    <string name="skin_jade">백옥</string>
+
+    <string name="puzzle_1_name">1수 외통 · 외롭게 갇힌 왕</string>
+    <string name="puzzle_1_hint">흑 마가 묶여 있습니다. 장을 중앙으로: 흑이 외통입니다</string>
+    <string name="puzzle_2_name">1수 외통 · 쌍포</string>
+    <string name="puzzle_2_hint">앞포가 포목입니다 — 뒷포를 그 줄로 옮기세요</string>
+    <string name="puzzle_3_name">1수 외통 · 차와 마</string>
+    <string name="puzzle_3_hint">뒷차가 끝줄로 쓸어가 쌍장군을 만듭니다</string>
+    <string name="puzzle_4_name">1수 외통 · 맞수</string>
+    <string name="puzzle_4_hint">두 장이 같은 줄에서 마주 보고 있습니다, 차를 끝줄에 두세요</string>
+    <string name="puzzle_5_name">1수 외통 · 철문살</string>
+    <string name="puzzle_5_hint">중앙포가 줄을 잠그고 차가 끝줄로 내려옵니다</string>
+    <string name="puzzle_6_name">1수 외통 · 측면포</string>
+    <string name="puzzle_6_hint">포가 깊이 내려가고 차가 방패가 되어 일격을 낳습니다</string>
+    <string name="puzzle_7_name">1수 외통 · 깊은 쌍차</string>
+    <string name="puzzle_7_hint">포의 지원 아래 쌍차가 성을 쥐어짭니다</string>
+    <string name="puzzle_8_name">1수 외통 · 마와 포</string>
+    <string name="puzzle_8_hint">준마를 포 받침으로 써서 즉시 외통을 만드세요</string>
+    <string name="puzzle_9_name">2수 외통 · 교차 쌍차</string>
+    <string name="puzzle_9_hint">차를 내려 장군; 상이 막으면 방향을 바꾸세요</string>
+    <string name="puzzle_10_name">2수 외통 · 쌍차</string>
+    <string name="puzzle_10_hint">한 차는 줄을 묶고, 다른 차는 장군을 셔틀합니다</string>
+    <string name="puzzle_11_name">2수 외통 · 꼬부랑 마</string>
+    <string name="puzzle_11_hint">마가 궁 옆구리를 잠그고; 차가 내려가 외통입니다</string>
+    <string name="puzzle_12_name">2수 외통 · 발판 장군</string>
+    <string name="puzzle_12_hint">마를 앞으로 뛰워 장군을 드러내고, 차와 협공하세요</string>
+    <string name="puzzle_13_name">2수 외통 · 차마포</string>
+    <string name="puzzle_13_hint">마가 중앙으로 뛰고, 포가 결정타를 조율합니다</string>
+    <string name="puzzle_14_name">2수 외통 · 병 행진</string>
+    <string name="puzzle_14_hint">포가 중앙을 지탱하는 동안 병이 행진해 들어옵니다</string>
+    <string name="puzzle_15_name">2수 외통 · 종대 쌍차</string>
+    <string name="puzzle_15_hint">같은 줄의 두 차가 궁 방어를 해체합니다</string>
+    <string name="puzzle_16_name">2수 외통 · 숨은 포</string>
+    <string name="puzzle_16_hint">차가 뒤에 숨은 포의 길을 열어 줍니다</string>
+    <string name="puzzle_17_name">3수 외통 · 깊은 꼬부랑 마</string>
+    <string name="puzzle_17_hint">마가 궁 모서리를 치고, 차가 끝줄을 봉쇄합니다</string>
+    <string name="puzzle_18_name">3수 외통 · 깊은 낚시 마</string>
+    <string name="puzzle_18_hint">낚시 마가 장을 구속하고, 차가 9줄에서 마무리합니다</string>
+    <string name="puzzle_19_name">3수 외통 · 모서리 마</string>
+    <string name="puzzle_19_hint">모서리 마가 출구를 통제해 차의 외통이 막을 수 없게 됩니다</string>
+    <string name="puzzle_20_name">3수 외통 · 협공 쌍차</string>
+    <string name="puzzle_20_hint">얽힌 쌍차가 상대 장 주위의 그물을 조입니다</string>
+    <string name="puzzle_21_name">2수 외통 · 낚시 묶기</string>
+    <string name="puzzle_21_hint">낚시 마가 궁을 봉쇄하고; 차가 중앙으로 미끄러져 외통입니다</string>
+    <string name="puzzle_22_name">2수 외통 · 천지포</string>
+    <string name="puzzle_22_hint">한 포는 중앙을, 하나는 깊이 내려가 마무리합니다</string>
+    <string name="puzzle_23_name">3수 외통 · 차마 잠금</string>
+    <string name="puzzle_23_hint">얽힌 차와 마가 연속 치명적 장군을 보냅니다</string>
+    <string name="puzzle_24_name">3수 외통 · 쌍차 그물</string>
+    <string name="puzzle_24_hint">인접 줄을 따라 진격하는 차들이 장을 가둡니다</string>
+
+    <string name="puzzle_25_name">3수 외통 · 파수꾼 파괴자</string>
+    <string name="puzzle_25_hint">차들이 사를 밀어붙여 방어를 산산조각 냅니다</string>
+    <string name="puzzle_26_name">3수 외통 · 쌍차 순환</string>
+    <string name="puzzle_26_hint">어긋난 쌍차가 장의 존재를 등에 업고 차례로 내려앉습니다</string>
+    <string name="puzzle_27_name">3수 외통 · 미끼 차</string>
+    <string name="puzzle_28_hint">선두 차를 희생해 장을 궁 밖으로 유인하세요</string>
+    <string name="puzzle_28_name">3수 외통 · 모서리 마 도약</string>
+    <string name="puzzle_27_hint">기물을 희생해 적 궁을 뚫으세요</string>
+    <string name="puzzle_29_name">3수 외통 · 쌍차 궁 포위</string>
+    <string name="puzzle_29_hint">쌍차가 궁의 심장부로 건너갑니다</string>
+    <string name="puzzle_30_name">3수 외통 · 측면 공격</string>
+    <string name="puzzle_30_hint">차가 끝줄로 내려가는 동안 마가 돌아 들어옵니다</string>
+    <string name="puzzle_31_name">3수 외통 · 마주 본 장</string>
+    <string name="puzzle_31_hint">열린 줄에서 두 장이 마주 봅니다; 차가 승리를 봉쇄합니다</string>
+    <string name="puzzle_32_name">3수 외통 · 질주하는 마</string>
+    <string name="puzzle_32_hint">마가 꼬부랑 자리로 뛰어들어 외통을 실행합니다</string>
+
+    <string name="puzzle_33_name">4수 외통 · 낚시 돌파</string>
+    <string name="puzzle_33_hint">낚시 마가 장을 구속하는 동안 차가 사를 벗겨냅니다</string>
+    <string name="puzzle_34_name">4수 외통 · 문 앞의 병</string>
+    <string name="puzzle_34_hint">용감한 홍 병이 진격해 장의 피난처를 해체합니다</string>
+    <string name="puzzle_35_name">4수 외통 · 모서리 마와 차</string>
+    <string name="puzzle_35_hint">모서리 마가 사를 묶고; 차가 깊은 곳에서 마무리합니다</string>
+    <string name="puzzle_36_name">4수 외통 · 쌍차와 준마</string>
+    <string name="puzzle_36_hint">양 날개의 쌍차와 질주하는 마가 궁을 초토화합니다</string>
+    <string name="puzzle_37_name">4수 외통 · 궁 속의 병</string>
+    <string name="puzzle_37_hint">차의 지원을 등에 업고 병이 중앙 궁에 침투합니다</string>
+    <string name="puzzle_38_name">4수 외통 · 측면 마와 차</string>
+    <string name="puzzle_38_hint">마가 측면에서 날아들고 차가 뒷줄을 봉쇄합니다</string>
+    <string name="puzzle_39_name">5수 외통 · 병 소탕</string>
+    <string name="puzzle_39_hint">끈질긴 병이 꾸준히 진격해 장을 묶어 둡니다</string>
+    <string name="puzzle_40_name">3수 외통 · 포와 쌍차</string>
+    <string name="puzzle_40_hint">쌍차와 포가 꺾일 줄 모르는 진지를 만듭니다</string>
+
+    <string name="puzzle_41_name">6수 외통 · 돌파 병</string>
+    <string name="puzzle_41_hint">측면 병이 깊이 진격하고; 차와 포가 따라갑니다</string>
+    <string name="puzzle_42_name">7수 외통 · 측면 관통</string>
+    <string name="puzzle_42_hint">마의 희생이 방어를 끌어내 차의 길을 닦습니다</string>
+    <string name="puzzle_43_name">6수 외통 · 중앙 마</string>
+    <string name="puzzle_43_hint">마가 판의 중앙을 지배하며 외통을 조율합니다</string>
+    <string name="puzzle_44_name">6수 외통 · 단차 종반</string>
+    <string name="puzzle_44_hint">달인의 단차 기교가 수비를 하나씩 벗겨냅니다</string>
+    <string name="puzzle_45_name">2수 외통 · 신속 쌍차</string>
+    <string name="puzzle_45_hint">줄을 가로지르는 쌍차가 번개처럼 정의를 실현합니다</string>
+    <string name="puzzle_46_name">3수 외통 · 준마</string>
+    <string name="puzzle_46_hint">마가 도주로를 잠그고; 차가 줄에서 마무리합니다</string>
+    <string name="puzzle_47_name">3수 외통 · 측면 쌍차</string>
+    <string name="puzzle_47_hint">인접 줄에서 쌍차의 공격이 동기화됩니다</string>
+    <string name="puzzle_48_name">2수 외통 · 비행 쌍포</string>
+    <string name="puzzle_48_hint">쌍포가 포목을 넘어 외통수로 쾅!</string>
+
+    <string name="puzzle_chapter_1">제1권: 첫걸음</string>
+    <string name="puzzle_chapter_sub_1">1수 외통 · 기본 외통 그물</string>
+    <string name="puzzle_chapter_2">제2권: 수지의 불꽃</string>
+    <string name="puzzle_chapter_sub_2">2수 외통 · 협공 수지 모티프</string>
+    <string name="puzzle_chapter_3">제3권: 달인의 전략</string>
+    <string name="puzzle_chapter_sub_3">2-3수 외통 · 종합 고전 수지</string>
+    <string name="puzzle_chapter_4">제4권: 대공세</string>
+    <string name="puzzle_chapter_sub_4">3수 외통 · 희생과 결정타</string>
+    <string name="puzzle_chapter_5">제5권: 서사시적 정복</string>
+    <string name="puzzle_chapter_sub_5">3-4수 외통 · 달인급 종반 기동</string>
+    <string name="puzzle_chapter_6">제6권: 그랜드마스터 시험대</string>
+    <string name="puzzle_chapter_sub_6">4-7수 외통 · 전설적 샹치 명승</string>
+    <string name="campaign_entry">산 등반</string>
+    <string name="campaign_entry_desc">여덟 스테이지. 하나를 이기면 다음이 열립니다.</string>
+    <string name="puzzle_entry">종반국</string>
+    <string name="puzzle_entry_desc">고전 외통수, 문제당 무르기 세 번</string>
+    <string name="campaign_title">그 산</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">정상</string>
+    <string name="campaign_level_format">스테이지 %1$d</string>
+    <string name="campaign_level_difficulty_format">상대 강함 Lv.%1$d</string>
+    <string name="campaign_locked">이전 스테이지를 이겨야 열립니다</string>
+    <string name="campaign_passed">클리어</string>
+    <string name="campaign_win_title">스테이지 클리어</string>
+    <string name="campaign_next_level">다음 스테이지</string>
+    <string name="campaign_retry">이 스테이지 다시 하기</string>
+    <string name="campaign_back_list">산으로 돌아가기</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">스테이지 %1$d · %2$s</string>
+    <string name="stage_1_name">첫걸음</string>
+    <string name="stage_1_brief">이 상대는 잡을 수 있는 수를 자주 놓칩니다. 먼저 규칙에 익숙해지세요.</string>
+    <string name="stage_2_name">관문</string>
+    <string name="stage_2_brief">한 수 앞을 보고도 여전히 놓치는 게 있습니다.</string>
+    <string name="stage_3_name">강</string>
+    <string name="stage_3_brief">여기서부터 엔진이 맡습니다. 한 초를 조금 넘는 시간으로 생각합니다.</string>
+    <string name="stage_4_name">고개</string>
+    <string name="stage_4_brief">시간이 더 늘었습니다. 사소한 허점도 보입니다.</string>
+    <string name="stage_5_name">수순들</string>
+    <string name="stage_5_brief">더 깊은 탐색. 느슨한 기물은 잡힙니다.</string>
+    <string name="stage_6_name">더 긴 바라봄</string>
+    <string name="stage_6_brief">생각 시간이 또 늘어납니다.</string>
+    <string name="stage_7_name">깊은 탐색</string>
+    <string name="stage_7_brief">정상이 가까웠는데, 시간이 한 걸음 모자랍니다.</string>
+    <string name="stage_8_name">정상</string>
+    <string name="stage_8_brief">산에서 가장 긴 탐색입니다.</string>
+    <string name="catalog_mate_title">한 수 외통</string>
+    <string name="catalog_mate_hint">홍 차례. 한 수에 외통입니다.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">%1$d / %2$d 해결</string>
+    <string name="catalog_filter_all">전체</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">해결</string>
+    <string name="catalog_open">열림</string>
+    <string name="history_intro">실존 전역의 다섯 장. 매 전투는 한 수 외통으로 끝납니다. 국면은 연습 문제이지 역사 전투의 재구성이 아닙니다.</string>
+    <string name="history_ch_1">춘추</string>
+    <string name="history_ch_2">전국</string>
+    <string name="history_ch_3">초한</string>
+    <string name="history_ch_4">삼국</string>
+    <string name="history_ch_5">이후의 전장</string>
+    <string name="battle_1_name">장사오</string>
+    <string name="battle_1_brief">노나라, 기원전 684년. 조귀는 제나라가 북을 세 번 치게 한 뒤 쳤습니다. 한 수 외통: 철문살.</string>
+    <string name="battle_2_name">성복</string>
+    <string name="battle_2_brief">기원전 632년. 진나라가 초의 중군을 끌어내고 양 날개를 닫았습니다. 한 수 외통: 쌍차.</string>
+    <string name="battle_3_name">백거</string>
+    <string name="battle_3_brief">기원전 506년. 오나라가 초로 깊이 진입해 영을 함락했습니다. 한 수 외통: 마후포.</string>
+    <string name="battle_4_name">입택</string>
+    <string name="battle_4_brief">기원전 478년. 월나라가 두 부대로 강을 건너 오나라를 꺾었습니다. 한 수 외통: 포위 마.</string>
+    <string name="battle_5_name">계릉</string>
+    <string name="battle_5_brief">기원전 354년. 제나라가 조의 포위를 풀려 위의 수도로 진군했습니다. 한 수 외통: 쌍포.</string>
+    <string name="battle_6_name">마릉</string>
+    <string name="battle_6_brief">기원전 342년. 손빈은 취사불을 줄이고 고개에서 기다렸습니다. 한 수 외통: 낚시 마.</string>
+    <string name="battle_7_name">장평</string>
+    <string name="battle_7_brief">기원전 260년. 진나라가 조군을 끊고 포위망을 닫았습니다. 한 수 외통: 쌍차.</string>
+    <string name="battle_8_name">즉묵</string>
+    <string name="battle_8_brief">기원전 279년. 전단이 성문을 열어 밤에 연나라 진영으로 짓쳜습니다. 한 수 외통: 포위 마.</string>
+    <string name="battle_9_name">정형</string>
+    <string name="battle_9_brief">기원전 204년. 한신은 군을 강에 등지게 세웠다가 돌아쳤습니다. 한 수 외통: 맞수 장.</string>
+    <string name="battle_10_name">진창</string>
+    <string name="battle_10_brief">기원전 206년. 판자길은 미끼였습니다. 군은 진창으로 나왔습니다. 한 수 외통: 쌍포.</string>
+    <string name="battle_11_name">위수</string>
+    <string name="battle_11_brief">기원전 204년. 한신이 강을 막아 적을 건너게 한 뒤 물을 놓았습니다. 한 수 외통: 마후포.</string>
+    <string name="battle_12_name">해하</string>
+    <string name="battle_12_brief">기원전 202년. 한나라 군대가 사방에서 항우를 에워쌌습니다. 한 수 외통: 쌍차.</string>
+    <string name="battle_13_name">관도</string>
+    <string name="battle_13_brief">서기 200년. 조조가 오소오에서 원소의 군량을 불태웠습니다. 한 수 외통: 철문살.</string>
+    <string name="battle_14_name">적벽</string>
+    <string name="battle_14_brief">서기 208년. 장강 위의 연결 함대를 불길이 훑고 지나갔습니다. 한 수 외통: 쌍포.</string>
+    <string name="battle_15_name">한중</string>
+    <string name="battle_15_brief">서기 219년. 황충이 정군산을 차지했고 하후연이 쓰러졌습니다. 한 수 외통: 낚시 마.</string>
+    <string name="battle_16_name">이릉</string>
+    <string name="battle_16_brief">서기 222년. 육손은 참았다가 촉의 진영을 불태웠습니다. 한 수 외통: 포위 마.</string>
+    <string name="battle_17_name">비수</string>
+    <string name="battle_17_brief">383년. 부견의 대군은 물러나다 주저앉았고 멈출 수 없었습니다. 한 수 외통: 맞수 장.</string>
+    <string name="battle_18_name">호뢰</string>
+    <string name="battle_18_brief">621년. 이세민이 관문 앞에서 두건덕을 꺾었습니다. 한 수 외통: 모서리 마.</string>
+    <string name="battle_19_name">언성</string>
+    <string name="battle_19_brief">1140년. 악비의 기병이 언성에서 금나라 중기병을 부쉈습니다. 한 수 외통: 마후포.</string>
+    <string name="battle_20_name">파양호</string>
+    <string name="battle_20_brief">1363년. 주원장의 불선이 진유량의 누선을 부쉈습니다. 한 수 외통: 천지포.</string>
+    <string name="tactic_label_mahoupao">마후포</string>
+    <string name="tactic_label_bolt">철문살</string>
+    <string name="tactic_label_double_cannon">쌍포</string>
+    <string name="tactic_label_double_rook">쌍차</string>
+    <string name="tactic_label_pocket">포위 마</string>
+    <string name="tactic_label_corner">모서리 마</string>
+    <string name="tactic_label_fishing">낚시 마</string>
+    <string name="tactic_label_face">맞수 장</string>
+    <string name="tactic_label_heaven">천지포</string>
+    <string name="tactic_label_heart">차의 궁 침투</string>
+    <string name="tactic_label_smothered">갇힌 궁</string>
+    <string name="tactic_label_spring">발판 장군</string>
+    <string name="tactic_label_mate">외통</string>
+    <string name="puzzle_title">종반국</string>
+    <string name="puzzle_list_title">종반국</string>
+    <string name="puzzle_solved">해결</string>
+    <string name="puzzle_unsolved">미해결</string>
+    <string name="puzzle_attempts_format">%1$d회 시도</string>
+    <string name="puzzle_red_to_move">홍 차례, %1$d수 외통</string>
+    <string name="puzzle_undo_left_format">남은 무르기: %1$d</string>
+    <string name="puzzle_moves_left_format">남은 수: %1$d</string>
+    <string name="puzzle_retry">처음부터</string>
+    <string name="puzzle_undo">무르기</string>
+    <string name="puzzle_undo_exhausted">무르기를 다 썼습니다</string>
+    <string name="puzzle_deviated">그 수는 외통수가 아닙니다. 무르거나 처음부터 다시 하세요.</string>
+    <string name="puzzle_solved_title">해결!</string>
+    <string name="puzzle_fail_title">실패</string>
+    <string name="puzzle_fail_moves">수가 다 했습니다. 흑이 버텼습니다.</string>
+    <string name="puzzle_next_puzzle">다음</string>
+    <string name="puzzle_retry_confirm">%1$d회 시도했습니다. 무르기는 세 번; 수가 다 하면 실패입니다. 처음부터 다시 할까요?</string>
+
+    <string name="campaign_unlocked">플레이 가능</string>
+    <string name="campaign_fail_title">스테이지 실패</string>
+    <string name="campaign_body_unlocked">스테이지 클리어 — 다음 스테이지가 열렸습니다!</string>
+    <string name="campaign_stars_line">별 %1$d개 · %2$s · %3$s</string>
+    <string name="campaign_stars_record">이 스테이지 최고: %1$d</string>
+    <string name="campaign_stars_cd">3개 중 %1$d개</string>
+    <string name="campaign_star_hint_kept">힌트 없음</string>
+    <string name="campaign_star_hint_used">힌트 사용</string>
+    <string name="campaign_star_undo_kept">무르기 없음</string>
+    <string name="campaign_star_undo_used">무름</string>
+    <string name="campaign_body_all_clear">여덟 스테이지를 모두 클리어했습니다.</string>
+    <string name="campaign_body_retry">이번엔 안 됐네요 — 다시 도전!</string>
+    <string name="puzzle_stage_name">스테이지 %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · %2$d/%3$d수 · 무르기 %4$d회 남음 · 시도 #%5$d</string>
+    <string name="puzzle_solved_body">해결 — 잘 두셨습니다!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">구경하기</string>
+    <string name="result_win_checkmate">외통 승리</string>
+    <string name="result_win_big">완승</string>
+    <string name="result_win_tactic_fmt">%1$s 외통</string>
+    <string name="result_lose_tactic_fmt">%1$s에 패배</string>
+    <string name="result_lose_banner">패배</string>
+    <string name="result_draw_banner">무승부</string>
+    <string name="result_reason_win_tactic_fmt">%1$s의 멋진 수로 외통</string>
+    <string name="result_reason_lose_tactic_fmt">상대가 %1$s로 당신을 외통으로 만들었습니다</string>
+    <string name="result_reason_win_default">승리 확정</string>
+    <string name="result_reason_lose_default">아까웠습니다 — 근소한 패배</string>
+    <string name="result_reason_draw_default">대국이 무승부로 끝났습니다</string>
+    <string name="result_practice_detail">연습 대국 완료 — 점수 변화 없음. 대국이 저장되었습니다.</string>
+    <string name="campaign_reason_clear">스테이지 클리어</string>
+    <string name="campaign_reason_fail">도전 실패</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">AI가 대국을 분석하는 중</string>
+    <string name="analysis_scanning_recognize">판 인식 중…</string>
+    <string name="analysis_scanning_advice">AI가 조언을 준비하는 중…</string>
+    <string name="recognize_loading_model">인식 모델 로드 중…</string>
+    <string name="live_starting">모델 및 카메라 시작 중…</string>
+    <string name="action_retry">다시 시도</string>
+
+    <string name="puzzle_solved_tactic_title">외통 · %1$s</string>
+    <string name="puzzle_solved_tactic_body">%1$s(으)로 해결했습니다.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">중앙포 vs 평풍마</string>
+    <string name="opening_same_cannon">순포</string>
+    <string name="opening_opposite_cannon">역포</string>
+    <string name="opening_central_vs_reversed">중앙포 vs 반궁마</string>
+    <string name="opening_central_vs_single">중앙포 vs 단제마</string>
+    <string name="opening_central_vs_tiger">중앙포 vs 삼보호</string>
+    <string name="opening_pawn_vs_cannon">선인지로 vs 병 뒤 포</string>
+    <string name="opening_mutual_pawn">양측 병 전진</string>
+    <string name="opening_pawn_vs_central">선인지로 vs 중앙포</string>
+    <string name="opening_pawn_vs_horse">선인지로 vs 마</string>
+    <string name="opening_pawn_vs_elephant">선인지로 vs 상</string>
+    <string name="opening_elephant_vs_left">비상 vs 좌 중앙포</string>
+    <string name="opening_elephant_vs_right">비상 vs 우 중앙포</string>
+    <string name="opening_elephant_vs_horse">비상 vs 마</string>
+    <string name="opening_elephant_vs_pawn">비상 vs 병</string>
+    <string name="opening_elephant_vs_corner">비상 vs 사각포</string>
+    <string name="opening_elephant_vs_crossing">비상 vs 과궁포</string>
+    <string name="opening_horse_vs_pawn">마 vs 병</string>
+    <string name="opening_horse_vs_central">마 vs 중앙포</string>
+    <string name="opening_horse_vs_horse">마 vs 마</string>
+    <string name="opening_central_cannon">중앙포</string>
+    <string name="opening_pawn">선인지로</string>
+    <string name="opening_elephant">비상국</string>
+    <string name="opening_horse">기마국</string>
+    <string name="opening_crossing_cannon">과궁포</string>
+    <string name="opening_corner_cannon">사각포</string>
+    <string name="opening_hook_cannon">금구포</string>
+    <string name="opening_iron_roller">철활차</string>
+    <string name="opening_edge_horse">변마</string>
+    <string name="opening_edge_pawn">변병</string>
+    <string name="tactic_rhyme_mahoupao">포가 마 뒤에 있으면 장은 도망 못 갑니다</string>
+    <string name="tactic_desc_mahoupao">마가 포의 포목이 됩니다. 포가 그 너머로 장군을 하고, 둘이 합쳐 모든 출구를 막습니다.</string>
+    <string name="tactic_rhyme_bolt">중앙포는 줄을 잠그고, 차가 궁을 가로질러 빗장을 겁니다</string>
+    <string name="tactic_desc_bolt">중앙포가 궁문을 지킵니다. 차가 끝줄로 미끄러져 빗장을 겁니다.</string>
+    <string name="tactic_rhyme_double_cannon">앞포는 포목, 뒷포가 명중합니다</string>
+    <string name="tactic_desc_double_cannon">한 줄에 포 두 자루. 앞포는 포목이고 뒷포가 궁으로 장군을 합니다.</string>
+    <string name="tactic_rhyme_double_rook">두 차가 어긋난 줄에서 궁을 돌아가며 두드립니다</string>
+    <string name="tactic_desc_double_rook">두 차가 이웃 줄에 내려앉아 장을 한 줄씩 잘라 냅니다.</string>
+    <string name="tactic_rhyme_pocket">주머니 속의 마, 끝줄의 차</string>
+    <string name="tactic_desc_pocket">마가 적 궁 옆 주머니에 앉고 차가 끝줄로 내려옵니다.</string>
+    <string name="tactic_rhyme_corner">사 모서리의 마, 차가 승부를 냅니다</string>
+    <string name="tactic_desc_corner">마가 사 모서리에서 장군하며 사와 장을 묶어 둡니다.</string>
+    <string name="tactic_rhyme_face">두 장이 열린 줄에서 마주 봅니다</string>
+    <string name="tactic_desc_face">장끼리 마주 볼 수 없습니다. 당신의 장이 그 줄을 지키고, 그 규칙이 외통을 완성합니다.</string>
+    <string name="tactic_rhyme_heaven">한 포는 끝줄에, 한 포는 중앙 줄에</string>
+    <string name="tactic_desc_heaven">한 포가 끝줄을 봉쇄합니다. 다른 포가 중앙 줄을 지킵니다. 둘이 함께 때립니다.</string>
+    <string name="tactic_rhyme_fishing">문 위의 낚시 마, 차 하나로 문을 닫습니다</string>
+    <string name="tactic_desc_fishing">마가 낚시 자리에 서서 궁 출구를 막습니다. 차가 내려와 외통으로 마무리합니다.</string>
+    <string name="tactic_rhyme_heart">중앙 사를 향해 차를 희생합니다</string>
+    <string name="tactic_desc_heart">차를 내주고 중앙 사를 잡아 장을 자리에서 끌어내고, 외통으로 끝냅니다.</string>
+    <string name="tactic_rhyme_smothered">사들이 제 장의 길을 막습니다</string>
+    <string name="tactic_desc_smothered">두 사가 궁을 꽉 채웁니다. 끝줄의 포, 혹은 차와 병이 그 뒤숭숭함을 뚫고 외통으로 마무리합니다.</string>
+    <string name="tactic_academy_sub">수순을 익히고, 노래를 듣고, 직접 풀어보세요</string>
+    <string name="tactic_voice">듣기</string>
+    <string name="tactic_challenge">풀기</string>
+    <string name="tactic_mastered">마스터함</string>
+    <string name="tactic_learning">학습 중</string>
+    <string name="puzzle_rush_result_title">문제 스퍼트</string>
+    <string name="puzzle_rush_score_unit">문제</string>
+    <string name="replay_start_position">시작 국면</string>
+    <string name="replay_move_line">%1$d수 · %2$s</string>
+    <string name="replay_red_winrate">홍 승률 %1$d%%</string>
+    <string name="replay_try_variation">시도</string>
+    <string name="replay_variation_undo">무르기</string>
+    <string name="replay_variation_exit">대국으로 돌아가기</string>
+    <string name="replay_variation_status">변화 +%1$d · 홍 %2$d%%</string>
+    <string name="replay_variation_status_move">변화 +%1$d · %2$s · 홍 %3$d%%</string>
+    <string name="replay_variation_step">%1$d수</string>
+    <string name="replay_red_better">홍</string>
+    <string name="replay_black_better">흑</string>
+    <string name="move_quality_brilliant">일품수</string>
+    <string name="move_quality_best">최선수</string>
+    <string name="move_quality_inaccuracy">부정확</string>
+    <string name="move_quality_mistake">실수</string>
+    <string name="move_quality_blunder">대실수</string>
+    <string name="move_quality_book">정석</string>
+    <string name="analysis_scan_status">깊이 %1$d · 홍 승률 %2$d%%</string>
+</resources>

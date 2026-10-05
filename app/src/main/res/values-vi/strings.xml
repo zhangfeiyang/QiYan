@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">Chơi</string>
+    <string name="title_replay">Xem lại</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="title_board_editor">Sửa thế trận</string>
+    <string name="menu_play">Bắt đầu ván mới</string>
+    <string name="menu_replay">Xem lại ván đấu</string>
+    <string name="menu_settings">Cài đặt</string>
+    <string name="menu_about">Giới thiệu</string>
+    <string name="menu_difficulty">Chọn độ khó</string>
+    <string name="menu_side">Chọn phe</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Ngôn ngữ</string>
+    <string name="language_dialog_title">Chọn ngôn ngữ</string>
+    <string name="language_system_default">Theo hệ thống</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">Người mới</string>
+    <string name="difficulty_beginner">Tập sự</string>
+    <string name="difficulty_lower_intermediate">Trung cấp thấp</string>
+    <string name="difficulty_intermediate">Trung cấp</string>
+    <string name="difficulty_upper_intermediate">Trung cấp cao</string>
+    <string name="difficulty_advanced">Nâng cao</string>
+    <string name="difficulty_amateur">Nghiệp dư giỏi</string>
+    <string name="difficulty_district">Kỳ thủ cấp huyện</string>
+    <string name="difficulty_city">Kỳ thủ cấp thành phố</string>
+    <string name="difficulty_provincial">Kỳ thủ cấp tỉnh</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Cao thủ hiệp hội</string>
+    <string name="difficulty_national_master">Quốc thủ</string>
+    <string name="difficulty_grandmaster">Đại sư</string>
+    <string name="difficulty_international_master">Đại sư quốc tế</string>
+    <string name="difficulty_legendary">Huyền thoại</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">Người mới chơi</string>
+    <string name="difficulty_segment_beginner">Người mới giải trí</string>
+    <string name="difficulty_segment_lower_intermediate">Người chơi trung bình</string>
+    <string name="difficulty_segment_intermediate">Kỳ thủ đường phố</string>
+    <string name="difficulty_segment_upper_intermediate">Người chơi giỏi</string>
+    <string name="difficulty_segment_advanced">Nghiệp dư 1 dan</string>
+    <string name="difficulty_segment_amateur">Nghiệp dư 3 dan</string>
+    <string name="difficulty_segment_district">Nghiệp dư 5 dan</string>
+    <string name="difficulty_segment_city">Nghiệp dư 6 dan</string>
+    <string name="difficulty_segment_provincial">Cao thủ địa phương</string>
+    <string name="difficulty_segment_local_master">Cao thủ hiệp hội</string>
+    <string name="difficulty_segment_national_master">Quốc thủ</string>
+    <string name="difficulty_segment_grandmaster">Đại sư quốc gia</string>
+    <string name="difficulty_segment_international_master">Đại sư quốc tế</string>
+    <string name="difficulty_segment_legendary">Đại sư thế giới</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">Vừa học luật, hay chủ động cho quân</string>
+    <string name="difficulty_desc_beginner">Biết ăn quân lộ liễu, hay bỏ qua bẫy đơn giản</string>
+    <string name="difficulty_desc_lower_intermediate">Biết các đòn cơ bản, thỉnh thoảng thấy đòn kẹp hai đầu</string>
+    <string name="difficulty_desc_intermediate">Khai cuộc vững, tính trước 3-5 nước</string>
+    <string name="difficulty_desc_upper_intermediate">Đi nước có nguyên tắc, xử lý khai cuộc tốt</string>
+    <string name="difficulty_desc_advanced">Nghiệp dư vững chắc, tàn cuộc chắc tay, ít nước hở</string>
+    <string name="difficulty_desc_amateur">Đòn thế tin cậy, biết giăng bẫy cơ bản</string>
+    <string name="difficulty_desc_district">Công thủ cân bằng, biết trừng phạt sai sót</string>
+    <string name="difficulty_desc_city">Bao quát tốt, chuẩn bị bẫy, hiếm khi sơ suất lớn</string>
+    <string name="difficulty_desc_provincial">Trình độ giải đấu tỉnh, tính toán chính xác</string>
+    <string name="difficulty_desc_local_master">Đánh ở tầm cao thủ, tính sâu từng biến</string>
+    <string name="difficulty_desc_national_master">Tấn công sắc bén, gần như không sai sót</string>
+    <string name="difficulty_desc_grandmaster">Trình độ đại sư quốc gia, chiến lược sâu</string>
+    <string name="difficulty_desc_international_master">Trình độ đại sư quốc tế, chính xác trong mọi giai đoạn</string>
+    <string name="difficulty_desc_legendary">Trình độ đại sư thế giới, mạnh nhất trên máy này</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">Gợi ý</string>
+    <string name="action_undo">Hoàn tác</string>
+    <string name="action_new_game">Ván mới</string>
+    <string name="action_resign">Xin thua</string>
+    <string name="action_draw">Xin hòa</string>
+    <string name="action_analysis">Phân tích</string>
+    <string name="action_flip">Lật bàn</string>
+    <string name="action_settings">Cài đặt</string>
+    <string name="action_back">Quay lại</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_export">Xuất PGN</string>
+    <string name="action_play_red">Đi Đỏ (đi trước)</string>
+    <string name="action_play_black">Đi Đen (đi sau)</string>
+    <string name="action_two_player">Hai người</string>
+    <string name="action_voice">Đi quân bằng giọng nói</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">Đọc một nước, ví dụ 「车九进四」 (xa chín tấn tứ)</string>
+    <string name="voice_played">Đã đi: %1$s</string>
+    <string name="voice_no_match">Không có nước hợp lệ nào khớp 「%1$s」</string>
+    <string name="voice_ambiguous">Chưa rõ — hãy nói cụ thể hơn</string>
+    <string name="voice_no_speech">Không nghe được, thử lại nhé</string>
+    <string name="voice_error">Nhận dạng giọng nói thất bại</string>
+    <string name="voice_unavailable">Thiết bị này không hỗ trợ nhận dạng giọng nói</string>
+    <string name="voice_permission_denied">Cần quyền micro để đi quân bằng giọng nói</string>
+    <string name="voice_wait_engine">Chờ AI đi xong đã</string>
+    <string name="voice_not_your_turn">Chưa đến lượt bạn</string>
+    <string name="voice_game_over">Ván đấu đã kết thúc</string>
+
+    <!-- Status -->
+    <string name="status_thinking">AI đang nghĩ…</string>
+    <string name="status_your_turn">Đến lượt bạn</string>
+    <string name="status_check">Chiếu tướng!</string>
+    <string name="status_checkmate">Chiếu bí!</string>
+    <string name="status_draw">Hòa</string>
+    <string name="status_resign">Đã xin thua</string>
+    <string name="status_win">Chiến thắng</string>
+    <string name="status_loss">Thất bại</string>
+    <string name="status_stalemate">Hết nước đi</string>
+    <string name="status_engine_error">Lỗi AI, chuyển sang bộ máy dự phòng</string>
+    <string name="game_over_checkmate_red">Đen chiếu bí Đỏ</string>
+    <string name="game_over_checkmate_black">Đỏ chiếu bí Đen</string>
+    <string name="game_over_repetition">Lặp thế</string>
+    <string name="game_over_fifty_moves">Luật 50 nước</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">Tỷ lệ thắng</string>
+    <string name="winrate_red">Tỷ lệ thắng Đỏ</string>
+    <string name="winrate_black">Tỷ lệ thắng Đen</string>
+    <string name="depth_label">Độ sâu</string>
+    <string name="nodes_label">Số nút</string>
+    <string name="nps_label">Nước/giây</string>
+    <string name="time_label">Thời gian</string>
+
+    <!-- Rating -->
+    <string name="rating_current">Điểm hiện tại</string>
+    <string name="rating_total_games">Tổng số ván</string>
+    <string name="rating_wins">Thắng</string>
+    <string name="rating_losses">Thua</string>
+    <string name="rating_draws">Hòa</string>
+    <string name="rating_winrate">Tỷ lệ thắng</string>
+    <string name="rating_rank">Hạng</string>
+    <string name="rank_1">Người mới</string>
+    <string name="rank_2">Tập sự</string>
+    <string name="rank_3">Nghiệp dư 1 dan</string>
+    <string name="rank_4">Nghiệp dư 3 dan</string>
+    <string name="rank_5">Nghiệp dư 5 dan</string>
+    <string name="rank_6">Nghiệp dư 7 dan</string>
+    <string name="rank_7">Cao thủ vùng</string>
+    <string name="rank_8">Quốc thủ</string>
+    <string name="rank_9">Đại sư</string>
+    <string name="rank_10">Cờ Vương</string>
+    <string name="rank_hall_title">Dấu ấn hạng</string>
+    <string name="rank_hall_intro">Mười dấu ấn, từ người mới đến Cờ Vương. Chỉ ván có tính điểm mới nâng dấu ấn; luyện tập và leo núi không tính.</string>
+    <string name="rank_hall_current">Hiện tại</string>
+    <string name="rank_hall_reached">Đã đạt</string>
+    <string name="rank_hall_locked">Phía trước</string>
+    <string name="rank_progress_next">Còn %2$d điểm nữa tới %1$s</string>
+    <string name="rank_progress_top">Cờ Vương — đỉnh của bảng xếp hạng</string>
+    <string name="rank_promoted">Thăng hạng: %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">Mở dấu ấn hạng</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">Ván mới</string>
+    <string name="dialog_new_game_message">Bắt đầu ván mới?</string>
+    <string name="dialog_resign_title">Xin thua</string>
+    <string name="dialog_resign_message">Bạn chắc chắn muốn xin thua?</string>
+    <string name="dialog_undo_title">Hoàn tác</string>
+    <string name="dialog_undo_message">Hoàn tác bị trừ một ít điểm xếp hạng. Vẫn hoàn tác chứ?</string>
+    <string name="dialog_yes">Có</string>
+    <string name="dialog_no">Không</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Hủy</string>
+    <string name="dialog_confirm">Xác nhận</string>
+
+    <!-- Review -->
+    <string name="replay_empty">Chưa có ván đấu nào</string>
+    <string name="replay_play">Tự động chạy</string>
+    <string name="replay_pause">Tạm dừng</string>
+    <string name="replay_prev">Nước trước</string>
+    <string name="replay_next">Nước sau</string>
+    <string name="replay_first">Nước đầu</string>
+    <string name="replay_last">Nước cuối</string>
+    <string name="replay_move_number">Nước %1$d</string>
+    <string name="result_win_short">T</string>
+    <string name="result_loss_short">Th</string>
+    <string name="result_draw_short">H</string>
+    <string name="side_red_short">Đỏ</string>
+    <string name="side_black_short">Đen</string>
+    <string name="replay_moves_summary">%1$d nước · %2$s</string>
+    <string name="replay_record_missing">Không tìm thấy kỳ phổ</string>
+    <string name="replay_player_info">Cấp %1$d  %2$s  %3$d nước</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">Không thể phục hồi nước %1$d</string>
+    <string name="replay_viewer_title">Xem lại ván đấu</string>
+    <string name="replay_share_report">Chia sẻ chiến báo</string>
+    <string name="replay_export_pgn">Xuất PGN</string>
+    <string name="replay_copy_fen">Sao chép FEN</string>
+    <string name="replay_copied_to_clipboard">Đã sao chép</string>
+    <string name="puzzle_rush_title">Giải đố nhanh</string>
+    <string name="puzzle_rush_banner">3 phút · kỷ lục %1$d</string>
+    <string name="tactics_banner_title">Thế chiếu bí</string>
+    <string name="tactics_banner_sub">Chiếu bí kinh điển</string>
+    <string name="tactics_banner_progress">Đã học %1$d / %2$d</string>
+    <string name="puzzle_rush_subtitle">Giải tốc độ 3 phút</string>
+    <string name="puzzle_rush_start">Bắt đầu ngay</string>
+    <string name="puzzle_rush_score">Điểm</string>
+    <string name="puzzle_rush_high_score">Kỷ lục: %1$d</string>
+    <string name="puzzle_rush_combo">Chuỗi ×%1$d</string>
+    <string name="puzzle_rush_pass">Bỏ qua (−1 tim)</string>
+    <string name="puzzle_rush_time_up">Hết giờ!</string>
+    <string name="puzzle_rush_lives_out">Hết tim rồi!</string>
+    <string name="puzzle_rush_new_record">🎉 Kỷ lục mới!</string>
+    <string name="puzzle_rush_solved_count">Đã giải %1$d câu</string>
+    <string name="puzzle_rush_play_again">Chơi lại</string>
+    <string name="puzzle_rush_share">Chia sẻ điểm</string>
+    <string name="puzzle_rush_report_title">【QiYan Cờ tướng · Giải đố nhanh】</string>
+    <string name="puzzle_rush_score_line">Điểm %1$d</string>
+    <string name="puzzle_rush_best_badge">Kỷ lục %1$d</string>
+    <string name="puzzle_rush_mate_line">Bí · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">Danh hiệu: %1$s</string>
+    <string name="puzzle_rush_record_line">Kỷ lục mới: %1$d</string>
+    <string name="puzzle_rush_previous_best">Kỷ lục cũ: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\nGiải được %2$d câu trong 3 phút.\nChuỗi dài nhất %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">Rời màn thi này? Điểm sẽ không được lưu.</string>
+    <string name="puzzle_rush_leave_yes">Rời đi</string>
+    <string name="puzzle_rush_honor_1">Học viên</string>
+    <string name="puzzle_rush_honor_2">Kỳ thủ câu lạc bộ</string>
+    <string name="puzzle_rush_honor_3">Lưỡi dao sắc</string>
+    <string name="puzzle_rush_honor_4">Cỗ máy tính toán</string>
+    <string name="puzzle_rush_honor_5">Vua giải đố nhanh</string>
+    <string name="stat_total_games_format">%1$d ván</string>
+    <string name="stat_wins_format">Thắng %1$d</string>
+    <string name="stat_losses_format">Thua %1$d</string>
+    <string name="stat_draws_format">Hòa %1$d</string>
+    <string name="game_illegal_move">Nước đi không hợp lệ</string>
+    <string name="game_undo_failed">Không thể hoàn tác</string>
+    <string name="game_switched_to_black">Đã chuyển sang phe Đen</string>
+    <string name="game_switched_to_red">Đã chuyển sang phe Đỏ</string>
+    <string name="game_opponent_black">AI (Đen)</string>
+    <string name="game_opponent_red">AI (Đỏ)</string>
+    <string name="game_player_red">Tôi (Đỏ)</string>
+    <string name="game_player_black">Tôi (Đen)</string>
+    <string name="game_move_count">Nước %1$d</string>
+    <string name="game_engine_start_failed">Không khởi động được AI</string>
+    <string name="unknown_label">Không rõ</string>
+    <string name="default_nickname">Kỳ hữu</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Lý do: %1$s\nĐiểm thay đổi: %2$s\nHạng hiện tại: %3$s</string>
+    <string name="game_over_rating_detail">Điểm thay đổi: %1$s · Hạng hiện tại: %2$s</string>
+    <string name="game_over_win">Bạn thắng</string>
+    <string name="game_over_loss">Bạn thua</string>
+    <string name="game_over_draw">Hòa</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">Số luồng</string>
+    <string name="settings_hash">Bảng băm (MB)</string>
+    <string name="settings_sound">Hiệu ứng âm thanh</string>
+    <string name="settings_vibrate">Rung</string>
+    <string name="settings_bgm">Nhạc nền</string>
+    <string name="settings_board_flip">Lật bàn mặc định</string>
+    <string name="settings_show_coords">Hiện tọa độ</string>
+    <string name="settings_show_winrate">Hiện tỷ lệ thắng</string>
+    <string name="settings_animation">Hoạt ảnh nước đi</string>
+    <string name="settings_theme">Giao diện</string>
+    <string name="settings_desc_threads">Càng nhiều luồng tính càng nhanh nhưng tốn pin hơn. Nên dùng không quá nửa số nhân của máy</string>
+    <string name="settings_desc_hash">Bộ nhớ đệm suy nghĩ của AI. Tăng lên để chơi sâu hơn; giảm bớt nếu máy ít RAM</string>
+    <string name="settings_desc_sound">Phát tiếng khi đi quân, ăn quân và chiếu tướng</string>
+    <string name="settings_desc_vibrate">Rung nhẹ khi đi quân</string>
+    <string name="settings_desc_bgm">Nhạc đàn cổ trầm ấm trong lúc chơi; âm lượng giữ thấp để không lấn hiệu ứng âm thanh</string>
+    <string name="settings_desc_coords">Hiện số cột và hàng dọc theo viền bàn cờ</string>
+    <string name="settings_desc_winrate">Hiện thanh tỷ lệ thắng trực tiếp phía trên bàn cờ</string>
+    <string name="settings_desc_animation">Tắt đi thì quân đáp xuống tức thì, mượt hơn trên máy yếu</string>
+    <string name="settings_desc_flip">Bắt đầu ván nhìn từ phía Đen</string>
+    <string name="settings_section_display">Hiển thị</string>
+    <string name="settings_section_other">Khác</string>
+    <string name="settings_theme_system">Theo hệ thống</string>
+    <string name="settings_theme_light">Sáng</string>
+    <string name="settings_theme_dark">Tối</string>
+    <string name="settings_clear_data">Xóa toàn bộ dữ liệu</string>
+    <string name="dialog_clear_data_title">Xóa dữ liệu</string>
+    <string name="dialog_clear_data_message">Thao tác này xóa mọi kỳ phổ và dữ liệu xếp hạng. Tiếp tục?</string>
+    <!-- Live hints -->
+    <string name="live_title">Gợi ý trực tiếp</string>
+    <string name="live_entry">Gợi ý trực tiếp</string>
+    <string name="live_need_camera">Cần quyền camera để nhận dạng bàn cờ trực tiếp</string>
+    <string name="live_camera_failed">Không mở được camera</string>
+    <string name="live_locking">Đang định vị bàn cờ…</string>
+    <string name="live_board_invalid">Chưa nhận đủ bàn cờ — hãy đảm bảo cả bốn góc nằm trong khung</string>
+    <string name="live_ready">Đã khóa · nhận dạng trong %1$d ms</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">Đặt lại</string>
+    <string name="editor_clear">Xóa trắng</string>
+    <string name="settings_clear_data_desc">Xóa mọi kỳ phổ và dữ liệu xếp hạng. Không thể hoàn tác</string>
+    <string name="settings_piece_style">Kiểu quân cờ</string>
+    <string name="settings_board_style">Kiểu bàn cờ</string>
+    <string name="settings_about">Giới thiệu</string>
+    <string name="settings_engine_path">Đường dẫn mô hình AI</string>
+    <string name="settings_about_text">QiYan v1.0\n\nAI tự phát triển (đánh giá bằng mạng nơ-ron NNUE)\nHỗ trợ nhận dạng bàn cờ từ ảnh và gợi ý trực tiếp</string>
+
+    <!-- About -->
+    <string name="about_engine_title">Thông tin AI</string>
+    <string name="about_engine_version">NNUE tự phát triển</string>
+    <string name="about_engine_desc">AI cờ tướng</string>
+
+    <!-- Common -->
+    <string name="red">Đỏ</string>
+    <string name="black">Đen</string>
+    <string name="move_count">%1$d nước</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">Quét bàn cờ</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">Phân tích AI</string>
+    <string name="advisor_send">Gửi</string>
+    <string name="advisor_input_hint">Hỏi bất cứ điều gì…</string>
+    <string name="advisor_error_generic">Tính năng phân tích tạm thời không khả dụng, thử lại sau nhé</string>
+    <string name="advisor_no_config">Chưa cấu hình tính năng AI, hãy liên hệ nhà phát triển</string>
+    <string name="advisor_unavailable">AI tạm thời không khả dụng, thử lại sau nhé</string>
+    <string name="advisor_waiting">AI đang trả lời, vui lòng đợi chút</string>
+    <string name="advisor_key_rejected">Khóa xác thực không hợp lệ hoặc đã bị thu hồi. Hãy cấu hình lại token proxy.</string>
+    <string name="advisor_clear">Xóa hội thoại</string>
+    <string name="advisor_context_replay">Đang xem nước %1$d</string>
+    <string name="advisor_context_game">Nước %1$d · đến lượt %2$s</string>
+    <string name="advisor_thinking">AI đang phân tích…</string>
+    <string name="advisor_button">Phân tích AI</string>
+    <string name="advisor_empty_title">Hỏi AI về ván này</string>
+    <string name="advisor_empty_subtitle">Nó nhìn thấy thế cờ hiện tại — hỏi về tình hình, nước tiếp theo, hoặc nước vừa rồi có vấn đề gì không</string>
+    <string name="advisor_suggest_analyze">Phân tích thế cờ hiện tại</string>
+    <string name="advisor_suggest_next">Nước tiếp theo nên đi gì</string>
+    <string name="advisor_suggest_review">Nước vừa rồi có vấn đề gì không</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">Chạm để bỏ qua</string>
+    <string name="analysis_summary_prompt">Tóm tắt thế cờ hiện tại trong 2-3 câu: tình hình, bên nào hơn, điểm công/thủ chính và nước đi đáng chú ý nhất lúc này.</string>
+    <string name="advisor_send_desc">Gửi</string>
+    <string name="advisor_move_banner">AI minh họa nước này: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">Quét bàn cờ</string>
+    <string name="recognize_take_photo">Chụp ảnh</string>
+    <string name="recognize_pick_image">Chọn từ thư viện</string>
+    <string name="recognize_preview_desc">Bàn cờ đã hiệu chỉnh</string>
+    <string name="recognize_red_to_move">Đỏ đi trước</string>
+    <string name="recognize_black_to_move">Đen đi trước</string>
+    <string name="recognize_advise">Hỏi AI xin lời khuyên</string>
+    <string name="recognize_hint_start">Chụp ảnh bàn cờ, hoặc chọn ảnh từ thư viện. Nên chụp vuông góc và thấy đủ bốn góc.</string>
+    <string name="recognize_working">Đang nhận dạng…</string>
+    <string name="recognize_failed">Nhận dạng thất bại, thử ảnh khác nhé</string>
+    <string name="recognize_model_failed">Không tải được mô hình nhận dạng</string>
+    <string name="recognize_no_camera">Không có camera khả dụng</string>
+    <string name="recognize_corner_warning">Bốn góc bàn cờ chưa được định khung chính xác, kết quả có thể lệch. Thử chụp lại vuông góc nhé.</string>
+    <string name="recognize_must_fix">Hãy khắc phục các vấn đề sau trước:</string>
+    <string name="recognize_ready">Nhận dạng xong. Vòng vàng đánh dấu vị trí chưa chắc chắn (%1$d chỗ) — chạm vào ô để sửa. Xác nhận trước khi xin lời khuyên.</string>
+    <string name="recognize_pick_piece">Quân nào đặt vào %1$c%2$d</string>
+    <string name="recognize_empty">Trống</string>
+    <string name="recognize_flip">Lật</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">Ăn %1$s</string>
+    <string name="piece_king">Tướng</string>
+    <string name="piece_advisor">Sĩ</string>
+    <string name="piece_elephant">Tượng</string>
+    <string name="piece_horse">Mã</string>
+    <string name="piece_rook">Xe</string>
+    <string name="piece_cannon">Pháo</string>
+    <string name="piece_pawn">Binh</string>
+    <string name="recognize_thinking">AI đang nghĩ…</string>
+    <string name="recognize_engine_failed">Không khởi động được AI</string>
+    <string name="recognize_engine_error">Lỗi AI: %1$s</string>
+    <string name="recognize_no_move">AI không trả về nước đi</string>
+    <string name="recognize_advice">Gợi ý: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">Hướng camera vào bàn cờ thật, nhận gợi ý trong khi đánh</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">Chụp ảnh thế cờ</string>
+    <string name="recognize_start_camera_desc">Chụp bàn cờ thật</string>
+    <string name="recognize_start_gallery_desc">Dùng ảnh chụp màn hình hoặc ảnh có sẵn</string>
+    <string name="recognize_tips_title">Chụp đẹp, nhận dạng chuẩn</string>
+    <string name="recognize_tip_1">Chụp vuông góc với bàn, đừng chụp nghiêng</string>
+    <string name="recognize_tip_2">Để cả bốn góc nằm trong khung</string>
+    <string name="recognize_tip_3">Ánh sáng đều; tránh chói và đổ bóng</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">Mức độ gợi ý</string>
+    <string name="advice_level_fast">Nhanh</string>
+    <string name="advice_level_fast_desc">Gợi ý ngay lập tức</string>
+    <string name="advice_level_normal">Chuẩn</string>
+    <string name="advice_level_normal_desc">Nghĩ một hai giây, đủ dùng cho đa số trường hợp</string>
+    <string name="advice_level_deep">Sâu</string>
+    <string name="advice_level_deep_desc">Nghĩ lâu hơn, tin cậy hơn ở thế cờ then chốt</string>
+    <string name="advice_level_current">Mức gợi ý: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+         挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"SÔNG SỞ          GIỚI HÁN"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Chữ trên quân</string>
+    <string name="settings_piece_set_desc">Chữ Hán là vẻ truyền thống; chữ Latinh (K/A/B/N/R/C/P) khớp với ký hiệu nước đi tiếng Anh</string>
+    <string name="piece_set_hanzi">Chữ Hán</string>
+    <string name="piece_set_latin">Chữ K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Ký hiệu nước đi</string>
+    <string name="settings_notation_desc">Ký hiệu Hán đọc là 炮二平五; theo WXF nước đó viết là C2.5</string>
+    <string name="notation_chinese">Ký hiệu Hán</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Máy trả về nước không hợp lệ: %1$s</string>
+    <string name="engine_error">Lỗi bộ máy: %1$s</string>
+    <string name="must_answer_check">Bạn đang bị chiếu — phải giải chiếu</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Đang chuẩn bị bàn cờ…</string>
+    <string name="settings_follow_language">Theo ngôn ngữ ứng dụng</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">Ván mới</string>
+    <string name="new_game_pick_opponent">Chọn đối thủ</string>
+    <string name="new_game_side">Đi phe nào</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Cấp %1$d %2$s</string>
+    <string name="new_game_level_short">Cấp %1$d</string>
+    <string name="side_red">Đỏ</string>
+    <string name="side_black">Đen</string>
+    <string name="side_random">Ngẫu nhiên</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Đối thủ</string>
+    <string name="menu_change_opponent">Đổi</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Cân bằng</string>
+    <string name="style_balanced_desc">Luôn đi nước tốt nhất của máy — thuần sức mạnh</string>
+    <string name="style_aggressive">Cấu</string>
+    <string name="style_aggressive_desc">Thích ăn quân và chiếu, dám hy sinh để tấn công</string>
+    <string name="style_solid">Kén</string>
+    <string name="style_solid_desc">Không trao đổi bừa, thích thế trận điềm đạm hơn rối ren</string>
+    <string name="style_swarm">Khó đoán</string>
+    <string name="style_swarm_desc">Đổi giữa những nước gần tối ưu — mỗi ván một kiểu</string>
+    <string name="new_game_style">Phong cách đối thủ</string>
+    <string name="new_game_style_line">Phong cách: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Chiếu!</string>
+    <string name="board_tag_mate">Chiếu bí</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Hiệu ứng ăn quân</string>
+    <string name="settings_desc_capture_fx">Hoạt ảnh chém, lửa tóe và vẩy mực khi quân bị ăn. Nhãn 「Ăn…」 trên bàn vẫn hiển thị dù bật hay tắt</string>
+    <string name="settings_board_skin">Chất liệu bàn</string>
+    <string name="settings_board_skin_desc">Bốn chất liệu offline. Chữ trên quân vẫn tối màu trên nền ngà nên luôn dễ đọc.</string>
+    <string name="skin_wood">Gỗ ấm</string>
+    <string name="skin_black_gold">Đen ánh kim</string>
+    <string name="skin_porcelain">Sứ xanh</string>
+    <string name="skin_jade">Ngọc trắng</string>
+
+    <string name="puzzle_1_name">Bí 1 nước · Bế cung</string>
+    <string name="puzzle_1_hint">Mã Đen bị ghim. Đưa Tướng vào giữa: Đen hết nước đi</string>
+    <string name="puzzle_2_name">Bí 1 nước · Song pháo</string>
+    <string name="puzzle_2_hint">Pháo trước là ngòi — đưa pháo sau vào cột</string>
+    <string name="puzzle_3_name">Bí 1 nước · Xe và Mã</string>
+    <string name="puzzle_3_hint">Xe sau quét xuống hàng cuối để chiếu hai hướng</string>
+    <string name="puzzle_4_name">Bí 1 nước · Tướng đối mặt</string>
+    <string name="puzzle_4_hint">Hai Tướng đối mặt cùng cột, thả xe xuống hàng cuối</string>
+    <string name="puzzle_5_name">Bí 1 nước · Chốt sắt</string>
+    <string name="puzzle_5_hint">Pháo giữa ghim đường, xe đáp xuống hàng cuối</string>
+    <string name="puzzle_6_name">Bí 1 nước · Pháo cánh</string>
+    <string name="puzzle_6_hint">Pháo lùi sâu, xe che chắn cho đòn quyết định</string>
+    <string name="puzzle_7_name">Bí 1 nước · Song xa tấn sâu</string>
+    <string name="puzzle_7_hint">Hai xe kẹp thành dưới yểm trợ của pháo</string>
+    <string name="puzzle_8_name">Bí 1 nước · Mã và Pháo</string>
+    <string name="puzzle_8_hint">Dùng mã làm giá cho pháo, chiếu bí ngay lập tức</string>
+    <string name="puzzle_9_name">Bí 2 nước · Song xe so le</string>
+    <string name="puzzle_9_hint">Hạ một xe xuống chiếu; nếu Tượng chặn, đổi hướng</string>
+    <string name="puzzle_10_name">Bí 2 nước · Song xe</string>
+    <string name="puzzle_10_hint">Một xe ghim cột, xe kia luân phiên chiếu</string>
+    <string name="puzzle_11_name">Bí 2 nước · Mã khuỷu</string>
+    <string name="puzzle_11_hint">Mã ghim sườn cung; xe đáp xuống kết liễu</string>
+    <string name="puzzle_12_name">Bí 2 nước · Chiếu nhảy bục</string>
+    <string name="puzzle_12_hint">Nhảy mã lên tạo chiếu lộ, phối hợp với xe</string>
+    <string name="puzzle_13_name">Bí 2 nước · Xe Mã Pháo</string>
+    <string name="puzzle_13_hint">Mã nhảy vào giữa, pháo phối hợp đòn kết liễu</string>
+    <string name="puzzle_14_name">Bí 2 nước · Binh tiến</string>
+    <string name="puzzle_14_hint">Pháo ghim chính diện khi binh rảo vào</string>
+    <string name="puzzle_15_name">Bí 2 nước · Song xe đồng hàng</string>
+    <string name="puzzle_15_hint">Hai xe dọc cột đập tan phòng tuyến cung</string>
+    <string name="puzzle_16_name">Bí 2 nước · Pháo ẩn</string>
+    <string name="puzzle_16_hint">Xe mở đường cho pháo nấp phía sau</string>
+    <string name="puzzle_17_name">Bí 3 nước · Mã khuỷu tấn sâu</string>
+    <string name="puzzle_17_hint">Mã uy hiếp góc cung, xe niêm hàng cuối</string>
+    <string name="puzzle_18_name">Bí 3 nước · Mã câu tấn sâu</string>
+    <string name="puzzle_18_hint">Mã câu khống chế Tướng, xe kết liễu ở hàng 9</string>
+    <string name="puzzle_19_name">Bí 3 nước · Mã góc</string>
+    <string name="puzzle_19_hint">Mã góc khóa các lối thoát cho đòn xe bất khả kháng</string>
+    <string name="puzzle_20_name">Bí 3 nước · Song xe kẹp chặt</string>
+    <string name="puzzle_20_hint">Hai xe đan xen siết lưới quanh Tướng đối phương</string>
+    <string name="puzzle_21_name">Bí 2 nước · Ghim câu</string>
+    <string name="puzzle_21_hint">Mã câu niêm cung; xe trượt vào giữa kết liễu</string>
+    <string name="puzzle_22_name">Bí 2 nước · Thiên địa</string>
+    <string name="puzzle_22_hint">Một pháo trấn giữa, một pháo lùi sâu kết thúc</string>
+    <string name="puzzle_23_name">Bí 3 nước · Khóa Xe Mã</string>
+    <string name="puzzle_23_hint">Xe và mã khóa vào nhau tung chiếu chí mạng liên hoàn</string>
+    <string name="puzzle_24_name">Bí 3 nước · Lưới song xa</string>
+    <string name="puzzle_24_hint">Hai xe tiến dọc hai cột kề nhau bẫy Tướng</string>
+
+    <string name="puzzle_25_name">Bí 3 nước · Phá thuật sĩ</string>
+    <string name="puzzle_25_hint">Hai xe xuyên qua sĩ phá vỡ phòng tuyến</string>
+    <string name="puzzle_26_name">Bí 3 nước · Vòng song xe</string>
+    <string name="puzzle_26_hint">Hai xe so le lần lượt xuống đá nhờ sự hiện diện của Tướng</string>
+    <string name="puzzle_27_name">Bí 3 nước · Xe đánh lừa</string>
+    <string name="puzzle_28_hint">Hy sinh xe đầu để lùa Tướng ra khỏi thành</string>
+    <string name="puzzle_28_name">Bí 3 nước · Mã góc nhảy</string>
+    <string name="puzzle_27_hint">Hy sinh quân để phá cổng cung đối phương</string>
+    <string name="puzzle_29_name">Bí 3 nước · Song xa vây cung</string>
+    <string name="puzzle_29_hint">Hai xe vượt vào lòng cung</string>
+    <string name="puzzle_30_name">Bí 3 nước · Tập kích cánh</string>
+    <string name="puzzle_30_hint">Xe đáp hàng cuối khi mã vòng vào</string>
+    <string name="puzzle_31_name">Bí 3 nước · Tướng đối Tướng</string>
+    <string name="puzzle_31_hint">Hai Tướng đối mặt trên cột thoáng; xe niêm chiến thắng</string>
+    <string name="puzzle_32_name">Bí 3 nước · Mã phi nước đại</string>
+    <string name="puzzle_32_hint">Mã nhảy vào thế khuỷu để kết liễu</string>
+
+    <string name="puzzle_33_name">Bí 4 nước · Xuyên phá mã câu</string>
+    <string name="puzzle_33_hint">Mã câu khống Tướng khi xe lột sạch sĩ</string>
+    <string name="puzzle_34_name">Bí 4 nước · Binh trước cổng</string>
+    <string name="puzzle_34_hint">Binh Đỏ gan dạ tiến lên dỡ nơi trú ẩn của Tướng</string>
+    <string name="puzzle_35_name">Bí 4 nước · Mã góc và Xe</string>
+    <string name="puzzle_35_hint">Mã góc ghim sĩ; xe kết liễu từ xa</string>
+    <string name="puzzle_36_name">Bí 4 nước · Song xa và Tuấn mã</string>
+    <string name="puzzle_36_hint">Hai xe cánh và một mã phóng đổ ập vào cung</string>
+    <string name="puzzle_37_name">Bí 4 nước · Binh vào cung</string>
+    <string name="puzzle_37_hint">Binh xuyên vào cung giữa được xe yểm trợ</string>
+    <string name="puzzle_38_name">Bí 4 nước · Mã và Xe cánh</string>
+    <string name="puzzle_38_hint">Mã đánh từ cánh khi xe niêm hàng cuối</string>
+    <string name="puzzle_39_name">Bí 5 nước · Binh cuốn chiếu</string>
+    <string name="puzzle_39_hint">Binh bền bỉ tiến đều, ghim chặt Tướng</string>
+    <string name="puzzle_40_name">Bí 3 nước · Pháo và Song xa</string>
+    <string name="puzzle_40_hint">Song xa và pháo lập thành trận địa bất khuất</string>
+
+    <string name="puzzle_41_name">Bí 6 nước · Binh đột phá</string>
+    <string name="puzzle_41_hint">Binh cánh tiến sâu; xe và pháo theo sau</string>
+    <string name="puzzle_42_name">Bí 7 nước · Xuyên sườn</string>
+    <string name="puzzle_42_hint">Hy sinh mã hút tuyến thủ, mở đường cho xe</string>
+    <string name="puzzle_43_name">Bí 6 nước · Mã trung tâm</string>
+    <string name="puzzle_43_hint">Mã khống chế toàn bộ trung tâm, phối hợp kết liễu</string>
+    <string name="puzzle_44_name">Bí 6 nước · Tàn cuộc đơn xa</string>
+    <string name="puzzle_44_hint">Bậc thầy đơn xa gỡ từng lớp phòng thủ</string>
+    <string name="puzzle_45_name">Bí 2 nước · Song xa chớp nhoáng</string>
+    <string name="puzzle_45_hint">Song xa qua cột thực thi công lý chớp nhoáng</string>
+    <string name="puzzle_46_name">Bí 3 nước · Tuấn mã</string>
+    <string name="puzzle_46_hint">Mã khóa hết lối thoát; xe kết liễu trên hàng</string>
+    <string name="puzzle_47_name">Bí 3 nước · Song xa cánh</string>
+    <string name="puzzle_47_hint">Hai xe phối hợp tấn công từ hai cột kề nhau</string>
+    <string name="puzzle_48_name">Bí 2 nước · Song pháo bay</string>
+    <string name="puzzle_48_hint">Song pháo nhảy qua ngòi kết liễu ngoạn mục</string>
+
+    <string name="puzzle_chapter_1">Tập I: Những bước đầu</string>
+    <string name="puzzle_chapter_sub_1">Bí 1 nước · Lưới chiếu cơ bản</string>
+    <string name="puzzle_chapter_2">Tập II: Tia lửa đòn thế</string>
+    <string name="puzzle_chapter_sub_2">Bí 2 nước · Đòn tấn công phối hợp</string>
+    <string name="puzzle_chapter_3">Tập III: Chiến lược cao thủ</string>
+    <string name="puzzle_chapter_sub_3">Bí 2-3 nước · Đòn kinh điển tổng hợp</string>
+    <string name="puzzle_chapter_4">Tập IV: Tổng công kích</string>
+    <string name="puzzle_chapter_sub_4">Bí 3 nước · Hy sinh và đòn quyết định</string>
+    <string name="puzzle_chapter_5">Tập V: Chinh phục sử thi</string>
+    <string name="puzzle_chapter_sub_5">Bí 3-4 nước · Tàn cuộc tầm cao thủ</string>
+    <string name="puzzle_chapter_6">Tập VI: Thử thách đại sư</string>
+    <string name="puzzle_chapter_sub_6">Bí 4-7 nước · Tuyệt tác cờ tướng kinh điển</string>
+    <string name="campaign_entry">Leo núi</string>
+    <string name="campaign_entry_desc">Tám chặng. Thắng một chặng mới mở chặng sau.</string>
+    <string name="puzzle_entry">Tàn cuộc</string>
+    <string name="puzzle_entry_desc">Chiếu bí kinh điển, mỗi thế ba lần đi lại</string>
+    <string name="campaign_title">Ngọn núi</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+    <string name="campaign_goal">Đỉnh</string>
+    <string name="campaign_level_format">Chặng %1$d</string>
+    <string name="campaign_level_difficulty_format">Sức mạnh đối thủ cấp %1$d</string>
+    <string name="campaign_locked">Thắng chặng trước để mở chặng này</string>
+    <string name="campaign_passed">Đã qua</string>
+    <string name="campaign_win_title">Qua chặng</string>
+    <string name="campaign_next_level">Chặng tiếp theo</string>
+    <string name="campaign_retry">Thử lại chặng này</string>
+    <string name="campaign_back_list">Về ngọn núi</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">Chặng %1$d · %2$s</string>
+    <string name="stage_1_name">Bước đầu</string>
+    <string name="stage_1_brief">Đối thủ này hay bỏ sót quân. Làm quen luật đã.</string>
+    <string name="stage_2_name">Cổng</string>
+    <string name="stage_2_brief">Tính trước một nước, và vẫn hay bỏ sót.</string>
+    <string name="stage_3_name">Dòng sông</string>
+    <string name="stage_3_brief">Từ đây bộ máy tiếp quản, với hơn một giây chút xíu.</string>
+    <string name="stage_4_name">Ái ải</string>
+    <string name="stage_4_brief">Nhiều thời gian hơn. Sơ suất nhỏ cũng bị thấy.</string>
+    <string name="stage_5_name">Các tuyến</string>
+    <string name="stage_5_brief">Tìm kiếm sâu hơn. Quân lỏng sẽ bị ăn.</string>
+    <string name="stage_6_name">Nhìn xa hơn</string>
+    <string name="stage_6_brief">Thêm một đoạn thời gian nghĩ.</string>
+    <string name="stage_7_name">Tìm kiếm sâu</string>
+    <string name="stage_7_brief">Gần đỉnh rồi, thiếu đúng một bước thời gian.</string>
+    <string name="stage_8_name">Đỉnh núi</string>
+    <string name="stage_8_brief">Cuộc tìm kiếm dài nhất trên núi.</string>
+    <string name="catalog_mate_title">Bí một nước</string>
+    <string name="catalog_mate_hint">Đỏ đi trước. Bí trong một nước.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">Đã giải %1$d / %2$d</string>
+    <string name="catalog_filter_all">Tất cả</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">Đã giải</string>
+    <string name="catalog_open">Mở</string>
+    <string name="history_intro">Năm chương chiến dịch có thật. Mỗi trận kết thúc bằng một nước chiếu bí. Thế cờ là bài tập, không phải dựng lại trận đánh lịch sử.</string>
+    <string name="history_ch_1">Xuân Thu</string>
+    <string name="history_ch_2">Chiến Quốc</string>
+    <string name="history_ch_3">Sở - Hán</string>
+    <string name="history_ch_4">Tam Quốc</string>
+    <string name="history_ch_5">Trị sau này</string>
+    <string name="battle_1_name">Trường Thược</string>
+    <string name="battle_1_brief">Lỗ, 684 TCN. Tào Quỹ để nước Tề đánh trống ba hồi rồi mới xuất kích. Bí 1 nước: chốt sắt.</string>
+    <string name="battle_2_name">Thành Bộc</string>
+    <string name="battle_2_brief">632 TCN. Tấn lùa trung quân Sở ra trước, khép hai cánh. Bí 1 nước: song xa.</string>
+    <string name="battle_3_name">Bách Cử</string>
+    <string name="battle_3_brief">506 TCN. Ngô đánh sâu vào Sở, chiếm Dinh. Bí 1 nước: mã hậu pháo.</string>
+    <string name="battle_4_name">Lật Trạch</string>
+    <string name="battle_4_brief">478 TCN. Việt vượt sông thành hai đạo phá Ngô. Bí 1 nước: mã bao vây.</string>
+    <string name="battle_5_name">Quế Lăng</string>
+    <string name="battle_5_brief">354 TCN. Tề tiến vào kinh thành Ngụy để giải vây cho Triệu. Bí 1 nước: song pháo.</string>
+    <string name="battle_6_name">Mã Lăng</string>
+    <string name="battle_6_brief">342 TCN. Tôn Tẫn giảm bếp chờ ở ải. Bí 1 nước: mã câu.</string>
+    <string name="battle_7_name">Trường Bình</string>
+    <string name="battle_7_brief">260 TCN. Tần cắt viện quân Triệu và khép vòng vây. Bí 1 nước: song xa.</string>
+    <string name="battle_8_name">Tức Mặc</string>
+    <string name="battle_8_brief">279 TCN. Điền Đan mở thành, đêm trộm đánh vào trại Yên. Bí 1 nước: mã bao vây.</string>
+    <string name="battle_9_name">Tỉnh Hình</string>
+    <string name="battle_9_brief">204 TCN. Hàn Tín bày quân lưng tựa sông rồi xoay lại. Bí 1 nước: tướng đối mặt.</string>
+    <string name="battle_10_name">Trần Thương</string>
+    <string name="battle_10_brief">206 TCN. Đường ván chỉ là mồi nhử. Quân xuất chinh từ Trần Thương. Bí 1 nước: song pháo.</string>
+    <string name="battle_11_name">Vi Thủy</string>
+    <string name="battle_11_brief">204 TCN. Hàn Tín đắp đập sông, dụ địch qua rồi thả nước. Bí 1 nước: mã hậu pháo.</string>
+    <string name="battle_12_name">Cái Hạ</string>
+    <string name="battle_12_brief">202 TCN. Quân Hán vây Hạng Vũ từ mọi phía. Bí 1 nước: song xa.</string>
+    <string name="battle_13_name">Quan Độ</string>
+    <string name="battle_13_brief">200 SCN. Tào Tháo đốt lương của Viên Thiệu ở Ô Sào. Bí 1 nước: chốt sắt.</string>
+    <string name="battle_14_name">Xích Bích</string>
+    <string name="battle_14_brief">208 SCN. Lửa cháy dọc đoàn thuyền xích lại trên Trường Giang. Bí 1 nước: song pháo.</string>
+    <string name="battle_15_name">Hán Trung</string>
+    <string name="battle_15_brief">219 SCN. Hoàng Trung chiếm núi Định Quân, Hạ Hầu Uyên sa ngã. Bí 1 nước: mã câu.</string>
+    <string name="battle_16_name">Di Lăng</string>
+    <string name="battle_16_brief">222 SCN. Lục Tốn nhẫn nại rồi đốt trại Thục. Bí 1 nước: mã bao vây.</string>
+    <string name="battle_17_name">Phì Thủy</string>
+    <string name="battle_17_brief">383. Đại quân Phù Kiên vừa rút đã tan không thể ngăn. Bí 1 nước: tướng đối mặt.</string>
+    <string name="battle_18_name">Hổ Lao</string>
+    <string name="battle_18_brief">621. Lý Thế Dân đánh tan Đậu Kiến Đức trước cửa ải. Bí 1 nước: mã góc.</string>
+    <string name="battle_19_name">Dĩnh Xương</string>
+    <string name="battle_19_brief">1140. Kỵ binh Nhạc Phi phá thiết mã của Kim ở Dĩnh Xương. Bí 1 nước: mã hậu pháo.</string>
+    <string name="battle_20_name">Hồ Bà Dương</string>
+    <string name="battle_20_brief">1363. Thuyền lửa của Chu Nguyên Chương đốt tan lâu thuyền Trần Hữu Lượng. Bí 1 nước: thiên địa pháo.</string>
+    <string name="tactic_label_mahoupao">Mã hậu pháo</string>
+    <string name="tactic_label_bolt">Chốt sắt</string>
+    <string name="tactic_label_double_cannon">Song pháo</string>
+    <string name="tactic_label_double_rook">Song xa</string>
+    <string name="tactic_label_pocket">Mã bao vây</string>
+    <string name="tactic_label_corner">Mã góc</string>
+    <string name="tactic_label_fishing">Mã câu</string>
+    <string name="tactic_label_face">Tướng đối mặt</string>
+    <string name="tactic_label_heaven">Thiên địa pháo</string>
+    <string name="tactic_label_heart">Xa nhập cung</string>
+    <string name="tactic_label_smothered">Bế cung</string>
+    <string name="tactic_label_spring">Chiếu nhảy bục</string>
+    <string name="tactic_label_mate">Chiếu bí</string>
+    <string name="puzzle_title">Tàn cuộc</string>
+    <string name="puzzle_list_title">Tàn cuộc</string>
+    <string name="puzzle_solved">Đã giải</string>
+    <string name="puzzle_unsolved">Chưa giải</string>
+    <string name="puzzle_attempts_format">Đã thử %1$d lần</string>
+    <string name="puzzle_red_to_move">Đỏ đi trước, bí trong %1$d nước</string>
+    <string name="puzzle_undo_left_format">Còn lại: %1$d lần đi lại</string>
+    <string name="puzzle_moves_left_format">Còn lại: %1$d nước</string>
+    <string name="puzzle_retry">Bắt đầu lại</string>
+    <string name="puzzle_undo">Đi lại nước</string>
+    <string name="puzzle_undo_exhausted">Hết lượt đi lại</string>
+    <string name="puzzle_deviated">Nước này lệch khỏi thế bí. Đi lại hoặc bắt đầu lại.</string>
+    <string name="puzzle_solved_title">Đã giải!</string>
+    <string name="puzzle_fail_title">Chưa ra</string>
+    <string name="puzzle_fail_moves">Hết nước rồi. Đen đứng vững.</string>
+    <string name="puzzle_next_puzzle">Tiếp</string>
+    <string name="puzzle_retry_confirm">Đã thử %1$d lần. Có ba lần đi lại; hết nước là thế này bị coi là trượt. Bắt đầu lại?</string>
+
+    <string name="campaign_unlocked">Chơi được</string>
+    <string name="campaign_fail_title">Không qua chặng</string>
+    <string name="campaign_body_unlocked">Đã qua chặng — chặng sau đã mở!</string>
+    <string name="campaign_stars_line">%1$d sao · %2$s · %3$s</string>
+    <string name="campaign_stars_record">Kỷ lục chặng này: %1$d</string>
+    <string name="campaign_stars_cd">%1$d / 3 sao</string>
+    <string name="campaign_star_hint_kept">không gợi ý</string>
+    <string name="campaign_star_hint_used">có dùng gợi ý</string>
+    <string name="campaign_star_undo_kept">không đi lại</string>
+    <string name="campaign_star_undo_used">có đi lại</string>
+    <string name="campaign_body_all_clear">Đã vượt cả tám chặng.</string>
+    <string name="campaign_body_retry">Chưa được lần này — thử lại nhé!</string>
+    <string name="puzzle_stage_name">Chặng %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · nước %2$d/%3$d · còn %4$d lần đi lại · lần thử #%5$d</string>
+    <string name="puzzle_solved_body">Đã giải — hay lắm!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">Xem bàn cờ</string>
+    <string name="result_win_checkmate">Chiến thắng chiếu bí</string>
+    <string name="result_win_big">Thắng lớn</string>
+    <string name="result_win_tactic_fmt">Bí bằng %1$s</string>
+    <string name="result_lose_tactic_fmt">Thua vì %1$s</string>
+    <string name="result_lose_banner">Thất bại</string>
+    <string name="result_draw_banner">Hòa</string>
+    <string name="result_reason_win_tactic_fmt">Chiếu bí bằng đòn %1$s đẹp mắt</string>
+    <string name="result_reason_lose_tactic_fmt">Đối thủ bí bạn bằng %1$s</string>
+    <string name="result_reason_win_default">Chiến thắng đã chắc chắn</string>
+    <string name="result_reason_lose_default">Suýt nữa thôi — thua sát nút</string>
+    <string name="result_reason_draw_default">Ván đấu kết thúc hòa</string>
+    <string name="result_practice_detail">Xong ván luyện — điểm không đổi. Ván đã được lưu.</string>
+    <string name="campaign_reason_clear">Đã qua chặng</string>
+    <string name="campaign_reason_fail">Thử thách chưa thành</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">AI đang phân tích ván đấu</string>
+    <string name="analysis_scanning_recognize">Đang nhận dạng bàn cờ…</string>
+    <string name="analysis_scanning_advice">AI đang chuẩn bị lời khuyên…</string>
+    <string name="recognize_loading_model">Đang tải mô hình nhận dạng…</string>
+    <string name="live_starting">Đang khởi động mô hình và camera…</string>
+    <string name="action_retry">Thử lại</string>
+
+    <string name="puzzle_solved_tactic_title">Bí · %1$s</string>
+    <string name="puzzle_solved_tactic_body">Giải được bằng %1$s.</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">Trung pháo đối bình phong mã</string>
+    <string name="opening_same_cannon">Thuận pháo</string>
+    <string name="opening_opposite_cannon">Nghịch pháo</string>
+    <string name="opening_central_vs_reversed">Trung pháo đối phản cung mã</string>
+    <string name="opening_central_vs_single">Trung pháo đối đơn đề mã</string>
+    <string name="opening_central_vs_tiger">Trung pháo đối tam bộ hổ</string>
+    <string name="opening_pawn_vs_cannon">Tiên nhân chỉ lộ đối pháo sau binh</string>
+    <string name="opening_mutual_pawn">Song phương chỉ binh</string>
+    <string name="opening_pawn_vs_central">Tiên nhân chỉ lộ đối trung pháo</string>
+    <string name="opening_pawn_vs_horse">Tiên nhân chỉ lộ đối mã</string>
+    <string name="opening_pawn_vs_elephant">Tiên nhân chỉ lộ đối tượng</string>
+    <string name="opening_elephant_vs_left">Phi tượng đối trung pháo trái</string>
+    <string name="opening_elephant_vs_right">Phi tượng đối trung pháo phải</string>
+    <string name="opening_elephant_vs_horse">Phi tượng đối mã</string>
+    <string name="opening_elephant_vs_pawn">Phi tượng đối binh</string>
+    <string name="opening_elephant_vs_corner">Phi tượng đối sĩ giác pháo</string>
+    <string name="opening_elephant_vs_crossing">Phi tượng đối quá cung pháo</string>
+    <string name="opening_horse_vs_pawn">Mã đối binh</string>
+    <string name="opening_horse_vs_central">Mã đối trung pháo</string>
+    <string name="opening_horse_vs_horse">Mã đối mã</string>
+    <string name="opening_central_cannon">Trung pháo</string>
+    <string name="opening_pawn">Tiên nhân chỉ lộ</string>
+    <string name="opening_elephant">Phi tượng</string>
+    <string name="opening_horse">Khởi mã</string>
+    <string name="opening_crossing_cannon">Quá cung pháo</string>
+    <string name="opening_corner_cannon">Sĩ giác pháo</string>
+    <string name="opening_hook_cannon">Kim câu pháo</string>
+    <string name="opening_iron_roller">Thiết hoạt xa</string>
+    <string name="opening_edge_horse">Biên mã</string>
+    <string name="opening_edge_pawn">Biên binh</string>
+    <string name="tactic_rhyme_mahoupao">Pháo sau lưng mã, Tướng chẳng thoát thân</string>
+    <string name="tactic_desc_mahoupao">Mã làm ngòi cho pháo. Pháo chiếu xuyên qua, và cả hai đóng mọi lối thoát.</string>
+    <string name="tactic_rhyme_bolt">Pháo giữa cột, xe chốt ngang cung</string>
+    <string name="tactic_desc_bolt">Trung pháo giữ cổng cung. Xe trượt xuống hàng cuối chốt cánh cửa.</string>
+    <string name="tactic_rhyme_double_cannon">Pháo trước làm ngòi, pháo sau đâm xuyên</string>
+    <string name="tactic_desc_double_cannon">Hai pháo một hàng. Pháo trước làm ngòi, pháo sau chiếu vào cung.</string>
+    <string name="tactic_rhyme_double_rook">Hai xe hai cột, thay nhau vây cung</string>
+    <string name="tactic_desc_double_rook">Hai xe đáp hai cột kề nhau, gọt Tướng từng hàng một.</string>
+    <string name="tactic_rhyme_pocket">Mã vào lòng cung, xe trên hàng cuối</string>
+    <string name="tactic_desc_pocket">Mã ngồi trong hốc cạnh cung địch, xe đáp xuống hàng cuối.</string>
+    <string name="tactic_rhyme_corner">Mã trên góc sĩ, xe quyết định ván cờ</string>
+    <string name="tactic_desc_corner">Mã chiếu từ góc sĩ, ghim cả sĩ lẫn Tướng.</string>
+    <string name="tactic_rhyme_face">Hai Tướng nhìn nhau trên cột thoáng</string>
+    <string name="tactic_desc_face">Tướng không được đối mặt nhau. Tướng bạn giữ cột, và luật ấy hoàn tất thế bí.</string>
+    <string name="tactic_rhyme_heaven">Một pháo chốt hàng cuối, một pháo giữ cột giữa</string>
+    <string name="tactic_desc_heaven">Một pháo niêm hàng cuối. Pháo kia trấn cột giữa. Cả hai đánh cùng lúc.</string>
+    <string name="tactic_rhyme_fishing">Mã câu trên cổng, một xe khép lại</string>
+    <string name="tactic_desc_fishing">Mã đứng trên ô câu chặn lối ra cung. Xe đáp vào kết liễu.</string>
+    <string name="tactic_rhyme_heart">Hy sinh xe lấy sĩ giữa</string>
+    <string name="tactic_desc_heart">Đổi xe để ăn sĩ giữa, lùa Tướng khỏi ô, rồi kết liễu.</string>
+    <string name="tactic_rhyme_smothered">Hai sĩ chặn đường chính mình</string>
+    <string name="tactic_desc_smothered">Cả hai sĩ chật ních cung. Một pháo hàng cuối, hoặc một xe một binh, kết liễu ngay trong sự chật chội đó.</string>
+    <string name="tactic_academy_sub">Học biến, nghe câu hát, rồi tự giải</string>
+    <string name="tactic_voice">Nghe</string>
+    <string name="tactic_challenge">Giải</string>
+    <string name="tactic_mastered">Đã thuộc</string>
+    <string name="tactic_learning">Đang học</string>
+    <string name="puzzle_rush_result_title">Giải đố nhanh</string>
+    <string name="puzzle_rush_score_unit">câu</string>
+    <string name="replay_start_position">Thế khai cuộc</string>
+    <string name="replay_move_line">Nước %1$d · %2$s</string>
+    <string name="replay_red_winrate">Tỷ lệ thắng Đỏ %1$d%%</string>
+    <string name="replay_try_variation">Thử</string>
+    <string name="replay_variation_undo">Hoàn tác</string>
+    <string name="replay_variation_exit">Về ván chính</string>
+    <string name="replay_variation_status">Biến +%1$d · Đỏ %2$d%%</string>
+    <string name="replay_variation_status_move">Biến +%1$d · %2$s · Đỏ %3$d%%</string>
+    <string name="replay_variation_step">Nước %1$d</string>
+    <string name="replay_red_better">Đỏ</string>
+    <string name="replay_black_better">Đen</string>
+    <string name="move_quality_brilliant">Xuất sắc</string>
+    <string name="move_quality_best">Tối ưu</string>
+    <string name="move_quality_inaccuracy">Thiếu chính xác</string>
+    <string name="move_quality_mistake">Sai sót</string>
+    <string name="move_quality_blunder">Sơ suất lớn</string>
+    <string name="move_quality_book">Theo sách</string>
+    <string name="analysis_scan_status">Độ sâu %1$d · Đỏ thắng %2$d%%</string>
+</resources>

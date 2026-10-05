@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">I lati sono fissi nella scalata alla montagna.</string>
+    <string name="game_swap_rated_title">Cambiare lato?</string>
+    <string name="game_swap_rated_message">Prenderesti la posizione che l\'IA ha giocato finora. Questa partita diventa allenamento e non cambierà il tuo Elo.</string>
+    <string name="game_swap_rated_confirm">Cambia e allenati</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Suggerimento · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Hai continuato a giocare dopo il risultato, quindi questa parte non è classificata. Vale il primo risultato.</string>
+    <string name="result_resume">Continua a giocare</string>
+    <string name="result_review">Rivedi la partita</string>
+    <string name="result_review_unavailable">Questa partita non è stata salvata, quindi non c\'è nulla da rivedere.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Tre minuti. Quanti matte?</string>
+    <string name="puzzle_rush_intro_rules">• Il Rosso muove per primo in ogni posizione. Trova il matto.\n• Una mossa sbagliata o un salto costa una vita. Perdi tutte e tre e la corsa finisce.\n• Le posizioni diventano più difficili salendo con il punteggio.</string>
+    <string name="puzzle_rush_intro_best">Il tuo migliore: %1$d</string>
+    <string name="puzzle_rush_intro_first">Ancora nessun record. Fissa il primo.</string>
+    <string name="puzzle_rush_prompt_short">Muove il Rosso · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Avanzato · Motore IA</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d schemi di matto classici</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Piazzamento</string>
+    <string name="rank_placement_chip">Piazzamento %1$d/%2$d</string>
+    <string name="rank_placement_progress">Piazzamento %1$d/%2$d · %3$d al tuo primo sigillo</string>
+    <string name="result_placement_progress">Partita di piazzamento %1$d di %2$d registrata. %3$d ancora per rivelare il tuo primo sigillo.</string>
+    <string name="result_placement_done">Piazzamento completato. Il tuo primo sigillo: %1$s</string>
+    <string name="rank_hall_placement">Piazzamento: %1$d di %2$d partite classificate giocate. Il tuo primo sigillo si rivela dopo la partita %2$d.</string>
+</resources>

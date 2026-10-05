@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">เล่น</string>
+    <string name="nav_learn">เรียน</string>
+    <string name="nav_tools">เครื่องมือ</string>
+    <string name="nav_me">ฉัน</string>
+    <string name="difficulty_6">แกรนด์มาสเตอร์</string>
+    <string name="difficulty_6_tag">เทคนิคลึกขึ้น</string>
+    <string name="difficulty_6_desc">เวลามากขึ้นเพื่อไขคอมบิเนชันเทคนิค</string>
+    <string name="difficulty_7">ตำนาน</string>
+    <string name="difficulty_7_tag">เล่นแม่นยำ</string>
+    <string name="difficulty_7_desc">คำนวณอดทนสำหรับนักเล่นฝีมือ</string>
+    <string name="difficulty_8">จุดสูงสุด</string>
+    <string name="difficulty_8_tag">ท้าทายเต็มรูปแบบ</string>
+    <string name="difficulty_8_desc">งบค้นหายาวที่สุด ใช้เวลาให้เต็มที่</string>
+    <string name="confirm_setup">ยืนยันการเลือก</string>
+    <string name="style_choose">สไตล์: %1$s  ▾</string>
+    <string name="puzzle_collection">แผนที่ปลายกระดาน</string>
+    <string name="puzzle_collection_desc">อ่านกระดาน หาหมากที่ชนะ</string>
+    <string name="puzzle_page">เล่ม %1$d / %2$d</string>
+    <string name="page_previous">ก่อนหน้า</string>
+    <string name="page_next">ถัดไป</string>
+    <string name="puzzle_collection_progress">แก้แล้ว %1$d · %2$d กระดาน</string>
+    <string name="puzzle_family_rook">เทคนิครถ</string>
+    <string name="puzzle_family_cannon">เทคนิคปืน</string>
+    <string name="puzzle_family_horse">เทคนิคม้า</string>
+    <string name="puzzle_family_mixed">รุกร่วมกัน</string>
+    <string name="result_close">ปิดผล ดูกระดานต่อ</string>
+    <string name="result_win">ชนะ</string>
+    <string name="result_loss">แพ้</string>
+    <string name="result_draw">เสมอ</string>
+    <string name="result_undo">ย้อนและเล่นต่อ</string>
+    <string name="result_replay_hint">กระดานสุดท้ายยังอยู่บนจอ ปิดแผงนี้เพื่อส่องดู</string>
+    <string name="game_mode_ranked">เกมนับคะแนน</string>
+</resources>

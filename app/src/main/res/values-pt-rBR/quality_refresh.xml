@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">Os lados são fixos na escalada da montanha.</string>
+    <string name="game_swap_rated_title">Trocar de lado?</string>
+    <string name="game_swap_rated_message">Você assumiria a posição que a IA vem jogando. Esta partida vira prática e não muda seu Elo.</string>
+    <string name="game_swap_rated_confirm">Trocar e praticar</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Dica · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Você continuou jogando depois do resultado, então esta parte não vale Elo. Vale o primeiro resultado.</string>
+    <string name="result_resume">Continuar jogando</string>
+    <string name="result_review">Revisar partida</string>
+    <string name="result_review_unavailable">Esta partida não foi salva, então não há nada para revisar.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Três minutos. Quantos mates?</string>
+    <string name="puzzle_rush_intro_rules">• O Vermelho começa em todas as posições. Encontre o mate.\n• Uma jogada errada ou um pulo custa uma vida. Perca as três e o rush termina.\n• As posições ficam mais difíceis conforme sua pontuação sobe.</string>
+    <string name="puzzle_rush_intro_best">Seu melhor: %1$d</string>
+    <string name="puzzle_rush_intro_first">Ainda sem recorde. Estabeleça o primeiro.</string>
+    <string name="puzzle_rush_prompt_short">Vez do Vermelho · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Avançado · Motor de IA</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">%1$d padrões de mate clássicos</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Posicionamento</string>
+    <string name="rank_placement_chip">Posicionamento %1$d/%2$d</string>
+    <string name="rank_placement_progress">Posicionamento %1$d/%2$d · faltam %3$d para o seu primeiro selo</string>
+    <string name="result_placement_progress">Partida de posicionamento %1$d de %2$d registrada. %3$d mais para revelar seu primeiro selo.</string>
+    <string name="result_placement_done">Posicionamento concluído. Seu primeiro selo: %1$s</string>
+    <string name="rank_hall_placement">Posicionamento: %1$d de %2$d partidas ranqueadas jogadas. Seu primeiro selo é revelado após a partida %2$d.</string>
+</resources>

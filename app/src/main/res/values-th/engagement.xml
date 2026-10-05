@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">ฝึกซ้อม · ไม่นับคะแนน</string>
+    <string name="game_search_no_move">ไม่มีหมากส่งกลับมา ลองคำใบ้อีกครั้ง หรือเปลี่ยนระดับคู่ต่อสู้เพื่อเล่นต่อ</string>
+    <string name="puzzle_engine_error">เอนจินปริศนาตอบไม่ได้ ลองรีสตาร์ตปริศนานี้</string>
+    <string name="game_coach_start">ใจเย็น ๆ แตะหมากเพื่อดูทางเดินที่ถูกกติกา คำใบ้จะเสนอหมากที่ควรเดิน</string>
+    <string name="game_coach_practice">ฝึกแบบผ่อนคลาย · คำใบ้และการย้อนฟรี คะแนนคุณไม่เปลี่ยน</string>
+    <string name="game_coach_check">แม่ทัพคุณถูกรุก กินตัวรุก บังทาง หรือย้ายแม่ทัพ</string>
+    <string name="game_coach_thinking">ดูหมากของคู่ต่อสู้ แล้วเช็กว่าหมากไหนของคุณโดนคุกคาม</string>
+    <string name="game_coach_opening">ลองพัฒนาม้าและรถ ปกป้องหมากก่อนแล้วค่อยรุก</string>
+    <string name="game_coach_selected">%1$s · ช่องที่ไฮไลต์คือทางเดินที่ถูกกติกา</string>
+    <string name="game_coach_blocked">หมากนี้เดินไม่ได้ ลองหมากอื่น หรือใช้คำใบ้</string>
+    <string name="game_rule_rook">รถเดินตรงตามแถวหรือไฟล์ที่ว่าง</string>
+    <string name="game_rule_cannon">ปืนกระโดดข้ามหมากเดียวพอดีเมื่อกิน</string>
+    <string name="game_rule_horse">ม้าเดินรูป L ขาที่ถูกบังทำให้เดินไม่ได้</string>
+    <string name="game_rule_elephant">ช้างเดินทแยงสองช่องและอยู่ฝั่งตัวเองเท่านั้น</string>
+    <string name="game_rule_advisor">ที่ปรึกษาเดินทแยงหนึ่งช่องในป้อม</string>
+    <string name="game_rule_king">แม่ทัพเดินตรงหนึ่งช่องในป้อม</string>
+    <string name="game_rule_pawn">เบี้ยเดินหน้า ข้ามแม่น้ำแล้วเดินข้างได้ด้วย</string>
+    <string name="game_undo_no_penalty">เอาเที่ยวล่าสุดคืน? การย้อนไม่หักคะแนน</string>
+    <string name="game_practice_undone">ย้อนแล้ว ลองแนวคิดใหม่</string>
+    <string name="game_play_again">เล่นอีกครั้ง</string>
+    <string name="game_try_easier">ลองง่ายกว่านี้</string>
+    <string name="game_try_challenge">ปริศนาประจำวัน</string>
+    <string name="game_practice_result">%1$s\n\nจบการฝึกแล้ว คะแนนไม่เปลี่ยน เกมถูกบันทึกไว้ให้ทบทวน</string>
+    <string name="game_practice_record_reason">ฝึกซ้อม · %1$s</string>
+    <string name="daily_puzzle_title">ปริศนาประจำวัน</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">จบปริศนาวันนี้แล้ว!\nฝึก %1$d วัน · ต่อเนื่อง %2$d วัน\n\nนับจบได้วันละครั้ง พรุ่งนี้มีปริศนาใหม่</string>
+    <string name="daily_puzzle_expired">แก้แล้ว เริ่มวันใหม่แล้ว ปริศนาวันนี้รออยู่ที่หน้าแรก</string>
+    <string name="daily_puzzle_more">ปริศนาเพิ่มเติม</string>
+    <string name="puzzle_clue">ใบ้</string>
+    <string name="puzzle_undo_unavailable">กระดานนี้ย้อนกลับไม่ได้</string>
+</resources>

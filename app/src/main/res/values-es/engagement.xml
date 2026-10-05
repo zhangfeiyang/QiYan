@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Práctica · sin Elo</string>
+    <string name="game_search_no_move">No se devolvió ningún movimiento. Prueba la pista de nuevo o cambia el nivel del rival para continuar.</string>
+    <string name="puzzle_engine_error">El motor de puzzles no pudo responder. Intenta reiniciar este puzzle.</string>
+    <string name="game_coach_start">Sin prisa. Toca una pieza para ver sus movimientos legales; la pista te muestra un movimiento sugerido.</string>
+    <string name="game_coach_practice">Práctica relajada · las pistas y deshacer son gratis. Tu Elo no cambia.</string>
+    <string name="game_coach_check">Tu general está en jaque. Captura al atacante, bloquea el ataque o mueve a tu general.</string>
+    <string name="game_coach_thinking">Observa el movimiento del rival y comprueba si alguna de tus piezas está atacada.</string>
+    <string name="game_coach_opening">Prueba a desarrollar tus caballos y carros. Protege tus piezas antes de atacar.</string>
+    <string name="game_coach_selected">%1$s · Las casillas resaltadas son movimientos legales.</string>
+    <string name="game_coach_blocked">Esta pieza no tiene movimientos legales. Prueba con otra pieza o usa una pista.</string>
+    <string name="game_rule_rook">Los carros se mueven en línea recta por filas y columnas despejadas</string>
+    <string name="game_rule_cannon">Los cañones saltan exactamente una pieza al capturar</string>
+    <string name="game_rule_horse">Los caballos mueven en L; una pata bloqueada impide el movimiento</string>
+    <string name="game_rule_elephant">Los elefantes avanzan dos en diagonal y no cruzan de su lado</string>
+    <string name="game_rule_advisor">Los consejeros mueven un paso en diagonal dentro del palacio</string>
+    <string name="game_rule_king">Los generales mueven un paso en línea recta dentro del palacio</string>
+    <string name="game_rule_pawn">Los soldados avanzan; tras cruzar el río también pueden moverse de lado</string>
+    <string name="game_undo_no_penalty">¿Deshacer tu último turno? Deshacer no resta puntos de Elo.</string>
+    <string name="game_practice_undone">Turno deshecho. Prueba otra idea.</string>
+    <string name="game_play_again">Jugar otra vez</string>
+    <string name="game_try_easier">Probar más fácil</string>
+    <string name="game_try_challenge">Puzzle diario</string>
+    <string name="game_practice_result">%1$s\n\nPráctica completada. Tu Elo no cambia; la partida se guarda para revisarla.</string>
+    <string name="game_practice_record_reason">Práctica · %1$s</string>
+    <string name="daily_puzzle_title">Puzzle diario</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">¡Puzzle de hoy completado!\n%1$d días de práctica · racha de %2$d días\n\nUna finalización al día. Mañana llega un puzzle nuevo.</string>
+    <string name="daily_puzzle_expired">Puzzle resuelto. Empezó un día nuevo; el puzzle de hoy te espera en la pantalla de inicio.</string>
+    <string name="daily_puzzle_more">Más puzzles</string>
+    <string name="puzzle_clue">Pista</string>
+    <string name="puzzle_undo_unavailable">No se puede deshacer en esta posición.</string>
+</resources>

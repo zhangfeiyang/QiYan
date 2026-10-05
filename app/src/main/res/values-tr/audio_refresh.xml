@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Ana ekranda ve oyun sırasında çalan; yumuşak mızraplı teller ve ferah akorlar taşıyan özgün bir enstrümantal parça. Yavaşça girer ve uygulama arka plana geçince duraklar.</string>
+    <string name="audio_music_volume">Müzik seviyesi</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Müziği dinle · 12 saniye</string>
+    <string name="audio_preview_stop">Dinlemeyi durdur</string>
+    <string name="audio_motion_description">Akıcı hamleler, taşın inişinde hafif bir dalgalanma ve kısa bir şah nabzı. Bunu kapatmak alma hareketini de durdurur. Sistem animasyon ayarına saygı duyar.</string>
+</resources>

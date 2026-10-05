@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Main</string>
+    <string name="nav_learn">Belajar</string>
+    <string name="nav_tools">Alat</string>
+    <string name="nav_me">Saya</string>
+    <string name="difficulty_6">Grandmaster</string>
+    <string name="difficulty_6_tag">Taktik lebih dalam</string>
+    <string name="difficulty_6_desc">Lebih banyak waktu mengungkap kombinasi taktik.</string>
+    <string name="difficulty_7">Legenda</string>
+    <string name="difficulty_7_tag">Permainan presisi</string>
+    <string name="difficulty_7_desc">Kalkulasi sabar untuk pemain berpengalaman.</string>
+    <string name="difficulty_8">Puncak</string>
+    <string name="difficulty_8_tag">Tantangan penuh</string>
+    <string name="difficulty_8_desc">Anggaran pencarian terlama. Manfaatkan waktumu.</string>
+    <string name="confirm_setup">Konfirmasi pilihan</string>
+    <string name="style_choose">Gaya: %1$s  ▾</string>
+    <string name="puzzle_collection">Atlas akhir permainan</string>
+    <string name="puzzle_collection_desc">Baca posisinya. Temukan langkah kemenangan.</string>
+    <string name="puzzle_page">Jilid %1$d / %2$d</string>
+    <string name="page_previous">Sebelumnya</string>
+    <string name="page_next">Berikutnya</string>
+    <string name="puzzle_collection_progress">%1$d selesai · %2$d posisi</string>
+    <string name="puzzle_family_rook">Taktik kereta</string>
+    <string name="puzzle_family_cannon">Taktik meriam</string>
+    <string name="puzzle_family_horse">Taktik kuda</string>
+    <string name="puzzle_family_mixed">Serangan gabungan</string>
+    <string name="result_close">Tutup hasil, lihat papan</string>
+    <string name="result_win">MENANG</string>
+    <string name="result_loss">KALAH</string>
+    <string name="result_draw">SERI</string>
+    <string name="result_undo">Batalkan dan lanjutkan</string>
+    <string name="result_replay_hint">Posisi akhir tetap di papan. Tutup panel ini untuk memeriksanya.</string>
+    <string name="game_mode_ranked">Pertandingan Berperingkat</string>
+</resources>

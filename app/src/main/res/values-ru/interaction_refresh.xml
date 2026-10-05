@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Играть</string>
+    <string name="nav_learn">Обучение</string>
+    <string name="nav_tools">Инструменты</string>
+    <string name="nav_me">Профиль</string>
+    <string name="difficulty_6">Гроссмейстер</string>
+    <string name="difficulty_6_tag">Тактика глубже</string>
+    <string name="difficulty_6_desc">Больше времени на поиск тактических комбинаций.</string>
+    <string name="difficulty_7">Легенда</string>
+    <string name="difficulty_7_tag">Точная игра</string>
+    <string name="difficulty_7_desc">Терпеливый расчёт для опытных игроков.</string>
+    <string name="difficulty_8">Вершина</string>
+    <string name="difficulty_8_tag">Полное испытание</string>
+    <string name="difficulty_8_desc">Самый большой лимит на поиск. Не торопитесь.</string>
+    <string name="confirm_setup">Подтвердить выбор</string>
+    <string name="style_choose">Стиль: %1$s  ▾</string>
+    <string name="puzzle_collection">Атлас эндшпиля</string>
+    <string name="puzzle_collection_desc">Прочитайте позицию. Найдите победный ход.</string>
+    <string name="puzzle_page">Том %1$d / %2$d</string>
+    <string name="page_previous">Назад</string>
+    <string name="page_next">Далее</string>
+    <string name="puzzle_collection_progress">Решено: %1$d · позиций: %2$d</string>
+    <string name="puzzle_family_rook">Тактика ладьи</string>
+    <string name="puzzle_family_cannon">Тактика пушки</string>
+    <string name="puzzle_family_horse">Тактика коня</string>
+    <string name="puzzle_family_mixed">Комбинированная атака</string>
+    <string name="result_close">Закрыть итог, смотреть доску</string>
+    <string name="result_win">ПОБЕДА</string>
+    <string name="result_loss">ПОРАЖЕНИЕ</string>
+    <string name="result_draw">НИЧЬЯ</string>
+    <string name="result_undo">Отменить ход и продолжить</string>
+    <string name="result_replay_hint">Финальная позиция останется на доске. Закройте эту панель, чтобы её изучить.</string>
+    <string name="game_mode_ranked">Рейтинговый матч</string>
+</resources>

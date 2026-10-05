@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_play">Jogar</string>
+    <string name="nav_learn">Estudar</string>
+    <string name="nav_tools">Ferramentas</string>
+    <string name="nav_me">Perfil</string>
+    <string name="difficulty_6">Grande mestre</string>
+    <string name="difficulty_6_tag">Táticas mais profundas</string>
+    <string name="difficulty_6_desc">Mais tempo para descobrir combinações táticas.</string>
+    <string name="difficulty_7">Lenda</string>
+    <string name="difficulty_7_tag">Jogo de precisão</string>
+    <string name="difficulty_7_desc">Cálculo paciente para jogadores experientes.</string>
+    <string name="difficulty_8">Ápice</string>
+    <string name="difficulty_8_tag">Desafio total</string>
+    <string name="difficulty_8_desc">O maior orçamento de busca. Vá com calma.</string>
+    <string name="confirm_setup">Confirmar seleção</string>
+    <string name="style_choose">Estilo: %1$s  ▾</string>
+    <string name="puzzle_collection">Atlas de finais</string>
+    <string name="puzzle_collection_desc">Leia a posição. Encontre a jogada vencedora.</string>
+    <string name="puzzle_page">Volume %1$d / %2$d</string>
+    <string name="page_previous">Anterior</string>
+    <string name="page_next">Próxima</string>
+    <string name="puzzle_collection_progress">%1$d resolvidos · %2$d posições</string>
+    <string name="puzzle_family_rook">Táticas de carro</string>
+    <string name="puzzle_family_cannon">Táticas de canhão</string>
+    <string name="puzzle_family_horse">Táticas de cavalo</string>
+    <string name="puzzle_family_mixed">Ataque combinado</string>
+    <string name="result_close">Fechar resultado e ver o tabuleiro</string>
+    <string name="result_win">VITÓRIA</string>
+    <string name="result_loss">DERROTA</string>
+    <string name="result_draw">EMPATE</string>
+    <string name="result_undo">Desfazer e continuar</string>
+    <string name="result_replay_hint">A posição final fica no tabuleiro. Feche este painel para examiná-la.</string>
+    <string name="game_mode_ranked">Partida ranqueada</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_music_description">Un morceau instrumental original aux cordes pincées douces et aux accords aériens, sur l\'écran d\'accueil et pendant la partie. Monte en douceur et se met en pause quand l\'application passe en arrière-plan.</string>
+    <string name="audio_music_volume">Volume de la musique</string>
+    <string name="audio_volume_value">%1$d%%</string>
+    <string name="audio_preview">Écouter la musique · 12 secondes</string>
+    <string name="audio_preview_stop">Arrêter l\'écoute</string>
+    <string name="audio_motion_description">Mouvements fluides, une légère onde à l\'atterrissage et une brève pulsation à l\'échec. Désactiver arrête aussi l\'animation de capture. Respecte le réglage d\'animation du système.</string>
+</resources>

@@ -1,0 +1,817 @@
+<resources>
+    <string name="app_name">QiYan</string>
+
+    <!-- Main menu -->
+    <string name="title_game">Игра</string>
+    <string name="title_replay">Разбор</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_board_editor">Редактор позиции</string>
+    <string name="menu_play">Начать партию</string>
+    <string name="menu_replay">Разбор партии</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_about">О приложении</string>
+    <string name="menu_difficulty">Выберите сложность</string>
+    <string name="menu_side">Выберите сторону</string>
+    <!-- Home-screen language button + picker. List items use each language's
+         own name, so only these three labels need translating. -->
+    <string name="menu_language_label">Язык</string>
+    <string name="language_dialog_title">Выберите язык</string>
+    <string name="language_system_default">Как в системе</string>
+
+    <!-- Difficulty levels: 15 tiers, from absolute beginner to legendary grandmaster.
+         Each tier maps to a clearly labeled player segment so you can pick the
+         one that actually matches your level. -->
+    <string name="difficulty_easy">Новичок</string>
+    <string name="difficulty_beginner">Начинающий</string>
+    <string name="difficulty_lower_intermediate">Ниже среднего</string>
+    <string name="difficulty_intermediate">Средний</string>
+    <string name="difficulty_upper_intermediate">Выше среднего</string>
+    <string name="difficulty_advanced">Продвинутый</string>
+    <string name="difficulty_amateur">Опытный любитель</string>
+    <string name="difficulty_district">Районный игрок</string>
+    <string name="difficulty_city">Городской игрок</string>
+    <string name="difficulty_provincial">Областной мастер</string>
+    <!-- 棋协大师. 原来译成 "Local Master", 而那正是上一档 (Lv.10 省级高手)
+         段位标签的字面 —— 同一个词在表里指两个不同的档, 挑对手时读起来是错的. -->
+    <string name="difficulty_local_master">Мастер федерации</string>
+    <string name="difficulty_national_master">Национальный мастер</string>
+    <string name="difficulty_grandmaster">Гроссмейстер</string>
+    <string name="difficulty_international_master">Международный мастер</string>
+    <string name="difficulty_legendary">Легенда</string>
+
+    <!-- Player segment tag: 1-to-1 with the 15 tiers above, surfaces "what level
+         of player this corresponds to" right under the tier name. -->
+    <string name="difficulty_segment_easy">Новый игрок</string>
+    <string name="difficulty_segment_beginner">Начинающий любитель</string>
+    <string name="difficulty_segment_lower_intermediate">Средний любитель</string>
+    <string name="difficulty_segment_intermediate">Уличный игрок</string>
+    <string name="difficulty_segment_upper_intermediate">Сильный любитель</string>
+    <string name="difficulty_segment_advanced">Любитель 1 дан</string>
+    <string name="difficulty_segment_amateur">Любитель 3 дан</string>
+    <string name="difficulty_segment_district">Любитель 5 дан</string>
+    <string name="difficulty_segment_city">Любитель 6 дан</string>
+    <string name="difficulty_segment_provincial">Региональный мастер</string>
+    <string name="difficulty_segment_local_master">Мастер федерации</string>
+    <string name="difficulty_segment_national_master">Национальный мастер</string>
+    <string name="difficulty_segment_grandmaster">Национальный гроссмейстер</string>
+    <string name="difficulty_segment_international_master">Международный мастер</string>
+    <string name="difficulty_segment_legendary">Международный гроссмейстер</string>
+
+    <!-- Difficulty descriptions -->
+    <string name="difficulty_desc_easy">Только выучил правила, часто отдаёт фигуры</string>
+    <string name="difficulty_desc_beginner">Берёт очевидные бесплатные фигуры, пропускает простые ловушки</string>
+    <string name="difficulty_desc_lower_intermediate">Знает базовую тактику, изредка замечает вилки</string>
+    <string name="difficulty_desc_intermediate">Крепкие дебюты, считает на 3-5 ходов вперёд</string>
+    <string name="difficulty_desc_upper_intermediate">Играет по принципам, справляется с дебютами</string>
+    <string name="difficulty_desc_advanced">Крепкий любитель, грамотные эндшпили, мало слабых ходов</string>
+    <string name="difficulty_desc_amateur">Надёжная тактика, ставит базовые ловушки</string>
+    <string name="difficulty_desc_district">Сбалансированные атака и защита, наказывает за ошибки</string>
+    <string name="difficulty_desc_city">Сильное видение позиции, готовит ловушки, редко зевает</string>
+    <string name="difficulty_desc_provincial">Уровень областных турниров, точный расчёт</string>
+    <string name="difficulty_desc_local_master">Игра мастерского уровня, глубоко просчитанные варианты</string>
+    <string name="difficulty_desc_national_master">Острый атакующий стиль, почти без ошибок</string>
+    <string name="difficulty_desc_grandmaster">Уровень национального гроссмейстера, глубокая стратегия</string>
+    <string name="difficulty_desc_international_master">Уровень международного мастера, точен во всех стадиях</string>
+    <string name="difficulty_desc_legendary">Уровень международного гроссмейстера — сильнейший на этом устройстве</string>
+
+    <!-- Game controls -->
+    <string name="action_hint">Подсказка</string>
+    <string name="action_undo">Отменить</string>
+    <string name="action_new_game">Новая партия</string>
+    <string name="action_resign">Сдаться</string>
+    <string name="action_draw">Ничья</string>
+    <string name="action_analysis">Анализ</string>
+    <string name="action_flip">Перевернуть</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_back">Назад</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_export">Экспорт PGN</string>
+    <string name="action_play_red">Играть за Красных (первые)</string>
+    <string name="action_play_black">Играть за Чёрных (вторые)</string>
+    <string name="action_two_player">Два игрока</string>
+    <string name="action_voice">Голосовой ход</string>
+
+    <!-- Voice commands &amp; effects -->
+    <string name="voice_listening">Скажите ход, например \"车九进四\" (ладья девять — вперёд четыре)</string>
+    <string name="voice_played">Сыграно: %1$s</string>
+    <string name="voice_no_match">Ни один допустимый ход не соответствует \"%1$s\"</string>
+    <string name="voice_ambiguous">Неоднозначно — уточните, пожалуйста</string>
+    <string name="voice_no_speech">Не расслышал, попробуйте ещё раз</string>
+    <string name="voice_error">Ошибка распознавания речи</string>
+    <string name="voice_unavailable">Распознавание речи недоступно на этом устройстве</string>
+    <string name="voice_permission_denied">Для голосовых ходов нужен доступ к микрофону</string>
+    <string name="voice_wait_engine">Дождитесь, пока ИИ закончит ход</string>
+    <string name="voice_not_your_turn">Ещё не ваш ход</string>
+    <string name="voice_game_over">Партия окончена</string>
+
+    <!-- Status -->
+    <string name="status_thinking">ИИ думает…</string>
+    <string name="status_your_turn">Ваш ход</string>
+    <string name="status_check">Шах!</string>
+    <string name="status_checkmate">Мат!</string>
+    <string name="status_draw">Ничья</string>
+    <string name="status_resign">Сдался</string>
+    <string name="status_win">Победа</string>
+    <string name="status_loss">Поражение</string>
+    <string name="status_stalemate">Пат</string>
+    <string name="status_engine_error">Ошибка ИИ, переключились на резервный движок</string>
+    <string name="game_over_checkmate_red">Чёрные ставят мат Красным</string>
+    <string name="game_over_checkmate_black">Красные ставят мат Чёрным</string>
+    <string name="game_over_repetition">Повторение позиции</string>
+    <string name="game_over_fifty_moves">Правило 50 ходов</string>
+
+    <!-- Win rate -->
+    <string name="winrate_label">Вероятность победы</string>
+    <string name="winrate_red">Вероятность победы Красных</string>
+    <string name="winrate_black">Вероятность победы Чёрных</string>
+    <string name="depth_label">Глубина</string>
+    <string name="nodes_label">Узлы</string>
+    <string name="nps_label">NPS</string>
+    <string name="time_label">Время</string>
+
+    <!-- Rating -->
+    <string name="rating_current">Текущий рейтинг</string>
+    <string name="rating_total_games">Всего партий</string>
+    <string name="rating_wins">Победы</string>
+    <string name="rating_losses">Поражения</string>
+    <string name="rating_draws">Ничьи</string>
+    <string name="rating_winrate">Процент побед</string>
+    <string name="rating_rank">Разряд</string>
+    <string name="rank_1">Новичок</string>
+    <string name="rank_2">Начинающий</string>
+    <string name="rank_3">Любитель 1 дан</string>
+    <string name="rank_4">Любитель 3 дан</string>
+    <string name="rank_5">Любитель 5 дан</string>
+    <string name="rank_6">Любитель 7 дан</string>
+    <string name="rank_7">Региональный мастер</string>
+    <string name="rank_8">Национальный мастер</string>
+    <string name="rank_9">Гроссмейстер</string>
+    <string name="rank_10">Король сянци</string>
+    <string name="rank_hall_title">Печати разрядов</string>
+    <string name="rank_hall_intro">Десять печатей — от новичка до короля. Печать двигают только рейтинговые партии. Тренировка и восхождение на гору не влияют.</string>
+    <string name="rank_hall_current">Текущая</string>
+    <string name="rank_hall_reached">Достигнута</string>
+    <string name="rank_hall_locked">Впереди</string>
+    <string name="rank_progress_next">До %1$s: %2$d очков</string>
+    <string name="rank_progress_top">Король сянци — вершина этой лестницы</string>
+    <string name="rank_promoted">Присвоен разряд: %1$s</string>
+    <string name="rank_range">%1$d–%2$d</string>
+    <string name="rank_range_top">%1$d+</string>
+    <string name="home_open_rank_hall">Открыть печати разрядов</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_game_title">Новая партия</string>
+    <string name="dialog_new_game_message">Начать новую партию?</string>
+    <string name="dialog_resign_title">Сдаться</string>
+    <string name="dialog_resign_message">Вы уверены, что хотите сдаться?</string>
+    <string name="dialog_undo_title">Отменить</string>
+    <string name="dialog_undo_message">Отмена хода стоит небольших очков рейтинга. Всё равно отменить?</string>
+    <string name="dialog_yes">Да</string>
+    <string name="dialog_no">Нет</string>
+    <string name="dialog_ok">ОК</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_confirm">Подтвердить</string>
+
+    <!-- Review -->
+    <string name="replay_empty">Партий пока нет</string>
+    <string name="replay_play">Автоплей</string>
+    <string name="replay_pause">Пауза</string>
+    <string name="replay_prev">Предыдущий</string>
+    <string name="replay_next">Следующий</string>
+    <string name="replay_first">Первый ход</string>
+    <string name="replay_last">Последний ход</string>
+    <string name="replay_move_number">Ход %1$d</string>
+    <string name="result_win_short">В</string>
+    <string name="result_loss_short">П</string>
+    <string name="result_draw_short">Н</string>
+    <string name="side_red_short">Красные</string>
+    <string name="side_black_short">Чёрные</string>
+    <string name="replay_moves_summary">Ходов: %1$d · %2$s</string>
+    <string name="replay_record_missing">Запись партии не найдена</string>
+    <string name="replay_player_info">Ур. %1$d  %2$s  ходов: %3$d</string>
+    <string name="replay_rank_delta">%1$s (%2$s)</string>
+    <string name="replay_move_undo_failed">Ход %1$d не удалось восстановить</string>
+    <string name="replay_viewer_title">Повтор партии</string>
+    <string name="replay_share_report">Поделиться боевым отчётом</string>
+    <string name="replay_export_pgn">Экспорт PGN</string>
+    <string name="replay_copy_fen">Копировать FEN</string>
+    <string name="replay_copied_to_clipboard">Скопировано в буфер обмена</string>
+    <string name="puzzle_rush_title">Гонка задач</string>
+    <string name="puzzle_rush_banner">3 минуты · рекорд %1$d</string>
+    <string name="tactics_banner_title">Матовые схемы</string>
+    <string name="tactics_banner_sub">Классические маты</string>
+    <string name="tactics_banner_progress">Изучено: %1$d / %2$d</string>
+    <string name="puzzle_rush_subtitle">Скоростное решение за 3 минуты</string>
+    <string name="puzzle_rush_start">Начать гонку</string>
+    <string name="puzzle_rush_score">Счёт</string>
+    <string name="puzzle_rush_high_score">Рекорд: %1$d</string>
+    <string name="puzzle_rush_combo">Серия x%1$d</string>
+    <string name="puzzle_rush_pass">Пропустить (−1 жизнь)</string>
+    <string name="puzzle_rush_time_up">Время вышло!</string>
+    <string name="puzzle_rush_lives_out">Жизни кончились!</string>
+    <string name="puzzle_rush_new_record">🎉 Новый рекорд!</string>
+    <string name="puzzle_rush_solved_count">Решено задач: %1$d</string>
+    <string name="puzzle_rush_play_again">Играть снова</string>
+    <string name="puzzle_rush_share">Поделиться счётом</string>
+    <string name="puzzle_rush_report_title">【QiYan Xiangqi · Гонка задач】</string>
+    <string name="puzzle_rush_score_line">Счёт %1$d</string>
+    <string name="puzzle_rush_best_badge">Рекорд %1$d</string>
+    <string name="puzzle_rush_mate_line">Мат · %1$s</string>
+    <string name="puzzle_rush_solved_flash">+1</string>
+    <string name="puzzle_rush_honor_line">Титул: %1$s</string>
+    <string name="puzzle_rush_record_line">Новый рекорд: %1$d</string>
+    <string name="puzzle_rush_previous_best">Лучший результат: %1$d</string>
+    <string name="puzzle_rush_share_body">%1$s\nРешено за 3 минуты: %2$d.\nЛучшая серия: %3$d.\n%4$s</string>
+    <string name="puzzle_rush_leave">Выйти из гонки? Счёт не сохранится.</string>
+    <string name="puzzle_rush_leave_yes">Выйти</string>
+    <string name="puzzle_rush_honor_1">Ученик</string>
+    <string name="puzzle_rush_honor_2">Клубный игрок</string>
+    <string name="puzzle_rush_honor_3">Острый клинок</string>
+    <string name="puzzle_rush_honor_4">Мастер расчёта</string>
+    <string name="puzzle_rush_honor_5">Мастер гонки</string>
+    <string name="stat_total_games_format">Партий: %1$d</string>
+    <string name="stat_wins_format">%1$d В</string>
+    <string name="stat_losses_format">%1$d П</string>
+    <string name="stat_draws_format">%1$d Н</string>
+    <string name="game_illegal_move">Недопустимый ход</string>
+    <string name="game_undo_failed">Нельзя отменить</string>
+    <string name="game_switched_to_black">Переключено на Чёрных</string>
+    <string name="game_switched_to_red">Переключено на Красных</string>
+    <string name="game_opponent_black">ИИ (Чёрные)</string>
+    <string name="game_opponent_red">ИИ (Красные)</string>
+    <string name="game_player_red">Я (Красные)</string>
+    <string name="game_player_black">Я (Чёрные)</string>
+    <string name="game_move_count">Ход %1$d</string>
+    <string name="game_engine_start_failed">Не удалось запустить ИИ</string>
+    <string name="unknown_label">Неизвестно</string>
+    <string name="default_nickname">Шахматный друг</string>
+    <!-- 见 values-zh 的注释: 标题报结果, 正文不再重复 "Game over". -->
+    <string name="game_over_body">Причина: %1$s\nИзменение рейтинга: %2$s\nТекущий разряд: %3$s</string>
+    <string name="game_over_rating_detail">Изменение рейтинга: %1$s · Текущий разряд: %2$s</string>
+    <string name="game_over_win">Вы победили</string>
+    <string name="game_over_loss">Вы проиграли</string>
+    <string name="game_over_draw">Ничья</string>
+
+    <!-- Settings -->
+    <string name="settings_threads">Потоки</string>
+    <string name="settings_hash">Хеш-таблица (МБ)</string>
+    <string name="settings_sound">Звуковые эффекты</string>
+    <string name="settings_vibrate">Вибрация</string>
+    <string name="settings_bgm">Фоновая музыка</string>
+    <string name="settings_board_flip">Перевёрнутая доска по умолчанию</string>
+    <string name="settings_show_coords">Показывать координаты</string>
+    <string name="settings_show_winrate">Показывать вероятность победы</string>
+    <string name="settings_animation">Анимация хода</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_desc_threads">Чем больше потоков, тем быстрее расчёт, но и расход батареи выше. Рекомендуется не больше половины ядер устройства</string>
+    <string name="settings_desc_hash">Кэш размышлений ИИ. Увеличьте — и ИИ будет сильнее в долгом раздумье; уменьшите, если памяти мало</string>
+    <string name="settings_desc_sound">Звук при ходе, взятии и шахе</string>
+    <string name="settings_desc_vibrate">Лёгкая вибрация при ходе</string>
+    <string name="settings_desc_bgm">Во время партии по кругу звучит успокаивающий гуцинь; громкость держится низкой, чтобы не заглушать звуковые эффекты</string>
+    <string name="settings_desc_coords">Показывать номера вертикалей и горизонталей по краям доски</string>
+    <string name="settings_desc_winrate">Показывать живую шкалу вероятности победы над доской</string>
+    <string name="settings_desc_animation">Если выключить, фигуры будут вставать мгновенно — плавнее на слабых устройствах</string>
+    <string name="settings_desc_flip">Начинать партию со стороны Чёрных</string>
+    <string name="settings_section_display">Отображение</string>
+    <string name="settings_section_other">Прочее</string>
+    <string name="settings_theme_system">Как в системе</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_clear_data">Очистить все данные</string>
+    <string name="dialog_clear_data_title">Очистка данных</string>
+    <string name="dialog_clear_data_message">Будут удалены все записи партий и данные рейтинга. Продолжить?</string>
+    <!-- Live hints -->
+    <string name="live_title">Живые подсказки</string>
+    <string name="live_entry">Живые подсказки</string>
+    <string name="live_need_camera">Для распознавания доски в реальном времени нужен доступ к камере</string>
+    <string name="live_camera_failed">Не удалось запустить камеру</string>
+    <string name="live_locking">Ищем доску…</string>
+    <string name="live_board_invalid">Доска распознана не полностью — убедитесь, что все четыре угла в кадре</string>
+    <string name="live_ready">Зафиксировано · распознано за %1$d мс</string>
+    <string name="live_zoom">%.1fx</string>
+    <string name="editor_reset">Сброс</string>
+    <string name="editor_clear">Очистить</string>
+    <string name="settings_clear_data_desc">Удалить все записи партий и данные рейтинга. Это действие нельзя отменить</string>
+    <string name="settings_piece_style">Стиль фигур</string>
+    <string name="settings_board_style">Стиль доски</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_engine_path">Путь к модели ИИ</string>
+    <string name="settings_about_text">QiYan v1.0\n\nСобственный ИИ (оценка позиций нейросетью NNUE)\nПоддерживает распознавание доски по фото и живые подсказки</string>
+
+    <!-- About -->
+    <string name="about_engine_title">Об ИИ</string>
+    <string name="about_engine_version">Собственный NNUE</string>
+    <string name="about_engine_desc">ИИ китайских шахмат</string>
+
+    <!-- Common -->
+    <string name="red">Красные</string>
+    <string name="black">Чёрные</string>
+    <string name="move_count">Ходов: %1$d</string>
+    <string name="time_format">%1$02d:%2$02d</string>
+
+    <string name="menu_recognize">Сканировать доску</string>
+
+    <!-- AI analysis feature -->
+    <string name="advisor_title">ИИ-анализ</string>
+    <string name="advisor_send">Отправить</string>
+    <string name="advisor_input_hint">Спросите о чём угодно…</string>
+    <string name="advisor_error_generic">Анализ временно недоступен, попробуйте позже</string>
+    <string name="advisor_no_config">Функция ИИ не настроена, обратитесь к разработчику</string>
+    <string name="advisor_unavailable">ИИ временно недоступен, попробуйте позже</string>
+    <string name="advisor_waiting">ИИ ещё отвечает, подождите немного</string>
+    <string name="advisor_key_rejected">Ключ аутентификации недействителен или отозван. Перенастройте токен прокси.</string>
+    <string name="advisor_clear">Очистить переписку</string>
+    <string name="advisor_context_replay">Разбираем ход %1$d</string>
+    <string name="advisor_context_game">Ход %1$d · ходит %2$s</string>
+    <string name="advisor_thinking">ИИ анализирует…</string>
+    <string name="advisor_button">ИИ-анализ</string>
+    <string name="advisor_empty_title">Спросите ИИ об этой партии</string>
+    <string name="advisor_empty_subtitle">ИИ видит текущую позицию — спросите об обстановке, следующем ходе или о том, что пошло не так в прошлый ход</string>
+    <string name="advisor_suggest_analyze">Разобрать текущую позицию</string>
+    <string name="advisor_suggest_next">Что играть дальше</string>
+    <string name="advisor_suggest_review">Не было ли проблем в прошлом ходе</string>
+
+    <!-- In-game AI analysis -->
+    <string name="analysis_tap_to_skip">Нажмите, чтобы пропустить</string>
+    <string name="analysis_summary_prompt">Суммируйте текущую позицию в 2-3 предложениях: обстановка, у кого перевес, ключевые пункты атаки и защиты, а также самый заметный ход прямо сейчас.</string>
+    <string name="advisor_send_desc">Отправить</string>
+    <string name="advisor_move_banner">ИИ показывает этот ход: %1$s → %2$s</string>
+
+    <!-- Photo board recognition -->
+    <string name="title_recognize">Сканировать доску</string>
+    <string name="recognize_take_photo">Сделать фото</string>
+    <string name="recognize_pick_image">Выбрать из галереи</string>
+    <string name="recognize_preview_desc">Исправленная доска</string>
+    <string name="recognize_red_to_move">Ход Красных</string>
+    <string name="recognize_black_to_move">Ход Чёрных</string>
+    <string name="recognize_advise">Спросить совета у ИИ</string>
+    <string name="recognize_hint_start">Сфотографируйте доску или выберите снимок из галереи. Снимайте строго сверху так, чтобы все четыре угла были видны.</string>
+    <string name="recognize_working">Распознаём…</string>
+    <string name="recognize_failed">Не удалось распознать, попробуйте другое фото</string>
+    <string name="recognize_model_failed">Не удалось загрузить модель распознавания</string>
+    <string name="recognize_no_camera">Камера недоступна</string>
+    <string name="recognize_corner_warning">Четыре угла доски сняты неточно — распознавание может ошибаться. Переснимите строго сверху.</string>
+    <string name="recognize_must_fix">Сначала исправьте следующие проблемы:</string>
+    <string name="recognize_ready">Распознавание завершено. Жёлтые круги отмечают сомнительные поля (всего %1$d) — коснитесь клетки, чтобы исправить. Прежде чем просить совет, подтвердите позицию.</string>
+    <string name="recognize_pick_piece">Какая фигура стоит на %1$c%2$d</string>
+    <string name="recognize_empty">Пусто</string>
+    <string name="recognize_flip">Перевернуть</string>
+
+    <!-- Capture hints (rook/horse/cannon/pawn/advisor/elephant/general) -->
+    <string name="captured_piece_format">Взято: %1$s</string>
+    <string name="piece_king">Генерал</string>
+    <string name="piece_advisor">Советник</string>
+    <string name="piece_elephant">Слон</string>
+    <string name="piece_horse">Конь</string>
+    <string name="piece_rook">Ладья</string>
+    <string name="piece_cannon">Пушка</string>
+    <string name="piece_pawn">Солдат</string>
+    <string name="recognize_thinking">ИИ думает…</string>
+    <string name="recognize_engine_failed">Не удалось запустить ИИ</string>
+    <string name="recognize_engine_error">Ошибка ИИ: %1$s</string>
+    <string name="recognize_no_move">ИИ не вернул ход</string>
+    <string name="recognize_advice">Совет: %1$s %2$s → %3$s</string>
+
+    <!-- Home screen live-hints entry -->
+    <string name="menu_live_desc">Наведите камеру на реальную доску и получайте подсказки по ходу игры</string>
+
+    <!-- Board recognition start guide -->
+    <string name="recognize_start_title">Сфотографируйте позицию</string>
+    <string name="recognize_start_camera_desc">Сфотографировать реальную доску</string>
+    <string name="recognize_start_gallery_desc">Скриншот или готовое фото</string>
+    <string name="recognize_tips_title">Снимайте хорошо — распознаётся хорошо</string>
+    <string name="recognize_tip_1">Снимайте доску строго сверху, а не под углом</string>
+    <string name="recognize_tip_2">Держите все четыре угла в кадре</string>
+    <string name="recognize_tip_3">Ровный свет; избегайте бликов и теней</string>
+
+    <!-- Advice level -->
+    <string name="advice_level_title">Сила подсказки</string>
+    <string name="advice_level_fast">Быстрая</string>
+    <string name="advice_level_fast_desc">Подсказывает мгновенно</string>
+    <string name="advice_level_normal">Стандартная</string>
+    <string name="advice_level_normal_desc">Думает секунду-другую — хватает для большинства случаев</string>
+    <string name="advice_level_deep">Глубокая</string>
+    <string name="advice_level_deep_desc">Думает дольше, надёжнее в критических позициях</string>
+    <string name="advice_level_current">Сила подсказки: %1$s</string>
+
+    <!-- 棋盘河界题字. 中文是"楚河 汉界"; 英文界面上汉字读不出来, 也就传达
+         不了"这里是楚汉分界"这层意思, 所以给一句意译. -->
+    <!-- 整串加引号: Android 会把资源里连续的空格压成一个, 不加引号这行就
+             挤成一句居中的话, 而它本该分成两半各据河的一侧. -->
+    <string name="board_river_text">"CHU RIVER          HAN BORDER"</string>
+
+    <!-- 棋子字符集 -->
+    <string name="settings_piece_set">Надписи на фигурах</string>
+    <string name="settings_piece_set_desc">Китайские иероглифы — традиционный вид; латинские буквы (K/A/B/N/R/C/P) соответствуют английской нотации ходов</string>
+    <string name="piece_set_hanzi">Китайские иероглифы</string>
+    <string name="piece_set_latin">Буквы K A B N R C P</string>
+
+    <!-- 记谱法 -->
+    <string name="settings_notation">Нотация ходов</string>
+    <string name="settings_notation_desc">В китайской нотации этот ход записывается 炮二平五; в WXF тот же ход выглядит как C2.5</string>
+    <string name="notation_chinese">Китайская нотация</string>
+    <string name="notation_wxf">WXF (C2.5)</string>
+
+    <!-- 引擎回报的异常, 对局中以 toast 提示 -->
+    <string name="engine_illegal_move">Движок вернул недопустимый ход: %1$s</string>
+    <string name="engine_error">Ошибка движка: %1$s</string>
+    <string name="must_answer_check">Вы под шахом — нужно защититься</string>
+
+    <!-- 开局加载: 引擎与权重要读进内存, 低端机上要几秒 -->
+    <string name="loading_engine">Расставляем доску…</string>
+    <string name="settings_follow_language">Как язык приложения</string>
+
+    <!-- ===== 新对局: 挑对手 + 选执子 ===== -->
+    <string name="new_game_title">Новая партия</string>
+    <string name="new_game_pick_opponent">Выберите соперника</string>
+    <string name="new_game_side">Играете за</string>
+    <!-- "Lv.7 Amateur Expert" -->
+    <string name="new_game_level_format">Ур. %1$d %2$s</string>
+    <string name="new_game_level_short">Ур. %1$d</string>
+    <string name="side_red">Красные</string>
+    <string name="side_black">Чёрные</string>
+    <string name="side_random">Случайно</string>
+    <!-- 首页当前对手卡 -->
+    <string name="menu_current_opponent">Соперник</string>
+    <string name="menu_change_opponent">Сменить</string>
+    <!-- 品牌印章上刻的字. 中英文都用「棋」—— 印章是图形标记, 不翻译. -->
+    <string name="brand_seal_char">棋</string>
+
+    <!-- ====== 对手棋路风格 (PlayStyle) ====== -->
+    <string name="style_balanced">Сбалансированный</string>
+    <string name="style_balanced_desc">Всегда играет лучший ход движка — чистая сила</string>
+    <string name="style_aggressive">Атакующий</string>
+    <string name="style_aggressive_desc">Любит взятия и шахи, готов жертвовать ради атаки</string>
+    <string name="style_solid">Надёжный</string>
+    <string name="style_solid_desc">Никогда не разменивается опрометчиво, предпочитает спокойные позиции осложнениям</string>
+    <string name="style_swarm">Непредсказуемый</string>
+    <string name="style_swarm_desc">Чередует почти равные лучшие ходы — каждая партия новая</string>
+    <string name="new_game_style">Стиль соперника</string>
+    <string name="new_game_style_line">Стиль: %1$s</string>
+
+    <!-- ====== 棋盘浮动标签 ====== -->
+    <string name="board_tag_check">Шах!</string>
+    <string name="board_tag_mate">Мат</string>
+
+    <!-- ====== 吃子战场特效 ====== -->
+    <string name="settings_capture_fx">Эффекты взятия</string>
+    <string name="settings_desc_capture_fx">Анимация удара, искр и брызг туши при взятии фигуры. Надпись о взятой фигуре на доске остаётся в любом случае</string>
+    <string name="settings_board_skin">Материал доски</string>
+    <string name="settings_board_skin_desc">Четыре офлайн-материала. Буквы на фигурах остаются тёмными на слоновой кости, чтобы их было видно.</string>
+    <string name="skin_wood">Тёплое дерево</string>
+    <string name="skin_black_gold">Чёрное золото</string>
+    <string name="skin_porcelain">Синий фарфор</string>
+    <string name="skin_jade">Белый нефрит</string>
+
+    <string name="puzzle_1_name">Мат в 1 ход · Запертый дворец</string>
+    <string name="puzzle_1_hint">Чёрный конь связан. Выведите генерала в центр: у Чёрных пат</string>
+    <string name="puzzle_2_name">Мат в 1 ход · Двойные пушки</string>
+    <string name="puzzle_2_hint">Передняя пушка — прикрытие: переведите заднюю пушку на линию</string>
+    <string name="puzzle_3_name">Мат в 1 ход · Ладья &amp; конь</string>
+    <string name="puzzle_3_hint">Задняя ладья идёт на последнюю линию — двойной шах</string>
+    <string name="puzzle_4_name">Мат в 1 ход · Лицом к лицу</string>
+    <string name="puzzle_4_hint">Генералы смотрят друг на друга по линии — сбросьте ладью на последнюю линию</string>
+    <string name="puzzle_5_name">Мат в 1 ход · Железный засов</string>
+    <string name="puzzle_5_hint">Центральная пушка держит линию, ладья опускается на последнюю</string>
+    <string name="puzzle_6_name">Мат в 1 ход · Фланговая пушка</string>
+    <string name="puzzle_6_hint">Пушка уходит в глубину, ладья прикрывает решающий удар</string>
+    <string name="puzzle_7_name">Мат в 1 ход · Двойные ладьи в глубине</string>
+    <string name="puzzle_7_hint">Две ладьи берут крепость в клещи при поддержке пушки</string>
+    <string name="puzzle_8_name">Мат в 1 ход · Конь &amp; пушка</string>
+    <string name="puzzle_8_hint">Поставьте благородного скакуна под пушку — мгновенный мат</string>
+    <string name="puzzle_9_name">Мат в 2 хода · Ладьи вразбежку</string>
+    <string name="puzzle_9_hint">Опустите ладью с шахом; если слон перекрывает, смените направление</string>
+    <string name="puzzle_10_name">Мат в 2 хода · Две ладьи</string>
+    <string name="puzzle_10_hint">Одна ладья держит линию, другая раздаёт шахи</string>
+    <string name="puzzle_11_name">Мат в 2 хода · Конь в центре дворца</string>
+    <string name="puzzle_11_hint">Конь держит фланг дворца; ладья опускается на мат</string>
+    <string name="puzzle_12_name">Мат в 2 хода · Удар с трамплина</string>
+    <string name="puzzle_12_hint">Прыжок коня вперёд открывает шах в связке с ладьёй</string>
+    <string name="puzzle_13_name">Мат в 2 хода · Ладья, конь и пушка</string>
+    <string name="puzzle_13_hint">Конь прыгает в центр, пушка готовит роковой удар</string>
+    <string name="puzzle_14_name">Мат в 2 хода · Марш солдата</string>
+    <string name="puzzle_14_hint">Пушка держит центр, солдат шагает внутрь</string>
+    <string name="puzzle_15_name">Мат в 2 хода · Ладьи друг за другом</string>
+    <string name="puzzle_15_hint">Две ладьи по линии разбирают оборону дворца</string>
+    <string name="puzzle_16_name">Мат в 2 хода · Скрытая пушка</string>
+    <string name="puzzle_16_hint">Ладья расчищает путь спрятанной позади пушке</string>
+    <string name="puzzle_17_name">Мат в 3 хода · Глубокий конь в центре дворца</string>
+    <string name="puzzle_17_hint">Конь атакует угол дворца, ладья запирает последнюю линию</string>
+    <string name="puzzle_18_name">Мат в 3 хода · Глубокий конь-рыбак</string>
+    <string name="puzzle_18_hint">Конь-рыбак сковывает генерала, ладья добивает на 9-м ряду</string>
+    <string name="puzzle_19_name">Мат в 3 хода · Угловой конь</string>
+    <string name="puzzle_19_hint">Угловой конь контролирует выходы — мат ладьёй не остановить</string>
+    <string name="puzzle_20_name">Мат в 3 хода · Ладьи-клещи</string>
+    <string name="puzzle_20_hint">Слаженные двойные ладьи стягивают петлю вокруг вражеского генерала</string>
+    <string name="puzzle_21_name">Мат в 2 хода · Зажим конём-рыбаком</string>
+    <string name="puzzle_21_hint">Конь-рыбак запирает дворец; ладья идёт в центр на мат</string>
+    <string name="puzzle_22_name">Мат в 2 хода · Небо &amp; земля</string>
+    <string name="puzzle_22_hint">Одна пушка держит центр, другая уходит в глубину добивать</string>
+    <string name="puzzle_23_name">Мат в 3 хода · Замок ладьи и коня</string>
+    <string name="puzzle_23_hint">Слаженные ладья и конь наносят смертельные шахи подряд</string>
+    <string name="puzzle_24_name">Мат в 3 хода · Сеть двойных ладей</string>
+    <string name="puzzle_24_hint">Ладьи идут по соседним линиям и ловят генерала в сеть</string>
+
+    <string name="puzzle_25_name">Мат в 3 хода · Пролом стражи</string>
+    <string name="puzzle_25_hint">Ладьи проламываются сквозь советников, разрушая оборону</string>
+    <string name="puzzle_26_name">Мат в 3 хода · Цикл двойных ладей</string>
+    <string name="puzzle_26_hint">Ладьи вразбежку опускаются по очереди, пользуясь позицией генерала</string>
+    <string name="puzzle_27_name">Мат в 3 хода · Ладья-приманка</string>
+    <string name="puzzle_28_hint">Пожертвуйте переднюю ладью, чтобы выманить генерала из крепости</string>
+    <string name="puzzle_28_name">Мат в 3 хода · Прыгающий угловой конь</string>
+    <string name="puzzle_27_hint">Пожертвуйте фигуру, чтобы ворваться во вражеский дворец</string>
+    <string name="puzzle_29_name">Мат в 3 хода · Ладьи осаждают дворец</string>
+    <string name="puzzle_29_hint">Две ладьи врываются в самое сердце дворца</string>
+    <string name="puzzle_30_name">Мат в 3 хода · Фланговая атака</string>
+    <string name="puzzle_30_hint">Ладья опускается на последнюю линию, конь заходит по кругу</string>
+    <string name="puzzle_31_name">Мат в 3 хода · Генералы лицом к лицу</string>
+    <string name="puzzle_31_hint">Генералы смотрят друг на друга по открытой линии; ладья закрепляет победу</string>
+    <string name="puzzle_32_name">Мат в 3 хода · Скачущий конь</string>
+    <string name="puzzle_32_hint">Конь прыгает в центр дворца и ставит мат</string>
+
+    <string name="puzzle_33_name">Мат в 4 хода · Прорыв коня-рыбака</string>
+    <string name="puzzle_33_hint">Конь-рыбак сковывает генерала, ладья снимает стражу</string>
+    <string name="puzzle_34_name">Мат в 4 хода · Солдат у ворот</string>
+    <string name="puzzle_34_hint">Отважный красный солдат идёт вперёд, чтобы разрушить убежище генерала</string>
+    <string name="puzzle_35_name">Мат в 4 хода · Угловой конь &amp; ладья</string>
+    <string name="puzzle_35_hint">Угловой конь связывает советников; ладья добивает из глубины</string>
+    <string name="puzzle_36_name">Мат в 4 хода · Две ладьи &amp; скакун</string>
+    <string name="puzzle_36_hint">Две фланговые ладьи и скачущий конь сметают дворец</string>
+    <string name="puzzle_37_name">Мат в 4 хода · Солдат во дворце</string>
+    <string name="puzzle_37_hint">Солдат при поддержке ладьи врывается в центральный дворец</string>
+    <string name="puzzle_38_name">Мат в 4 хода · Фланговый конь &amp; ладья</string>
+    <string name="puzzle_38_hint">Конь бьёт с фланга, ладья запирает заднюю линию</string>
+    <string name="puzzle_39_name">Мат в 5 ходов · Наступление солдата</string>
+    <string name="puzzle_39_hint">Упорный солдат методично идёт вперёд, сковывая генерала</string>
+    <string name="puzzle_40_name">Мат в 3 хода · Пушки &amp; ладьи</string>
+    <string name="puzzle_40_hint">Двойные ладьи и пушка образуют несокрушимую батарею</string>
+
+    <string name="puzzle_41_name">Мат в 6 ходов · Солдат-прорыв</string>
+    <string name="puzzle_41_hint">Фланговый солдат идёт вглубь; ладья и пушка следом</string>
+    <string name="puzzle_42_name">Мат в 7 ходов · Удар во фланг</string>
+    <string name="puzzle_42_hint">Жертва коня оттягивает защиту, расчищая дорогу ладье</string>
+    <string name="puzzle_43_name">Мат в 6 ходов · Центральный конь</string>
+    <string name="puzzle_43_hint">Конь хозяйничает в центре, координируя мат</string>
+    <string name="puzzle_44_name">Мат в 6 ходов · Эндшпиль одинокой ладьи</string>
+    <string name="puzzle_44_hint">Мастерская техника одинокой ладьи снимает защитников одного за другим</string>
+    <string name="puzzle_45_name">Мат в 2 хода · Быстрые двойные ладьи</string>
+    <string name="puzzle_45_hint">Двойные ладьи через линию быстро свершают правосудие</string>
+    <string name="puzzle_46_name">Мат в 3 хода · Благородный скакун</string>
+    <string name="puzzle_46_hint">Конь запирает пути отхода; ладья добивает на ряду</string>
+    <string name="puzzle_47_name">Мат в 3 хода · Фланговые ладьи</string>
+    <string name="puzzle_47_hint">Две ладьи синхронно атакуют с соседних линий</string>
+    <string name="puzzle_48_name">Мат в 2 хода · Летающие пушки</string>
+    <string name="puzzle_48_hint">Двойные пушки перепрыгивают прикрытие — эффектный мат</string>
+
+    <string name="puzzle_chapter_1">Том I. Первые шаги</string>
+    <string name="puzzle_chapter_sub_1">Мат в 1 ход · Базовые матовые сети</string>
+    <string name="puzzle_chapter_2">Том II. Тактические искры</string>
+    <string name="puzzle_chapter_sub_2">Мат в 2 хода · Слаженные атакующие тактические приёмы</string>
+    <string name="puzzle_chapter_3">Том III. Мастерская стратегия</string>
+    <string name="puzzle_chapter_sub_3">Мат в 2-3 хода · Классическая тактика в полном наборе</string>
+    <string name="puzzle_chapter_4">Том IV. Большое наступление</string>
+    <string name="puzzle_chapter_sub_4">Мат в 3 хода · Жертвы и решающие удары</string>
+    <string name="puzzle_chapter_5">Том V. Эпическое завоевание</string>
+    <string name="puzzle_chapter_sub_5">Мат в 3-4 хода · Мастерские манёвры в эндшпиле</string>
+    <string name="puzzle_chapter_6">Том VI. Испытания гроссмейстеров</string>
+    <string name="puzzle_chapter_sub_6">Мат в 4-7 ходов · Легендарные классические шедевры сянци</string>
+    <string name="campaign_entry">Восхождение на гору</string>
+    <string name="campaign_entry_desc">Восемь этапов. Выиграйте один — откроется следующий.</string>
+    <string name="puzzle_entry">Эндшпили</string>
+    <string name="puzzle_entry_desc">Классические маты, по три возврата хода</string>
+    <string name="campaign_title">Гора</string>
+    <!-- 闯关地图山顶宝箱的题字 -->
+<string name="campaign_goal">Финиш</string>
+    <string name="campaign_level_format">Этап %1$d</string>
+    <string name="campaign_level_difficulty_format">Сила соперника: ур. %1$d</string>
+    <string name="campaign_locked">Выиграйте предыдущий этап, чтобы открыть этот</string>
+    <string name="campaign_passed">Пройдено</string>
+    <string name="campaign_win_title">Этап пройден</string>
+    <string name="campaign_next_level">Следующий этап</string>
+    <string name="campaign_retry">Пройти этап заново</string>
+    <string name="campaign_back_list">Обратно к горе</string>
+    <string name="campaign_level_chip">%1$s</string>
+    <string name="campaign_stage_result">Этап %1$d · %2$s</string>
+    <string name="stage_1_name">Первые шаги</string>
+    <string name="stage_1_brief">Этот соперник часто упускает взятия. Сначала освойте правила.</string>
+    <string name="stage_2_name">Ворота</string>
+    <string name="stage_2_brief">Смотрит на один ход вперёд — и всё равно что-то упускает.</string>
+    <string name="stage_3_name">Река</string>
+    <string name="stage_3_brief">Здесь вступает движок: чуть больше секунды на размышление.</string>
+    <string name="stage_4_name">Застава</string>
+    <string name="stage_4_brief">Времени больше. Простые зевки уже замечаются.</string>
+    <string name="stage_5_name">Линии</string>
+    <string name="stage_5_brief">Поиск глубже. Болтающуюся фигуру можно взять.</string>
+    <string name="stage_6_name">Долгий взгляд</string>
+    <string name="stage_6_brief">Ещё один отрезок времени на раздумья.</string>
+    <string name="stage_7_name">Глубокий поиск</string>
+    <string name="stage_7_brief">До вершины рукой подать — не хватает одного шага по времени.</string>
+    <string name="stage_8_name">Вершина</string>
+    <string name="stage_8_brief">Самый долгий поиск на горе.</string>
+    <string name="catalog_mate_title">Мат в один ход</string>
+    <string name="catalog_mate_hint">Ход Красных. Мат в один ход.</string>
+    <string name="catalog_item_title">%2$s · %1$d</string>
+    <string name="catalog_progress">Решено: %1$d / %2$d</string>
+    <string name="catalog_filter_all">Все</string>
+    <string name="catalog_filter_count">%1$s %2$d</string>
+    <string name="catalog_solved">Решено</string>
+    <string name="catalog_open">Открыть</string>
+    <string name="history_intro">Пять глав настоящих кампаний. Каждая битва завершается матом в один ход. Позиция — упражнение, а не реконструкция исторической партии.</string>
+    <string name="history_ch_1">Вёсны и осени</string>
+    <string name="history_ch_2">Сражающиеся царства</string>
+    <string name="history_ch_3">Чу и Хань</string>
+    <string name="history_ch_4">Троецарствие</string>
+    <string name="history_ch_5">Поздние эпохи</string>
+    <string name="battle_1_name">Чаншао</string>
+    <string name="battle_1_brief">Лу, 684 г. до н. э. Цао Гуй дал Ци трижды отбить барабаны, потом ударил. Мат в один ход: железный засов.</string>
+    <string name="battle_2_name">Чэнпу</string>
+    <string name="battle_2_brief">632 г. до н. э. Цзинь выманил чуский центр вперёд и запер оба фланга. Мат в один ход: двойные ладьи.</string>
+    <string name="battle_3_name">Боцзюй</string>
+    <string name="battle_3_brief">506 г. до н. э. У прорвалось вглубь Чу и взяло Ин. Мат в один ход: конь за пушкой.</string>
+    <string name="battle_4_name">Лицзэ</string>
+    <string name="battle_4_brief">478 г. до н. э. Юэ перешло реку двумя колоннами и разбило У. Мат в один ход: конь в засаде.</string>
+    <string name="battle_5_name">Гуйлин</string>
+    <string name="battle_5_brief">354 г. до н. э. Ци пошло на столицу Вэй, чтобы снять осаду Чжао. Мат в один ход: двойная пушка.</string>
+    <string name="battle_6_name">Малин</string>
+    <string name="battle_6_brief">342 г. до н. э. Сунь Бинь уменьшил свои костры и ждал в заставе. Мат в один ход: конь-рыбак.</string>
+    <string name="battle_7_name">Чанпин</string>
+    <string name="battle_7_brief">260 г. до н. э. Цинь отрезало армию Чжао и сомкнуло кольцо. Мат в один ход: двойные ладьи.</string>
+    <string name="battle_8_name">Цзимо</string>
+    <string name="battle_8_brief">279 г. до н. э. Тянь Дань открыл город и ночью ударил по лагерю Янь. Мат в один ход: конь в засаде.</string>
+    <string name="battle_9_name">Цзинсин</string>
+    <string name="battle_9_brief">204 г. до н. э. Хань Синь поставил армию спиной к реке, а затем развернулся. Мат в один ход: генералы лицом к лицу.</string>
+    <string name="battle_10_name">Чэньцан</string>
+    <string name="battle_10_brief">206 г. до н. э. Платная дорога была отвлекающим манёвром. Армия вышла у Чэньцана. Мат в один ход: двойная пушка.</string>
+    <string name="battle_11_name">Вэйшуй</string>
+    <string name="battle_11_brief">204 г. до н. э. Хань Синь перегородил реку, заманил врага на другой берег и спустил воду. Мат в один ход: конь за пушкой.</string>
+    <string name="battle_12_name">Гайся</string>
+    <string name="battle_12_brief">202 г. до н. э. Ханьские армии сомкнулись вокруг Сян Юя со всех сторон. Мат в один ход: двойные ладьи.</string>
+    <string name="battle_13_name">Гуаньду</string>
+    <string name="battle_13_brief">200 г. н. э. Цао Цао сжёг припасы Юань Шао в Учао. Мат в один ход: железный засов.</string>
+    <string name="battle_14_name">Красные скалы</string>
+    <string name="battle_14_brief">208 г. н. э. Огонь прошёл по сцепленному флоту на Янцзы. Мат в один ход: двойная пушка.</string>
+    <string name="battle_15_name">Ханьчжун</string>
+    <string name="battle_15_brief">219 г. н. э. Хуан Чжун взял гору Динцзюнь, и Сяхоу Юань пал. Мат в один ход: конь-рыбак.</string>
+    <string name="battle_16_name">Илин</string>
+    <string name="battle_16_brief">222 г. н. э. Лу Синь выждал, а затем сжёг лагеря Шу. Мат в один ход: конь в засаде.</string>
+    <string name="battle_17_name">Фэйшуй</string>
+    <string name="battle_17_brief">383. Войско Фу Цзяня дрогнуло назад, и остановить его было уже нельзя. Мат в один ход: генералы лицом к лицу.</string>
+    <string name="battle_18_name">Хулао</string>
+    <string name="battle_18_brief">621. Ли Шиминь разбил Доу Цзиандэ перед заставой. Мат в один ход: угловой конь.</string>
+    <string name="battle_19_name">Яньчэн</string>
+    <string name="battle_19_brief">1140. Конница Юэ Фэя смяла цзиньскую кавалерию при Яньчэне. Мат в один ход: конь за пушкой.</string>
+    <string name="battle_20_name">Озеро Поян</string>
+    <string name="battle_20_brief">1363. Огненные корабли Чжу Юаньчжана разбили башенные корабли Чэнь Юляна. Мат в один ход: пушки неба и земли.</string>
+    <string name="tactic_label_mahoupao">Конь за пушкой</string>
+    <string name="tactic_label_bolt">Железный засов</string>
+    <string name="tactic_label_double_cannon">Двойная пушка</string>
+    <string name="tactic_label_double_rook">Двойные ладьи</string>
+    <string name="tactic_label_pocket">Конь в засаде</string>
+    <string name="tactic_label_corner">Угловой конь</string>
+    <string name="tactic_label_fishing">Конь-рыбак</string>
+    <string name="tactic_label_face">Генералы лицом к лицу</string>
+    <string name="tactic_label_heaven">Пушки неба и земли</string>
+    <string name="tactic_label_heart">Ладья в сердце дворца</string>
+    <string name="tactic_label_smothered">Запертый дворец</string>
+    <string name="tactic_label_spring">Удар с трамплина</string>
+    <string name="tactic_label_mate">Мат</string>
+    <string name="puzzle_title">Эндшпиль</string>
+    <string name="puzzle_list_title">Эндшпили</string>
+    <string name="puzzle_solved">Решено</string>
+    <string name="puzzle_unsolved">Не решено</string>
+    <string name="puzzle_attempts_format">Попыток: %1$d</string>
+    <string name="puzzle_red_to_move">Ход Красных · ходов до мата: %1$d</string>
+    <string name="puzzle_undo_left_format">Осталось возвратов: %1$d</string>
+    <string name="puzzle_moves_left_format">Осталось ходов: %1$d</string>
+    <string name="puzzle_retry">Начать заново</string>
+    <string name="puzzle_undo">Вернуть ход</string>
+    <string name="puzzle_undo_exhausted">Возвратов больше нет</string>
+    <string name="puzzle_deviated">Этот ход не ведёт к мату. Верните ход или начните заново.</string>
+    <string name="puzzle_solved_title">Решено!</string>
+    <string name="puzzle_fail_title">Не решено</string>
+    <string name="puzzle_fail_moves">Ходы кончились. Чёрные держатся.</string>
+    <string name="puzzle_next_puzzle">Дальше</string>
+    <string name="puzzle_retry_confirm">Попыток: %1$d. Есть три возврата хода; если ходы кончатся, задача провалена. Начать заново?</string>
+
+    <string name="campaign_unlocked">Доступно</string>
+    <string name="campaign_fail_title">Этап не пройден</string>
+    <string name="campaign_body_unlocked">Этап пройден — следующий открыт!</string>
+    <string name="campaign_stars_line">Звёзды: %1$d · %2$s · %3$s</string>
+    <string name="campaign_stars_record">Рекорд этапа: %1$d</string>
+    <string name="campaign_stars_cd">Звёзды: %1$d из 3</string>
+    <string name="campaign_star_hint_kept">без подсказки</string>
+    <string name="campaign_star_hint_used">с подсказкой</string>
+    <string name="campaign_star_undo_kept">без возврата хода</string>
+    <string name="campaign_star_undo_used">с возвратом хода</string>
+    <string name="campaign_body_all_clear">Все восемь этапов пройдены.</string>
+    <string name="campaign_body_retry">Не в этот раз — попробуйте ещё!</string>
+    <string name="puzzle_stage_name">Этап %1$d · %2$s</string>
+    <string name="puzzle_meta_format">%1$s · ходы %2$d/%3$d · возвратов осталось %4$d · попытка №%5$d</string>
+    <string name="puzzle_solved_body">Решено — отличная игра!</string>
+
+    <!-- 结算对话框文案 (原 GameActivity 内的硬编码中文, 提取以修 i18n 债) -->
+    <string name="result_watch_board">Смотреть</string>
+    <string name="result_win_checkmate">Победа матом</string>
+    <string name="result_win_big">Полная победа</string>
+    <string name="result_win_tactic_fmt">Мат: %1$s</string>
+    <string name="result_lose_tactic_fmt">Поражение: %1$s</string>
+    <string name="result_lose_banner">Поражение</string>
+    <string name="result_draw_banner">Ничья</string>
+    <string name="result_reason_win_tactic_fmt">Мат эффектным приёмом: %1$s</string>
+    <string name="result_reason_lose_tactic_fmt">Соперник поставил вам мат: %1$s</string>
+    <string name="result_reason_win_default">Победа за вами</string>
+    <string name="result_reason_lose_default">Так близко — минимальное поражение</string>
+    <string name="result_reason_draw_default">Партия закончилась вничью</string>
+    <string name="result_practice_detail">Тренировочная партия завершена — рейтинг не изменился. Партия сохранена.</string>
+    <string name="campaign_reason_clear">Этап пройден</string>
+    <string name="campaign_reason_fail">Испытание не пройдено</string>
+
+    <!-- 扫描/加载态文案 (Phase 6: 功能页转场) -->
+    <string name="analysis_scanning_default">ИИ анализирует партию</string>
+    <string name="analysis_scanning_recognize">Распознаём доску…</string>
+    <string name="analysis_scanning_advice">ИИ готовит совет…</string>
+    <string name="recognize_loading_model">Загружаем модель распознавания…</string>
+    <string name="live_starting">Запускаем модель &amp; камеру…</string>
+    <string name="action_retry">Повторить</string>
+
+    <string name="puzzle_solved_tactic_title">Мат · %1$s</string>
+    <string name="puzzle_solved_tactic_body">Решено с помощью: %1$s</string>
+    <string name="opening_chip">%1$s</string>
+    <string name="opening_central_vs_screen">Центральная пушка против ширмы коней</string>
+    <string name="opening_same_cannon">Пушки на одном фланге</string>
+    <string name="opening_opposite_cannon">Пушки на разных флангах</string>
+    <string name="opening_central_vs_reversed">Центральная пушка против обратной ширмы коней</string>
+    <string name="opening_central_vs_single">Центральная пушка против одинокого коня</string>
+    <string name="opening_central_vs_tiger">Центральная пушка против трёхшагового тигра</string>
+    <string name="opening_pawn_vs_cannon">Дебют солдата против пушки за солдатом</string>
+    <string name="opening_mutual_pawn">Солдаты идут навстречу</string>
+    <string name="opening_pawn_vs_central">Дебют солдата против центральной пушки</string>
+    <string name="opening_pawn_vs_horse">Дебют солдата против коня</string>
+    <string name="opening_pawn_vs_elephant">Дебют солдата против слона</string>
+    <string name="opening_elephant_vs_left">Дебют слона против левой центральной пушки</string>
+    <string name="opening_elephant_vs_right">Дебют слона против правой центральной пушки</string>
+    <string name="opening_elephant_vs_horse">Дебют слона против коня</string>
+    <string name="opening_elephant_vs_pawn">Дебют слона против солдата</string>
+    <string name="opening_elephant_vs_corner">Дебют слона против угловой пушки</string>
+    <string name="opening_elephant_vs_crossing">Дебют слона против пушки через дворец</string>
+    <string name="opening_horse_vs_pawn">Дебют коня против солдата</string>
+    <string name="opening_horse_vs_central">Дебют коня против центральной пушки</string>
+    <string name="opening_horse_vs_horse">Дебют коня против коня</string>
+    <string name="opening_central_cannon">Центральная пушка</string>
+    <string name="opening_pawn">Дебют солдата</string>
+    <string name="opening_elephant">Дебют слона</string>
+    <string name="opening_horse">Дебют коня</string>
+    <string name="opening_crossing_cannon">Пушка через дворец</string>
+    <string name="opening_corner_cannon">Угловая пушка</string>
+    <string name="opening_hook_cannon">Пушка-крюк</string>
+    <string name="opening_iron_roller">Железный каток</string>
+    <string name="opening_edge_horse">Крайний конь</string>
+    <string name="opening_edge_pawn">Крайний солдат</string>
+    <string name="tactic_rhyme_mahoupao">Пушка за конём — генералу не уйти</string>
+    <string name="tactic_desc_mahoupao">Конь прикрывает пушку. Пушка бьёт шах сквозь него, и вместе они перекрывают все пути отхода.</string>
+    <string name="tactic_rhyme_bolt">Центральная пушка на линии, ладья запирает дворец</string>
+    <string name="tactic_desc_bolt">Центральная пушка держит ворота дворца. Ладья скользит на последнюю линию и запирает дверь.</string>
+    <string name="tactic_rhyme_double_cannon">Передняя пушка — прикрытие, задняя бьёт наповал</string>
+    <string name="tactic_desc_double_cannon">Две пушки на одной линии. Передняя — прикрытие, задняя бьёт шахом в дворец.</string>
+    <string name="tactic_rhyme_double_rook">Две ладьи на разных линиях по очереди идут во дворец</string>
+    <string name="tactic_desc_double_rook">Две ладьи опускаются на соседние линии и отрезают генерала по одному ряду.</string>
+    <string name="tactic_rhyme_pocket">Конь в засаде, ладья на последней линии</string>
+    <string name="tactic_desc_pocket">Конь сидит в засаде у вражеского дворца, а ладья опускается на последнюю линию.</string>
+    <string name="tactic_rhyme_corner">Конь на углу советника — ладья ставит точку</string>
+    <string name="tactic_desc_corner">Конь даёт шах с угла советника, сковывая советников и генерала.</string>
+    <string name="tactic_rhyme_face">Генералы смотрят друг на друга через открытую линию</string>
+    <string name="tactic_desc_face">Генералам нельзя смотреть друг на друга. Ваш генерал держит линию — правило и довершает мат.</string>
+    <string name="tactic_rhyme_heaven">Одна пушка на последней линии, другая — на центральной</string>
+    <string name="tactic_desc_heaven">Одна пушка запирает последнюю линию. Другая держит центральную. Ударяют вместе.</string>
+    <string name="tactic_rhyme_fishing">Конь-рыбак на воротах — ладья замыкает</string>
+    <string name="tactic_desc_fishing">Конь стоит на рыбном поле и перекрывает выход из дворца. Ладья приходит на мат.</string>
+    <string name="tactic_rhyme_heart">Отдайте ладью за центрального советника</string>
+    <string name="tactic_desc_heart">Пожертвуйте ладью, заберите центрального советника, сдвиньте генерала с места — и мат.</string>
+    <string name="tactic_rhyme_smothered">Советники запирают своего же генерала</string>
+    <string name="tactic_desc_smothered">Оба советника забивают дворец. Пушка на последней линии — или ладья с солдатом — ставит мат сквозь эту пробку.</string>
+    <string name="tactic_academy_sub">Изучите схему, услышьте её, а затем решите</string>
+    <string name="tactic_voice">Прослушать</string>
+    <string name="tactic_challenge">Решить</string>
+    <string name="tactic_mastered">Освоено</string>
+    <string name="tactic_learning">В процессе</string>
+    <string name="puzzle_rush_result_title">Гонка задач</string>
+    <string name="puzzle_rush_score_unit">задач</string>
+    <string name="replay_start_position">Начальная позиция</string>
+    <string name="replay_move_line">Ход %1$d · %2$s</string>
+    <string name="replay_red_winrate">Вероятность победы Красных: %1$d%%</string>
+    <string name="replay_try_variation">Попробовать</string>
+    <string name="replay_variation_undo">Отменить ход</string>
+    <string name="replay_variation_exit">Вернуться к партии</string>
+    <string name="replay_variation_status">Вариант +%1$d · Красные %2$d%%</string>
+    <string name="replay_variation_status_move">Вариант +%1$d · %2$s · Красные %3$d%%</string>
+    <string name="replay_variation_step">Ход %1$d</string>
+    <string name="replay_red_better">Красные</string>
+    <string name="replay_black_better">Чёрные</string>
+    <string name="move_quality_brilliant">Блестящий ход</string>
+    <string name="move_quality_best">Лучший ход</string>
+    <string name="move_quality_inaccuracy">Неточность</string>
+    <string name="move_quality_mistake">Ошибка</string>
+    <string name="move_quality_blunder">Зевок</string>
+    <string name="move_quality_book">Теория</string>
+    <string name="analysis_scan_status">Глубина %1$d · вероятность победы Красных %2$d%%</string>
+</resources>

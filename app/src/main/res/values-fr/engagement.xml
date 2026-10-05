@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_practice_label">Entraînement · non classé</string>
+    <string name="game_search_no_move">Aucun coup n\'a été renvoyé. Réessaie l\'indice, ou change le niveau de l\'adversaire pour reprendre.</string>
+    <string name="puzzle_engine_error">Le moteur des puzzles n\'a pas répondu. Essaie de relancer ce puzzle.</string>
+    <string name="game_coach_start">Prends ton temps. Touche une pièce pour voir ses coups légaux ; l\'indice propose un coup.</string>
+    <string name="game_coach_practice">Entraînement tranquille · indices et annulations gratuits. Ton classement ne change pas.</string>
+    <string name="game_coach_check">Ton général est en échec. Capture l\'attaquant, bloque l\'attaque ou déplace ton général.</string>
+    <string name="game_coach_thinking">Observe le coup de l\'adversaire, puis vérifie si tes pièces sont attaquées.</string>
+    <string name="game_coach_opening">Développe tes chevaux et tes chars. Protège tes pièces avant d\'attaquer.</string>
+    <string name="game_coach_selected">%1$s · Les cases surlignées sont des coups légaux.</string>
+    <string name="game_coach_blocked">Cette pièce n\'a aucun coup légal. Essaie-en une autre, ou utilise l\'indice.</string>
+    <string name="game_rule_rook">Les chars avancent tout droit sur les rangées ou colonnes libres</string>
+    <string name="game_rule_cannon">Les canons sautent exactement une pièce pour capturer</string>
+    <string name="game_rule_horse">Les chevaux se déplacent en L ; une jambe bloquée empêche le mouvement</string>
+    <string name="game_rule_elephant">Les éléphants avancent de deux cases en diagonale et restent sur leur camp</string>
+    <string name="game_rule_advisor">Les conseillers se déplacent d\'une case en diagonale dans le palais</string>
+    <string name="game_rule_king">Les généraux avancent d\'une case tout droit dans le palais</string>
+    <string name="game_rule_pawn">Les soldats avancent tout droit ; après avoir traversé la rivière, ils peuvent aussi se déplacer latéralement</string>
+    <string name="game_undo_no_penalty">Reprendre ton dernier coup ? L\'annulation ne retire aucun point de classement.</string>
+    <string name="game_practice_undone">Coup annulé. Essaie une autre idée.</string>
+    <string name="game_play_again">Rejouer</string>
+    <string name="game_try_easier">Essayer plus facile</string>
+    <string name="game_try_challenge">Puzzle du jour</string>
+    <string name="game_practice_result">%1$s\n\nEntraînement terminé. Ton classement est inchangé ; la partie est enregistrée pour analyse.</string>
+    <string name="game_practice_record_reason">Entraînement · %1$s</string>
+    <string name="daily_puzzle_title">Puzzle du jour</string>
+    <string name="daily_puzzle_date">%1$s · %2$s</string>
+    <string name="daily_puzzle_success">Puzzle du jour terminé !\n%1$d jours d\'entraînement · série de %2$d jours\n\nUne résolution par jour. Un nouveau puzzle arrive demain.</string>
+    <string name="daily_puzzle_expired">Puzzle résolu. Un nouveau jour a commencé ; le puzzle du jour t\'attend sur l\'écran d\'accueil.</string>
+    <string name="daily_puzzle_more">Plus de puzzles</string>
+    <string name="puzzle_clue">Indice</string>
+    <string name="puzzle_undo_unavailable">L\'annulation est indisponible pour cette position.</string>
+</resources>

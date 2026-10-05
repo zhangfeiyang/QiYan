@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 换边 -->
+    <string name="game_swap_campaign_locked">На восхождении стороны закреплены.</string>
+    <string name="game_swap_rated_title">Поменяться сторонами?</string>
+    <string name="game_swap_rated_message">Вы перейдёте к позиции, в которой играл ИИ. Партия станет тренировкой и не изменит ваш рейтинг.</string>
+    <string name="game_swap_rated_confirm">Поменяться и тренироваться</string>
+
+    <!-- 提示着法 -->
+    <string name="game_hint_chip">Подсказка · %1$s</string>
+
+    <!-- 结算页 -->
+    <string name="result_continuation_detail">Вы продолжили партию после результата, поэтому эта часть без рейтинга. В силе первый результат.</string>
+    <string name="result_resume">Продолжить игру</string>
+    <string name="result_review">Разобрать партию</string>
+    <string name="result_review_unavailable">Эта партия не сохранена, разбирать нечего.</string>
+
+    <!-- 残局速拼开赛说明 -->
+    <string name="puzzle_rush_intro_title">Три минуты. Сколько матов?</string>
+    <string name="puzzle_rush_intro_rules">• В каждой позиции первыми ходят Красные. Найдите мат.\n• Ошибочный ход или пропуск стоит жизни. Потеряете все три — гонка закончится.\n• Позиции становятся сложнее по мере роста счёта.</string>
+    <string name="puzzle_rush_intro_best">Ваш рекорд: %1$d</string>
+    <string name="puzzle_rush_intro_first">Рекорда пока нет. Установите первый.</string>
+    <string name="puzzle_rush_prompt_short">Ход Красных · %1$s</string>
+
+    <!-- 设置 -->
+    <string name="settings_engine_advanced">Продвинутые · движок ИИ</string>
+
+    <!-- 杀法宝典 -->
+    <string name="tactic_academy_banner_count">Классических матовых схем: %1$d</string>
+
+    <!-- 定级 -->
+    <string name="rank_placement_name">Калибровка</string>
+    <string name="rank_placement_chip">Калибровка %1$d/%2$d</string>
+    <string name="rank_placement_progress">Калибровка %1$d/%2$d · до первой печати ещё %3$d</string>
+    <string name="result_placement_progress">Калибровочная партия %1$d из %2$d сыграна. До открытия первой печати — ещё %3$d.</string>
+    <string name="result_placement_done">Калибровка завершена. Ваша первая печать: %1$s</string>
+    <string name="rank_hall_placement">Калибровка: сыграно %1$d из %2$d рейтинговых партий. Первая печать откроется после %2$d-й партии.</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 換邊 -->
+    <string name="game_swap_campaign_locked">登峰棋路執子固定，不能換邊。</string>
+    <string name="game_swap_rated_title">換邊？</string>
+    <string name="game_swap_rated_message">換邊後你將接手 AI 下出的局面。本局轉為練習，不再計入棋力分。</string>
+    <string name="game_swap_rated_confirm">換邊練習</string>
+
+    <!-- 提示著法 -->
+    <string name="game_hint_chip">提示 · %1$s</string>
+
+    <!-- 結算頁 -->
+    <string name="result_continuation_detail">結算後續下的部分不計分，本局成績以第一次終局為準。</string>
+    <string name="result_resume">繼續對局</string>
+    <string name="result_review">覆盤本局</string>
+    <string name="result_review_unavailable">本局沒有儲存，無法覆盤。</string>
+
+    <!-- 殘局速拼開賽說明 -->
+    <string name="puzzle_rush_intro_title">三分鐘，你能破幾局？</string>
+    <string name="puzzle_rush_intro_rules">• 每題都是紅先，找出殺棋。\n• 走錯或跳過都會扣一顆心，三顆心用完即結束。\n• 得分越高，題目越難。</string>
+    <string name="puzzle_rush_intro_best">你的最佳：%1$d 局</string>
+    <string name="puzzle_rush_intro_first">還沒有紀錄，來創下第一個吧。</string>
+    <string name="puzzle_rush_prompt_short">紅先 · %1$s</string>
+
+    <!-- 設定 -->
+    <string name="settings_engine_advanced">高級 · AI 引擎</string>
+
+    <!-- 殺法寶典 -->
+    <string name="tactic_academy_banner_count">象棋經典殺法 · %1$d 式</string>
+
+    <!-- 定級 -->
+    <string name="rank_placement_name">定級中</string>
+    <string name="rank_placement_chip">定級賽 %1$d/%2$d</string>
+    <string name="rank_placement_progress">定級 %1$d/%2$d · 再下 %3$d 盤計分對局，領取首枚段位印</string>
+    <string name="result_placement_progress">定級賽 %1$d/%2$d 完成，再下 %3$d 盤即可揭曉首枚段位印。</string>
+    <string name="result_placement_done">定級完成！你的首枚段位印：%1$s</string>
+    <string name="rank_hall_placement">定級中：已下 %1$d/%2$d 盤計分對局，下滿 %2$d 盤揭曉首枚段位印。</string>
+</resources>
