@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "تقرأ الكاميرا رقعة حقيقية للتعرف على الوضع واقتراح نقلة. لا يُسجَّل أي شيء ولا يُرفع.";
+"NSMicrophoneUsageDescription" = "يتيح لك الميكروفون نطق النقلة بالتدوين الصيني، مثل «炮二平五».";
+"NSSpeechRecognitionUsageDescription" = "يحوّل التعرف على الكلام ما تقوله إلى نقلة، ويعمل على الجهاز عند توفره.";
+"NSPhotoLibraryUsageDescription" = "اختر صورة أو لقطة شاشة لرقعة للتعرف على الوضع.";

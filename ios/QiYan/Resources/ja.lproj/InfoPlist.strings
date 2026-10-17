@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "カメラで実物の盤面を読み取り、局面を認識して次の一手を提案します。映像は録画もアップロードもされません。";
+"NSMicrophoneUsageDescription" = "マイクで「炮二平五」のように中国式棋譜で指し手を話せます。";
+"NSSpeechRecognitionUsageDescription" = "音声認識で話した内容を指し手に変換します。対応端末では端末内で処理します。";
+"NSPhotoLibraryUsageDescription" = "盤面の写真やスクリーンショットを選んで局面を認識します。";

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "Camera đọc bàn cờ thật để nhận diện thế cờ và gợi ý nước đi. Không có gì được ghi lại hay tải lên.";
+"NSMicrophoneUsageDescription" = "Micrô cho phép bạn đọc nước đi theo ký hiệu Trung Quốc, ví dụ \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "Nhận dạng giọng nói chuyển lời bạn nói thành nước đi, xử lý ngay trên máy khi được hỗ trợ.";
+"NSPhotoLibraryUsageDescription" = "Chọn ảnh hoặc ảnh chụp màn hình bàn cờ để nhận diện thế cờ.";

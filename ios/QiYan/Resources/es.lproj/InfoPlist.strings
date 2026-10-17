@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "La cámara lee un tablero real para reconocer la posición y sugerir una jugada. No se graba ni se sube nada.";
+"NSMicrophoneUsageDescription" = "El micrófono te permite dictar una jugada en notación china, como \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "El reconocimiento de voz convierte lo que dices en una jugada. Se procesa en el dispositivo cuando es posible.";
+"NSPhotoLibraryUsageDescription" = "Elige una foto o captura de un tablero para reconocer la posición.";

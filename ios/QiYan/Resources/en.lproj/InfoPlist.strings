@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "The camera reads a real chessboard so QiYan can recognize the position and suggest a move. Nothing is recorded or uploaded.";
+"NSMicrophoneUsageDescription" = "The microphone lets you say a move in Chinese notation, such as \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "Speech recognition turns what you say into a move. It runs on this device when supported.";
+"NSPhotoLibraryUsageDescription" = "Choose a photo or screenshot of a board so QiYan can recognize the position.";

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "กล้องอ่านกระดานจริงเพื่อจดจำตำแหน่งและแนะนำตาเดิน ไม่มีการบันทึกหรืออัปโหลดภาพใด ๆ";
+"NSMicrophoneUsageDescription" = "ไมโครโฟนช่วยให้พูดตาเดินแบบสัญลักษณ์จีนได้ เช่น \"炮二平五\"";
+"NSSpeechRecognitionUsageDescription" = "การรู้จำเสียงแปลงสิ่งที่คุณพูดเป็นตาเดิน และประมวลผลบนเครื่องเมื่อรองรับ";
+"NSPhotoLibraryUsageDescription" = "เลือกรูปถ่ายหรือภาพหน้าจอของกระดานเพื่อจดจำตำแหน่ง";

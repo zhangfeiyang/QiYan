@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "棋眼";
+"NSCameraUsageDescription" = "相机用来看懂实体棋盘、识别局面并给出支招。画面不会被录制或上传。";
+"NSMicrophoneUsageDescription" = "麦克风用于语音走子，比如说「炮二平五」。";
+"NSSpeechRecognitionUsageDescription" = "语音识别把你说的话转成着法；设备支持时在本机完成。";
+"NSPhotoLibraryUsageDescription" = "从相册选一张棋局照片或截图，用来识别局面。";

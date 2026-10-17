@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "카메라로 실제 장기판을 읽어 국면을 인식하고 수를 제안합니다. 영상은 녹화되거나 업로드되지 않습니다.";
+"NSMicrophoneUsageDescription" = "마이크로 「炮二平五」처럼 중국식 기보로 수를 말할 수 있습니다.";
+"NSSpeechRecognitionUsageDescription" = "음성 인식으로 말한 내용을 수로 바꿉니다. 지원되는 기기에서는 기기 안에서 처리됩니다.";
+"NSPhotoLibraryUsageDescription" = "장기판 사진이나 스크린샷을 골라 국면을 인식합니다.";

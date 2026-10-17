@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "Kamera gerçek bir tahtayı okuyarak konumu tanır ve hamle önerir. Hiçbir şey kaydedilmez veya yüklenmez.";
+"NSMicrophoneUsageDescription" = "Mikrofon, \"炮二平五\" gibi Çin notasyonuyla hamle söylemenizi sağlar.";
+"NSSpeechRecognitionUsageDescription" = "Konuşma tanıma söylediklerinizi hamleye çevirir. Mümkünse cihazda çalışır.";
+"NSPhotoLibraryUsageDescription" = "Konumu tanımak için bir tahtanın fotoğrafını veya ekran görüntüsünü seçin.";

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "La fotocamera legge una scacchiera reale per riconoscere la posizione e suggerire una mossa. Nulla viene registrato o caricato.";
+"NSMicrophoneUsageDescription" = "Il microfono ti permette di dettare una mossa in notazione cinese, come \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "Il riconoscimento vocale trasforma ciò che dici in una mossa. Avviene sul dispositivo quando possibile.";
+"NSPhotoLibraryUsageDescription" = "Scegli una foto o uno screenshot di una scacchiera per riconoscere la posizione.";

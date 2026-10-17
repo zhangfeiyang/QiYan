@@ -1,0 +1,7 @@
+build/
+.build/
+Vendor/
+QiYan/Resources/Models/
+*.xcuserstate
+xcuserdata/
+__pycache__/

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "Kamera membaca papan sungguhan untuk mengenali posisi dan menyarankan langkah. Tidak ada yang direkam atau diunggah.";
+"NSMicrophoneUsageDescription" = "Mikrofon memungkinkan Anda mengucapkan langkah dalam notasi Tionghoa, seperti \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "Pengenalan suara mengubah ucapan Anda menjadi langkah. Diproses di perangkat bila didukung.";
+"NSPhotoLibraryUsageDescription" = "Pilih foto atau tangkapan layar papan untuk mengenali posisi.";

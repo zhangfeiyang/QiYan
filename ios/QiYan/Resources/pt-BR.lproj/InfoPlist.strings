@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "A câmera lê um tabuleiro real para reconhecer a posição e sugerir um lance. Nada é gravado nem enviado.";
+"NSMicrophoneUsageDescription" = "O microfone permite dizer um lance em notação chinesa, como \"炮二平五\".";
+"NSSpeechRecognitionUsageDescription" = "O reconhecimento de fala transforma o que você diz em um lance. É feito no aparelho quando possível.";
+"NSPhotoLibraryUsageDescription" = "Escolha uma foto ou captura de tela de um tabuleiro para reconhecer a posição.";

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "L'appareil photo lit un vrai échiquier pour reconnaître la position et suggérer un coup. Rien n'est enregistré ni envoyé.";
+"NSMicrophoneUsageDescription" = "Le micro permet de dicter un coup en notation chinoise, comme « 炮二平五 ».";
+"NSSpeechRecognitionUsageDescription" = "La reconnaissance vocale transforme vos paroles en coup. Elle s'exécute sur l'appareil lorsque c'est possible.";
+"NSPhotoLibraryUsageDescription" = "Choisissez une photo ou une capture d'un échiquier pour reconnaître la position.";

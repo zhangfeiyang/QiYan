@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "QiYan";
+"NSCameraUsageDescription" = "Die Kamera liest ein echtes Brett, erkennt die Stellung und schlägt einen Zug vor. Es wird nichts aufgezeichnet oder hochgeladen.";
+"NSMicrophoneUsageDescription" = "Mit dem Mikrofon sagst du Züge in chinesischer Notation an, etwa „炮二平五“.";
+"NSSpeechRecognitionUsageDescription" = "Die Spracherkennung macht aus dem Gesagten einen Zug. Wenn möglich läuft sie auf dem Gerät.";
+"NSPhotoLibraryUsageDescription" = "Wähle ein Foto oder einen Screenshot eines Bretts, um die Stellung zu erkennen.";
