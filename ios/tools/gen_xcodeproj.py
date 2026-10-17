@@ -22,7 +22,7 @@ UI = "QiYanUITests"
 BUNDLE_ID = "com.zhangfeiyang.qiyan"         # com.zhongguoxiangqi (Android) is taken on the App Store
 TEAM_ID = "LSAZF25AG8"
 MARKETING_VERSION = "1.0"
-BUILD_NUMBER = "1"                     # bump for every App Store Connect upload
+BUILD_NUMBER = "3"                     # bump for every App Store Connect upload
 DEPLOYMENT_TARGET = "17.0"
 
 REGIONS = ["en", "Base", "zh-Hans", "zh-Hant", "ja", "ko", "es", "pt-BR", "fr", "de", "it",

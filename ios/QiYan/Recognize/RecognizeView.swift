@@ -141,21 +141,30 @@ struct RecognizeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
             }
-            HStack(spacing: 10) {
-                Button { showLevels = true } label: {
-                    HStack(spacing: 4) {
-                        Text(L("advice_level_current", L(vm.adviceLevel.labelKey))).lineLimit(1).minimumScaleFactor(0.8)
-                        Image("ic_chevron_down").renderingMode(.template).resizable().frame(width: 14, height: 14)
-                    }
-                }
-                .buttonStyle(OutlineButtonStyle(height: 50))
-                .fixedSize()
-                Button { vm.requestAdvice() } label: { Label(L("recognize_advise"), image: "ic_ai") }
-                    .buttonStyle(GoldButtonStyle(height: 50))
-                    .disabled(vm.thinking)
+            // 长语言 (俄/阿…) 两个按钮放不下一行就上下排, 不让字折成三行
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { levelButton.fixedSize(); adviseButton }
+                VStack(spacing: 8) { levelButton; adviseButton }
             }
             .padding(.horizontal, 16).padding(.bottom, 8)
         }
+    }
+
+    private var levelButton: some View {
+        Button { showLevels = true } label: {
+            HStack(spacing: 4) {
+                Text(L("advice_level_current", L(vm.adviceLevel.labelKey))).lineLimit(1)
+                Image("ic_chevron_down").renderingMode(.template).resizable().frame(width: 14, height: 14)
+            }
+        }
+        .buttonStyle(OutlineButtonStyle(height: 46, fullWidth: true))
+    }
+
+    private var adviseButton: some View {
+        Button { vm.requestAdvice() } label: { Label(L("recognize_advise"), image: "ic_ai").lineLimit(1) }
+            .buttonStyle(GoldButtonStyle(height: 50))
+            .disabled(vm.thinking)
+            .accessibilityIdentifier("advise")
     }
 
     private func tray(red: Bool) -> some View {

@@ -239,6 +239,7 @@ struct GameView: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .accessibilityIdentifier(icon)
     }
 
     private var toolbar: some View {

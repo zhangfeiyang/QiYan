@@ -187,5 +187,47 @@ final class QiYanUITests: XCTestCase {
         }
         XCTAssertEqual(failures, [])
     }
+
+    /// 商店截图 (6.9 寸模拟器跑, 每种语言一套): 首页 / 对局+提示 / 拍照识局+支招 / 复盘 / 残局 / 闯关 / 杀法
+    func testStoreShots() {
+        let env = ProcessInfo.processInfo.environment
+        let tag = lang
+        launch()
+        wait(3)
+        shot("\(tag)_1_home")
+
+        launch(["-openRoute", "game", "-openLevel", "5", "-openFen",
+                "rn2kabn1/4ar3/2c1b2c1/p3C1p1p/9/4P4/P1p1N1P1P/BC7/9/RN1AKABR1 w - - 5 9"])
+        wait(4)
+        app.buttons["ic_hint"].firstMatch.tap()
+        wait(4)
+        shot("\(tag)_2_game")
+
+        if let image = env["QY_IMAGE"] {
+            launch(["-openRoute", "recognize", "-recognizeFile", image])
+            wait(12)
+            app.buttons["advise"].firstMatch.tap()
+            wait(4)
+            shot("\(tag)_3_recognize")
+        }
+
+        launch(["-openRoute", "replayDemo"])
+        wait(3)
+        for _ in 0..<22 { app.buttons["ic_next"].firstMatch.tap() }
+        wait(1.5)
+        shot("\(tag)_4_replay")
+
+        launch(["-openRoute", "puzzles"])
+        wait(2.5)
+        shot("\(tag)_5_puzzles")
+
+        launch(["-openRoute", "campaign"])
+        wait(2.5)
+        shot("\(tag)_6_campaign")
+
+        launch(["-openRoute", "tactics"])
+        wait(2.5)
+        shot("\(tag)_7_tactics")
+    }
 }
 

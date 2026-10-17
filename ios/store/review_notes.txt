@@ -1,0 +1,11 @@
+QiYan (棋眼) is a free, open-source Chinese Chess (Xiangqi) app. No account or login is needed and the app never connects to the internet: the game engine, board recognition and voice moves all run on the device.
+
+How to try the main features:
+1. Home → "轻松下一盘 / Play" starts a game against the engine (PikaFish, GPL-3). Tap a piece, then a highlighted point to move; "提示 / Hint" draws the suggested move.
+2. Home → "拍照识别棋局 / Scan board" → take a photo or pick an image of a real board. The recognized position can be corrected with the piece trays, then "支招 / Advice" shows the engine's move. The attached screen recording shows this flow on a real board.
+3. Home → "实时支招 / Live advice" keeps the camera on a real board and draws the best move on the preview (needs a physical board; see the recording).
+4. Puzzles, rush mode, tactics, the campaign map and game review are all reachable from the home screen.
+
+Permissions: camera (board recognition, processed on device and never uploaded), microphone and speech recognition (voice moves, only after tapping the microphone). The photo picker is used for images, so no photo library permission is requested.
+
+Open source: the app is licensed under GNU GPL v3 and its complete source code, including this iOS version, is public at https://github.com/zhangfeiyang/QiYan (see Settings → Open-source licenses in the app).

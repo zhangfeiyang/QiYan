@@ -39,9 +39,7 @@ struct ReplayListView: View {
 private struct RecordRow: View {
     let record: GameRecord
     private static let date: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "MM-dd HH:mm"
-        return f
+        DateFormatter.fixed("MM-dd HH:mm")
     }()
 
     var body: some View {

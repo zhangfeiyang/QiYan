@@ -27,6 +27,9 @@ struct QiYanApp: App {
             .task {
                 // 截图/UI 测试: -openRoute game|newGame|settings|... 直接打开某一页
                 if let name = UserDefaults.standard.string(forKey: "openRoute"), let r = Route.named(name) { router.go(r) }
+                #if DEBUG
+                if UserDefaults.standard.string(forKey: "openRoute") == "replayDemo" { router.go(.replay(DemoData.seedReplay())) }
+                #endif
             }
         }
     }
@@ -119,3 +122,20 @@ final class Router: ObservableObject {
 
     func popToRoot() { path = NavigationPath() }
 }
+
+#if DEBUG
+/// 商店截图用的演示数据 (只在调试版里): 一盘 PikaFish 自对弈的棋谱
+enum DemoData {
+    static let moves = "c3c4 b7c7 h2e2 c9e7 h0g2 c6c5 i0h0 c5c4 c0a2 i9i8 e2e6 d9e8 e3e4 i8f8 g2e3 c4c3 e4e5 f8f3 b0d1 b9d8 e6i6 h9i7 f0e1 f3g3 e5e6 c3c2 b2b3 g3g5 e6e7 g9e7 e3c2 g5i5 b3b6 d8c6 i6c6 i7h5 h0i0 h5f4"
+        .split(separator: " ").map(String.init)
+
+    static func seedReplay() -> Int64 {
+        if let r = GameStore.shared.records.first(where: { $0.moves == moves }) { return r.id }
+        let start = Date().addingTimeInterval(-3600)
+        return GameStore.shared.save(GameRecord(id: 0, startTime: start, endTime: start.addingTimeInterval(1500), playerSide: Side.red,
+                                                difficulty: 5, engineElo: DifficultySettings.nominalElo(5), result: 1, ratingDelta: 18,
+                                                playerRating: 1620, moves: moves, initialFen: Position.startFen, endReason: L("status_resign")))
+    }
+}
+#endif
+

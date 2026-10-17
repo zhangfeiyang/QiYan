@@ -10,8 +10,7 @@ struct ReplayViewerView: View {
     @StateObject private var toaster = Toaster()
     @State private var share: ShareItem?
     private static let date: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd HH:mm"
+        let f = DateFormatter.fixed("yyyy-MM-dd HH:mm")
         return f
     }()
 
@@ -65,7 +64,7 @@ struct ReplayViewerView: View {
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
             Text(L("replay_player_info", r.difficulty, L(UserRank.fromRating(r.playerRating).nameKey), r.moves.count))
-                .font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                .font(.system(size: 12)).foregroundStyle(Theme.textSecondary).lineLimit(1).minimumScaleFactor(0.7)
         }
         .padding(.horizontal, 16)
         .frame(height: 40)
@@ -93,43 +92,74 @@ struct ReplayViewerView: View {
     }
 
     @ViewBuilder private var details: some View {
-        HStack(spacing: 8) {
+        // 一行放得下就一行; 长语言 (俄/德/泰…) 退成两行, 不能把整页撑宽
+        Group {
             if vm.variation {
-                Text(vm.variationText).font(.system(size: 12)).foregroundStyle(Theme.textPrimary).lineLimit(2)
-                Spacer(minLength: 4)
-                Button(L("replay_variation_undo")) { vm.undoVariation() }
-                    .buttonStyle(OutlineButtonStyle(height: 32)).disabled(vm.variationCount == 0)
-                    .opacity(vm.variationCount == 0 ? 0.5 : 1)
-                Button(L("replay_variation_exit")) { vm.exitVariation() }.buttonStyle(OutlineButtonStyle(height: 32))
-            } else {
-                Text(vm.moveLine).font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.textPrimary).lineLimit(1)
-                    .fixedSize()
-                if let q = vm.quality {
-                    Text("\(q.symbol) \(L(q.labelKey))").font(.system(size: 11, weight: .bold)).foregroundStyle(Color(hex: q.color))
-                        .padding(.horizontal, 6).padding(.vertical, 2)
-                        .overlay(Capsule().stroke(Color(hex: q.color).opacity(0.6), lineWidth: 1))
-                        .fixedSize()
-                }
-                if let o = vm.opening {
-                    Text(L("opening_chip", Names.opening(o))).font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
-                        .lineLimit(1).layoutPriority(-1)
-                }
-                Spacer(minLength: 4)
-                Text(vm.winRateText).font(.system(size: 12)).foregroundStyle(Theme.textSecondary).fixedSize()
-                Button { vm.enterVariation() } label: {
-                    HStack(spacing: 4) {
-                        Image("ic_edit").renderingMode(.template).resizable().frame(width: 13, height: 13)
-                        Text(L("replay_try_variation")).font(.system(size: 12, weight: .bold))
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) { variationText; Spacer(minLength: 4); variationButtons }
+                    VStack(alignment: .leading, spacing: 6) {
+                        variationText
+                        HStack(spacing: 8) { Spacer(minLength: 0); variationButtons }
                     }
                 }
-                .buttonStyle(OutlineButtonStyle(height: 30))
-                .fixedSize()
-                .accessibilityLabel(L("replay_try_variation"))
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) { moveInfo; Spacer(minLength: 4); winRate; tryButton }
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) { moveInfo }
+                        HStack(spacing: 8) { winRate; Spacer(minLength: 4); tryButton }
+                    }
+                }
             }
         }
-        .padding(.horizontal, 16)
-        .frame(minHeight: 56)
+        .padding(.horizontal, 16).padding(.vertical, 6)
+        .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
         .background(Theme.surfaceRaised.opacity(0.4))
+    }
+
+    private var variationText: some View {
+        Text(vm.variationText).font(.system(size: 12)).foregroundStyle(Theme.textPrimary).lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    @ViewBuilder private var variationButtons: some View {
+        Button(L("replay_variation_undo")) { vm.undoVariation() }
+            .buttonStyle(OutlineButtonStyle(height: 32)).disabled(vm.variationCount == 0)
+            .opacity(vm.variationCount == 0 ? 0.5 : 1)
+            .fixedSize()
+        Button(L("replay_variation_exit")) { vm.exitVariation() }.buttonStyle(OutlineButtonStyle(height: 32))
+            .fixedSize()
+    }
+
+    @ViewBuilder private var moveInfo: some View {
+        Text(vm.moveLine).font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.textPrimary).lineLimit(1)
+            .fixedSize()
+        if let q = vm.quality {
+            Text("\(q.symbol) \(L(q.labelKey))").font(.system(size: 11, weight: .bold)).foregroundStyle(Color(hex: q.color))
+                .padding(.horizontal, 6).padding(.vertical, 2)
+                .overlay(Capsule().stroke(Color(hex: q.color).opacity(0.6), lineWidth: 1))
+                .fixedSize()
+        }
+        if let o = vm.opening {
+            Text(L("opening_chip", Names.opening(o))).font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                .lineLimit(1).layoutPriority(-1)
+        }
+    }
+
+    private var winRate: some View {
+        Text(vm.winRateText).font(.system(size: 12)).foregroundStyle(Theme.textSecondary).fixedSize()
+    }
+
+    private var tryButton: some View {
+        Button { vm.enterVariation() } label: {
+            HStack(spacing: 4) {
+                Image("ic_edit").renderingMode(.template).resizable().frame(width: 13, height: 13)
+                Text(L("replay_try_variation")).font(.system(size: 12, weight: .bold))
+            }
+        }
+        .buttonStyle(OutlineButtonStyle(height: 30))
+        .fixedSize()
+        .accessibilityLabel(L("replay_try_variation"))
     }
 
     private var controls: some View {
@@ -162,6 +192,7 @@ struct ReplayViewerView: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .accessibilityIdentifier(icon)
     }
 
     // MARK: Export
@@ -365,11 +396,7 @@ extension Array {
 
 /// 棋谱导出 (标准 PGN 与分享战报), 与安卓 PgnExporter 同格式
 enum PgnExporter {
-    private static func fmt(_ f: String) -> DateFormatter {
-        let d = DateFormatter()
-        d.dateFormat = f
-        return d
-    }
+    private static func fmt(_ f: String) -> DateFormatter { DateFormatter.fixed(f) }
 
     private static func result(_ r: GameRecord) -> String {
         switch r.result {
@@ -420,3 +447,15 @@ enum PgnExporter {
         return s.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+
+extension DateFormatter {
+    /// 固定格式的日期: 公历 + POSIX, 不随地区换成佛历/和历
+    static func fixed(_ format: String) -> DateFormatter {
+        let f = DateFormatter()
+        f.calendar = Calendar(identifier: .gregorian)
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = format
+        return f
+    }
+}
+

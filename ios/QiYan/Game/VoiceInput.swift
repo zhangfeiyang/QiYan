@@ -9,14 +9,17 @@ final class VoiceInput: ObservableObject {
     /// 最近一次识别出的整句
     @Published private(set) var recognized: String?
 
-    private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN"))
-    private let audio = AVAudioEngine()
+    // 识别器和录音引擎都等用户点了麦克风才建: 一建 SFSpeechRecognizer 就会去问语音服务 (国行会弹
+    // "允许使用无线数据"), 一碰 AVAudioEngine.inputNode 就会弹麦克风权限 —— 进出对局页都不该发生
+    private var recognizer: SFSpeechRecognizer?
+    private var audio: AVAudioEngine?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
     private var stopWork: DispatchWorkItem?
 
     func start(_ message: @escaping (String) -> Void) {
         if listening { cancel(); return }
+        if recognizer == nil { recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN")) }
         guard let recognizer, recognizer.isAvailable else { message(L("voice_unavailable")); return }
         SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
@@ -46,6 +49,8 @@ final class VoiceInput: ObservableObject {
         req.shouldReportPartialResults = false
         if recognizer.supportsOnDeviceRecognition { req.requiresOnDeviceRecognition = true }
         request = req
+        let audio = self.audio ?? AVAudioEngine()
+        self.audio = audio
         let input = audio.inputNode
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { buffer, _ in
@@ -74,8 +79,10 @@ final class VoiceInput: ObservableObject {
 
     private func finish() {
         stopWork?.cancel()
-        audio.stop()
-        audio.inputNode.removeTap(onBus: 0)
+        if let audio {
+            audio.stop()
+            audio.inputNode.removeTap(onBus: 0)
+        }
         request?.endAudio()
         request = nil
         task = nil
@@ -84,6 +91,8 @@ final class VoiceInput: ObservableObject {
     }
 
     func cancel() {
+        // 从没开过麦克风 (离开对局页时最常见) 就什么都不碰
+        guard listening || task != nil || request != nil else { return }
         task?.cancel()
         finish()
     }
